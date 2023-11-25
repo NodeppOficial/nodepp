@@ -2,8 +2,8 @@
 
 **Node++** is an innovative open source project that aims to make it easier to create applications in **C++**. This project introduces a high-level abstraction layer that allows developers to write **C++** code in a way that is similar to how they would write code in **NodeJS**. With **Node++**, developers can leverage the advantages of the **C++** language while benefiting from the ease of use and flexibility that **NodeJS** offers. This unique combination of features makes **Node++** a powerful tool for creating high-performance and scalable applications. Additionally, since it is an open source project, anyone can contribute and improve **Node++** to fit their specific needs.
 
-- **uNode++:** compatible with embed devices [here](https://github.com/NodeppOficial/Nodepp)
-- **Node++:** compatible with PC and esp32  [here](https://github.com/NodeppOficial/uNodepp)
+- **uNode++:** compatible with embed devices [here](https://github.com/NodeppOficial/UNodepp)
+- **Node++:** compatible with PC and esp32  [here](https://github.com/NodeppOficial/Nodepp)
 
 ## Dependencies
 - Openssl `sudo apt install libssl-dev`
