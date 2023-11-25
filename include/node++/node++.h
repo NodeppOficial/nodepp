@@ -37,11 +37,11 @@ namespace nodepp { namespace process {
     /*─······································································─*/
 
     int next(){
-        static uint x = 0; _Start x%=3;
+        static uint x = 0; _Start 
 
-        if( x == 0 ){ process::task::next(); x++; _Next; }
-        if( x == 1 ){ process::loop::next(); x++; _Next; }
-        if( x == 2 ){ process::poll::next(); x++; _Next; }
+        x = process::task::size(); while( x-->0 ){ process::task::next(); _Next; }
+        x = process::loop::size(); while( x-->0 ){ process::loop::next(); _Next; }
+        x = process::poll::size(); while( x-->0 ){ process::poll::next(); _Next; }
 
         #ifndef ARDUINO 
             process::delay( TIMEOUT ); 
