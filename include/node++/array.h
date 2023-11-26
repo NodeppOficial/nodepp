@@ -326,7 +326,7 @@ public:
 
         if( start < 0 ){ start = last() + start; }     if( end < 0 ){ end = last() + end; }
         if( (ulong)start > last() ){ start = last(); } if( (ulong)end > last() ){ end = last(); }
-        if( end < start ){ end = last(); }             if( end <= start ){ return { 0, 0 }; }
+        if( end < start ){ end = last(); }             if( start >= end ){ return { 0, 0 }; }
 
         ulong a = clamp( first() +   end, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
