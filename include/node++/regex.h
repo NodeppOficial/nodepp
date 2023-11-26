@@ -266,8 +266,8 @@ public:
     array_t<string_t> split( string_t _str ) const noexcept { ulong n = 0;
         auto idx = search_all( _str ); array_t<string_t> result;
         if( idx.empty() ) { return result; } for ( auto x : idx ) {
-            result.push( _str.slice( n, x[0] - 1 ) ); n = x[1];
-        }   result.push( _str.slice( n, _str.size() ) ); return result;
+            result.push( _str.slice( n, x[0] ) ); n = x[1];
+        }   result.push( _str.slice( n ) ); return result;
     }
     
     /*─······································································─*/
@@ -313,7 +313,7 @@ public:
     array_t<string_t> match_all( string_t _str ) const noexcept {
         auto idx = search_all( _str ); array_t<string_t> result;
         for( auto x : idx ){
-            result.push(_str.slice( x[0], x[1] - 1 ));
+            result.push(_str.slice( x[0], x[1] ));
         }   return result;
     }
     
@@ -323,7 +323,7 @@ public:
         auto idx = search( _str, s );
         if( idx == nullptr )  { return ""; }
         if( idx[0] == idx[1] ){ return ""; }
-            return _str.slice( idx[0], idx[1] - 1 );
+            return _str.slice( idx[0], idx[1] );
     }
     
     /*─······································································─*/

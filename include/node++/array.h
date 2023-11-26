@@ -307,14 +307,14 @@ public:
         
         if( empty() ){ return { 0, 0 }; }
         if( start < 0 ){ start = last() + start; }
-        if( (ulong)start > last() ){ start = last(); }
+        if( (ulong)start > last() ){ return ""; }
 
         ulong b = clamp( first() + start, 0UL, last() ); 
         ulong z = last() - b + 1;
+        ulong a = last();
 
-        auto n_buffer = ptr_t<T>(z);
-
-        for( ulong x=b,y=0; x<=last(); x++ ){ n_buffer[y++] = buffer[x]; }
+        auto n_buffer = ptr_t<T>(z); for( ulong x=b,y=0; x<=a; x++ )
+           { n_buffer[y++] = buffer[x]; }
         return n_buffer;
     }
     
@@ -322,19 +322,18 @@ public:
 
     array_t slice( long start, long end ) const noexcept {
         
-        if( empty() ){ return { 0, 0 }; }
+        if( empty() || start == end ){ return { 0, 0 }; } if( end>0 ){ end--; }
 
-        if( start < 0 ){ start = last() + start; }     if( end < 0 ){ end = last() + end; }
-        if( (ulong)start > last() ){ start = last(); } if( (ulong)end > last() ){ end = last(); }
-        if( end < start ){ end = last(); }             if( start >= end ){ return { 0, 0 }; }
+        if( start < 0 ){ start = last() + start; } if( end < 0 ){ end = last() + end; }
+        if( (ulong)end > last() ){ end = last(); } if( (ulong)start > last() ){ return {0,0}; }
+                                                   if( end < start )          { return {0,0}; }
 
         ulong a = clamp( first() +   end, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
         ulong z = a - b + 1;
 
-        auto n_buffer = ptr_t<T>(z);
-
-        for( ulong x=b,y=0; x<=a; x++ ){ n_buffer[y++] = buffer[x]; }
+        auto n_buffer = ptr_t<T>(z); for( ulong x=b,y=0; x<=a; x++ )
+           { n_buffer[y++] = buffer[x]; }
         return n_buffer;
     }
     
@@ -344,17 +343,16 @@ public:
         
         if( empty() || del == 0 ){ return { 0, 0 }; }
         
-        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ start = last(); }
+        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ return {0,0}; }
             del += start - 1;
-        if( del > last() ){ del = last(); } if( del <= (ulong)start ){ return { 0, 0 }; }
+        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return {0,0}; }
 
         ulong a = clamp( first() +   del, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
         ulong z = a - b + 1;
 
-        auto n_buffer = ptr_t<T>(z);
-
-        for( ulong x=b,y=0; x<=a; x++ ){ n_buffer[y++] = buffer[x]; }  
+        auto n_buffer = ptr_t<T>(z); for( ulong x=b,y=0; x<=a; x++ )
+           { n_buffer[y++] = buffer[x]; }
         erase( b, a ); return n_buffer;
     }
 
@@ -363,17 +361,16 @@ public:
         
         if( empty() || del == 0 ){ return { 0, 0 }; }
         
-        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ start = last(); }
+        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ return {0,0}; }
             del += start - 1; 
-        if( del > last() ){ del = last(); } if( del <= (ulong)start ){ return { 0, 0 }; }
+        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return { 0, 0 }; }
 
         ulong a = clamp( first() +   del, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
         ulong z = a - b + 1;
 
-        auto n_buffer = ptr_t<T>(z);
-
-        for( ulong x=b,y=0; x<=a; x++ ){ n_buffer[y++] = buffer[x]; }  
+        auto n_buffer = ptr_t<T>(z); for( ulong x=b,y=0; x<=a; x++ )
+           { n_buffer[y++] = buffer[x]; }
         erase( b, a ); insert( start, value ); return n_buffer;
     }
     

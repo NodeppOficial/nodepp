@@ -63,8 +63,8 @@ public:
             auto idx = init[1].index_of([]( char x ){ return x=='?'; });
               
             if( idx > 0 ){
-                path   = init[1].slice( 0,idx-1 );
-                search = init[1].slice( idx + 1 );
+                path   = init[1].slice( 0,idx );
+                search = init[1].slice(   idx );
                 query  = search_params::parse(search);
             } else {
                 path   = init[1];
@@ -77,8 +77,8 @@ public:
         }   _Next;
 
         do{ line = read_line(); idx = line.index_of([]( char x ){ return x==':'; });
-            if( idx < 0 ) break; a = line.slice( 0,idx-1 ).to_capital_case();
-                                 b = line.slice( idx + 1 ); headers[a] = b;
+            if( idx < 0 ) break; a = line.slice( 0,idx ).to_capital_case();
+                                 b = line.slice( idx+2 ); headers[a] = b;
         } while ( true ); _Return(0); _Goto(0);
 
     _Stop

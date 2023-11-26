@@ -190,21 +190,21 @@ public:
     /*─······································································─*/
 
     string_t read_line() const noexcept {
-        static auto gen = nodepp::_file_::line(); int c=0;
+        static auto gen = nodepp::_file_::line();
         while( gen( this ) == 1 )
              { process::next(); }
         return gen.y;
     }
 
     string_t read( ulong size=CHUNK_SIZE ) const noexcept {
-        static auto gen = nodepp::_file_::read(); int c=0;
+        static auto gen = nodepp::_file_::read();
         while( gen( this, size ) == 1 )
              { process::next(); }
         return gen.y;
     }
 
     ulong write( string_t msg ) const noexcept {
-        static auto gen = nodepp::_file_::write(); int c=0;
+        static auto gen = nodepp::_file_::write();
         while( gen( this, msg ) == 1 )
              { process::next(); }
         return gen.y;

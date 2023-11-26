@@ -24,16 +24,16 @@ namespace string {
     /*─······································································─*/
 
     ptr_t<char> buffer( ulong n ){ 
-        n++; auto b = ptr_t<char>( n, '\0' ); return b; 
+        auto b = ptr_t<char>( n+1, '\0' ); return b; 
     }
 
     ptr_t<char> buffer( const char* c, ulong n ){
-        n++; auto b = ptr_t<char>( n, '\0' );
+        auto b = ptr_t<char>( n+1, '\0' );
         while( n-->0 ){ b[n] = c[n]; } return b; 
     }
 
     ptr_t<char> buffer( ulong n, const char& c ){
-        n++; auto b = ptr_t<char>( n, '\0' ); 
+        auto b = ptr_t<char>( n+1, '\0' );
         while( n-->0 ){ b[n] = c; } return b; 
     }
 
@@ -92,8 +92,7 @@ public:
 
     /*─······································································─*/
 
-    char* end() const noexcept { return &buffer + size(); }
-
+    char*   end() const noexcept { return &buffer + size(); }
     char* begin() const noexcept { return &buffer; }
     
     /*─······································································─*/
@@ -300,14 +299,12 @@ public:
         
         if( empty() ){ return ""; }
         if( start < 0 ){ start = last() + start; }
-        if( (ulong)start > last() ){ start = last(); }
+        if( (ulong)start > last() ){ return ""; }
 
         ulong b = clamp( first() + start, 0UL, last() ); 
         ulong z = last() - b + 1;
 
-        auto n_buffer = string::buffer(z);
-
-        for( ulong x=b,y=0; x<=last(); x++ ){ n_buffer[y++] = buffer[x]; }
+        auto n_buffer = (string_t){ buffer.data()+start, z };
         return n_buffer;
     }
     
@@ -315,19 +312,17 @@ public:
     
     string_t slice( long start, long end ) const noexcept {
         
-        if( empty() ){ return ""; }
+        if( empty() || start == end ){ return ""; } if( end>0 ){ end--; }
 
-        if( start < 0 ){ start = last() + start; }      if( end < 0 ){ end = last() + end; }
-        if( (ulong)start > last() ){ start = last(); }  if( (ulong)end > last() ){ end = last(); }
-        if( end < start ){ end = last(); }              if( start >= end ){ return ""; }
+        if( start < 0 ){ start = last() + start; } if( end < 0 ){ end = last() + end; }
+        if( (ulong)end > last() ){ end = last(); } if( (ulong)start > last() ){ return ""; }  
+                                                   if( end < start )          { return ""; }
 
         ulong a = clamp( first() +   end, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
         ulong z = a - b + 1;
 
-        auto n_buffer = string::buffer(z);
-
-        for( ulong x=b,y=0; x<=a; x++ ){ n_buffer[y++] = buffer[x]; }
+        auto n_buffer = (string_t){ buffer.data()+start, z };
         return n_buffer;
     }
     
@@ -337,17 +332,15 @@ public:
         
         if( empty() || del == 0 ){ return ""; }
 
-        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ start = last(); }
+        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ return ""; }
             del += start - 1;
-        if( del > last() ){ del = last(); } if( del <= (ulong)start ){ return ""; }
+        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return ""; }
 
         ulong a = clamp( first() +   del, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
         ulong z = a - b + 1;
 
-        auto n_buffer = string::buffer(z);
-
-        for( ulong x=b,y=0; x<=a; x++ ){ n_buffer[y++] = buffer[x]; }  
+        auto n_buffer = (string_t){ buffer.data()+start, z };
         erase( b, a ); return n_buffer;
     }
 
@@ -356,17 +349,15 @@ public:
         
         if( empty() || del == 0 ){ return ""; }
 
-        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ start = last(); }
+        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ return ""; }
             del += start - 1; 
-        if( del > last() ){ del = last(); } if( del <= (ulong)start ){ return ""; }
+        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return ""; }
 
         ulong a = clamp( first() +   del, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
         ulong z = a - b + 1;
 
-        auto n_buffer = string::buffer(z);
-
-        for( ulong x=b,y=0; x<=a; x++ ){ n_buffer[y++] = buffer[x]; }  
+        auto n_buffer = (string_t){ buffer.data()+start, z };
         erase( b, a ); insert( start, value ); return n_buffer;
     }
     
