@@ -319,9 +319,7 @@ public:
 
         if( start < 0 ){ start = last() + start; }      if( end < 0 ){ end = last() + end; }
         if( (ulong)start > last() ){ start = last(); }  if( (ulong)end > last() ){ end = last(); }
-        if( end < start ){ end = last(); }
-
-        if( start > end ){ return ""; }
+        if( end < start ){ end = last(); }              if( end <= start ){ return ""; }
 
         ulong a = clamp( first() +   end, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
@@ -341,7 +339,7 @@ public:
 
         if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ start = last(); }
             del += start - 1;
-        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return ""; }
+        if( del > last() ){ del = last(); } if( del <= (ulong)start ){ return ""; }
 
         ulong a = clamp( first() +   del, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
@@ -360,7 +358,7 @@ public:
 
         if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ start = last(); }
             del += start - 1; 
-        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return ""; }
+        if( del > last() ){ del = last(); } if( del <= (ulong)start ){ return ""; }
 
         ulong a = clamp( first() +   del, 0UL, last() );
         ulong b = clamp( first() + start, 0UL, a ); 
@@ -396,11 +394,8 @@ public:
     /*─······································································─*/
 
     explicit operator char* (void) const noexcept { return empty() ? (char*)"" : &buffer; }
-
-          char* data() const noexcept { return empty() ? (char*)"" : &buffer; }
-
+          char*  data() const noexcept { return empty() ? (char*)"" : &buffer; }
     const char* c_str() const noexcept { return empty() ? "" : &buffer; }
-
     explicit operator bool(void) const noexcept { return empty(); }
     
 };

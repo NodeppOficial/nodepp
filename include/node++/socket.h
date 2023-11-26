@@ -312,17 +312,17 @@ public:
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } int c = 0; if( SOCK == SOCK_STREAM ){
-            return is_blocked(c=::recv( obj->fd, bf, sx, MSG_DONTWAIT )) ? -2 : c;
+            return is_blocked(c=::recv( obj->fd, bf, sx, 0 )) ? -2 : c;
         } else { SOCKADDR* cli; if( skt->srv==1 ) cli = &skt->client_addr; else cli = &skt->server_addr;
-            return is_blocked(c=::recvfrom( obj->fd, bf, sx, MSG_DONTWAIT, cli, &skt->len )) ? -2 : c;
+            return is_blocked(c=::recvfrom( obj->fd, bf, sx, 0, cli, &skt->len )) ? -2 : c;
         }   return -1;
     }
     
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } int c = 0; if( SOCK == SOCK_STREAM ){
-            return is_blocked(c=::send( obj->fd, bf, sx, MSG_DONTWAIT )) ? -2 : c;
+            return is_blocked(c=::send( obj->fd, bf, sx, 0 )) ? -2 : c;
         } else { SOCKADDR* cli; if( skt->srv==1 ) cli = &skt->client_addr; else cli = &skt->server_addr;
-            return is_blocked(c=::sendto( obj->fd, bf, sx, MSG_DONTWAIT, cli, skt->len )) ? -2 : c;
+            return is_blocked(c=::sendto( obj->fd, bf, sx, 0, cli, skt->len )) ? -2 : c;
         }   return -1;
     } 
     
