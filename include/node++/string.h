@@ -212,14 +212,15 @@ public:
     /*─······································································─*/
 
     void unshift( char value ) noexcept { insert( first(), value ); }
-    void push( char value ) noexcept { insert( size(), value ); }
-    void shift() noexcept { erase( first() ); }
-    void pop() noexcept { erase( size() ); }
+    void    push( char value ) noexcept { insert( size(), value ); }
+    void               shift() noexcept { erase( first() ); }
+    void                 pop() noexcept { erase( size() ); }
     
     /*─······································································─*/
 
     void clear() noexcept { buffer.reset(); }
     void erase() noexcept { buffer.reset(); }
+    void  free() noexcept { buffer.reset(); }
     
     /*─······································································─*/
 
