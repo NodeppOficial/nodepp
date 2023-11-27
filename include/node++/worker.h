@@ -36,7 +36,7 @@ public:
     }
 
     virtual ~mutex_t() noexcept {
-        if( mutex.count() >= 1 ){ return; }
+        if( mutex.count() > 1 ){ return; }
             pthread_mutex_destroy(&mutex);
     }
 
