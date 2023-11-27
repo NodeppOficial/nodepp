@@ -21,11 +21,11 @@
 - Open source project, meaning anyone can contribute and improve it
 - Has extensive documentation and an active community of developers willing to help
 
-## Installation
 
-```bash
-  g++ -o main main.cpp -I ./include ; ./main
-```
+## Compile
+``gcc -o main main.cpp -lstdc++ -I ./include ; ./main``
+
+``g++ -o main main.cpp -I ./include ; ./main``
 
 ## Usage
 
