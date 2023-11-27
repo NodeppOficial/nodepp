@@ -9,7 +9,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace worker {
-    void delay( ulong time ){ nodepp::process::delay(time); }
+    void delay( ulong time ){ process::delay(time); }
     int    pid(){ return (int)pthread_self(); }
     void  exit(){ pthread_exit(NULL); }
     void yield(){ pthread_yield(); }
