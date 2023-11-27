@@ -9,15 +9,14 @@ void _Ready(){
 
     fetch::https({
         .ssl = &ssl,
-        .url = "https://localhost:8000/404",
+        .url = "https://www.google.com/",
     })
 
     .then([]( auto cli ){
         console::log( cli.headers["Host"] );
         cli.onData([]( string_t chunk ){
             console::log( chunk.size(), ":>", chunk );
-        });
-        stream::rawpipe( cli );
+        }); stream::pipe( cli );
     })
 
     .fail([]( auto err ){
