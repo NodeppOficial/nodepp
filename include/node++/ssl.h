@@ -136,7 +136,7 @@ public:
     }
 
     ssl_t( string_t _key, string_t _cert, onSNI _func ){
-        this->ssl_t( _key, _cert, &_func );
+        *this=ssl_t( _key, _cert, &_func );
     }
 
     ssl_t() noexcept = default;
