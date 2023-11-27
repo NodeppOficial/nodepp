@@ -9,15 +9,15 @@ namespace nodepp {
 
 namespace string {
 
-    bool   is_hex( uchar c ){ return ( ( c>='0' && c<='9' ) || ( c>='A' && c<='F' ) || ( c>='a' && c<='f' ) ); }
+    bool   is_hex( uchar c ){ return ((c>='0' && c<='9') ||(c>='A' && c<='F' ) || ( c>='a' && c<='f' ) ); }
     bool is_space( uchar c ){ return ( c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\f' || c=='\v' ); }
-    bool is_alpha( uchar c ){ return ( ( c>='A' && c<='Z' ) || ( c>='a' && c<='z' ) ); }
+    bool is_alpha( uchar c ){ return ((c>='A' && c<='Z') ||(c>='a' && c<='z' ) ); }
     bool is_graph( uchar c ){ return ( c>=33 && c<=126 && c!=' ' ); }
     bool is_lower( uchar c ){ return ( c>='a' && c<='z' ); }
     bool is_upper( uchar c ){ return ( c>='A' && c<='Z' ); }
     bool is_digit( uchar c ){ return ( c>='0' && c<='9' ); }
-    bool is_print( uchar c ){ return ( c>=32 && c<=127 ); }
-    bool is_contr( uchar c ){ return ( c<32 || c==127 ); }
+    bool is_print( uchar c ){ return ( c>=32  && c<=127 ); }
+    bool is_contr( uchar c ){ return ( c< 32  || c==127 ); }
     bool  is_null( uchar c ){ return ( c=='\0' ); }
     bool is_ascii( uchar c ){ return ( c<=127 ); }
     
@@ -61,6 +61,34 @@ class string_t {
 protected: 
     
     ptr_t<char> buffer;
+
+    ptr_t<ulong> get_slice_range( long x, long y ) const noexcept {
+        
+        if( empty() || x == y ){ return nullptr; } if( y>0 ){ y--; }
+
+        if( x < 0 ){ x = last() + x; } if( (ulong)x > last() ){ return nullptr; }
+        if( y < 0 ){ y = last() + y; } if( (ulong)y > last() ){ y = last(); } 
+                                       if( y < x )        { return nullptr; }
+
+        ulong a = clamp( first() + y, 0UL, last() );
+        ulong b = clamp( first() + x, 0UL, a ); 
+        ulong c = a - b + 1; return {{ b, a, c }};
+
+    }
+
+    ptr_t<ulong> get_splice_range( long x, ulong y ) const noexcept {
+        
+        if( empty() || y == 0 ){ return nullptr; }
+
+        if( x < 0 ){ x = last() + x; } if( (ulong)x > last() ){ return nullptr; }
+            y += x - 1;
+        if( y > last() ){ y= last(); } if( y < (ulong)x ){ return nullptr; }
+
+        ulong a = clamp( first() + y, 0UL, last() );
+        ulong b = clamp( first() + x, 0UL, a ); 
+        ulong c = a - b + 1; return {{ b, a, c }};
+
+    }
     
 public:
     
@@ -227,8 +255,8 @@ public:
     void insert( ulong index, const char& value ) noexcept {
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = string::buffer( 1 ); buffer[0] = value; } 
-        else { index = index > size() ? size() : index; ulong n=size() + 1;
-            auto n_buffer = string::buffer(n); for( ulong x=0,i=0; x<n; x++ ){ 
+        else { ulong n=size() + 1; auto n_buffer = string::buffer(n); 
+            for( ulong x=0,i=0; x<n; x++ ){ 
                 if( x == index ){ n_buffer[x] = value; }
                 else { n_buffer[x] = buffer[i++]; }
             }   buffer = n_buffer;
@@ -238,8 +266,8 @@ public:
     void insert( ulong index, ulong N , char* value ) noexcept {
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = string::buffer( value, N ); } 
-        else { index = index > size() ? size() : index; ulong n=size() + N;
-            auto n_buffer = string::buffer(n); for( ulong x=0,i=0,p=0; x<n; x++ ){ 
+        else { ulong n=size() + N; auto n_buffer = string::buffer(n); 
+            for( ulong x=0,i=0,p=0; x<n; x++ ){ 
                 if( x>=index && x<index+N ){ n_buffer[x] = value[p++]; }
                 else { n_buffer[x] = buffer[i++]; }
             }   buffer = n_buffer;
@@ -249,8 +277,8 @@ public:
     void insert( ulong index, ulong N , const char& value ) noexcept {
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = string::buffer( N, value ); } 
-        else { index = index > size() ? size() : index; ulong n=size() + N;
-            auto n_buffer = string::buffer(n); for( ulong x=0,i=0; x<n; x++ ){ 
+        else { ulong n=size() + N; auto n_buffer = string::buffer(n); 
+            for( ulong x=0,i=0; x<n; x++ ){ 
                 if( x>=index && x<index+N ){ n_buffer[x] = value; }
                 else { n_buffer[x] = buffer[i++]; }
             }   buffer = n_buffer;
@@ -261,8 +289,8 @@ public:
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = string::buffer( value.size() ); 
             for( ulong i=0; i<value.size(); i++ ){ buffer[i] = value[i]; }
-        } else { index = index > size() ? size() : index; ulong n=size() + value.size();
-            auto n_buffer = string::buffer(n); for( ulong x=0,i=0,p=0; x<n; x++ ){ 
+        } else { ulong n=size() + value.size(); auto n_buffer = string::buffer(n); 
+            for( ulong x=0,i=0,p=0; x<n; x++ ){ 
                 if( x>=index && x<index+value.size() ){ n_buffer[x] = value[p++]; }
                 else { n_buffer[x] = buffer[i++]; }
             }   buffer = n_buffer;
@@ -274,23 +302,20 @@ public:
     void erase( ulong index ) noexcept {
 	    index = clamp( index, 0UL, last() );
         if( empty() ){ return; } else {
-            index = index >= size() ? last() : index;
             auto n_buffer = string::buffer( size() - 1 );
-            for( ulong i=0, j=0; i<size(); i++ ){
-                if( i != index ){ n_buffer[j] = buffer[i]; j++; }
-            }   buffer = n_buffer;
+            for( ulong i=0, j=0; i<size(); i++ ){ if( i != index )
+               { n_buffer[j] = buffer[i]; j++; }
+            }    buffer = n_buffer;
         }
     }
 
     void erase( ulong start, ulong end  ) noexcept {
-	    start = clamp( start, 0UL, last() ); 
-	    end   = clamp(   end, 0UL, last() );
-        if( empty() || start > end ){ return; } else {
-            if( start >= size() || end >= size() ) erase( last() );
-            auto n_buffer = string::buffer( size() - ( end - start ) - 1 );
-            for( ulong i=0, j=0; i<size(); i++ ){
-                if( i < start || i > end ){ n_buffer[j] = buffer[i]; j++; }
-            }   buffer = n_buffer;
+	    auto r = get_slice_range( start, end );
+         if( r == nullptr ){ return; } else {
+            auto n_buffer = string::buffer( size() - (r[1]-r[0]) - 1 );
+            for( ulong i=0, j=0; i<=last(); i++ ){ if( i<r[0] || i>r[1] )
+               { n_buffer[j] = buffer[i]; j++; }
+            }    buffer = n_buffer;
         }
     }
     
@@ -298,14 +323,10 @@ public:
     
     string_t slice( long start ) const noexcept {
         
-        if( empty() ){ return ""; }
-        if( start < 0 ){ start = last() + start; }
-        if( (ulong)start > last() ){ return ""; }
+        auto r = get_slice_range( start, last() );
+         if( r == nullptr ){ return ""; }
 
-        ulong b = clamp( first() + start, 0UL, last() ); 
-        ulong z = last() - b + 1;
-
-        auto n_buffer = (string_t){ buffer.data()+start, z };
+        auto n_buffer = (string_t){ buffer.data()+r[0], r[2] };
         return n_buffer;
     }
     
@@ -313,53 +334,32 @@ public:
     
     string_t slice( long start, long end ) const noexcept {
         
-        if( empty() || start == end ){ return ""; } if( end>0 ){ end--; }
+        auto r = get_slice_range( start, end );
+         if( r == nullptr ){ return ""; }
 
-        if( start < 0 ){ start = last() + start; } if( end < 0 ){ end = last() + end; }
-        if( (ulong)end > last() ){ end = last(); } if( (ulong)start > last() ){ return ""; }  
-                                                   if( end < start )          { return ""; }
-
-        ulong a = clamp( first() +   end, 0UL, last() );
-        ulong b = clamp( first() + start, 0UL, a ); 
-        ulong z = a - b + 1;
-
-        auto n_buffer = (string_t){ buffer.data()+start, z };
+        auto n_buffer = (string_t){ buffer.data()+r[0], r[2] };
         return n_buffer;
     }
     
     /*─······································································─*/
  
-    string_t splice( long start, ulong del ) noexcept { 
+    string_t splice( long start, ulong end ) noexcept { 
         
-        if( empty() || del == 0 ){ return ""; }
+        auto r = get_splice_range( start, end );
+         if( r == nullptr ){ return ""; }
 
-        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ return ""; }
-            del += start - 1;
-        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return ""; }
-
-        ulong a = clamp( first() +   del, 0UL, last() );
-        ulong b = clamp( first() + start, 0UL, a ); 
-        ulong z = a - b + 1;
-
-        auto n_buffer = (string_t){ buffer.data()+start, z };
-        erase( b, a ); return n_buffer;
+        auto n_buffer = (string_t){ buffer.data()+r[0], r[2] };
+        erase( r[0], r[0]+end ); return n_buffer;
     }
 
     template< class V >
-    string_t splice( long start, ulong del, const V& value ) noexcept {
+    string_t splice( long start, ulong end, const V& value ) noexcept {
         
-        if( empty() || del == 0 ){ return ""; }
+        auto r = get_splice_range( start, end );
+         if( r == nullptr ){ return ""; }
 
-        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ return ""; }
-            del += start - 1; 
-        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return ""; }
-
-        ulong a = clamp( first() +   del, 0UL, last() );
-        ulong b = clamp( first() + start, 0UL, a ); 
-        ulong z = a - b + 1;
-
-        auto n_buffer = (string_t){ buffer.data()+start, z };
-        erase( b, a ); insert( start, value ); return n_buffer;
+        auto n_buffer = (string_t){ buffer.data()+r[0], r[2] };
+        erase( r[0], r[0]+end ); insert( r[0], value ); return n_buffer;
     }
     
     /*─······································································─*/

@@ -9,6 +9,34 @@ protected:
 
     ptr_t<T> buffer;
 
+    ptr_t<ulong> get_slice_range( long x, long y ) const noexcept {
+        
+        if( empty() || x == y ){ return nullptr; } if( y>0 ){ y--; }
+
+        if( x < 0 ){ x = last() + x; } if( (ulong)x > last() ){ return nullptr; }
+        if( y < 0 ){ y = last() + y; } if( (ulong)y > last() ){ y = last(); } 
+                                       if( y < x )        { return nullptr; }
+
+        ulong a = clamp( first() + y, 0UL, last() );
+        ulong b = clamp( first() + x, 0UL, a ); 
+        ulong c = a - b + 1; return {{ b, a, c }};
+
+    }
+
+    ptr_t<ulong> get_splice_range( long x, ulong y ) const noexcept {
+        
+        if( empty() || y == 0 ){ return nullptr; }
+
+        if( x < 0 ){ x = last() + x; } if( (ulong)x > last() ){ return nullptr; }
+            y += x - 1;
+        if( y > last() ){ y= last(); } if( y < (ulong)x ){ return nullptr; }
+
+        ulong a = clamp( first() + y, 0UL, last() );
+        ulong b = clamp( first() + x, 0UL, a ); 
+        ulong c = a - b + 1; return {{ b, a, c }};
+
+    }
+
 public:
 
     virtual ~array_t(){  }
@@ -210,8 +238,8 @@ public:
     void insert( ulong index, const T& value ) noexcept {
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = ptr_t<T> ( 1 ); buffer[0] = value; } 
-        else { index = index>size() ? size() : index; ulong n=size() + 1;
-            auto n_buffer = ptr_t<T>(n); for( ulong x=0,i=0; x<n; x++ ){ 
+        else { ulong n=size() + 1; auto n_buffer = ptr_t<T>(n); 
+            for( ulong x=0,i=0; x<n; x++ ){ 
                 if( x == index ){ n_buffer[x] = value; }
                 else { n_buffer[x] = buffer[i++]; }
             }   buffer = n_buffer;
@@ -221,8 +249,8 @@ public:
     void insert( ulong index, ulong N , T* value ) noexcept {
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = ptr_t<T> ( value, N ); } 
-        else { index = index>size() ? size() : index; ulong n=size() + N;
-            auto n_buffer = ptr_t<T>(n); for( ulong x=0,i=0,p=0; x<n; x++ ){ 
+        else { ulong n=size() + N; auto n_buffer = ptr_t<T>(n); 
+            for( ulong x=0,i=0,p=0; x<n; x++ ){ 
                 if( x>=index && x<index+N ){ n_buffer[x] = value[p++]; }
                 else { n_buffer[x] = buffer[i++]; }
             }   buffer = n_buffer;
@@ -232,8 +260,8 @@ public:
     void insert( ulong index, ulong N , const T& value ) noexcept {
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = ptr_t<T> ( N, value ); } 
-        else { index = index>size() ? size() : index; ulong n=size() + N;
-            auto n_buffer = ptr_t<T>(n); for( ulong x=0,i=0; x<n; x++ ){ 
+        else { ulong n=size() + N; auto n_buffer = ptr_t<T>(n); 
+            for( ulong x=0,i=0; x<n; x++ ){ 
                 if( x>=index && x<index+N ){ n_buffer[x] = value; }
                 else { n_buffer[x] = buffer[i++]; }
             }   buffer = n_buffer;
@@ -244,8 +272,8 @@ public:
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = ptr_t<T> ( value.size() ); 
             for( ulong i=0; i<value.size(); i++ ){ buffer[i] = value[i]; }
-        } else { index = index>size() ? size() : index; ulong n=size() + value.size();
-            auto n_buffer = ptr_t<T>(n); for( ulong x=0,i=0,p=0; x<n; x++ ){ 
+        } else { ulong n=size() + value.size(); auto n_buffer = ptr_t<T>(n); 
+            for( ulong x=0,i=0,p=0; x<n; x++ ){ 
                 if( x>=index && x<index+value.size() ){ n_buffer[x] = value[p++]; }
                 else { n_buffer[x] = buffer[i++]; }
             }   buffer = n_buffer;
@@ -257,9 +285,9 @@ public:
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = ptr_t<T> ( N ); 
             for( ulong i=0; i<N; i++ ){ buffer[i] = value[i]; }
-        } else { index = index>size() ? size() : index; ulong n=size() + N;
-            auto n_buffer = ptr_t<T>(n); for( ulong x=0,i=0,p=0; x<n; x++ ){ 
-                if( x>=index && x<index+N ){ n_buffer[x] = value[p++]; }
+        } else { ulong n=size() + N; auto n_buffer = ptr_t<T>(n); 
+            for( ulong x=0,i=0,p=0; x<n; x++ ){ 
+             if( x>=index && x<index+N ){ n_buffer[x] = value[p++]; }
                 else { n_buffer[x] = buffer[i++]; }
             }   buffer = n_buffer;
         }
@@ -269,22 +297,20 @@ public:
 
     void erase( ulong index ) noexcept {
 	    index = clamp( index, 0UL, last() );
-        if( empty() ){ return; } else {
-            auto n_buffer = ptr_t<T>( last() );
+        if( empty() ){ return; } else { auto n_buffer = ptr_t<T>( last() );
             for( ulong i=0, j=0; i<size() && !n_buffer.empty(); i++ ){
-                if( i != index ){ n_buffer[j] = buffer[i]; j++; }
+             if( i != index ){ n_buffer[j] = buffer[i]; j++; }
             }   buffer = n_buffer;
         }
     }
 
     void erase( ulong start, ulong end  ) noexcept {
-	    start = clamp( start, 0UL, last() ); 
-	    end   = clamp(   end, 0UL, last() );
-        if( empty() || start > end ){ return; } else {
-            if( start >= size() || end >= size() ) erase( last() );
-            auto n_buffer = ptr_t<T>( size() - ( end - start ) - 1 );
+	    auto r = get_slice_range( start, end );
+         if( r == nullptr ){ return; } else {
+            if( r[0] >= size() || r[1] >= size() ) erase( last() );
+            auto n_buffer = ptr_t<T>( size() - ( r[1] - r[0] ) - 1 );
             for( ulong i=0, j=0; i<size() && !n_buffer.empty(); i++ ){
-                if( i < start || i > end ){ n_buffer[j] = buffer[i]; j++; }
+             if( i < r[0] || i > r[1] ){ n_buffer[j] = buffer[i]; j++; }
             }   buffer = n_buffer;
         }
     }
@@ -292,8 +318,8 @@ public:
     /*─······································································─*/
 
     string_t join( string_t c=", " ) const noexcept {
-        if( empty() ){ return ""; }
-        string_t result; for( auto x=begin(); x!=end(); x++ ){
+        if( empty() ){ return ""; } string_t result; 
+        for( auto x=begin(); x!=end(); x++ ){
             result += string::to_string(*x) + ((x==end()-1)?"":c);
         }   return result;
     }
@@ -301,74 +327,45 @@ public:
     /*─······································································─*/
 
     array_t slice( long start ) const noexcept {
-        
-        if( empty() ){ return { 0, 0 }; }
-        if( start < 0 ){ start = last() + start; }
-        if( (ulong)start > last() ){ return ""; }
 
-        ulong b = clamp( first() + start, 0UL, last() ); 
-        ulong z = last() - b + 1;
-        ulong a = last();
+	    auto r = get_slice_range( start, last() );
+         if( r == nullptr ){ return {0,0}; } 
 
-        auto n_buffer = ptr_t<T>(z); for( ulong x=b,y=0; x<=a; x++ )
-           { n_buffer[y++] = buffer[x]; }
-        return n_buffer;
+        auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
+           { n_buffer[y++] = buffer[x]; } return n_buffer;
     }
     
     /*─······································································─*/
 
     array_t slice( long start, long end ) const noexcept {
-        
-        if( empty() || start == end ){ return { 0, 0 }; } if( end>0 ){ end--; }
 
-        if( start < 0 ){ start = last() + start; } if( end < 0 ){ end = last() + end; }
-        if( (ulong)end > last() ){ end = last(); } if( (ulong)start > last() ){ return {0,0}; }
-                                                   if( end < start )          { return {0,0}; }
+	    auto r = get_slice_range( start, end );
+         if( r == nullptr ){ return {0,0}; } 
 
-        ulong a = clamp( first() +   end, 0UL, last() );
-        ulong b = clamp( first() + start, 0UL, a ); 
-        ulong z = a - b + 1;
-
-        auto n_buffer = ptr_t<T>(z); for( ulong x=b,y=0; x<=a; x++ )
-           { n_buffer[y++] = buffer[x]; }
-        return n_buffer;
+        auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
+           { n_buffer[y++] = buffer[x]; } return n_buffer;
     }
     
     /*─······································································─*/
  
-    array_t splice( long start, ulong del ) noexcept { 
-        
-        if( empty() || del == 0 ){ return { 0, 0 }; }
-        
-        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ return {0,0}; }
-            del += start - 1;
-        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return {0,0}; }
+    array_t splice( long start, ulong end ) noexcept { 
 
-        ulong a = clamp( first() +   del, 0UL, last() );
-        ulong b = clamp( first() + start, 0UL, a ); 
-        ulong z = a - b + 1;
+	    auto r = get_splice_range( start, end );
+         if( r == nullptr ){ return {0,0}; } 
 
-        auto n_buffer = ptr_t<T>(z); for( ulong x=b,y=0; x<=a; x++ )
-           { n_buffer[y++] = buffer[x]; }
-        erase( b, a ); return n_buffer;
+        auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
+           { n_buffer[y++] = buffer[x]; } erase( r[0], r[0]+end ); return n_buffer;
     }
 
     template< class V, ulong N >
     array_t splice( long start, ulong del, const V (&value)[N] ) noexcept {
-        
-        if( empty() || del == 0 ){ return { 0, 0 }; }
-        
-        if( start < 0 ){ start = last() + start; } if( (ulong)start > last() ){ return {0,0}; }
-            del += start - 1; 
-        if( del > last() ){ del = last(); } if( del < (ulong)start ){ return { 0, 0 }; }
 
-        ulong a = clamp( first() +   del, 0UL, last() );
-        ulong b = clamp( first() + start, 0UL, a ); 
-        ulong z = a - b + 1;
+	    auto r = get_splice_range( start, end );
+         if( r == nullptr ){ return {0,0}; } 
 
-        auto n_buffer = ptr_t<T>(z); for( ulong x=b,y=0; x<=a; x++ )
+        auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
            { n_buffer[y++] = buffer[x]; }
-        erase( b, a ); insert( start, value ); return n_buffer;
+        erase( r[0], r[0]+end ); insert( r[0], value ); return n_buffer;
     }
     
     /*─······································································─*/
