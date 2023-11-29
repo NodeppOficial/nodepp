@@ -22,8 +22,7 @@ class map_t : public array_t<type::pair<U,V>> { public:
 
     template< ulong N >
     map_t& operator=( const T (&args) [N] ) noexcept {
-        this->buffer = ptr_t<T>( N );
-        for( ulong x=N; x--; )
+        this->buffer = ptr_t<T>( N ); for( ulong x=N; x--; )
             { this->buffer[x] = args[x]; } return *this;
     }
 

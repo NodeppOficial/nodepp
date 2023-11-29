@@ -12,22 +12,20 @@
 namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
-namespace _ssl_ { struct str {
-    int        tpy = SSL_FILETYPE_PEM;
-    SSL_CTX*   ctx = nullptr;
-    SSL*       ssl = nullptr;
-    string_t   key, cert;
-    bool       srv = 0;
-};}
-
-/*────────────────────────────────────────────────────────────────────────────*/
 
 class ssl_t { 
 protected:
     
     using onSNI = function_t<ssl_t*,string_t>;
-    ptr_t<_ssl_::str> obj = new _ssl_::str();
-    ptr_t<onSNI> func;
+
+    struct _str_ {
+        int          tpy = SSL_FILETYPE_PEM;
+        SSL_CTX*     ctx = nullptr;
+        SSL*         ssl = nullptr;
+        string_t     key, cert;
+        bool         srv = 0;
+        ptr_t<onSNI> func;
+    };  ptr_t<_str_> obj = new _str_();
     
     /*─······································································─*/
 
@@ -131,8 +129,8 @@ public:
     ssl_t( string_t _key, string_t _cert, onSNI* _func=nullptr ){
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) )
             _Error("such key or cert does not exist");
-        if( _func != nullptr ) func = new onSNI(*_func); 
-             obj->key = _key; obj->cert = _cert; 
+        if( _func != nullptr ) obj->func = new onSNI(*_func); 
+             obj->key = _key;  obj->cert = _cert; 
     }
 
     ssl_t( string_t _key, string_t _cert, onSNI _func ){
@@ -162,7 +160,7 @@ public:
     int create_server() const noexcept {
         obj->ctx = create_server_context(); obj->srv = 1;
         int res = configure_context( obj->ctx, obj->key, obj->cert ); 
-        if( func != nullptr ){ set_ctx_sni( obj->ctx, &func ); } return res;
+        if( obj->func != nullptr ){ set_ctx_sni( obj->ctx, &obj->func ); } return res;
     }
     
     /*─······································································─*/

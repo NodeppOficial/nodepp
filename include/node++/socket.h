@@ -28,11 +28,6 @@ struct agent_t {
     bool  broadcast     = 0;
 };
 
-namespace _socket_ { struct str {
-    socklen_t addrlen; bool srv=0; socklen_t len;
-    struct sockaddr server_addr, client_addr;
-};}
-
 /*────────────────────────────────────────────────────────────────────────────*/
 
 class socket_t : public file_t {
@@ -42,7 +37,10 @@ protected:
     using SOCKADDR    = struct sockaddr;
     using SOCKADDR_IN = struct sockaddr_in;
 
-    ptr_t<_socket_::str> skt = new _socket_::str();
+    struct _str_ {
+        socklen_t addrlen; bool srv=0; socklen_t len;
+        SOCKADDR server_addr, client_addr;
+    };  ptr_t<_str_> skt = new _str_();
 
 public:
 
@@ -174,7 +172,7 @@ public:
     
     /*─······································································─*/
 
-    virtual ulong set_buffer_size( ulong _size ) noexcept { 
+    virtual ulong set_buffer_size( ulong _size ) const noexcept { 
         set_send_buff( _size ); set_recv_buff( _size );
         obj->buffer = ptr_t<char>(_size); return _size;
     }
@@ -193,7 +191,7 @@ public:
     
     /*─······································································─*/
 
-    int set_sockopt( agent_t* opt ) noexcept { 
+    int set_sockopt( agent_t* opt ) const noexcept { 
     if( !opt ){ return -1; }
         set_reuse_address( opt->reuse_address );
         set_recv_timeout ( opt->recv_timeout  );

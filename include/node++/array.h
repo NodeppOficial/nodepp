@@ -96,8 +96,8 @@ public:
     
     /*─······································································─*/
 
-    T*   end() const { return &buffer + size(); }
-    T* begin() const { return &buffer; }
+    T*   end() const noexcept { return &buffer + size(); }
+    T* begin() const noexcept { return &buffer; }
     
     /*─······································································─*/
 
@@ -296,10 +296,10 @@ public:
     /*─······································································─*/
 
     void erase( ulong index ) noexcept {
-	    index = clamp( index, 0UL, last() );
-        if( empty() ){ return; } else { auto n_buffer = ptr_t<T>( last() );
+	    auto r = get_slice_range( index, size() );
+         if( r == nullptr ){ return; } else { auto n_buffer = ptr_t<T>( last() );
             for( ulong i=0, j=0; i<size() && !n_buffer.empty(); i++ ){
-             if( i != index ){ n_buffer[j] = buffer[i]; j++; }
+             if( i != r[0] ){ n_buffer[j] = buffer[i]; j++; }
             }   buffer = n_buffer;
         }
     }
@@ -374,6 +374,7 @@ public:
     explicit operator T*(void) const noexcept { return &buffer; }
     const T* c_arr() const noexcept { return &buffer; }
           T*  data() const noexcept { return &buffer; }
+    ptr_t<T>&  ptr() noexcept { return  buffer; }
 
 };}
 

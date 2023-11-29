@@ -7,19 +7,14 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp {  
-namespace _event_ { template< class... T > struct str {
-    ulong            id;
-    function_t<T...> cb;
-};}
-}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 namespace nodepp { template< class... A > class event_t { 
 protected:
 
-    using ev = queue_t<_event_::str<void,A...>>;
+    struct _str_ {
+        ulong                 id;
+        function_t<void,A...> cb;
+    };  using ev = queue_t<_str_>;
+    
     ptr_t<ev> once_queue = new ev(), every_queue = new ev();
 
 public:
@@ -29,8 +24,8 @@ public:
     /*─······································································─*/
 
     void emit( A... args ) const noexcept {
-        every_queue->map([=]( _event_::str<void,A...> arg ){ arg.cb(args...); });
-        once_queue->map([=]( _event_::str<void,A...> arg ){ arg.cb(args...); });
+        every_queue->map([=]( _str_ arg ){ arg.cb(args...); });
+        once_queue->map([=]( _str_ arg ){ arg.cb(args...); });
         if( !once_queue->empty() ) once_queue->clear();
     }
     
@@ -44,8 +39,8 @@ public:
     /*─······································································─*/
 
     void off( ulong _hash ) const noexcept {
-        ulong index_A = every_queue->index_of([=]( _event_::str<void,A...> data ){ return data.id == _hash; });
-        ulong index_B = once_queue->index_of([=]( _event_::str<void,A...> data ){ return data.id == _hash; });
+        ulong index_A = every_queue->index_of([=]( _str_ data ){ return data.id == _hash; });
+        ulong index_B = once_queue->index_of([=]( _str_ data ){ return data.id == _hash; });
         every_queue->erase( every_queue->get( index_A ) ); once_queue->erase( once_queue->get( index_B ) );
     }
 

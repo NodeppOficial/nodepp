@@ -22,7 +22,7 @@ namespace nodepp {
 class mutex_t {
 protected:
 
-ptr_t<pthread_mutex_t> mutex;
+    ptr_t<pthread_mutex_t> mutex;
 
 public:
 
@@ -45,9 +45,7 @@ public:
 /*────────────────────────────────────────────────────────────────────────────*/
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace {
-
-    mutex_t mtx;
+namespace nodepp { namespace { mutex_t mtx;
 
     void* sfunc( void* arg ){
         mtx.lock(); process::threads--; mtx.unlock();
@@ -73,19 +71,16 @@ namespace nodepp { namespace {
 /*────────────────────────────────────────────────────────────────────────────*/
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp {
-namespace _wrk_ { struct str {
-    function_t<int>* cb;
-    pthread_attr_t attr;
-    ptr_t<int> out;
-    int state = 0;
-    pthread_t id;
-};}
-
-class worker_t { 
+namespace nodepp { class worker_t { 
 protected:
 
-    ptr_t<_wrk_::str> obj = new _wrk_::str();
+    struct _str_ {
+        function_t<int>* cb;
+        pthread_attr_t attr;
+        ptr_t<int> out;
+        int state = 0;
+        pthread_t id;
+    };  ptr_t<_str_> obj = new _str_();
     
     /*─······································································─*/
 

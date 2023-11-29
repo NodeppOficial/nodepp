@@ -12,20 +12,16 @@ namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace _tls_ { struct str {
-    agent_t*                   agent = nullptr;
-    ssl_t*                     ctx   = nullptr; 
-    int                        state = 0;
-    poll_t                     poll;
-    function_t<void,ssocket_t> func;
-};}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 class tls_t {
 protected:
 
-    ptr_t<_tls_::str> obj = new _tls_::str();
+    struct _str_ {
+        agent_t*                   agent = nullptr;
+        ssl_t*                     ctx   = nullptr; 
+        int                        state = 0;
+        poll_t                     poll;
+        function_t<void,ssocket_t> func;
+    };  ptr_t<_str_> obj = new _str_();
     
     /*─······································································─*/
 
@@ -130,7 +126,7 @@ namespace tls {
         server.onConnect([=]( ssocket_t cli ){ process::task::add([=](){
             while(!cli.is_available() ){ cli.close(); return -1; }
             while((*_read)(&cli)==1 ){ return 1; } 
-               if( _read->c<=0 )     { return 1; }
+               if( _read->y.empty() ){ return 1; }
             cli.onData.emit(_read->y); return 1;
         }) ; });
 
@@ -153,9 +149,9 @@ namespace tls {
         ptr_t<_file_::read> _read = new _file_::read;
 
         process::task::add([=](){
-            while(!cli.is_available() ){ cli.close(); return -1; }
-            while((*_read)(&cli)==1 ){ return 1; } 
-               if( _read->c<=0 )     { return 1; }
+            if(!cli.is_available() ){ cli.close(); return -1; }
+            if((*_read)(&cli)==1 )   { return 1; } 
+            if( _read->y.empty() )   { return 1; }
             cli.onData.emit(_read->y); return 1;
         }); cli.onDrain([=](){ cli.free(); });
 

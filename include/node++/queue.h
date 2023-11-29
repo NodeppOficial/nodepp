@@ -4,32 +4,56 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp {
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace _queue_ { template< class T > class str { public:
-    explicit operator T(){ return data; }
-    str( T value ){ data = value; } T data; 
-    str* nxt = nullptr; str* prv = nullptr;
-};}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-template< class V >
-class queue_t {
-private:
-
-    using self = _queue_::str<V>;
-
+template< class V > class queue_t {
 protected: 
 
-    self*       act   = nullptr;
+    template< class T > class _str_ { public:
+        explicit operator T(){ return data; }
+        _str_( T value ){ data = value; } T data; 
+        _str_* nxt = nullptr; _str_* prv = nullptr;
+    };  using self = _str_<V>;
+
+    self*       act = nullptr;
     ptr_t<self> queue;
+
+    ptr_t<ulong> get_slice_range( long x, long y ) const noexcept {
+        
+        if( empty() || x == y ){ return nullptr; } if( y>0 ){ y--; }
+
+        if( x < 0 ){ x = size()-1+x; } if( (ulong)x > size()-1 ){ return nullptr; }
+        if( y < 0 ){ y = size()-1+y; } if( (ulong)y > size()-1 ){ y = size()-1; } 
+                                       if( y < x )        { return nullptr; }
+
+        ulong a = clamp( (ulong)y, 0UL, size()-1 );
+        ulong b = clamp( (ulong)x, 0UL, a ); 
+        ulong c = a - b + 1; return {{ b, a, c }};
+
+    }
+
+    ptr_t<ulong> get_splice_range( long x, ulong y ) const noexcept {
+        
+        if( empty() || y == 0 ){ return nullptr; }
+
+        if( x < 0 ){ x = size()-1+x; } if( (ulong)x > size()-1 ){ return nullptr; }
+            y += x - 1;
+        if( y > size()-1 ){ y= size()-1; } if( y < (ulong)x ){ return nullptr; }
+
+        ulong a = clamp( (ulong)y, 0UL, size()-1 );
+        ulong b = clamp( (ulong)x, 0UL, a ); 
+        ulong c = a - b + 1; return {{ b, a, c }};
+
+    }
     
 public: 
 
+    ptr_t<self>& ptr() noexcept { return queue; }
+
     queue_t() noexcept = default;
-   ~queue_t() noexcept { if( queue.count() <= 1 ) clear(); }
+
+    virtual ~queue_t() noexcept { 
+        if( queue.count() > 1 )
+          { return; } clear(); 
+    }
     
     /*─······································································─*/
 
@@ -92,7 +116,7 @@ public:
     bool empty() const noexcept { return queue == nullptr ? 1 : size()<=0; }
 
     ulong size() const noexcept { 
-        if( queue == nullptr ){ return 0; } self* n = first(); ulong i = 1; 
+           if( queue == nullptr ){ return 0; } self* n = first(); ulong i = 1; 
         while( n->nxt != nullptr ){ n = n->nxt; i++; } return i;
     }
     
@@ -188,6 +212,7 @@ public:
 
     void clear() noexcept { while( !empty() ){ pop(); } }
     void erase() noexcept { while( !empty() ){ pop(); } }
+    void  free() noexcept { while( !empty() ){ pop(); } }
     
     /*─······································································─*/
 
@@ -231,16 +256,15 @@ public:
     /*─······································································─*/
 
     void erase( ulong begin, ulong end ) noexcept {
-        begin = clamp( begin, 0UL, size() - 1 );
-        end   = clamp(   end, 0UL, size() - 1 );
-
-        ulong dif = end - begin;
-        while( dif-->0 ) { erase( begin ); }
+        auto r = get_slice_range( begin, end );
+           if( r == nullptr ){ return; }
+        while( r[2]-->0 ) { erase( r[0] ); }
     }
 
-    void erase( ulong index ) noexcept { 
-        index = clamp( index, 0UL, size() - 1 );
-        erase( get(index) ); 
+    void erase( ulong begin ) noexcept { 
+        auto r = get_slice_range( begin, size() );
+           if( r == nullptr ){ return; }
+        erase( get( r[0] ) ); 
     }
 
     void erase( self* x ) noexcept {
@@ -256,22 +280,13 @@ public:
             x->nxt->prv = x->prv; delete x;
         }
     }
-    
-    /*─······································································─*/
-
-    ptr_t<V> data() const noexcept { 
-        ptr_t<V> buff ( size() ); map([&]( V arg ){
-            static ulong x = 0;
-            buff[x] = arg; x++;
-        }); return buff;
-    }
 
     /*─······································································─*/
 
     self* get( long i=-2 ) noexcept { 
         if( empty() ){ return (self*) nullptr; }
         if( i == -2 ){ 
-            if( act == nullptr ) act = next();
+               if( act==nullptr ) act = next();
             return act==nullptr ? first() : act; 
         }   auto n = first(); i = ( i<0L ) ? 0L : i;
         while( n->nxt != nullptr && i-->0 ){ n = n->nxt; } return n;
@@ -300,10 +315,8 @@ public:
         act = act->nxt == nullptr ? first() : act->nxt; return act;
     }
 
-};
+};}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-
-}
 
 #endif

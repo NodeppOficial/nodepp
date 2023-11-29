@@ -14,25 +14,21 @@ namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace _file_ { struct str {
-
-    ulong        range[2] = { 0, 0 };
-    int          state = 0;
-    ptr_t<char>  buffer;
-    string_t     borrow;
-
-    int          fd = -1;
-    FILE*        fl = nullptr;
-    FILE*        fp = nullptr;
-
-};}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 class file_t {
 protected:
 
-    ptr_t<_file_::str> obj = new _file_::str();
+    struct _str_ {
+
+        ulong        range[2] = { 0, 0 };
+        int          state = 0;
+        ptr_t<char>  buffer;
+        string_t     borrow;
+
+        int          fd = -1;
+        FILE*        fl = nullptr;
+        FILE*        fp = nullptr;
+
+    };  ptr_t<_str_> obj = new _str_();
     
     int set_nonbloking_mode() const noexcept {
         static int flags = fcntl( obj->fd, F_GETFL, 0 );
@@ -140,7 +136,7 @@ public:
     
     /*─······································································─*/
 
-    virtual ulong set_buffer_size( ulong _size ) noexcept { 
+    virtual ulong set_buffer_size( ulong _size ) const noexcept { 
         obj->buffer = ptr_t<char>( _size ); return _size;
     }
     
@@ -185,7 +181,7 @@ public:
     
     /*─······································································─*/
 
-    char     read_char() const noexcept { return read(1)[0]; }
+    char read_char() const noexcept { return read(1)[0]; }
     
     /*─······································································─*/
 

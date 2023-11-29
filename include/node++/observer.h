@@ -21,6 +21,7 @@ private:
     using T = NODE_<U,V,E>;
 
 protected: 
+
     array_t<T> node;
 
 public:
@@ -37,10 +38,8 @@ public:
 
     template< ulong N >
     observer_t& operator=( const T (&args) [N] ) noexcept {
-        node = array_t<T>( N ); 
-        for( ulong x=N; x--; )
-           { node[x] = args[x]; }
-             return *this;
+        node = array_t<T>( N ); for( ulong x=N; x--; )
+           { node[x] = args[x]; } return *this;
     }
 
     template< ulong N >
@@ -119,13 +118,10 @@ public:
     /*─······································································─*/
 
     const V operator[]( U name ) const noexcept {
-        
         for( ulong x=0; x<node.size(); x++ ){
             if( node[x].first == name )
             return node[x].second;
-        }   
-        
-        return ( const V ){ 0 };
+        }   return ( const V ){ 0 };
     }
 
 };}

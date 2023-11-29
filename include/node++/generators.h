@@ -52,7 +52,7 @@ namespace nodepp { namespace _file_ {
                  { _Next; } if(c>0){ str->get_borrow().splice(0,c); y+=c; }
         }   while( c>0 && !str->get_borrow().empty() ); 
 
-        if( c<0 ){ str->close(); _End; }
+               if( c<0 ){ str->close(); _End; }
 
     _Stop
     }};
@@ -63,18 +63,17 @@ namespace nodepp { namespace _file_ {
     
         _file_::read prs;
         string_t s,y;  
-        ulong    c=1; 
+        ulong      c; 
 
     template< class T > _Emit( T* str ){
     _Start s.clear(); y.clear(); c=1;
 
         while( str->is_available() ){
-            while( prs(str) == 1 ){ _Next; }
-               if( prs.y.empty() )
-                 { break; } c=1; s += prs.y; 
-              for( auto x:s ){ if( x == '\n' ){ break; } c++; }
-               if( c<=s.size() ){ break; }
-        }   str->set_borrow(s);
+        while( prs(str) == 1 ){ _Next; }
+           if( prs.y.empty() ){ break; } c=1; s += prs.y; 
+          for( auto x:s ){ if( x == '\n' ){ break; } c++; }
+           if( c<=s.size() ){ break; }
+        }      str->set_borrow(s);
         
         y = str->get_borrow().splice( 0, c );
     

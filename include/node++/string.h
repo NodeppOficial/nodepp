@@ -91,8 +91,6 @@ protected:
     }
     
 public:
-    
-    virtual ~string_t(){  }
 
     string_t() noexcept { buffer = ""; }
 
@@ -300,10 +298,10 @@ public:
     /*─······································································─*/
 
     void erase( ulong index ) noexcept {
-	    index = clamp( index, 0UL, last() );
-        if( empty() ){ return; } else {
+	    auto r = get_slice_range( index, size() );
+         if( r == nullptr ){ return; } else {
             auto n_buffer = string::buffer( size() - 1 );
-            for( ulong i=0, j=0; i<size(); i++ ){ if( i != index )
+            for( ulong i=0, j=0; i<size(); i++ ){ if( i != r[0] )
                { n_buffer[j] = buffer[i]; j++; }
             }    buffer = n_buffer;
         }
@@ -367,7 +365,7 @@ public:
     string_t to_capital_case() const noexcept { if( empty() ){ return (*this); } bool b=1; 
         for( auto x = this->begin(); x!=this->end(); x++ ){
             if( string::is_alpha(*x) && b==1 ){ (*x) = string::to_upper(*x); b=0; continue; }
-            if(!string::is_alpha(*x) ){ b=1; }  (*x) = string::to_lower(*x);
+            if(!string::is_alpha(*x) ){ b =1;}  (*x) = string::to_lower(*x);
         }   return (*this);
     }
 
@@ -389,6 +387,7 @@ public:
           char*  data() const noexcept { return empty() ? (char*)"" : &buffer; }
     const char* c_str() const noexcept { return empty() ? "" : &buffer; }
     explicit operator bool(void) const noexcept { return empty(); }
+    ptr_t<char>&  ptr() noexcept { return buffer; }
     
 };
 

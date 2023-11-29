@@ -1,5 +1,6 @@
 #ifndef NODEPP_OBJECT
 #define NODEPP_OBJECT
+#define TYPES int,uint,long,ulong,char,uchar,bool,float,double,string_t,llong,ullong,ldouble,NODE_ARRAY,NODE_OBJECT
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -12,25 +13,24 @@ private:
 
     using NODE_OBJECT  = array_t<type::pair<string_t,object_t>>;
     using NODE_ARRAY   = array_t<object_t>;
-
     using T            = type::pair<string_t,object_t>;
     using V            = object_t;
 
 protected:
 
-    variant_t<int,uint,long,ulong,char,uchar,bool,float,double,string_t,llong,ullong,ldouble,NODE_ARRAY,NODE_OBJECT> memory;
+    variant_t<TYPES> memory;
   
 public:
 
-    template< class U > object_t( const U& any ) noexcept { memory = any; }
-
     object_t() noexcept = default;
+
+    template< class U > object_t( const U& any ) noexcept { memory = any; }
     
     /*─······································································─*/
 
-    template< ulong N > object_t( const T (&obj) [N] ) noexcept { 
+    template< ulong N > object_t( const T (&arr) [N] ) noexcept { 
         NODE_OBJECT mem (N); for( ulong x=N; x--; )
-            { mem[x] = obj[x]; } memory = mem; 
+            { mem[x] = arr[x]; } memory = mem; 
     }
 
     /*─······································································─*/
@@ -48,7 +48,7 @@ public:
 
     /*─······································································─*/
 
-    object_t& operator[]( const string_t& name ) noexcept { 
+    object_t& operator[]( const string_t& name ) const noexcept { 
         
         auto mem = type::cast<NODE_OBJECT>( memory );
 
@@ -61,7 +61,7 @@ public:
         mem.push( item ); memory = mem; return mem[mem.last()].second;
     }
 
-    object_t& operator[]( const int& index ) noexcept { 
+    object_t& operator[]( const int& index ) const noexcept { 
         return memory.get<NODE_ARRAY>()[index];
     }
 

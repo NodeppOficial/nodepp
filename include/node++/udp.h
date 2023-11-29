@@ -12,18 +12,14 @@ namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace _udp_ { struct str {
-    agent_t*                  agent = nullptr;
-    int                       state = 0;
-    function_t<void,socket_t> func;
-};}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 class udp_t {
 protected:
 
-    ptr_t<_udp_::str> obj = new _udp_::str();
+    struct _str_ {
+        agent_t*                  agent = nullptr;
+        int                       state = 0;
+        function_t<void,socket_t> func;
+    };  ptr_t<_str_> obj = new _str_();
     
 public:
 

@@ -67,8 +67,7 @@ namespace { template< class U, class T, class V > U WSClient( T fetch, string_t 
 namespace ws {
 
     tcp_t server( const tcp_t& server ){ server.onSocket([=]( http_t cli ){
-        nodepp::WSServer( cli, [=](){ 
-            ptr_t<_file_::read> _read = new _file_::read;
+        nodepp::WSServer( cli, [=](){ ptr_t<_file_::read> _read = new _file_::read;
 
             server.onConnect([=]( socket_t cli ){ process::task::add([=](){
                 while(!cli.is_available() ){ cli.close(); return -1; }
@@ -128,8 +127,7 @@ namespace ws {
 namespace wss {
 
     tls_t server( const tls_t& server ){ server.onSocket([=]( https_t cli ){
-        nodepp::WSServer( cli, [=](){
-            ptr_t<_file_::read> _read = new _file_::read;
+        nodepp::WSServer( cli, [=](){ ptr_t<_file_::read> _read = new _file_::read;
 
             server.onConnect([=]( ssocket_t cli ){ process::task::add([=](){ 
                 while(!cli.is_available() ){ cli.close(); return -1; }
