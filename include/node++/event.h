@@ -17,9 +17,7 @@ protected:
     
     ptr_t<ev> once_queue = new ev(), every_queue = new ev();
 
-public:
-
-    event_t() noexcept = default;
+public: event_t(){}
     
     /*─······································································─*/
 
