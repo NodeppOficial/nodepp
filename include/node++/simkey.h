@@ -1,5 +1,5 @@
-#ifndef NODEPP_CONTROL
-#define NODEPP_CONTROL
+#ifndef NODEPP_SIMKEY
+#define NODEPP_SIMKEY
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -19,8 +19,8 @@ protected:
     };  ptr_t<_str_> obj = new _str_();
 
 	function_t<float,float> screen_ref[2] = {
-		[]( float value ){ return value * get_screen_size()[0] / 100; },
-		[]( float value ){ return value * get_screen_size()[1] / 100; }
+		[=]( float value ){ return value * get_screen_size()[0] / 100; },
+		[=]( float value ){ return value * get_screen_size()[1] / 100; }
 	};
 
 public: simkey_t(){}
@@ -107,6 +107,36 @@ public: simkey_t(){}
     
     /*─······································································─*/
 
+    bool is_button_released( uint btn ) const noexcept {
+        if( obj->button.empty() ) return 1; 
+        else { for( auto x : obj->button ){
+           	if( x == btn ) return 0;
+        }}  return 1;
+    }
+
+    bool is_button_pressed( uint btn ) const noexcept {
+        if( obj->button.empty() ) return 0; 
+        else { for( auto x : obj->button ){
+           	if( x == btn ) return 1;
+        }}  return 0;
+    }
+
+    bool is_key_released( uint btn ) const noexcept {
+        if( obj->key.empty() ) return 1; 
+        else { for( auto x : obj->key ){
+           	if( x == btn ) return 0;
+        }}                 return 1;
+    }
+
+    bool is_key_pressed( uint btn ) const noexcept {
+        if( obj->key.empty() ) return 0; 
+        else { for( auto x : obj->key ){
+           	if( x == btn ) return 1;
+        }}                 return 0;
+    }
+    
+    /*─······································································─*/
+
 	void pipe(){ if( obj->state == 1 ){ return; }
 
         if( obj->dpy == NULL ){ _onError( onError, "can't create a canvas" ); close(); return; }
@@ -120,24 +150,23 @@ public: simkey_t(){}
 			if( msg.message == WM_MOUSEMOVE ){
                 int btX = GET_X_LPARAM( msg.lParam );
                 int btY = GET_Y_LPARAM( msg.lParam );
-                	onButtonRelease.emit( btX, btY ); 
+                	onMouseMotion.emit( btX, btY ); 
             }
 
     /*─······································································─*/
 
     /*─······································································─*/
 
-            else if( msg.message == WM_KEYDOWN ) { uint bt = wParam;
-                for( ulong x=key.size(); x--; ){
-                    if( key[x] == bt ) 
-                      { onKeyPress.emit(); break; }
-                }   key.push( bt ); onKeyPress.emit( bt );
+            else if( msg.message == WM_KEYDOWN ) { auto bt = wParam;
+                for( ulong x=obj->key.size(); x--; ){
+                    if( obj->key[x] == bt ){ return 1; }
+                }   obj->key.push( bt ); onKeyPress.emit( bt );
             }
 
-            else if( msg.message == WM_KEYUP ) { uint bt = wParam;
-                for( ulong x=key.size(); x--; ){
-                    if( key[x] == bt ) 
-                      { key.erase(x); }
+            else if( msg.message == WM_KEYUP ) { auto bt = wParam;
+                for( ulong x=obj->key.size(); x--; ){
+                    if( obj->key[x] == bt ) 
+                      { obj->key.erase(x); }
                 }   onKeyRelease.emit( bt ); 
             }
 
@@ -164,15 +193,15 @@ protected:
     struct _str_ {
     	array_t<uint> button, key;
         XEvent   event; int state = 0;
-        Display* dpy  = XOpenDisplay(NULL);
-        int      id   = DefaultScreen(dpy);
-        Window   root = XRootWindow(dpy,id);
-        Screen*  scr  = DefaultScreenOfDisplay(dpy);
+        Display* dpy = XOpenDisplay(NULL);
+        int      id  = DefaultScreen(dpy);
+        Window   win = XRootWindow(dpy,id);
+        Screen*  scr = DefaultScreenOfDisplay(dpy);
     };  ptr_t<_str_>  obj = new _str_();
 
 	function_t<float,float> screen_ref[2] = {
-		[]( float value ){ return value * get_screen_size()[0] / 100; },
-		[]( float value ){ return value * get_screen_size()[1] / 100; }
+		[=]( float value ){ return value * get_screen_size()[0] / 100; },
+		[=]( float value ){ return value * get_screen_size()[1] / 100; }
 	};
 
 public: simkey_t(){}
@@ -198,7 +227,7 @@ public: simkey_t(){}
     /*─······································································─*/
 
     ptr_t<int> get_mouse_position() const noexcept { int rootX, rootY, winX, winY; uint mask; Window child;
-        XQueryPointer( obj->dpy, obj->root, &obj->root, &child, &rootX, &rootY, &winX, &winY, &mask);
+        XQueryPointer( obj->dpy, obj->win, &obj->win, &child, &rootX, &rootY, &winX, &winY, &mask);
         return {{ winX, winY, rootX, rootY }};
     }
 
@@ -206,155 +235,143 @@ public: simkey_t(){}
 
     virtual void force_close() const noexcept {
         if( obj->state == -1 ){ return; } obj->state = -1; 
-        	XDestroyWindow( obj->dpy, obj->root ); 
+        	XDestroyWindow( obj->dpy, obj->win ); 
 			XCloseDisplay( obj->dpy );
     }
 
     /*─······································································─*/
 
-	ptr_t<int> get_screen_size() const noexcept { 
-		return {{ obj->scr->width, obj->scr->height }}; 
-	}
+	ptr_t<int> get_screen_size() const noexcept { return {{ obj->scr->width, obj->scr->height }}; }
 
-	int get_screen_length() const noexcept { 
-		return XScreenCount( obj->dpy ); 
-	}
-
-    /*─······································································─*/
-
-	void press_button( int btn ) const noexcept {
-		XTestFakeButtonEvent(obj->scr->dpy,btn,1,CurrentTime);
-		XFlush( obj->scr->dpy );
-	}
-
-	void release_button( int btn ) const noexcept {
-		XTestFakeButtonEvent(obj->scr->dpy,btn,0,CurrentTime);
-		XFlush( obj->scr->dpy );
-	}
-
-    bool is_button_released( uint btn ) const noexcept {
-        if( button.empty() ) return 1; 
-        else { for( auto x : button ){
-           	if( x == btn ) return 0;
-        }}  return 1;
-    }
-
-    bool is_button_pressed( uint btn ) const noexcept {
-        if( button.empty() ) return 0; 
-        else { for( auto x : button ){
-           	if( x == btn ) return 1;
-        }}  return 0;
-    }
+	int      get_screen_length() const noexcept { return XScreenCount( obj->dpy ); }
 
     /*─······································································─*/
 
 	void set_mouse_position( float x, float y ) const noexcept {
 		ptr_t<float> r ({ screen_ref[0](x), screen_ref[1](y) });
-		XTestFakeMotionEvent(obj->scr->dpy,obj->scr->id,r[0],r[1],CurrentTime);
-		XFlush( obj->scr->dpy );
+		XTestFakeMotionEvent(obj->dpy,obj->id,r[0],r[1],CurrentTime);
+		XFlush( obj->dpy );
 	}
 
 	void release_mouse_button( int btn ) const noexcept { 
-		 release_button(btn); 
+		XTestFakeButtonEvent(obj->dpy,btn,0,CurrentTime);
+		XFlush( obj->dpy );
 	}
 
 	void press_mouse_button( int btn ) const noexcept { 
-		 press_button(btn); 
+		XTestFakeButtonEvent(obj->dpy,btn,1,CurrentTime);
+		XFlush( obj->dpy );
 	}
 
 	void scroll_mouse_up() const noexcept {
-		 XTestFakeButtonEvent(obj->scr->dpy,4,1,CurrentTime);
-		 XTestFakeButtonEvent(obj->scr->dpy,4,0,CurrentTime);
-		 XFlush( obj->scr->dpy );
+		 XTestFakeButtonEvent(obj->dpy,4,1,CurrentTime);
+		 XTestFakeButtonEvent(obj->dpy,4,0,CurrentTime);
+		 XFlush( obj->dpy );
 	}
 
 	void scroll_mouse_down() const noexcept {
-		 XTestFakeButtonEvent(obj->scr->dpy,5,1,CurrentTime);
-		 XTestFakeButtonEvent(obj->scr->dpy,5,0,CurrentTime);
-		 XFlush( obj->scr->dpy );
+		 XTestFakeButtonEvent(obj->dpy,5,1,CurrentTime);
+		 XTestFakeButtonEvent(obj->dpy,5,0,CurrentTime);
+		 XFlush( obj->dpy );
 	}
-
-    bool is_key_released( uint btn ) const noexcept {
-        if( key.empty() ) return 1; 
-        else { for( auto x : key ){
-           	if( x == btn ) return 0;
-        }}  return 1;
-    }
-
-    bool is_key_pressed( uint btn ) const noexcept {
-        if( key.empty() ) return 0; 
-        else { for( auto x : key ){
-           	if( x == btn ) return 1;
-        }}  return 0;
-    }
 
     /*─······································································─*/
 
 	void release_key_button( int key ) const noexcept { 
-		auto k = XKeysymToKeycode(obj->scr->dpy,key);
-				 release_button( k );
+		auto k = XKeysymToKeycode(obj->dpy,key);
+		XTestFakeButtonEvent(obj->dpy,k,0,CurrentTime);
+		XFlush( obj->dpy );
 	}
 
 	void press_key_button( int key ) const noexcept {
-		auto k = XKeysymToKeycode(obj->scr->dpy,key);
-				 press_button( k );
+		auto k = XKeysymToKeycode(obj->dpy,key);
+		XTestFakeButtonEvent(obj->dpy,k,1,CurrentTime);
+		XFlush( obj->dpy );
 	}
+
+    /*─······································································─*/
+
+    bool is_button_released( uint btn ) const noexcept {
+        if( obj->button.empty() ) return 1; 
+        else { for( auto x : obj->button ){
+           	if( x == btn ) return 0;
+        }}  return 1;
+    }
+
+    bool is_button_pressed( uint btn ) const noexcept {
+        if( obj->button.empty() ) return 0; 
+        else { for( auto x : obj->button ){
+           	if( x == btn ) return 1;
+        }}  return 0;
+    }
+
+    bool is_key_released( uint btn ) const noexcept {
+        if( obj->key.empty() ) return 1; 
+        else { for( auto x : obj->key ){
+           	if( x == btn ) return 0;
+        }}                 return 1;
+    }
+
+    bool is_key_pressed( uint btn ) const noexcept {
+        if( obj->key.empty() ) return 0; 
+        else { for( auto x : obj->key ){
+           	if( x == btn ) return 1;
+        }}                 return 0;
+    }
     
     /*─······································································─*/
 
 	void pipe(){ if( obj->state == 1 ){ return; }
 
-        if( obj->dpy == NULL ){ _onError( onError, "can't create a canvas" ); close(); return; }
+        if( obj->dpy == NULL ){ _onError( onError, "can't start X11 server" ); close(); return; }
 
         auto events = ButtonPressMask | ButtonReleaseMask   | ButtonMotionMask   |
                       KeyReleaseMask  | KeyPressMask        ;
 
-        XSelectInput( obj->dpy, obj->win, events ); flush(); obj->state = 1;
+        XSelectInput( obj->dpy, obj->win, events ); obj->state = 1;
 
         process::loop::add([=](){ _Start 
-			while( XPending(obj->dpy) <= 0 ){ _Next(); } XNextEvent( obj->dpy, &obj->event );
+			while( XPending(obj->dpy) <= 0 ){ _Next; } XNextEvent( obj->dpy, &obj->event );
 
     /*─······································································─*/
 
             if( obj->event.type == MotionNotify ) { 
-                uint bt = obj->event.XMotionEvent;
-                	 onButtonRelease.emit( bt.x, bt.y ); 
+                auto bt = obj->event.xmotion;
+                onMouseMotion.emit( bt.x, bt.y ); 
             }
 
     /*─······································································─*/
 
             else if( obj->event.type == ButtonRelease ) { 
-                uint bt = obj->event.xbutton.button;
-                for( ulong x=button.size(); x--; ){
-                    if( button[x] == bt ) 
-                      { button.erase(x); }
+                auto bt = obj->event.xbutton.button;
+                for( ulong x=obj->button.size(); x--; ){
+                    if( obj->button[x] == bt ) 
+                      { obj->button.erase(x); }
                 }   onButtonRelease.emit( bt ); 
             }
 
             else if( obj->event.type == ButtonPress ) { 
-                uint bt = obj->event.xbutton.button;
-                for( ulong x=button.size(); x--; ){
-                    if( button[x] == bt ) 
-                      { onButtonPress.emit(); break; }
-                }   button.push( bt ); onButtonPress.emit( bt );
+                auto bt = obj->event.xbutton.button;
+                for( ulong x=obj->button.size(); x--; ){
+                    if( obj->button[x] == bt ){ return 1; }
+                }   obj->button.push( bt ); onButtonPress.emit( bt );
             }
 
     /*─······································································─*/
 
             else if( obj->event.type == KeyRelease ) { 
-                uint bt = obj->event.xkey.keycode;
-                for( ulong x=key.size(); x--; ){
-                    if( key[x] == bt ) 
-                      { key.erase(x); }
+                auto bt = obj->event.xkey.keycode;
+                for( ulong x=obj->key.size(); x--; ){
+                    if( obj->key[x] == bt ) 
+                      { obj->key.erase(x); }
                 }   onKeyRelease.emit( bt ); 
             }
 
             else if( obj->event.type == KeyPress ) { 
-                uint bt = obj->event.xkey.keycode;
-                for( ulong x=key.size(); x--; ){
-                    if( key[x] == bt ) 
-                      { onKeyPress.emit(); break; }
-                }   key.push( bt ); onKeyPress.emit( bt );
+                auto bt = obj->event.xkey.keycode;
+                for( ulong x=obj->key.size(); x--; ){
+                    if( obj->key[x] == bt ){ return 1; }
+                }   obj->key.push( bt ); onKeyPress.emit( bt );
             }
 
     /*─······································································─*/
