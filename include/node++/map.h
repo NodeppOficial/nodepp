@@ -4,9 +4,12 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { template<class U, class V>
-class map_t : public array_t<type::pair<U,V>> { public:
+class map_t : public array_t<type::pair<U,V>> {
+private:
 
-    using T = type::pair<U,V>; map_t() noexcept = default;
+    using T = type::pair<U,V>;
+
+public: map_t(){}
     
     /*─······································································─*/
 

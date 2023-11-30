@@ -15,9 +15,15 @@ namespace nodepp { namespace process {
     array_t<string_t> args; int threads = 0;
 
 #ifndef ARDUINO
-    void delay( ulong time ){ ::usleep( time * 1000 ); } //this consume a lot of CPU
+
+    void  delay( ulong time ){ ::usleep( time * 1000 ); }
+    void udelay( ulong time ){ ::usleep( time ); }
+
 #else
-    void delay( ulong time ){ ::delay( time ); }
+
+    void udelay( ulong time ){ ::delayMicroseconds( time ); }
+    void  delay( ulong time ){ ::delay( time ); }
+
 #endif
 
 #ifndef ARDUINO
@@ -43,11 +49,11 @@ namespace nodepp { namespace process {
 
     ulong seconds(){ return ::millis() / 1000; }
 
-    ulong micros(){ return ::micros(); }
+    ulong  micros(){ return ::micros(); }
 
-    ulong millis(){ return ::millis(); }
+    ulong  millis(){ return ::millis(); }
 
-    ulong now(){ return millis(); }
+    ulong     now(){ return millis(); }
 
 #endif
 

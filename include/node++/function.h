@@ -12,8 +12,6 @@ public:
    
     function_t() : func_ptr(nullptr) {}
     
-    virtual ~function_t() noexcept = default;
-    
     template< class F >
     function_t( F f ) : func_ptr( new func_impl<F>(f) ) {}
     

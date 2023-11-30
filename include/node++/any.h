@@ -4,9 +4,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { class any_t {
-public:
-   
-    any_t() noexcept = default;
+public: any_t(){};
     
     template< class T >
     any_t( T f ) : any_ptr( new any_impl<T>(f) ) {}

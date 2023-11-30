@@ -3,7 +3,8 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { template< class T > class ptr_t { public:
+namespace nodepp { template< class T > class ptr_t { 
+public: ptr_t(){}
 
     virtual ~ptr_t(){ reset(); }
     
@@ -13,7 +14,6 @@ namespace nodepp { template< class T > class ptr_t { public:
     ptr_t( const ulong& n, const T& value ) noexcept { resize( n, value ); }
     ptr_t( T* value, const ulong& n ) noexcept { resize( value, n ); }
     ptr_t( const ulong& n ) noexcept { resize( n ); }
-    ptr_t() noexcept = default;
     
     /*─······································································─*/
 
@@ -126,7 +126,7 @@ namespace nodepp { template< class T > class ptr_t { public:
     /*─······································································─*/
 
     explicit operator bool(void) const { return null(); }
-    explicit operator T*(void) const { return value_; }
+    explicit operator   T*(void) const { return value_; }
 
     T* operator->() const noexcept { return value_; }
     T& operator*() const noexcept { return *value_; }

@@ -44,11 +44,9 @@ protected:
 
     }
     
-public: 
+public: queue_t(){} 
 
     ptr_t<self>& ptr() noexcept { return queue; }
-
-    queue_t() noexcept = default;
 
     virtual ~queue_t() noexcept { 
         if( queue.count() > 1 )

@@ -102,27 +102,12 @@ protected:
         SSL_set_mode( obj->ssl, SSL_MODE_ASYNC | SSL_MODE_AUTO_RETRY | SSL_MODE_RELEASE_BUFFERS );
     }
 
-public: 
+public: ssl_t(){}
     
     virtual ~ssl_t() {
         if( obj.count() > 1 ) { return; }
             force_close();
     }
-
-    void force_close() const noexcept {
-        if( obj->ssl != nullptr ){
-            if( obj->srv==1 ){ SSL_shutdown(obj->ssl); } 
-            SSL_free(obj->ssl); obj->ssl = nullptr;
-            return;
-        }
-        if( obj->ctx != nullptr ){
-            SSL_CTX_free(obj->ctx); 
-            obj->ctx = nullptr; 
-            return;
-        }
-    }
-
-    void free() const noexcept { force_close(); } 
     
     /*─······································································─*/
 
@@ -136,8 +121,6 @@ public:
     ssl_t( string_t _key, string_t _cert, onSNI _func ){
         *this=ssl_t( _key, _cert, &_func );
     }
-
-    ssl_t() noexcept = default;
 
     /*─······································································─*/
 
@@ -224,6 +207,23 @@ public:
         if( obj->ssl == nullptr ){ return -1; } int c = 0;
         return is_blocked( c=SSL_write( obj->ssl, bf, sx ) ) ? -2 : c;
     }
+    
+    /*─······································································─*/
+
+    void force_close() const noexcept {
+        if( obj->ssl != nullptr ){
+            if( obj->srv==1 ){ SSL_shutdown(obj->ssl); } 
+            SSL_free(obj->ssl); obj->ssl = nullptr;
+            return;
+        }
+        if( obj->ctx != nullptr ){
+            SSL_CTX_free(obj->ctx); 
+            obj->ctx = nullptr; 
+            return;
+        }
+    }
+
+    void free() const noexcept { force_close(); } 
     
 };
 

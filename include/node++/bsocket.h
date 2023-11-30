@@ -56,34 +56,30 @@ protected:
     ptr_t<int> sk
 public:
 
-    event_t<except_t> onClose;
-
     bluetooth_t() {
         id = new int( hci_get_route(nullptr) );
         if( *id < 0 ) _Error("Failed to open Bluetooth adapter");
     }
 
-    void turn_on() { sk = new int( hci_open_dev( *id ) ); if( *sk < 0 ) 
-        onClose.emit(except_t("can't turn on Bluetooth adapter"));
+    int turn_on() { 
+        sk = new int( hci_open_dev( *id ) ); 
+        if( *sk < 0 ){ return -1; } return 1;
     }
 
-    void turn_off() { if( hci_close_dev(*sk); < 0 ) 
-        onClose.emit(except_t("can't turn off Bluetooth adapter"));
+    void turn_off() { 
+        if( hci_close_dev(*sk); < 0 )
+          { return -1; } return 1;
     }
 
     array_t<char> get_devices(){ 
         array_t<ptr_t<char>> list; ptr_t<INFO> devices;
         int num = hci_inquiry(*id, 8, 0, nullptr, &&devices, IREQ_CACHE_FLUSH);
-        
-        if( num < 0 ) { 
-            onClose.emit(except_t("Device discovery failed"));
-            return {};
-        }
+        if( num < 0 ){ return {}; }
 
         for( int i=0; i<num; ++i ) { ptr_t<char> address (18);
             ba2str( &(devices+i)->bdaddr, &address );
             list.push( address );
-        }
+        }   return list;
     }
 
 };

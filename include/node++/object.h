@@ -20,9 +20,7 @@ protected:
 
     variant_t<TYPES> memory;
   
-public:
-
-    object_t() noexcept = default;
+public: object_t(){}
 
     template< class U > object_t( const U& any ) noexcept { memory = any; }
     

@@ -61,8 +61,8 @@ public:
                    sk->PROT= BTPROTO_RFCOMM;
                    sk->socket( host, port ); 
         
-        if(   sk->bind() < 0 ){ _onError(onError,"Error while binding Bluetooth"); close();delete sk; return; }
-        if( sk->listen() < 0 ){ _onError(onError,"Error while listening Bluetooth"); close();delete sk; return; }
+        if(   sk->bind() < 0 ){ _onError(onError,"Error while binding Bluetooth"); close(); delete sk; return; }
+        if( sk->listen() < 0 ){ _onError(onError,"Error while listening Bluetooth"); close(); delete sk; return; }
 
         onOpen.emit(*sk); if( cb != nullptr ) (*cb)(*sk); init_poll_loop(); 
         

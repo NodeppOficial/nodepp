@@ -13,7 +13,8 @@ namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-class ssocket_t : public socket_t { public:
+class ssocket_t : public socket_t { 
+public: ssocket_t(){}
 
     ptr_t<ssl_t> ssl;
     
@@ -24,8 +25,6 @@ class ssocket_t : public socket_t { public:
          if( ssl->accept() <= 0 ){ close(); }
          set_nonbloking_mode(); set_buffer_size( _size );
     }
-
-    ssocket_t() noexcept = default;
     
     /*─······································································─*/
 
