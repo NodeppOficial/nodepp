@@ -50,7 +50,7 @@ template< class T > T clamp( T val, T _min, T _max ){ return max( _min, min( _ma
 #define MAX_SOCKET SOMAXCONN
 #define CHUNK_SIZE 65536
 #define UNBFF_SIZE 4096
-#define TIMEOUT    3
+#define TIMEOUT    1
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
