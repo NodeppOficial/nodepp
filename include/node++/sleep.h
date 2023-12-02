@@ -10,13 +10,7 @@ using TIMEVAL = struct timeval;
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace process {
-
-    void  delay( ulong time ){ ::usleep( time * 1000 ); }
     
-    void udelay( ulong time ){ ::usleep( time ); }
-
-    void yield(){ delay(0); }
-
     ulong millis(){
         TIMEVAL now; gettimeofday(&now, NULL);
         return now.tv_sec * 1000 + now.tv_usec / 1000;
@@ -32,7 +26,17 @@ namespace nodepp { namespace process {
         return now.tv_sec;
     }
 
+}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp { namespace process {
+
+    void  delay( ulong time ){ ::usleep( time * 1000 ); }
+
     ulong now(){ return millis(); }
+
+    void yield(){ delay(0); }
 
 }}
 
