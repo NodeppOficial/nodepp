@@ -10,6 +10,8 @@
 
 namespace nodepp { namespace process {
 
+    array_t<string_t> args; int threads = 0;
+
     ulong size(){ 
         return process::poll::size() + 
                process::task::size() + 
@@ -19,9 +21,11 @@ namespace nodepp { namespace process {
     /*─······································································─*/
 
     void start( int argc, char** args ){
-        int i=0; while( ++i < argc ){
+        int i=0; do {
             process::args.push(args[i]);
-        }   process::signal_handler();
+        } while( i ++< argc );
+        console::log( process::args.size() );
+        process::signal_handler();
     }
 
     /*─······································································─*/
@@ -65,9 +69,7 @@ namespace nodepp { namespace process {
     
     /*─······································································─*/
 
-    template< class... T >
-    void pipe( T... args ){
-        process::start( args... );
+    void pipe(){
         while( !process::empty() )
                 process::next();
     }

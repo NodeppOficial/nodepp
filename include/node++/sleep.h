@@ -11,8 +11,6 @@ using TIMEVAL = struct timeval;
 
 namespace nodepp { namespace process {
 
-    array_t<string_t> args; int threads = 0;
-
     void  delay( ulong time ){ ::usleep( time * 1000 ); }
     
     void udelay( ulong time ){ ::usleep( time ); }

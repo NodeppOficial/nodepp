@@ -3,11 +3,16 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#ifndef ARDUINO
-#define _Ready _init_(); int main( int argc, char** args ){ _init_(); process::pipe( argc, args ); return 0; } void _init_
-#else
-#define _Ready loop(){ process::next(); } void setup
-#endif
+#define _Ready _init_(); int main( int argc, char** args ){ \
+   process::start( argc, args ); _init_(); \
+   process::pipe(); return 0; \
+} void _init_
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+template< class T > T   min( T min, T max ){ return min < max ? min : max; }
+template< class T > T   max( T min, T max ){ return max > min ? max : min; }
+template< class T > T clamp( T val, T _min, T _max ){ return max( _min, min( _max, val ) ); }
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

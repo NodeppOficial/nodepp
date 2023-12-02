@@ -10,12 +10,6 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-template< class T > T   min( T min, T max ){ return min < max ? min : max; }
-template< class T > T   max( T min, T max ){ return max > min ? max : min; }
-template< class T > T clamp( T val, T _min, T _max ){ return max( _min, min( _max, val ) ); }
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 #include "macros.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
