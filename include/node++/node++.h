@@ -24,7 +24,6 @@ namespace nodepp { namespace process {
         int i=0; do {
             process::args.push(args[i]);
         } while( i ++< argc );
-        console::log( process::args.size() );
         process::signal_handler();
     }
 

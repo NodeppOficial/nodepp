@@ -235,7 +235,7 @@ public:
     
     /*─······································································─*/
 
-    socket_t( int df=-1, ulong _size=CHUNK_SIZE ) noexcept {
+    socket_t( int df=-1, ulong _size=CHUNK_SIZE ){
         obj->fd = df; set_nonbloking_mode();
         set_buffer_size( _size );
     }
@@ -246,7 +246,7 @@ public:
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
         if( obj->state == -2 ){ return; } obj->state = -2;
         if( skt->srv == 1 ) ::shutdown(obj->fd,SHUT_RDWR);
-        if( obj->fd != -1 ) ::close( obj->fd ); 
+        if( obj->fd  >= 3 ) ::close( obj->fd ); 
         close(); onClose.emit();
     }
 

@@ -4,6 +4,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include "generators.h"
+#include <fcntl.h>
 #include "event.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -43,7 +44,7 @@ protected:
         return fcntl( obj->fd, F_SETFL, flags | O_NONBLOCK );
     }
 
-public:
+public: file_t(){}
 
     event_t<>          onUnpipe;
     event_t<>          onResume;
@@ -82,11 +83,6 @@ public:
         obj->fd = df; set_nonbloking_mode(); set_buffer_size( _size );
     }
 
-    file_t( const ulong& _size=CHUNK_SIZE ) noexcept {
-        obj->fl = tmpfile(); obj->fd = fileno( obj->fl );
-        set_nonbloking_mode(); set_buffer_size( _size );
-    }
-
     /*─······································································─*/
 
     bool       is_closed() const noexcept { return obj->state < 0 || is_feof(); }
@@ -95,7 +91,7 @@ public:
 
     /*─······································································─*/
     
-    void  reset() const noexcept { if(obj->state!=-2) { return; } flush(); rewind( get_fp() ); resume(); }
+    void  reset() const noexcept { if(obj->state!=-2) { return; } flush(); rewind(get_fp()); pos(0); resume(); }
     void resume() const noexcept { if(obj->state== 0) { return; } obj->state= 0; onResume.emit(); }
     void  close() const noexcept { if(obj->state < 0) { return; } obj->state=-1; onDrain.emit(); }
     void   stop() const noexcept { if(obj->state==-3) { return; } obj->state=-3; onStop.emit(); }
@@ -153,9 +149,9 @@ public:
     virtual void force_close() const noexcept {
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
         if( obj->state == -2 ){ return; } obj->state = -2;
-        if( obj->fl != nullptr )  fclose( obj->fl );
-        if( obj->fp != nullptr )  pclose( obj->fp );
-        if( obj->fd != -1      ) ::close( obj->fd ); 
+             if( obj->fl != nullptr )  fclose( obj->fl );
+        else if( obj->fp != nullptr )  pclose( obj->fp );
+        else if( obj->fd >=  3      ) ::close( obj->fd ); 
         close(); onClose.emit();
     }
     

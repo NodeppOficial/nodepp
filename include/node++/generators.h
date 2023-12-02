@@ -1,6 +1,6 @@
 
 #if defined(NODEPP_STREAM) && !defined(GENERATOR_FILE)
-#define GENERATOR_FILE 
+#define GENERATOR_FILE
 namespace nodepp { namespace _file_ {
 
     _Generator( read ){ public: 
@@ -21,7 +21,7 @@ namespace nodepp { namespace _file_ {
                  c = str->_read( str->get_buffer_data(), str->get_buffer_size() );
         } while( c == -2 );
 
-        if( c<0 && y.empty() ){ str->close(); } else if( c>0 ){
+        if( c<=0 && y.empty() ){ str->close(); } else if( c>0 ){
             ulong act = (ulong) c; if( r[1] != 0 ) 
                   act = min( str->pos()-r[1], act );
             y = (string_t){ str->get_buffer_data(), act };
@@ -50,9 +50,9 @@ namespace nodepp { namespace _file_ {
 
         do{ while(( c=str->_write( str->get_borrow_data(), size ))==-2 )
                  { _Next; } if(c>0){ str->get_borrow().splice(0,c); y+=c; }
-        }   while( c>0 && !str->get_borrow().empty() ); 
+        }   while( c>=0 && !str->get_borrow().empty() ); 
 
-               if( c<0 ){ str->close(); _End; }
+               if( c<=0 ){ str->close(); _End; }
 
     _Stop
     }};

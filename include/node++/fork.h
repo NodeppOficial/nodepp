@@ -1,10 +1,22 @@
 #ifndef NODEPP_FORK
 #define NODEPP_FORK
 
-namespace nodepp { class fork_t {
+/*────────────────────────────────────────────────────────────────────────────*/
 
-    
+#include "exec.h"
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp { class fork_t {
+protected:
+
+public: fork(){}
+
+    fork( const string_t& name ){
+    }
 
 };}
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 #endif
