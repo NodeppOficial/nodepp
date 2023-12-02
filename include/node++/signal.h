@@ -14,7 +14,9 @@ namespace nodepp { namespace process {
     event_t<int> onSIGSEGV; //on Segmentation Violation
     event_t<int> onSIGILL;  //on Illegal Instruction
     event_t<int> onSIGSINT; //on Signal Interrupt
+#ifdef SIGPIPE
     event_t<int> onSIGPIPE; //on Broked Pipeline
+#endif
     event_t<int> onSIGTERM; //on Terminate
     event_t<int> onSIGABRT; //on Abort
     event_t<int> onSIGERR;  //on Error
@@ -25,7 +27,9 @@ namespace nodepp { namespace process {
         ::signal( SIGILL,  []( int param ){  onSIGILL.emit(param); onSIGERR.emit(param); console::log("\033[1;31mSIGILL:\033[0m Illegal Instruction");      exit(); });
         ::signal( SIGTERM, []( int param ){ onSIGTERM.emit(param); onSIGERR.emit(param); console::log("\033[1;31mSIGTERM:\033[0m Process Terminated");      exit(); });
         ::signal( SIGINT,  []( int param ){ onSIGSINT.emit(param); onSIGERR.emit(param); console::log("\033[1;31mSIGINT:\033[0m Signal Interrupt");         exit(); });
+#ifdef SIGPIPE
         ::signal( SIGPIPE, []( int param ){ onSIGPIPE.emit(param); onSIGERR.emit(param); console::log("\033[1;31mSIGPIPE:\033[0m Broked Pipeline");         exit(); });
+#endif
         ::signal( SIGABRT, []( int param ){ onSIGABRT.emit(param); onSIGERR.emit(param); console::log("\033[1;31mSIGABRT:\033[0m Process Abort");           exit(); });
     }
 

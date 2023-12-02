@@ -36,7 +36,6 @@ template< class T > T clamp( T val, T _min, T _max ){ return max( _min, min( _ma
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include "os.h"
 #include "env.h"
 #include "signal.h"
 
@@ -44,6 +43,7 @@ template< class T > T clamp( T val, T _min, T _max ){ return max( _min, min( _ma
 
 #include "except.h"
 #include "sleep.h"
+#include "os.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

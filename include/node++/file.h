@@ -4,7 +4,6 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include "generators.h"
-#include <fcntl.h>
 #include "event.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -32,18 +31,18 @@ protected:
     /*─······································································─*/
 
     virtual bool is_blocked( const int& c ) const noexcept {
-    if( c < 0 ){ return (
-         errno == EWOULDBLOCK || errno == EINPROGRESS ||
-         errno == ECONNRESET  || errno == EALREADY 
+        auto error = os::error(); if( c < 0 ){ return (
+             error == EWOULDBLOCK || error == EINPROGRESS ||
+             error == ECONNRESET  || error == EALREADY 
     ); } return 0; }
     
     /*─······································································─*/
     
     virtual int set_nonbloking_mode() const noexcept {
-        static int flags = fcntl( obj->fd, F_GETFL, 0 );
+            int flags = fcntl( obj->fd, F_GETFL, 0 );
         return fcntl( obj->fd, F_SETFL, flags | O_NONBLOCK );
     }
-    
+
 public:
 
     event_t<>          onUnpipe;
@@ -66,7 +65,7 @@ public:
     /*─······································································─*/
 
     file_t( const string_t& path, const string_t& mode, const ulong& _size=CHUNK_SIZE ) {
-        obj->fl = fopen( (char*)path, (char*)mode  ); if( obj->fl == nullptr ) 
+        obj->fl =  fopen( (char*)path, (char*)mode  ); if( obj->fl == nullptr ) 
                   _Error("such file or directory does not exist");
         obj->fd = fileno( obj->fl ); set_nonbloking_mode(); set_buffer_size( _size );
     }
@@ -153,7 +152,7 @@ public:
     
     virtual void force_close() const noexcept {
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
-        if( obj->state == -2 ){ return; } obj->state=-2;
+        if( obj->state == -2 ){ return; } obj->state = -2;
         if( obj->fl != nullptr )  fclose( obj->fl );
         if( obj->fp != nullptr )  pclose( obj->fp );
         if( obj->fd != -1      ) ::close( obj->fd ); 

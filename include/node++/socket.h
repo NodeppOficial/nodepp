@@ -41,6 +41,22 @@ protected:
         socklen_t addrlen; bool srv=0; socklen_t len;
         SOCKADDR server_addr, client_addr;
     };  ptr_t<_str_> skt = new _str_();
+    
+    /*─······································································─*/
+
+    virtual bool is_blocked( const int& c ) const noexcept { 
+        auto error = os::error(); if( c < 0 ){ return (
+             error == EWOULDBLOCK || error == EINPROGRESS ||
+             error == ECONNRESET  || error == EALREADY    ||
+             error == EAGAIN
+    ); } return 0; }
+    
+    /*─······································································─*/
+    
+    virtual int set_nonbloking_mode() const noexcept {
+            int flags = fcntl( obj->fd, F_GETFL, 0 );
+        return fcntl( obj->fd, F_SETFL, flags | O_NONBLOCK );
+    }
 
 public:
 
@@ -193,9 +209,7 @@ public:
         set_recv_timeout ( opt->recv_timeout  );
         set_send_timeout ( opt->send_timeout  );
         set_buffer_size  ( opt->buffer_size   );
-    #ifdef linux
         set_reuse_port   ( opt->reuse_port    );
-    #endif
         set_keep_alive   ( opt->keep_alive    );
         set_broadcast    ( opt->broadcast     );
     return 1;
@@ -231,8 +245,10 @@ public:
 
     virtual void force_close() const noexcept {
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
-        if( obj->state == -2 ){ return; } file_t::force_close();
-        if( skt->srv == 1 )::shutdown( obj->fd, SHUT_RDWR );
+        if( obj->state == -2 ){ return; } obj->state = -2;
+        if( skt->srv == 1 ) ::shutdown(obj->fd,SHUT_RDWR);
+        if( obj->fd != -1 ) ::close( obj->fd ); 
+        close(); onClose.emit();
     }
 
     /*─······································································─*/
