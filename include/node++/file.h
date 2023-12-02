@@ -4,7 +4,6 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include "generators.h"
-#include <unistd.h>
 #include <fcntl.h>
 #include "event.h"
 
@@ -30,7 +29,17 @@ protected:
 
     };  ptr_t<_str_> obj = new _str_();
     
-    int set_nonbloking_mode() const noexcept {
+    /*─······································································─*/
+
+    virtual bool is_blocked( const int& c ) const noexcept {
+    if( c < 0 ){ return (
+         errno == EWOULDBLOCK || errno == EINPROGRESS ||
+         errno == ECONNRESET  || errno == EALREADY 
+    ); } return 0; }
+    
+    /*─······································································─*/
+    
+    virtual int set_nonbloking_mode() const noexcept {
         static int flags = fcntl( obj->fd, F_GETFL, 0 );
         return fcntl( obj->fd, F_SETFL, flags | O_NONBLOCK );
     }
@@ -169,15 +178,6 @@ public:
         FILE* f = get_fp(); obj->buffer.fill(0); 
         if( f != nullptr ) fflush(f);
     }
-    
-    /*─······································································─*/
-
-    bool is_blocked( int c ) const noexcept {
-    if( c < 0 ){ return (
-         errno == EWOULDBLOCK || errno == EINPROGRESS ||
-         errno == ECONNRESET  || errno == EALREADY    ||
-         errno == EAGAIN 
-    ); } return 0; }
     
     /*─······································································─*/
 

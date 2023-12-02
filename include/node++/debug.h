@@ -12,18 +12,20 @@ public:
 
     virtual ~debug_t() noexcept { 
 	    console::log( message, "closed" );  
-    #ifdef NODEPP_SIGNAL
    	    process::onSIGERR.off(ev);
-    #endif
     }
     
     /*─······································································─*/
 
     debug_t( const string_t& msg ) noexcept {
-    #ifdef NODEPP_SIGNAL
         ev = process::onSIGERR([=]( int sig ){ error(); });
-    #endif
 	    console::log( msg, "open" ); message = msg; 
+    }
+    
+    /*─······································································─*/
+
+    debug_t() noexcept: message("something went wrong") {
+        ev = process::onSIGERR([=]( int sig ){ error(); });
     }
     
     /*─······································································─*/

@@ -57,7 +57,7 @@ public:
         if( obj->state == 1 ){ break; } obj->state = 1;
 
         bsocket_t *sk = new bsocket_t; 
-                   sk->AF = AF_BLUETOOTH; 
+                   sk->AF  = AF_BLUETOOTH; 
                    sk->PROT= BTPROTO_RFCOMM;
                    sk->socket( host, port ); 
         
@@ -93,6 +93,8 @@ public:
         if( obj->state == 1 ){ break; } obj->state = 1;
 
         bsocket_t sk = bsocket_t(); 
+                  sk.AF  = AF_BLUETOOTH; 
+                  sk.PROT= BTPROTO_RFCOMM;
                   sk.socket( host, port ); 
                   sk.set_sockopt( obj->agent );
 
@@ -134,7 +136,7 @@ namespace bth {
 
     bth_t server( agent_t* opt=nullptr ){
         auto server = (bth_t){ [=]( bsocket_t cli ){}, opt };
-        tcp::server( server ); return server; 
+        bth::server( server ); return server; 
     }
 
     /*─······································································─*/
@@ -155,7 +157,7 @@ namespace bth {
 
     bth_t client( agent_t* opt=nullptr ){
         auto client = (bth_t){ [=]( bsocket_t cli ){}, opt };
-        tcp::client( client ); return client; 
+        bth::client( client ); return client; 
     }
 }
 

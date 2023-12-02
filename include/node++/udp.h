@@ -46,6 +46,7 @@ public:
             ptr_t<udp_t> self = new udp_t( *this );
 
         socket_t sk = socket_t(); 
+                 sk.PROT = IPPROTO_UDP;
                  sk.SOCK = SOCK_DGRAM;
                  sk.socket(host,port);
                  sk.set_sockopt(obj->agent);
@@ -65,6 +66,7 @@ public:
         if( obj->state == 1 ){ return; } obj->state = 1;
 
         socket_t sk = socket_t(); 
+                 sk.PROT = IPPROTO_UDP;
                  sk.SOCK = SOCK_DGRAM;
                  sk.socket(host,port);  
                  sk.set_sockopt(obj->agent);

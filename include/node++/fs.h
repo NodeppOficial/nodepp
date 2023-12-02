@@ -16,13 +16,13 @@ namespace nodepp {
 
 namespace fs {
     
-    file_t* readable_new( string_t path, ulong _size=CHUNK_SIZE ){ return new file_t( path, "r", _size ); }
-    file_t  readable( string_t path, ulong _size=CHUNK_SIZE ){ return file_t( path, "r", _size ); }
+    file_t* readable_new( const string_t& path, ulong _size=CHUNK_SIZE ){ return new file_t( path, "r", _size ); }
+    file_t  readable( const string_t& path, ulong _size=CHUNK_SIZE ){ return file_t( path, "r", _size ); }
     
     /*─······································································─*/
 
-    file_t* writable_new( string_t path, ulong _size=CHUNK_SIZE ){ return new file_t( path, "w", _size ); }
-    file_t  writable( string_t path, ulong _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
+    file_t* writable_new( const string_t& path, ulong _size=CHUNK_SIZE ){ return new file_t( path, "w", _size ); }
+    file_t  writable( const string_t& path, ulong _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
     
     /*─······································································─*/
 
@@ -31,7 +31,7 @@ namespace fs {
     
     /*─······································································─*/
 
-    string_t read_file( string_t path ){ string_t s;
+    string_t read_file( const string_t&  path ){ string_t s;
         if( path.empty() ) return s;
         file_t _file( path, "r" );
         while( _file.is_available() )
@@ -40,7 +40,7 @@ namespace fs {
     
     /*─······································································─*/
 
-    int copy_file( string_t src, string_t des ){ 
+    int copy_file( const string_t&  src, const string_t&  des ){ 
         if( src.empty() || des.empty() ) return -1;
         try {
             file_t _file_a( src, "r" );
@@ -51,27 +51,27 @@ namespace fs {
     
     /*─······································································─*/
 
-    int rename_file( string_t oname, string_t nname ) {
+    int rename_file( const string_t&  oname, const string_t&  nname ) {
         if( oname.empty() || nname.empty() ) return -1;
         return rename( oname.c_str(), nname.c_str() );
     }
     
     /*─······································································─*/
 
-    int move_file( string_t oname, string_t nname ) {
+    int move_file( const string_t&  oname, const string_t&  nname ) {
         return rename_file( oname, nname );
     }
     
     /*─······································································─*/
 
-    int remove_file( string_t path ){
+    int remove_file( const string_t&  path ){
         if( path.empty() ) return -1;
         return remove( path.c_str() );
     }
     
     /*─······································································─*/
 
-    bool exists_file( string_t path ){
+    bool exists_file( const string_t&  path ){
         if( path.empty() ) return 0;
         FILE* _stream = fopen( path.c_str(), "r" );
         if( _stream == nullptr ) return 0;
@@ -80,7 +80,7 @@ namespace fs {
     
     /*─······································································─*/
 
-    int create_file( string_t path ){
+    int create_file( const string_t&  path ){
         if( path.empty() ) return -1;
         FILE* _stream = fopen( path.c_str(), "w" );
         return fclose( _stream );
@@ -88,7 +88,7 @@ namespace fs {
     
     /*─······································································─*/
 
-    int file_size( string_t path ){
+    int file_size( const string_t&  path ){
         try { file_t file( path, "r" );
               return file.size();
         } catch(...) { return -1; }
@@ -96,45 +96,45 @@ namespace fs {
     
     /*─······································································─*/
 
-    void write_file( string_t path, string_t data ){
+    void write_file( const string_t&  path, const string_t&  data ){
         file_t file( path, "w" ); file.write( data );
     }
     
     /*─······································································─*/
 
-    void append_file( string_t path, string_t data ){
+    void append_file( const string_t&  path, const string_t&  data ){
         file_t file( path, "a" ); file.write( data );
     }
     
     /*─······································································─*/
 
-    int rename_folder( string_t oname, string_t nname ) { 
+    int rename_folder( const string_t&  oname, const string_t&  nname ) { 
         return rename_file( oname, nname );
     }
     
     /*─······································································─*/
 
-    int move_folder( string_t oname, string_t nname ){ 
+    int move_folder( const string_t&  oname, const string_t&  nname ){ 
         return rename_file( oname, nname );
     }
     
     /*─······································································─*/
 
-    int create_folder( string_t path, uint permission=0777 ){ 
+    int create_folder( const string_t&  path, uint permission=0777 ){ 
         if( path.empty() ) return -1; 
         return mkdir( path.c_str(), permission );
     }
     
     /*─······································································─*/
 
-    int remove_folder( string_t path ){ 
+    int remove_folder( const string_t&  path ){ 
         if( path.empty() ) return -1; 
         return rmdir( path.c_str() );
     }
     
     /*─······································································─*/
 
-    bool exists_folder( string_t path ){
+    bool exists_folder( const string_t&  path ){
         if( path.empty() ) return 0;
         DIR* dir = opendir( path.c_str() );
         if( dir ) { closedir(dir); return 1; }
@@ -143,7 +143,7 @@ namespace fs {
     
     /*─······································································─*/
 
-    array_t<string_t> read_folder( string_t path ){ 
+    array_t<string_t> read_folder( const string_t&  path ){ 
         if( path.empty() ) _Error("Error path is empty"); 
         DIR* dir = opendir( path.c_str() ); struct dirent* entry;
 
@@ -162,43 +162,21 @@ namespace fs {
     
     /*─······································································─*/
 
-    long folder_size( string_t path ){
-        if( path.empty() ){ return -1; }
-        DIR* dir = opendir( path.c_str() ); struct dirent* entry;
-        ulong count=0; if( dir ) {
-            while ((entry = readdir(dir)) != NULL ){ count++; } closedir(dir);
-        } else { return -1; } return count-2;            
+    long folder_size( const string_t&  path ){
+          auto list = read_folder( path );
+        return list.size(); 
     }
 
     /*─······································································─*/
 
-    bool is_folder( string_t path ){
-        DIR* dir = opendir(path.c_str());
-        if( dir ) { closedir(dir); return 1;
-        } else { return 0; }
-    }
-
-    bool is_file( string_t path ){
-        DIR* dir = opendir(path.c_str());
-        if( dir ) { closedir(dir); return 0;
-        } else { return 1; }
-    }
+    bool is_folder( const string_t&  path ){ return exists_folder(path); }
+    
+    bool   is_file( const string_t&  path ){ return exists_file(path); }
 
     /*─······································································─*/
 
-    int readlink( string_t path, char* buff, ulong size ){ return ::readlink( path.c_str(), buff, size ); }
-    int  symlink( string_t opath, string_t npath ){ return ::symlink( opath.c_str(), npath.c_str() ); }
-    int     link( string_t opath, string_t npath ){ return ::link( opath.c_str(), npath.c_str() ); }
-    int   unlink( string_t path ){ return ::unlink( path.c_str() ); }
-
-    /*─······································································─*/
-
-    int copy_folder( string_t opath, string_t npath ){
-    #ifndef linux
-        return ::system( string::format( "COPY %s %s", (char*)opath, (char*)npath ).c_str() );
-    #else
-        return ::system( string::format( "cp %s %s", (char*)opath, (char*)npath ).c_str() );
-    #endif
+    int copy_folder( const string_t& opath, const string_t&  npath ){
+        return ::system( string::format( "cp -R %s %s", (char*)opath, (char*)npath ).c_str() );
     }
     
 }

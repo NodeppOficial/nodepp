@@ -52,31 +52,33 @@ class bluetooth_t {
 private:
     using INFO = inquiry_info;
 protected:
-    ptr_t<int> id;
-    ptr_t<int> sk
+
+    struct _str_ {
+        int id, sk;
+    };  ptr_t<_str_> obj = new _str_();
+
 public:
 
     bluetooth_t() {
-        id = new int( hci_get_route(nullptr) );
-        if( *id < 0 ) _Error("Failed to open Bluetooth adapter");
+        obj->id = hci_get_route(nullptr); if( obj->id < 0 ) 
+        _Error("Failed to open Bluetooth adapter");
     }
 
-    int turn_on() { 
-        sk = new int( hci_open_dev( *id ) ); 
-        if( *sk < 0 ){ return -1; } return 1;
+    int turn_on() const noexcept { 
+        obj->sk = hci_open_dev(obj->id); if( obj->sk < 0 )
+            { return -1; } return 1;
     }
 
-    void turn_off() { 
-        if( hci_close_dev(*sk); < 0 )
+    void turn_off() const noexcept { 
+        if( hci_close_dev(obj->sk); < 0 )
           { return -1; } return 1;
     }
 
-    array_t<char> get_devices(){ 
-        array_t<ptr_t<char>> list; ptr_t<INFO> devices;
-        int num = hci_inquiry(*id, 8, 0, nullptr, &&devices, IREQ_CACHE_FLUSH);
+    array_t<char> get_devices(){ array_t<ptr_t<char>> list; ptr_t<INFO> devices;
+        int num = hci_inquiry( obj->id, 8, 0, nullptr, &&devices, IREQ_CACHE_FLUSH );
         if( num < 0 ){ return {}; }
 
-        for( int i=0; i<num; ++i ) { ptr_t<char> address (18);
+        for( int i=0; i<num; ++i ){ ptr_t<char> address (18);
             ba2str( &(devices+i)->bdaddr, &address );
             list.push( address );
         }   return list;

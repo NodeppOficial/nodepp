@@ -95,12 +95,10 @@ public:
              { process::next(); } return c;
     }
 
-#ifdef linux
     int set_reuse_port( uint en ) const noexcept { int c;
         while( is_blocked( c=::setsockopt( obj->fd, SOL_SOCKET, SO_REUSEPORT, (char*)&en, sizeof(en) ) ) )
              { process::next(); } return c;
     }
-#endif
 
     /*─······································································─*/
 
@@ -144,12 +142,10 @@ public:
              { process::next(); } return c==0 ? en : c;
     }
 
-#ifdef linux
     int get_reuse_port() const noexcept { int c, en; socklen_t size = sizeof(en);
         while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_REUSEPORT, (char*)&en, &size) ) )
              { process::next(); } return c==0 ? en : c;
     }
-#endif
 
     int get_keep_alive() const noexcept { int c, en; socklen_t size = sizeof(en);
         while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_KEEPALIVE, (char*)&en, &size) ) )
@@ -211,9 +207,7 @@ public:
         opt->recv_timeout  = get_recv_timeout();
         opt->send_timeout  = get_send_timeout();
         opt->buffer_size   = get_buffer_size();
-    #ifdef linux
         opt->reuse_port    = get_reuse_port();
-    #endif
         opt->keep_alive    = get_keep_alive();
         opt->broadcast     = get_broadcast();
     return opt;
@@ -251,9 +245,7 @@ public:
 
         set_buffer_size( CHUNK_SIZE );
         set_reuse_address(1); 
-    #ifdef linux
         set_reuse_port(1);
-    #endif
 
         SOCKADDR_IN server, client;
         server.sin_port    = htons ( port );

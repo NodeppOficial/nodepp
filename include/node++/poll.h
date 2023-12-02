@@ -47,7 +47,7 @@ public: poll_t(){}
 
     ptr_t<int> _emit ( const ulong& timeout=0 ) noexcept { static ulong s=0;
 
-        if( poll.empty() )                                       { return nullptr; }
+        if( poll.empty() )                                  { return nullptr; }
         
         if( ::poll( poll.data(), poll.size(), timeout )<=0 ){ return nullptr; }
 
@@ -67,7 +67,7 @@ public: poll_t(){}
     int emit ( const ulong& timeout=0 ) noexcept {
         static POLLFD x; static ulong s=0; _Start
 
-        if( poll.empty() )                                       { _Next; }
+        if( poll.empty() )                                  { _Next; }
         
         if( ::poll( poll.data(), poll.size(), timeout )<=0 ){ _Next; }
 

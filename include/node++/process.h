@@ -3,19 +3,15 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#ifndef ARDUINO
-    #include <typeinfo>
-    #include <cstring>
-    #include <cstdlib>
-    #include <cstdio>
-#endif
+#include <typeinfo>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#ifndef ARDUINO
-template< class T > T min( T min, T max ){ return min < max ? min : max; }
-template< class T > T max( T min, T max ){ return max > min ? max : min; }
-#endif
+template< class T > T   min( T min, T max ){ return min < max ? min : max; }
+template< class T > T   max( T min, T max ){ return max > min ? max : min; }
 template< class T > T clamp( T val, T _min, T _max ){ return max( _min, min( _max, val ) ); }
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -40,17 +36,14 @@ template< class T > T clamp( T val, T _min, T _max ){ return max( _min, min( _ma
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#ifndef ARDUINO
-    #include "os.h"
-    #include "env.h"
-    #include "signal.h"
-#endif
+#include "os.h"
+#include "env.h"
+#include "signal.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include "except.h"
 #include "sleep.h"
-#include "io.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

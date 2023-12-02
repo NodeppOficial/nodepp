@@ -6,16 +6,14 @@
 #include <pthread.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
-/*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace worker {
     void delay( ulong time ){ process::delay(time); }
     int    pid(){ return (int)pthread_self(); }
     void  exit(){ pthread_exit(NULL); }
-    void yield(){ pthread_yield(); }
+    void yield(){ process::delay(0); }
 }}
 
-/*────────────────────────────────────────────────────────────────────────────*/
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp {
@@ -43,32 +41,30 @@ public:
 };}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-/*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace { mutex_t mtx;
 
     void* sfunc( void* arg ){
         mtx.lock(); process::threads--; mtx.unlock();
         auto cb = (function_t<int>*) arg;
-        while((*cb)() >= 0 ){ pthread_yield(); }
-        delete cb; pthread_exit(NULL); 
+        while((*cb)() >= 0 ){ worker::yield(); }
+        delete cb; worker::exit(); 
     }
 
     void* dfunc( void* arg ){
         auto cb = (function_t<int>*) arg;
-        while((*cb)() >= 0 ){ pthread_yield(); }
-        delete cb; pthread_exit(NULL); 
+        while((*cb)() >= 0 ){ worker::yield(); }
+        delete cb; worker::exit(); 
     }
 
     void* jfunc( void* arg ){
         auto cb = (function_t<int>*) arg;
-        while((*cb)() >= 0 ){ pthread_yield(); }
-        delete cb; pthread_exit(NULL); 
+        while((*cb)() >= 0 ){ worker::yield(); }
+        delete cb; worker::exit(); 
     }
 
 }}
 
-/*────────────────────────────────────────────────────────────────────────────*/
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { class worker_t { 
@@ -76,20 +72,10 @@ protected:
 
     struct _str_ {
         function_t<int>* cb;
-        pthread_attr_t attr;
         ptr_t<int> out;
         int state = 0;
         pthread_t id;
     };  ptr_t<_str_> obj = new _str_();
-    
-    /*─······································································─*/
-
-    bool is_blocked( int c ) const noexcept {
-    if( c < 0 ){ return (
-         errno == EWOULDBLOCK || errno == EINPROGRESS ||
-         errno == ECONNRESET  || errno == EALREADY    ||
-         errno == EAGAIN 
-    ); } return 0; }
 
 public:
 
@@ -117,33 +103,24 @@ public:
     
     /*─······································································─*/
 
-    int detach() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
-        while( is_blocked(c=pthread_create(&obj->id, NULL, &jfunc, (void*)obj->cb )) )
-             { process::next(); } pthread_detach( obj->id ); return c;
+    int detach() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
+        return pthread_create(&obj->id, NULL, &dfunc, (void*)obj->cb );
     }
 
-    int join() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
-        while( is_blocked(c=pthread_create(&obj->id, NULL, &jfunc, (void*)obj->cb )) )
-             { process::next(); } pthread_join( obj->id, NULL ); return c;
+    int join() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
+        return pthread_create(&obj->id, NULL, &jfunc, (void*)obj->cb );
     }
 
-    int add() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
-        while( is_blocked(c=pthread_create(&obj->id, NULL, &sfunc, (void*)obj->cb )) )
-             { process::next(); } pthread_detach( obj->id );
-           if( c == 0 ){ process::threads++; } return c;
+    int add() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
+        return pthread_create(&obj->id, NULL, &sfunc, (void*)obj->cb );
     }
 
 };}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-/*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace worker {
-    template< class... T >
-    worker_t add( T... args ){
-        worker_t wrk( args... );
-        wrk.add(); return wrk;
-    }
+namespace nodepp { namespace worker { template< class... T >
+    worker_t add( T... args ){ worker_t wrk( args... ); wrk.add(); return wrk; }
 }}
 
 /*────────────────────────────────────────────────────────────────────────────*/

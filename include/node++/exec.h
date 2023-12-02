@@ -15,8 +15,8 @@ namespace nodepp {
 class exec_t : public file_t { public:
 
     exec_t( const string_t& path, const string_t& mode="r", const ulong& _size=CHUNK_SIZE ) {
-        obj->fp = popen( (char*)path, (char*)mode  ); if( obj->fp == nullptr ) 
-                       { _Error("such file or directory does not exist"); }
+        obj->fp =  popen( (char*)path, (char*)mode  ); if( obj->fp == nullptr ) 
+                        { _Error("such file or directory does not exist"); }
         obj->fd = fileno( obj->fp ); obj->buffer = ptr_t<char>( _size ); 
         set_nonbloking_mode();
     }

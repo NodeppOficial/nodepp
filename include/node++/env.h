@@ -4,9 +4,13 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace { 
+    
     int SET( string_t name, string_t value ){ return setenv( name.c_str(), value.c_str(), 1 ); }
+
     string_t GET( string_t name ){ return getenv( name.c_str() ); } 
+
     int DEL( string_t name ){ return unsetenv( name.c_str() ); }
+
     int CLEAR(){ return clearenv(); }
 }}
 

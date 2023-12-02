@@ -21,10 +21,7 @@ namespace nodepp { namespace process {
     void start( int argc, char** args ){
         int i=0; while( ++i < argc ){
             process::args.push(args[i]);
-        }
-    #ifndef ARDUINO
-            process::signal_handler();
-    #endif
+        }   process::signal_handler();
     }
 
     /*─······································································─*/
@@ -43,9 +40,7 @@ namespace nodepp { namespace process {
         x = process::loop::size(); while( x-->0 ){ process::loop::next(); _Next; }
         x = process::poll::size(); while( x-->0 ){ process::poll::next(); _Next; }
 
-        #ifndef ARDUINO 
             process::delay( TIMEOUT ); 
-        #endif
 
         _Stop
     }

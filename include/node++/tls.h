@@ -57,7 +57,9 @@ public:
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx == nullptr || obj->ctx->create_server() == -1 )
           { _onError(onError,"Error Initializing SSL context"); close(); return; }
         
-        ssocket_t *sk = new ssocket_t; sk->socket( host, port ); 
+        ssocket_t *sk = new ssocket_t; 
+                   sk->PROT = IPPROTO_TCP;
+                   sk->socket( host, port ); 
         
         if(   sk->bind() < 0 ){ _onError(onError,"Error while binding TLS"); close(); delete sk; return; }
         if( sk->listen() < 0 ){ _onError(onError,"Error while listening TLS"); close(); delete sk; return; }
@@ -91,6 +93,7 @@ public:
         ptr_t<tls_t> self = new tls_t( *this );
 
         ssocket_t sk = ssocket_t(); 
+                  sk.PROT = IPPROTO_TCP;
                   sk.socket( host, port );
                   sk.set_sockopt( obj->agent );
 

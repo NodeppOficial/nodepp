@@ -55,7 +55,9 @@ public:
     void listen( string_t host, int port, decltype(obj->func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1;
 
-        socket_t *sk = new socket_t; sk->socket( host, port ); 
+        socket_t *sk = new socket_t; 
+                  sk->PROT = IPPROTO_TCP;
+                  sk->socket( host, port ); 
         
         if(   sk->bind() < 0 ){ _onError(onError,"Error while binding TCP"); close(); delete sk; return; }
         if( sk->listen() < 0 ){ _onError(onError,"Error while listening TCP"); close(); delete sk; return; }
@@ -90,6 +92,7 @@ public:
         ptr_t<tcp_t> self = new tcp_t( *this );
 
         socket_t sk = socket_t(); 
+                 sk.PROT = IPPROTO_TCP;
                  sk.socket( host, port );  
                  sk.set_sockopt( obj->agent );
 
