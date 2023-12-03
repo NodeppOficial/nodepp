@@ -72,8 +72,9 @@ protected:
 
 public:
 
-    promise_t& then( const decltype(obj->res_func)& cb ) const noexcept { obj->state=2; obj->res_func = cb; return (*this); }
-    promise_t& fail( const decltype(obj->rej_func)& cb ) const noexcept { obj->state=2; obj->rej_func = cb; return (*this); }
+    promise_t& then( const decltype(obj->res_func)& cb ) noexcept { obj->state=2; obj->res_func = cb; return (*this); }
+    
+    promise_t& fail( const decltype(obj->rej_func)& cb ) noexcept { obj->state=2; obj->rej_func = cb; return (*this); }
 
     /*─······································································─*/
 

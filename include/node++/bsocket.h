@@ -4,7 +4,9 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include "socket.h"
+#include <bluetooth/hci.h>
 #include <bluetooth/rfcomm.h>
+#include <bluetooth/hci_lib.h>
 #include <bluetooth/bluetooth.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -45,19 +47,20 @@ class bsocket_t : public socket_t { public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
-
 class bluetooth_t {
 private:
     using INFO = inquiry_info;
 protected:
 
-    struct _str_ {
-        int id, sk;
-    };  ptr_t<_str_> obj = new _str_();
+    struct _str_ { int id, sk; };  
+    ptr_t<_str_> obj = new _str_();
 
 public:
+
+    virtual ~bluetooth_t() {
+        if( obj.count() > 1 ){ return; } 
+            close( obj->sk );
+    }
 
     bluetooth_t() {
         obj->id = hci_get_route(nullptr); if( obj->id < 0 ) 
@@ -66,22 +69,24 @@ public:
 
     int turn_on() const noexcept { 
         obj->sk = hci_open_dev(obj->id); if( obj->sk < 0 )
-            { return -1; } return 1;
+            { return -1; } return 0;
     }
 
-    void turn_off() const noexcept { 
+    int turn_off() const noexcept { 
         if( hci_close_dev(obj->sk); < 0 )
-          { return -1; } return 1;
+          { return -1; } return 0;
     }
 
-    array_t<char> get_devices(){ array_t<ptr_t<char>> list; ptr_t<INFO> devices;
-        int num = hci_inquiry( obj->id, 8, 0, nullptr, &&devices, IREQ_CACHE_FLUSH );
-        if( num < 0 ){ return {}; }
+    array_t<string_t> get_devices(){ array_t<string_t> list; INFO* devices = nullptr;
+        int num = hci_inquiry( obj->id, 8, 0, nullptr, &devices, IREQ_CACHE_FLUSH );
+        if( num < 0 ){ delete devices; return list; }
 
-        for( int i=0; i<num; ++i ){ ptr_t<char> address (18);
-            ba2str( &(devices+i)->bdaddr, &address );
+        for( int i=0; i<num; ++i ){ ptr_t<char> address (18,0);
+            ba2str( &(devices[i].bdaddr), &address );
             list.push( address );
-        }   return list;
+        }   
+        
+        delete devices; return list;
     }
 
 };
