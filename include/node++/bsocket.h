@@ -25,11 +25,8 @@ class bsocket_t : public socket_t { public:
  
         set_buffer_size( CHUNK_SIZE );
         set_nonbloking_mode(1);
-        set_reuse_address(1); 
-
-    #ifdef linux
+        set_reuse_address(1);
         set_reuse_port(1);
-    #endif
         
         SOCKADDR_RC server = {0}, client = {0};
         addr.rc_channel    = (uint8_t) port;
