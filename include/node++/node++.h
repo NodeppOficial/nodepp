@@ -23,7 +23,7 @@ namespace nodepp { namespace process {
     void start( int argc, char** args ){
         int i=0; do {
             process::args.push(args[i]);
-        } while( i ++< argc );
+        }   while( i ++< argc );
         process::signal_handler();
     }
 

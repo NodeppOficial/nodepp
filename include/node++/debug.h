@@ -22,8 +22,6 @@ public:
 	    console::log( msg, "open" ); message = msg; 
     }
     
-    /*─······································································─*/
-
     debug_t() noexcept: message("something went wrong") {
         ev = process::onSIGERR([=]( int sig ){ error(); });
     }
