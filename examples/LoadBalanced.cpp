@@ -21,10 +21,10 @@ void server( int process ){
 
 void _Ready() {
 
-    //Load Balanced Web Server
-    for( auto x=os::cpus(); x--; ){
-        if( os::fork() != 0 ){ break; }
-            server( os::pid() );
+    if( process::is_child() ){ server( os::pid() ); } else {
+        for( auto x=os::cpus(); x--; ){
+             auto y=fork_t( "./main" );
+        }
     }
 
 }

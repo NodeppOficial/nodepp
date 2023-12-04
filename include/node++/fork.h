@@ -16,9 +16,24 @@ namespace nodepp {
 class fork_t { 
 protected:
 
-    void _init_( file_t& out, file_t& inp ) {
-        ptr_t<fork_t> self = new fork_t( *this );
+    void _init_( file_t& out, file_t& inp ) const noexcept {
+        if( obj->state == 1 ){ return; } obj->state = 1;  
         ptr_t<_file_::read> _read = new _file_::read;
+        ptr_t<fork_t> self = new fork_t( *this );
+
+        out.onError([=]( except_t err ){ self->onError.emit( err ); });
+        inp.onError([=]( except_t err ){ self->onError.emit( err ); });
+
+        inp.onUnpipe([=](){ self->onUnpipe.emit(); });
+        inp.onPipe([=](){ self->onPipe.emit(); });
+
+        inp.onClose([=](){ self->close(); });
+        out.onClose([=](){ self->close(); });
+        
+        inp.onDrain([=](){ 
+            self->onDrain.emit(); out.free(); inp.free(); 
+            if( process::is_child() ){ process::exit(1); }
+        });
 
         process::task::add([=](){
             if(!inp.is_available() )   { inp.close(); return -1; }
@@ -27,21 +42,13 @@ protected:
             self->onData.emit(_read->y); return 1;
         });
 
-        inp.onPipe([=](){ self->onPipe.emit(); });
-        inp.onClose([=](){ self->onClose.emit(); });
-        inp.onUnpipe([=](){ self->onUnpipe.emit(); });
-        
-        inp.onDrain([=](){ 
-            self->onDrain.emit(); out.free(); inp.free(); 
-            if( process::is_child() ){ process::exit(1); }
-        });
-        
-        out.onError([=]( except_t err ){ self->onError.emit( err ); });
-        inp.onError([=]( except_t err ){ self->onError.emit( err ); });
-
     }
 
-    file_t writable, readable;
+    struct _str_ {
+        int    state=0;
+        file_t writable;
+        file_t readable;
+    };  ptr_t<_str_> obj;
 
 public: fork_t() noexcept {}
 
@@ -54,8 +61,13 @@ public: fork_t() noexcept {}
     
     /*─······································································─*/
 
+    virtual ~fork_t() noexcept {
+        if( obj.count() > 1 ){ return; } 
+        _init_( obj->writable, obj->readable );
+    }
+
     template< class... T >
-    fork_t( const string_t& cmd, T... args ){
+    fork_t( const string_t& cmd, T... args ) : obj( new _str_() ) {
 
         if( strncmp( process::args[process::args.last()-1].data(), "?CHILD", 6 ) == 0 ){  
 
@@ -68,8 +80,8 @@ public: fork_t() noexcept {}
 
             string_t frm = process::env::get("CHILD");
             int fdw, fdr; string::parse( frm, "%d,%d", &fdw, &fdr );
-            writable = { fdr, "w" }; readable = { fdw, "r" };
-            _init_( writable, readable ); return; 
+            obj->writable = { fdr, "w" }; 
+            obj->readable = { fdw, "r" }; return; 
         }
 
         int fda[2]; ::pipe( fda ); 
@@ -77,22 +89,43 @@ public: fork_t() noexcept {}
         pid_t pid = ::fork();
 
         if( pid == 0 ){ // Child process
+            ::close( fda[1] ); ::close( fdb[0] );
             string_t _fd = string::format( "?CHILD=%d,%d", fda[0], fdb[1] );
             execl( cmd.data(), cmd.data(), args..., _fd.data(), NULL );
-            process::exit(1); return;
-        } else { // Parent process
-            writable = { fda[1], "w" }; readable = { fdb[0], "r" }; 
-            _init_( writable, readable ); return; 
+            process::exit(1);
+        } else if( pid > 0 ) { // Parent process
+            obj->writable = { fda[1], "w" }; ::close( fda[0] );
+            obj->readable = { fdb[0], "r" }; ::close( fdb[1] );
+        } else {
+            ::close( fda[0] ); ::close( fda[1] );
+            ::close( fdb[0] ); ::close( fdb[1] );
         }
 
     }
     
     /*─······································································─*/
 
-    string_t  read() const noexcept { return readable.read(); }
+    int write( string_t msg ) const noexcept { return obj->writable.write( msg ); }
 
-    int      write( string_t msg ) const noexcept { return writable.write( msg ); }
-    
+    void pipe() const noexcept { _init_( obj->writable, obj->readable ); }
+
+    string_t read() const noexcept { return obj->readable.read(); }
+
+    /*─······································································─*/
+
+    bool is_closed() const noexcept {
+        return obj->readable.is_closed() ||
+               obj->writable.is_closed() ;
+    }
+
+
+    void close() const noexcept { 
+        if( obj->state<0 ) { return; } 
+        obj->state=-1; onClose.emit();
+        obj->readable.close();
+        obj->writable.close(); 
+    }
+
     /*─······································································─*/
 
     bool  is_child() const noexcept { return !process::env::get("CHILD").empty(); }
