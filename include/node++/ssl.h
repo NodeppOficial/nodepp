@@ -25,7 +25,7 @@ protected:
         string_t     key, cert;
         bool         srv = 0;
         ptr_t<onSNI> func;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<_str_> obj;
     
     /*─······································································─*/
 
@@ -102,7 +102,7 @@ protected:
         SSL_set_mode( obj->ssl, SSL_MODE_ASYNC | SSL_MODE_AUTO_RETRY | SSL_MODE_RELEASE_BUFFERS );
     }
 
-public: ssl_t(){}
+public: ssl_t() noexcept : obj( new _str_() ) {}
     
     virtual ~ssl_t() {
         if( obj.count() > 1 ) { return; }
@@ -111,20 +111,20 @@ public: ssl_t(){}
     
     /*─······································································─*/
 
-    ssl_t( string_t _key, string_t _cert, onSNI* _func=nullptr ){
+    ssl_t( string_t _key, string_t _cert, onSNI* _func=nullptr ) : obj(new _str_()) {
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) )
             _Error("such key or cert does not exist");
         if( _func != nullptr ) obj->func = new onSNI(*_func); 
              obj->key = _key;  obj->cert = _cert; 
     }
 
-    ssl_t( string_t _key, string_t _cert, onSNI _func ){
+    ssl_t( string_t _key, string_t _cert, onSNI _func ) : obj(new _str_()) {
         *this=ssl_t( _key, _cert, &_func );
     }
 
     /*─······································································─*/
 
-    ssl_t( ssl_t* xtc, int df ){
+    ssl_t( ssl_t* xtc, int df ) : obj(new _str_()) {
         if( xtc == nullptr ) _Error("ctx is nullptr");
         if( xtc->get_ctx() == nullptr ) _Error("ctx has no context");
         obj->ctx=xtc->get_ctx(); obj->ssl=SSL_new(obj->ctx); obj->srv=xtc->is_server();

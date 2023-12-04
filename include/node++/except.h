@@ -4,7 +4,10 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { class except_t { 
-protected: string_t message; ulong ev;
+protected: 
+
+    string_t message; ulong ev;
+
 public:
 
     template< class T, class = typename type::enable_if<type::is_class<T>::value,T>::type >

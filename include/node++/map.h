@@ -9,7 +9,7 @@ private:
 
     using T = type::pair<U,V>;
 
-public: map_t(){}
+public: map_t() noexcept {}
     
     /*─······································································─*/
 

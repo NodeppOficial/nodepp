@@ -64,7 +64,7 @@ public:
         if(   sk->bind() < 0 ){ _onError(onError,"Error while binding Bluetooth"); close(); delete sk; return; }
         if( sk->listen() < 0 ){ _onError(onError,"Error while listening Bluetooth"); close(); delete sk; return; }
 
-        onOpen.emit(*sk); if( cb != nullptr ) (*cb)(*sk); init_poll_loop(); 
+        onOpen.emit(*sk); init_poll_loop(); if( cb != nullptr ){ (*cb)(sk); } 
         
         process::task::add([=]( bth_t inp ){
             static int _accept=0; _Start
@@ -101,7 +101,7 @@ public:
         ptr_t<bth_t> self = new bth_t( *this );
 
         if( sk.connect() < 0 ){ _onError(onError,"Error while accepting Bluetooth"); close(); return; }
-        if( cb != nullptr ) (*cb)(sk); sk.onClose.on([=](){ self->close(); });
+        if( cb != nullptr ){ (*cb)(sk); }  sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
 
     }
@@ -122,7 +122,7 @@ namespace bth {
         server.onConnect([=]( bsocket_t cli ){ process::task::add([=](){
             if(!cli.is_available() ){ cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; } 
-            if( _read->y.empty() )   { return 1; }
+            if(  _read->c <= 0 )     { return 1; }
             cli.onData.emit(_read->y); return 1;
         });});
 
@@ -147,7 +147,7 @@ namespace bth {
         process::task::add([=](){
             if(!cli.is_available() ){ cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; } 
-            if( _read->y.empty() )   { return 1; }
+            if(  _read->c <= 0 )     { return 1; }
             cli.onData.emit(_read->y); return 1;
         }); cli.onDrain([=](){ cli.free(); });
 

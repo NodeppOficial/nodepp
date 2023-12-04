@@ -15,9 +15,9 @@ protected:
         function_t<void,A...> cb;
     };  using ev = queue_t<_str_>;
     
-    ptr_t<ev> once_queue = new ev(), every_queue = new ev();
+    ptr_t<ev> once_queue, every_queue;
 
-public: event_t(){}
+public: event_t() noexcept : once_queue(new ev), every_queue(new ev) {}
     
     /*─······································································─*/
 

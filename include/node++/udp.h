@@ -19,7 +19,7 @@ protected:
         agent_t*                  agent = nullptr;
         int                       state = 0;
         function_t<void,socket_t> func;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<_str_> obj;
     
 public:
 
@@ -31,7 +31,7 @@ public:
     
     /*─······································································─*/
 
-    udp_t( decltype(obj->func) _func, agent_t* opt=nullptr ) noexcept 
+    udp_t( decltype(obj->func) _func, agent_t* opt=nullptr ) noexcept : obj( new _str_() )
          { obj->agent = opt; obj->func = _func; }
     
     /*─······································································─*/

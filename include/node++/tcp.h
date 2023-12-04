@@ -42,7 +42,7 @@ public:
     
     /*─······································································─*/
     
-    tcp_t( decltype(obj->func) _func, agent_t* opt=nullptr ) noexcept 
+    tcp_t( decltype(obj->func) _func, agent_t* opt=nullptr ) noexcept : obj( new _str_() )
          { obj->agent=opt; obj->func=_func; }
     
     /*─······································································─*/
@@ -62,7 +62,7 @@ public:
         if(   sk->bind() < 0 ){ _onError(onError,"Error while binding TCP"); close(); delete sk; return; }
         if( sk->listen() < 0 ){ _onError(onError,"Error while listening TCP"); close(); delete sk; return; }
         
-        onOpen.emit(*sk); if( cb != nullptr ) (*cb)(*sk); init_poll_loop(); 
+        onOpen.emit(*sk); init_poll_loop(); if( cb != nullptr ){ (*cb)(*sk); }
         
         process::task::add([=]( tcp_t inp ){
             static int _accept=0; _Start
@@ -89,7 +89,7 @@ public:
 
     void connect( string_t host, int port, decltype(obj->func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1;
-        ptr_t<tcp_t> self = new tcp_t( *this );
+            ptr_t<tcp_t> self = new tcp_t( *this );
 
         socket_t sk = socket_t(); 
                  sk.PROT = IPPROTO_TCP;
@@ -97,7 +97,7 @@ public:
                  sk.set_sockopt( obj->agent );
 
         if( sk.connect() < 0 ){ _onError(onError,"Error while accepting TCP"); close(); return; }
-        if( cb != nullptr ) (*cb)( sk ); sk.onClose.on([=](){ self->close(); });
+        if( cb != nullptr ){ (*cb)(sk); }  sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }
 
@@ -116,8 +116,8 @@ namespace tcp {
 
         server.onConnect([=]( socket_t cli ){ process::task::add([=](){
             if(!cli.is_available() ){ cli.close(); return -1; }
-            if((*_read)(&cli)==1 )   { return 1; } 
-            if( _read->y.empty() )   { return 1; }
+            if((*_read)(&cli)==1 )   { return 1; }
+            if(  _read->c <= 0  )    { return 1; }
             cli.onData.emit(_read->y); return 1;
         });});
 
@@ -141,8 +141,8 @@ namespace tcp {
 
         process::task::add([=](){
             if(!cli.is_available() ){ cli.close(); return -1; }
-            if((*_read)(&cli)==1 )   { return 1; } 
-            if( _read->y.empty() )   { return 1; }
+            if((*_read)(&cli)==1 )   { return 1; }
+            if(  _read->c <= 0  )    { return 1; }
             cli.onData.emit(_read->y); return 1;
         }); cli.onDrain([=](){ cli.free(); });
 

@@ -18,10 +18,6 @@ namespace nodepp { namespace {
 
 namespace nodepp { namespace process {
 
-    void exit( int err=0 ){ ::exit(err); }
-    
-    /*─······································································─*/
-
     namespace env {
 
         int set( string_t name, string_t value ){ return nodepp::SET( name, value ); }
@@ -60,10 +56,21 @@ namespace nodepp { namespace process {
     }
     
     /*─······································································─*/
+
+    bool  is_child(){ return !process::env::get("CHILD").empty(); }
+
+    bool is_parent(){ return  process::env::get("CHILD").empty(); }
+    
+    /*─······································································─*/
+
+    template< class... T >
+    int      spawn( T... args ){ return ::system(args...); }
     
     string_t shell(){ return env::get("SHELL"); }
 
     string_t home(){ return env::get("HOME"); }
+
+    void     exit( int err=0 ){ ::exit(err); }
     
 }}
 

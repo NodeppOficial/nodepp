@@ -3,7 +3,12 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { template< class T > class initializer_t : public ptr_t<T> { public:
+namespace nodepp { template< class T > class initializer_t : public ptr_t<T> { 
+    public:
+
+    initializer_t() noexcept : ptr_t<T>(){}
+
+    /*─······································································─*/
     
     initializer_t( const ptr_t<T>& arr ) noexcept : ptr_t<T>( arr ) {}
 

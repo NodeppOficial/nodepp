@@ -44,7 +44,7 @@ protected:
 
     }
     
-public: queue_t(){} 
+public: queue_t() noexcept {} 
 
     ptr_t<self>& ptr() noexcept { return queue; }
 

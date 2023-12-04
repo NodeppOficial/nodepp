@@ -25,7 +25,7 @@ public:
     event_t<int>    onError;
     event_t<int>    onRead;
 
-public: poll_t(){}
+public: poll_t() noexcept {}
 
     virtual ~poll_t() noexcept { 
          if( poll.ptr().count() > 1 ){ return; }

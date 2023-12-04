@@ -152,9 +152,9 @@ public:
             version = init[0]; status = string::to_int(init[1]);
         }   _Next;
 
-        do{ line = read_line(); idx = line.index_of([]( char x ){ return x==':'; });
-            if( idx < 0 ) break; a = line.slice( 0,idx ).to_capital_case();
-                                 b = line.slice( idx+2 ); headers[a] = b;
+        do{ line = read_line();   idx = line.index_of([]( char x ){ return x==':'; });
+            if( idx < 0 ){ break; } a = line.slice( 0,idx ).to_capital_case();
+                                    b = line.slice( idx+2 ); headers[a] = b;
         } while ( true ); _Return(0); _Goto(0);
 
     _Stop

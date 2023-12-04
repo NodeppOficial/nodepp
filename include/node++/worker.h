@@ -24,9 +24,9 @@ protected:
 
 public:
 
-    int unlock(){ return pthread_mutex_unlock(&mutex); }
+    int unlock() const noexcept { return pthread_mutex_unlock(&mutex); }
 
-    int lock(){ return pthread_mutex_lock(&mutex); }
+    int lock() const noexcept { return pthread_mutex_lock(&mutex); }
 
     mutex_t() : mutex( new pthread_mutex_t() ) {
         if( pthread_mutex_init(&mutex,NULL) != 0 )
@@ -48,19 +48,19 @@ namespace nodepp { namespace { mutex_t mtx;
         mtx.lock(); process::threads--; mtx.unlock();
         auto cb = (function_t<int>*) arg;
         while((*cb)() >= 0 ){ worker::yield(); }
-        delete cb; worker::exit(); 
+        delete cb; worker::exit(); return nullptr;
     }
 
     void* dfunc( void* arg ){
         auto cb = (function_t<int>*) arg;
         while((*cb)() >= 0 ){ worker::yield(); }
-        delete cb; worker::exit(); 
+        delete cb; worker::exit(); return nullptr;
     }
 
     void* jfunc( void* arg ){
         auto cb = (function_t<int>*) arg;
         while((*cb)() >= 0 ){ worker::yield(); }
-        delete cb; worker::exit(); 
+        delete cb; worker::exit(); return nullptr;
     }
 
 }}
@@ -75,9 +75,9 @@ protected:
         ptr_t<int> out;
         int state = 0;
         pthread_t id;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<_str_> obj;
 
-public:
+public: worker_t() noexcept {}
 
     virtual ~worker_t() noexcept {
         if( obj.count() > 1 ){ return; } 
@@ -88,7 +88,7 @@ public:
     /*─······································································─*/
 
     template< class T, class... V >
-    worker_t( T cb, V... args ) noexcept {
+    worker_t( T cb, V... args ) noexcept : obj( new _str_() ){
         ptr_t<int> out = new int(1);
         obj->cb = new function_t<int>([=](){ 
             return *out!=1 ? -1 : cb( args... ); 

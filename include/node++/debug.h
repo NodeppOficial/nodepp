@@ -30,7 +30,8 @@ public:
     
     /*─······································································─*/
 
-    void log( const string_t& msg ) const noexcept { console::log( "--",  msg ); }
+    template< class... T >
+    void log( T... args ) const noexcept { console::log( "--", args... ); }
 
     void error() const noexcept { console::error( message ); }
     

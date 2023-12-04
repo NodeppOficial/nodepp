@@ -15,16 +15,16 @@ namespace nodepp {
 
     protected:
         struct _str_ { int sockfd; };
-        ptr_t<_str_> obj = new _str_();
+        ptr_t<_str_> obj;
 
     public:
 
-        virtual ~wifi_t() {
+        virtual ~wifi_t() noexcept {
             if( obj.count() > 1 ){ return; } 
             iw_sockets_close( obj->sockfd ); 
         }
 
-        wifi_t() {
+        wifi_t() noexcept : obj( new _str_() ) {
             obj->sockfd = iw_sockets_open(); if( obj->sockfd<0 )
                 _Error("Failed to open Wi-Fi adapter");
         }
@@ -39,7 +39,7 @@ namespace nodepp {
             return 0;
         }
 
-        array_t<string_t> get_networks() {
+        array_t<string_t> get_networks() noexcept {
             array_t<string_t> list;
             wireless_scan_head scan_head;
             wireless_scan *scan_result = nullptr;

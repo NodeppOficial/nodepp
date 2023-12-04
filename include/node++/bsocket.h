@@ -54,12 +54,12 @@ protected:
 
 public:
 
-    virtual ~bluetooth_t() {
+    virtual ~bluetooth_t() st noexcept {
         if( obj.count() > 1 ){ return; } 
             close( obj->sk );
     }
 
-    bluetooth_t() {
+    bluetooth_t() noexcept {
         obj->id = hci_get_route(nullptr); if( obj->id < 0 ) 
         _Error("Failed to open Bluetooth adapter");
     }
@@ -74,7 +74,9 @@ public:
           { return -1; } return 0;
     }
 
-    array_t<string_t> get_devices(){ array_t<string_t> list; INFO* devices = nullptr;
+    array_t<string_t> get_devices() const noexcept { 
+        
+        array_t<string_t> list; INFO* devices = nullptr;
         int num = hci_inquiry( obj->id, 8, 0, nullptr, &devices, IREQ_CACHE_FLUSH );
         if( num < 0 ){ delete devices; return list; }
 

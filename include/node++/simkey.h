@@ -18,14 +18,14 @@ protected:
         int      id  = DefaultScreen(dpy);
         Window   win = XRootWindow(dpy,id);
         Screen*  scr = DefaultScreenOfDisplay(dpy);
-    };  ptr_t<_str_>  obj = new _str_();
+    };  ptr_t<_str_>  obj;
 
 	function_t<float,float> screen_ref[2] = {
 		[=]( float value ){ return value * get_screen_size()[0] / 100; },
 		[=]( float value ){ return value * get_screen_size()[1] / 100; }
 	};
 
-public: simkey_t(){}
+public: simkey_t() noexcept : obj(new _str_) {}
 
     event_t<uint>      onButtonRelease;
     event_t<uint>      onButtonPress;

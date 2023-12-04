@@ -4,6 +4,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#include "debug.h"
 #include "crypto.h"
 #include "fetch.h"
 
@@ -18,7 +19,7 @@ namespace { template< class T, class U > void WSServer( T cli, U cb ) {
     auto data = cli.read(); cli.set_borrow( data ); int c=0;
     
     while(( c=cli.read_header() )>0 ){ process::next(); }
-       if( c == -1 ){ return; }
+       if(  c == -1  ){ return; }
 
     if( !cli.headers["Sec-Websocket-Key"].empty() ){
 
@@ -34,7 +35,7 @@ namespace { template< class T, class U > void WSServer( T cli, U cb ) {
             { "Connection", "Upgrade" },
             { "Upgrade", "Websocket" }
         }});
-        
+
         cb(); cli.stop(); return;
     }   cli.set_borrow( data );
 
@@ -46,8 +47,8 @@ namespace { template< class U, class T, class V > U WSClient( T fetch, string_t 
     auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) _Error( tuple::get<2>(res).what() );
     auto cli = tuple::get<1>(res);
 
-    if(  cli.status != 101 ){ _onError(cli.onError,"WSE: Can't connect to WS Server"); }
-    if( !cli.headers["Sec-Websocket-Accept"].empty() ){
+    if( cli.status != 101 ){ _onError(cli.onError,"WSE: Can't connect to WS Server"); }
+    if(!cli.headers["Sec-Websocket-Accept"].empty() ){
 
         string_t dta = regex::match(cli.headers["Sec-Websocket-Accept"],"[^\\s\n ]+");
         string_t sec = key + SECRET;
@@ -70,11 +71,11 @@ namespace ws {
         nodepp::WSServer( cli, [=](){ ptr_t<_file_::read> _read = new _file_::read;
 
             server.onConnect([=]( socket_t cli ){ process::task::add([=](){
-                while(!cli.is_available() ){ cli.close(); return -1; }
-                while((*_read)(&cli)==1 ){ return 1; } 
-                   if( _read->c<=0 )     { return 1; }
+                if(!cli.is_available() ){ cli.close(); return -1; }
+                if((*_read)(&cli)==1 )   { return 1; } 
+                if(  _read->c <= 0  )    { return 1; }
                 cli.onData.emit(_read->y); return 1;
-            }) ; });
+            });});
 
             process::task::add([=](){
                 cli.resume(); server.onConnect.emit(cli); return -1;
@@ -87,7 +88,7 @@ namespace ws {
 
     tcp_t server( agent_t* opt=nullptr ){
         auto server = http::server( [=]( http_t cli ){}, opt );
-        ws::server( server ); return server; 
+                        ws::server( server ); return server; 
     }
 
     /*─······································································─*/
@@ -106,10 +107,10 @@ namespace ws {
         return nodepp::WSClient<http_t>( cli, key, [=]( socket_t cli ){
             ptr_t<_file_::read> _read = new _file_::read;
 
-            server.onOpen([=]( socket_t cli ){ process::task::add([=](){
-                while(!cli.is_available() ){ cli.close(); return -1; }
-                while((*_read)(&cli)==1 ){ return 1; } 
-                   if( _read->c<=0 )     { return 1; }
+            cli.onOpen([=](){ process::task::add([=](){
+                if(!cli.is_available() ){ cli.close(); return -1; }
+                if((*_read)(&cli)==1 )   { return 1; }
+                if(  _read->c <= 0  )    { return 1; }
                 cli.onData.emit(_read->y); return 1;
             });});
 
@@ -130,11 +131,11 @@ namespace wss {
         nodepp::WSServer( cli, [=](){ ptr_t<_file_::read> _read = new _file_::read;
 
             server.onConnect([=]( ssocket_t cli ){ process::task::add([=](){ 
-                while(!cli.is_available() ){ cli.close(); return -1; }
-                while((*_read)(&cli)==1 ){ return 1; } 
-                   if( _read->c<=0 )     { return 1; }
+                if(!cli.is_available() ){ cli.close(); return -1; }
+                if((*_read)(&cli)==1 )   { return 1; } 
+                if(  _read->c <= 0  )    { return 1; }
                 cli.onData.emit(_read->y); return 1;
-            }) ; });
+            });});
 
             process::task::add([=](){
                 cli.resume(); server.onConnect.emit(cli); return -1;
@@ -147,7 +148,7 @@ namespace wss {
 
     tls_t server( ssl_t* ctx, agent_t* opt=nullptr ){
         auto server = https::server( [=]( https_t cli ){}, ctx, opt );
-        wss::server( server ); return server;     
+                        wss::server( server ); return server;     
     }
 
     /*─······································································─*/
@@ -166,10 +167,10 @@ namespace wss {
         return nodepp::WSClient<https_t>( cli, key, [=]( ssocket_t cli ){
             ptr_t<_file_::read> _read = new _file_::read;
 
-            server.onOpen([=]( ssocket_t cli ){ process::task::add([=](){
-                while(!cli.is_available() ){ cli.close(); return -1; }
-                while((*_read)(&cli)==1 ){ return 1; } 
-                   if( _read->c<=0 )     { return 1; }
+            cli.onOpen([=](){ process::task::add([=](){
+                if(!cli.is_available() ){ cli.close(); return -1; }
+                if((*_read)(&cli)==1 )   { return 1; } 
+                if(  _read->c <= 0  )    { return 1; }
                 cli.onData.emit(_read->y); return 1;
             });});
 

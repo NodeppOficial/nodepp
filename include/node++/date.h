@@ -110,44 +110,46 @@ namespace nodepp { class date_t {
 protected:
 
     struct _str_ {
-        time_t time;
-        DATE*  info = nullptr;
-    };  ptr_t<_str_> obj = new _str_();
-
+        DATE*  info =  nullptr;
+        time_t time =::time( nullptr );
+    };  
+    
+    ptr_t<_str_> obj;
     
 public:
 
-    template< class... V > date_t( V... args ) noexcept { set_time(args...); }
+    template< class... V > 
+    date_t( V... args ) noexcept : obj( new _str_() )
+          { set_time( args... ); }
     
     /*─······································································─*/
 
-    void set_time( const bool& UTC=false ) noexcept {  
-                  obj->time = time( nullptr ); 
+    void set_time( const bool& UTC=false ) const noexcept {  
         if( UTC ) obj->info = gmtime( &obj->time ); 
-        else obj->info = localtime( &obj->time );
+        else      obj->info = localtime( &obj->time );
     }
 
-    void set_time( const uint& year, const bool& UTC=false ) noexcept { 
+    void set_time( const uint& year, const bool& UTC=false ) const noexcept { 
         if( UTC ) obj->info = gmtime( &obj->time ); 
         else      obj->info = localtime( &obj->time );
         obj->info->tm_year = year; obj->time = mktime(obj->info);
     }
 
-    void set_time( const uint& year, const uint& month, const bool& UTC=false ) noexcept { 
+    void set_time( const uint& year, const uint& month, const bool& UTC=false ) const noexcept { 
         if( UTC ) obj->info = gmtime( &obj->time ); 
         else      obj->info = localtime( &obj->time );
         obj->info->tm_year = year; obj->info->tm_mon = month; 
         obj->time = mktime(obj->info);
     }
 
-    void set_time( const uint& year, const uint& month, const uint& day, const bool& UTC=false ) noexcept { 
+    void set_time( const uint& year, const uint& month, const uint& day, const bool& UTC=false ) const noexcept { 
         if( UTC ) obj->info = gmtime( &obj->time ); 
         else      obj->info = localtime( &obj->time );
         obj->info->tm_year = year; obj->info->tm_mon = month; 
         obj->info->tm_mday = day; obj->time = mktime(obj->info);
     }
 
-    void set_time( const uint& year, const uint& month, const uint& day, const uint& hour, const bool& UTC=false ) noexcept { 
+    void set_time( const uint& year, const uint& month, const uint& day, const uint& hour, const bool& UTC=false ) const noexcept { 
         if( UTC ) obj->info = gmtime( &obj->time ); 
         else      obj->info = localtime( &obj->time );
         obj->info->tm_year = year; obj->info->tm_mon = month; 
@@ -155,7 +157,7 @@ public:
         obj->time = mktime(obj->info);
     }
 
-    void set_time( const uint& year, const uint& month, const uint& day, const uint& hour, const uint& min, const bool& UTC=false ) noexcept { 
+    void set_time( const uint& year, const uint& month, const uint& day, const uint& hour, const uint& min, const bool& UTC=false ) const noexcept { 
         if( UTC ) obj->info = gmtime( &obj->time ); 
         else      obj->info = localtime( &obj->time );
         obj->info->tm_year = year; obj->info->tm_mon = month; 
@@ -163,7 +165,7 @@ public:
         obj->info->tm_min = min; obj->time = mktime(obj->info);
     }
 
-    void set_time( const uint& year, const uint& month, const uint& day, const uint& hour, const uint& min, const uint& sec, const bool& UTC=false ) noexcept { 
+    void set_time( const uint& year, const uint& month, const uint& day, const uint& hour, const uint& min, const uint& sec, const bool& UTC=false ) const noexcept { 
         if( UTC ) obj->info = gmtime( &obj->time ); 
         else      obj->info = localtime( &obj->time );
         obj->info->tm_year = year; obj->info->tm_mon = month; 
@@ -183,17 +185,17 @@ public:
 
     /*─······································································─*/
 
-    uint     get_year()     const noexcept { return (uint)(obj->info->tm_year+1900); }
-    string_t get_fulltime() const noexcept { return (string_t)ctime(&obj->time); }
-    uint     get_monthday() const noexcept { return (uint)obj->info->tm_mday; }
-    uint     get_weekday()  const noexcept { return (uint)obj->info->tm_wday; }
-    uint     get_yearday()  const noexcept { return (uint)obj->info->tm_yday; }
-    uint     get_hour()     const noexcept { return (uint)obj->info->tm_hour; }
-    uint     get_day()      const noexcept { return (uint)obj->info->tm_mday; }
-    uint     get_month()    const noexcept { return (uint)obj->info->tm_mon;  }
-    uint     get_minute()   const noexcept { return (uint)obj->info->tm_min;  }
-    uint     get_second()   const noexcept { return (uint)obj->info->tm_sec;  }
-    uint     get_stamp()    const noexcept { return (uint)obj->time * 1000;   }
+    string_t get_fulltime()      const noexcept { return (string_t)ctime(&obj->time); }
+    uint     get_year()          const noexcept { return obj->info->tm_year + 1900;   }
+    uint     get_monthday()      const noexcept { return (uint)obj->info->tm_mday;    }
+    uint     get_weekday()       const noexcept { return (uint)obj->info->tm_wday;    }
+    uint     get_yearday()       const noexcept { return (uint)obj->info->tm_yday;    }
+    uint     get_hour()          const noexcept { return (uint)obj->info->tm_hour;    }
+    uint     get_day()           const noexcept { return (uint)obj->info->tm_mday;    }
+    uint     get_month()         const noexcept { return (uint)obj->info->tm_mon;     }
+    uint     get_minute()        const noexcept { return (uint)obj->info->tm_min;     }
+    uint     get_second()        const noexcept { return (uint)obj->info->tm_sec;     }
+    uint     get_stamp()         const noexcept { return (uint)obj->time * 1000;      }
     
 
 };}

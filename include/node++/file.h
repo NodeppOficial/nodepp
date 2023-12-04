@@ -44,7 +44,7 @@ protected:
         return fcntl( obj->fd, F_SETFL, flags | O_NONBLOCK );
     }
 
-public: file_t(){}
+public: file_t() noexcept {}
 
     event_t<>          onUnpipe;
     event_t<>          onResume;
@@ -65,28 +65,30 @@ public: file_t(){}
     
     /*─······································································─*/
 
-    file_t( const string_t& path, const string_t& mode, const ulong& _size=CHUNK_SIZE ) {
+    file_t( const string_t& path, const string_t& mode, const ulong& _size=CHUNK_SIZE ){
         obj->fl =  fopen( (char*)path, (char*)mode  ); if( obj->fl == nullptr ) 
                   _Error("such file or directory does not exist");
         obj->fd = fileno( obj->fl ); set_nonbloking_mode(); set_buffer_size( _size );
     }
 
-    file_t( FILE* stream, const ulong& _size=CHUNK_SIZE ) {
-        if( stream == nullptr ){ _Error("such file or directory does not exist"); }
-        obj->fl = stream; obj->fd = fileno( obj->fl ); 
-        set_nonbloking_mode(); set_buffer_size( _size );
-    }
-
-    file_t( const int& df, const string_t& mode, const ulong& _size=CHUNK_SIZE ) {
+    file_t( const int& df, const string_t& mode, const ulong& _size=CHUNK_SIZE ){
         obj->fl = fdopen( df, (char*)mode ); if( obj->fl == nullptr ) 
                   _Error("such file or directory does not exist");
         obj->fd = df; set_nonbloking_mode(); set_buffer_size( _size );
     }
 
+    file_t( FILE* stream, const ulong& _size=CHUNK_SIZE ){
+        if( stream == nullptr ){ _Error("such file or directory does not exist"); }
+        obj->fl = stream; obj->fd = fileno( obj->fl ); 
+        set_nonbloking_mode(); set_buffer_size( _size );
+    }
+
     /*─······································································─*/
 
+    virtual bool is_feof() const noexcept { return get_fp() == nullptr || ::feof( get_fp() ); }
+
     bool       is_closed() const noexcept { return obj->state < 0 || is_feof(); }
-    virtual bool is_feof() const noexcept { return ::feof( get_fp() ); }
+
     bool    is_available() const noexcept { return obj->state == 0; }
 
     /*─······································································─*/
@@ -158,11 +160,13 @@ public: file_t(){}
     /*─······································································─*/
 
     ulong pos( ulong _pos ) const noexcept {
+        if( get_fp() == nullptr ){ return 0; }
         auto   _npos =  fseek( get_fp(), _pos, SEEK_SET ); 
         return _npos == -1 ? 0 : _npos; 
     }
 
     ulong pos() const noexcept {
+        if( get_fp() == nullptr ){ return 0; }
         auto   _pos =  ftell( get_fp() );
         return _pos == -1 ? 0 : _pos;
     }
@@ -171,7 +175,7 @@ public: file_t(){}
 
     void flush() const noexcept { 
         FILE* f = get_fp(); obj->buffer.fill(0); 
-        if( f != nullptr ) fflush(f);
+          if( f!= nullptr ) fflush(f);
     }
     
     /*─······································································─*/

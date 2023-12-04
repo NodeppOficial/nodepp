@@ -34,7 +34,7 @@ struct tar_header_t {
 
 class tar_t : public file_t { public:
 
-    template< class... T > tar_t( T... args ) : file_t( args... ) {}
+    template< class... T > tar_t( T... args ) noexcept : file_t( args... ) {}
 
     void write_header( string_t name, ulong size, ulong time=0, string_t chk="" ) const noexcept { 
         tar_header_t head = {0}; memcpy( head.name, name.data(), 100 );

@@ -9,7 +9,6 @@
 #include <openssl/md4.h>
 #include <openssl/md5.h>
 #include <openssl/evp.h>
-
 #include <openssl/aes.h>
 #include <openssl/des.h>
 
@@ -23,35 +22,40 @@ namespace nodepp {
 
 namespace crypto { class hash_t {
 protected:
-    EVP_MD_CTX* ctx; ptr_t<int> state;
-    unsigned int length;
-    ptr_t<uchar> buffer;
+
+    struct _str_ {
+        ptr_t<uchar> buffer;
+        EVP_MD_CTX* ctx;
+        uint length;
+        int  state;
+    };  ptr_t<_str_> obj = new _str_();
+
 public:
 
     template< class T >
-    hash_t( T type, ulong length ) noexcept : ctx(EVP_MD_CTX_new()), state(new int(1)) { 
-        EVP_DigestInit_ex( ctx, type, NULL );
-        buffer = ptr_t<uchar>( length );
+    hash_t( T type, ulong length ) noexcept : obj( new _str_() ) { 
+        obj->buffer = ptr_t<uchar>( length );
+        obj->ctx    = EVP_MD_CTX_new();
+        obj->state  = 1;
+        EVP_DigestInit_ex( obj->ctx, type, NULL );
     }
 
-    void update( string_t msg ) noexcept { EVP_DigestUpdate( ctx, (uchar*) msg.c_str(), msg.size() ); }
+    void update( string_t msg ) noexcept { EVP_DigestUpdate( obj->ctx, (uchar*) msg.data(), msg.size() ); }
 
-    string_t get() noexcept { return { (char*) &buffer, buffer.size() }; }
+    string_t get() const noexcept { return { (char*) &obj->buffer, obj->length }; }
 
-    string_t done() noexcept { force_close(); return get(); }
+    string_t done()      noexcept { force_close(); return get(); }
 
-    operator string_t(){ return done(); } 
-
-    void force_close() noexcept {
-        if( *state == 0 ){ return; } *state = 0;
-        EVP_DigestFinal_ex( ctx, &buffer, &length );
-        EVP_MD_CTX_free( ctx ); EVP_cleanup();
+    void force_close() noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        EVP_DigestFinal_ex( obj->ctx, &obj->buffer, &obj->length );
+        EVP_MD_CTX_free( obj->ctx ); EVP_cleanup();
     }
 
     void free() noexcept { force_close(); } 
 
     virtual ~hash_t() noexcept { 
-        if( state.count()>1 ){ return; } 
+        if( obj.count()>1 ){ return; } 
             force_close();
     }
 };  }
@@ -94,34 +98,40 @@ namespace crypto {
 
 namespace crypto { class hmac_t {
 protected:
-    HMAC_CTX* ctx; ptr_t<int> state;
-    ptr_t<uchar> buffer;
+
+    struct _str_ {
+        ptr_t<uchar> buffer;
+        HMAC_CTX* ctx; 
+        uint length;
+        int  state;
+    };  ptr_t<_str_> obj;
+
 public:
 
     template< class T >
-    hmac_t( string_t key, T type, ulong length ) noexcept : ctx(HMAC_CTX_new()), state(new int(1)) { 
-        HMAC_Init_ex( ctx, key.c_str(), key.size(), type, nullptr );
-        buffer = ptr_t<uchar>( length );
+    hmac_t( string_t key, T type, ulong length ) noexcept : obj( new _str_() ) { 
+        obj->buffer = ptr_t<uchar>( length );
+        obj->ctx    = HMAC_CTX_new();
+        obj->state  = 1;
+        HMAC_Init_ex( obj->ctx, key.c_str(), key.size(), type, nullptr );
     }
 
-    void update( string_t msg ) noexcept { HMAC_Update( ctx, (uchar*) msg.c_str(), msg.size() ); }
+    void update( string_t msg ) noexcept { HMAC_Update( obj->ctx, (uchar*) msg.data(), msg.size() ); }
 
-    string_t get() noexcept { return { (char*) &buffer, buffer.size() }; }
+    string_t  get() const noexcept { return { (char*) &obj->buffer, obj->length }; }
 
-    string_t done() noexcept { force_close(); return get(); }
-
-    operator string_t(){ return done(); } 
+    string_t done()       noexcept { force_close(); return get(); }
 
     void force_close() noexcept {
-        if( *state == 0 ){ return; } *state = 0;
-        HMAC_Final( ctx, &buffer, nullptr ); 
-        HMAC_CTX_free( ctx ); EVP_cleanup();
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        HMAC_Final( obj->ctx, &obj->buffer, &obj->length ); 
+        HMAC_CTX_free( obj->ctx ); EVP_cleanup();
     }
 
     void free() noexcept { force_close(); } 
     
     virtual ~hmac_t() noexcept { 
-        if( state.count()>1 ){ return; } 
+        if( obj.count()>1 ){ return; } 
             force_close();
     }
 };  }
@@ -160,38 +170,43 @@ namespace crypto {
 
 namespace crypto { class encrypt_t {
 protected:
-    EVP_CIPHER_CTX* ctx; ptr_t<int> state; 
-    int len; string_t buffer;
+
+    struct _str_ {
+        EVP_CIPHER_CTX* ctx; 
+        string_t buffer;
+        int state, len;
+    };  ptr_t<_str_> obj;
+
 public:
 
     template< class T >
-    encrypt_t( string_t iv, string_t key, T type ) noexcept : ctx(EVP_CIPHER_CTX_new()), state(new int(1)) {
-        EVP_EncryptInit_ex( ctx, type, NULL, (uchar*)key.c_str(), (uchar*)iv.c_str() );
+    encrypt_t( string_t iv, string_t key, T type ) noexcept : obj( new _str_() ) {
+        obj->ctx    = EVP_CIPHER_CTX_new();
+        obj->state  = 1;
+        EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() );
     }
 
     void update( string_t msg ) noexcept { uchar bff[msg.size()];
-        EVP_EncryptUpdate( ctx, bff, &len, (uchar*)msg.c_str(), msg.size()); 
-        buffer += (string_t){ (char*)bff, (ulong) len };
+        EVP_EncryptUpdate( obj->ctx, bff, &obj->len, (uchar*)msg.data(), msg.size()); 
+        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
     }
 
-    string_t done() noexcept { force_close(); return get(); }
+    string_t done()       noexcept { force_close(); return get(); }
 
-    string_t get() noexcept { return buffer; }
-
-    operator string_t(){ return done(); } 
+    string_t  get() const noexcept { return obj->buffer; }
 
     void force_close() noexcept { 
-        if( *state == 0 ){ return; } 
-        *state = 0; uchar bff[UNBFF_SIZE];
-        EVP_EncryptFinal( ctx, bff, &len ); 
-        EVP_CIPHER_CTX_free( ctx ); EVP_cleanup();
-        buffer += (string_t){ (char*)bff, (ulong) len };
+        if( obj->state == 0 ){ return; } 
+            obj->state = 0; uchar bff[UNBFF_SIZE];
+        EVP_EncryptFinal( obj->ctx, bff, &obj->len ); 
+        EVP_CIPHER_CTX_free( obj->ctx ); EVP_cleanup();
+        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
     }
 
     void free() noexcept { force_close(); } 
     
     virtual ~encrypt_t() noexcept { 
-        if( state.count()>1 ){ return; } 
+        if( obj.count()>1 ){ return; } 
             force_close();
     }
 
@@ -201,38 +216,43 @@ public:
 
 namespace crypto { class decrypt_t {
 protected:
-    EVP_CIPHER_CTX* ctx; ptr_t<int> state; 
-    int len; string_t buffer;
+
+    struct _str_ {
+        EVP_CIPHER_CTX* ctx; 
+        string_t buffer;
+        int state, len;
+    };  ptr_t<_str_> obj;
+    
 public:
 
     template< class T >
-    decrypt_t( string_t iv, string_t key, T type ) noexcept : ctx(EVP_CIPHER_CTX_new()), state(new int(1)) {
-        EVP_DecryptInit_ex( ctx, type, NULL, (uchar*)key.c_str(), (uchar*)iv.c_str() );
+    decrypt_t( string_t iv, string_t key, T type ) noexcept : obj( new _str_() ) {
+        obj->ctx    = EVP_CIPHER_CTX_new();
+        obj->state  = 1;
+        EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() );
     }
 
     void update( string_t msg ) noexcept { uchar bff[msg.size()];
-        EVP_DecryptUpdate( ctx, bff, &len, (uchar*)msg.c_str(), msg.size()); 
-        buffer += (string_t){ (char*)bff, (ulong) len };
+        EVP_DecryptUpdate( obj->ctx, bff, &obj->len, (uchar*)msg.data(), msg.size()); 
+        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
     }
 
-    string_t done() noexcept { force_close(); return get(); }
+    string_t done()       noexcept { force_close(); return get(); }
 
-    string_t get() noexcept { return buffer; }
-
-    operator string_t(){ return done(); } 
+    string_t  get() const noexcept { return obj->buffer; }
 
     void force_close() noexcept { 
-        if( *state == 0 ){ return; } 
-        *state = 0; uchar bff[UNBFF_SIZE];
-        EVP_DecryptFinal( ctx, bff, &len ); 
-        EVP_CIPHER_CTX_free( ctx ); EVP_cleanup();
-        buffer += (string_t){ (char*)bff, (ulong) len };
+        if( obj->state == 0 ){ return; } 
+            obj->state = 0; uchar bff[UNBFF_SIZE];
+        EVP_DecryptFinal( obj->ctx, bff, &obj->len ); 
+        EVP_CIPHER_CTX_free( obj->ctx ); EVP_cleanup();
+        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
     }
 
     void free() noexcept { force_close(); } 
     
     virtual ~decrypt_t() noexcept { 
-        if( state.count()>1 ){ return; } 
+        if( obj.count()>1 ){ return; } 
             force_close();
     }
 
@@ -342,37 +362,42 @@ namespace crypto { namespace dec {
 
 namespace crypto { namespace enc { class BASE64 {
 protected:
-    EVP_ENCODE_CTX* ctx; ptr_t<int> state; 
-    int len; string_t buffer;
+
+    struct _str_ {
+        EVP_ENCODE_CTX* ctx; 
+        string_t buffer;
+        int state, len;
+    };  ptr_t<_str_> obj;
+    
 public:
 
-    BASE64() noexcept : ctx(EVP_ENCODE_CTX_new()), state(new int(1)) {
-        EVP_EncodeInit( ctx );
+    BASE64() noexcept : obj( new _str_() ) {
+        obj->ctx    = EVP_ENCODE_CTX_new();
+        obj->state  = 1;
+        EVP_EncodeInit( obj->ctx );
     }
 
-    void update( string_t msg ) noexcept { uchar bff[msg.size()];
-        EVP_EncodeUpdate( ctx, bff, &len, (uchar*)msg.c_str(), msg.size()); 
-        buffer += (string_t){ (char*)bff, (ulong) len };
+    void update( string_t msg ) noexcept { uchar bff[ msg.size() ];
+        EVP_EncodeUpdate( obj->ctx, bff, &obj->len, (uchar*)msg.data(), msg.size()); 
+        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
     }
 
-    string_t done() noexcept { force_close(); return get(); }
+    string_t done()       noexcept { force_close(); return get(); }
 
-    string_t get() noexcept { return buffer; }
-
-    operator string_t(){ return done(); } 
+    string_t  get() const noexcept { return obj->buffer; }
 
     void force_close() noexcept { 
-        if( *state == 0 ){ return; } 
-        *state = 0; uchar bff[UNBFF_SIZE];
-        EVP_EncodeFinal( ctx, bff, &len ); 
-        EVP_ENCODE_CTX_free( ctx ); EVP_cleanup();
-        buffer += (string_t){ (char*)bff, (ulong) len };
+        if( obj->state == 0 ){ return; } 
+            obj->state = 0; uchar bff[UNBFF_SIZE];
+        EVP_EncodeFinal( obj->ctx, bff, &obj->len ); 
+        EVP_ENCODE_CTX_free( obj->ctx ); EVP_cleanup();
+        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
     }
 
     void free() noexcept { force_close(); } 
     
     virtual ~BASE64() noexcept { 
-        if( state.count()>1 ){ return; } 
+        if( obj.count()>1 ){ return; } 
             force_close();
     }
 
@@ -382,37 +407,42 @@ public:
 
 namespace crypto { namespace dec { class BASE64 {
 protected:
-    EVP_ENCODE_CTX* ctx; ptr_t<int> state; 
-    int len; string_t buffer;
+
+    struct _str_ {
+        EVP_ENCODE_CTX* ctx; 
+        string_t buffer;
+        int state, len;
+    };  ptr_t<_str_> obj;
+
 public:
 
-    BASE64() noexcept : ctx(EVP_ENCODE_CTX_new()), state(new int(1)) {
-        EVP_DecodeInit( ctx );
+    BASE64() noexcept : obj( new _str_() ) {
+        obj->ctx    = EVP_ENCODE_CTX_new();
+        obj->state  = 1;
+        EVP_DecodeInit( obj->ctx );
     }
 
     void update( string_t msg ) noexcept { uchar bff[msg.size()];
-        EVP_DecodeUpdate( ctx, bff, &len, (uchar*)msg.c_str(), msg.size()); 
-        buffer += (string_t){ (char*)bff, (ulong) len };
+        EVP_DecodeUpdate( obj->ctx, bff, &obj->len, (uchar*)msg.data(), msg.size()); 
+        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
     }
 
-    string_t done() noexcept { force_close(); return get(); }
+    string_t done()       noexcept { force_close(); return get(); }
 
-    string_t get() noexcept { return buffer; }
-
-    operator string_t(){ return done(); } 
+    string_t  get() const noexcept { return obj->buffer; }
 
     void force_close() noexcept { 
-        if( *state == 0 ){ return; } 
-        *state = 0; uchar bff[UNBFF_SIZE];
-        EVP_DecodeFinal( ctx, bff, &len ); 
-        EVP_ENCODE_CTX_free( ctx ); EVP_cleanup();
-        buffer += (string_t){ (char*)bff, (ulong) len };
+        if( obj->state == 0 ){ return; } 
+            obj->state = 0; uchar bff[UNBFF_SIZE];
+        EVP_DecodeFinal( obj->ctx, bff, &obj->len ); 
+        EVP_ENCODE_CTX_free( obj->ctx ); EVP_cleanup();
+        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
     }
 
     void free() noexcept { force_close(); } 
     
     virtual ~BASE64() noexcept { 
-        if( state.count()>1 ){ return; } 
+        if( obj.count()>1 ){ return; } 
             force_close();
     }
 

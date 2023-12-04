@@ -189,8 +189,7 @@ namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace {
-string_t _encode_( string_t from, string_t to, string_t message, ulong mult=1 ){ 
+namespace { string_t _encode_( string_t from, string_t to, string_t message, ulong mult=1 ){ 
       
       auto ctx = iconv_open( to.c_str(), from.c_str() ); 
       if ( ctx == (iconv_t)-1 ) _Error((except_t)"can't open a encode context");
@@ -211,8 +210,8 @@ string_t _encode_( string_t from, string_t to, string_t message, ulong mult=1 ){
 
       output += (string_t){ &obff, obff.size() };
       iconv_close( ctx ); return output;
-}
-}
+
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -233,35 +232,35 @@ namespace encode {
     /*─······································································─*/
 
       template< class T, class V >
-      void pipe_16( string_t from, string_t to, const T& inp, const T& out ){ _encode_::pipe arg;
-            process::poll::add( arg, from, to, inp, out, sizeof(char16_t) );
+      void pipe_16( string_t from, string_t to, const T& inp, const T& out ){ 
+            _encode_::pipe arg; process::poll::add( arg, from, to, inp, out, sizeof(char16_t) );
       }
 
       template< class T, class V >
-      void pipe_32( string_t from, string_t to, const T& inp, const T& out ){ _encode_::pipe arg;
-            process::poll::add( arg, from, to, inp, out, sizeof(char32_t) );
+      void pipe_32( string_t from, string_t to, const T& inp, const T& out ){ 
+            _encode_::pipe arg; process::poll::add( arg, from, to, inp, out, sizeof(char32_t) );
       }
 
       template< class T, class V >
-      void pipe( string_t from, string_t to, const T& inp, const T& out ){ _encode_::pipe arg;
-            process::poll::add( arg, from, to, inp, out );
+      void pipe( string_t from, string_t to, const T& inp, const T& out ){ 
+            _encode_::pipe arg; process::poll::add( arg, from, to, inp, out );
       }
 
     /*─······································································─*/
 
       template< class T, class V >
-      void pipe_16( string_t from, string_t to, const T& inp ){ _encode_::pipe arg;
-            process::poll::add( arg, from, to, inp, out, sizeof(char16_t) );
+      void pipe_16( string_t from, string_t to, const T& inp ){ 
+            _encode_::pipe arg; process::poll::add( arg, from, to, inp, out, sizeof(char16_t) );
       }
 
       template< class T, class V >
-      void pipe_32( string_t from, string_t to, const T& inp ){ _encode_::pipe arg;
-            process::poll::add( arg, from, to, inp, out, sizeof(char32_t) );
+      void pipe_32( string_t from, string_t to, const T& inp ){ 
+            _encode_::pipe arg; process::poll::add( arg, from, to, inp, out, sizeof(char32_t) );
       }
 
       template< class T, class V >
-      void pipe( string_t from, string_t to, const T& inp ){ _encode_::pipe arg;
-            process::poll::add( arg, from, to, inp, out );
+      void pipe( string_t from, string_t to, const T& inp ){ 
+            _encode_::pipe arg; process::poll::add( arg, from, to, inp, out );
       }
 
 }

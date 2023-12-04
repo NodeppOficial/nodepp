@@ -14,7 +14,7 @@ namespace nodepp {
 /*────────────────────────────────────────────────────────────────────────────*/
 
 class ssocket_t : public socket_t { 
-public: ssocket_t(){}
+public: ssocket_t() noexcept {}
 
     ptr_t<ssl_t> ssl;
     

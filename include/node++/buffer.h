@@ -4,13 +4,13 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { template< class T > class ptr_t { 
-public: ptr_t(){}
+public: ptr_t() noexcept {}
 
-    virtual ~ptr_t(){ reset(); }
+    virtual ~ptr_t() noexcept { reset(); }
     
     /*─······································································─*/
 
-    ptr_t( T* value ) noexcept { length_= new ulong(0); count_ = new ulong(1); value_ = value; }
+    ptr_t( T* value ) noexcept : length_( new ulong(0) ), count_( new ulong(1) ), value_(value) {}
     ptr_t( const ulong& n, const T& value ) noexcept { resize( n, value ); }
     ptr_t( T* value, const ulong& n ) noexcept { resize( value, n ); }
     ptr_t( const ulong& n ) noexcept { resize( n ); }
@@ -113,14 +113,14 @@ public: ptr_t(){}
 
     ulong  size() const noexcept { return length_ == nullptr ? 0 : *length_; }
     ulong count() const noexcept { return count_  == nullptr ? 0 : *count_; }
-    bool   null() const noexcept { return value_  == nullptr ? 1 : 0; }
-    bool  empty() const noexcept { return null() || size() <= 0; }
+    bool  empty() const noexcept { return null() ||( size() <= 0 ); }
+    bool   null() const noexcept { return value_  == nullptr; }
     T*     data() const noexcept { return value_; }
     
     /*─······································································─*/
 
     T*    end() const noexcept { return value_ + size(); }
-    void free() noexcept { *count_ = 1; reset(); }
+    void free()       noexcept { *count_ = 1; reset(); }
     T*  begin() const noexcept { return value_; }
     
     /*─······································································─*/
@@ -128,9 +128,9 @@ public: ptr_t(){}
     explicit operator bool(void) const { return null(); }
     explicit operator   T*(void) const { return value_; }
 
-    T* operator->() const noexcept { return value_; }
-    T& operator*() const noexcept { return *value_; }
-    T* operator&() const noexcept { return  value_; }
+    T* operator->() const noexcept { return  value_; }
+    T& operator*()  const noexcept { return *value_; }
+    T* operator&()  const noexcept { return  value_; }
     
     /*─······································································─*/
 

@@ -113,7 +113,7 @@ namespace nodepp { namespace _encode_ {
 
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 ){ _Next; }
-               if( _read.y.empty() ){ break; }
+               if( _read.c <= 0 )  { break; }
 
                 obff = ptr_t<char>( _read.y.size() * mult );
                 ibff = data.data(); ibfz = _read.y.size();
@@ -173,7 +173,7 @@ namespace nodepp { namespace _encode_ {
 
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ _Next; }
-               if( _read.y.empty() ){ break; }
+               if( _read.c <= 0 )  { break; }
 
                 obff = ptr_t<char>( _read.y.size() * mult );
                 ibff = data.data(); ibfz = _read.y.size();
@@ -255,7 +255,7 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 ){ _Next; }
-               if( _read.y.empty() ){ break; }
+               if( _read.c <= 0 )  { break; }
 
                 str->avail_in = _read.y.size();
                 str->avail_out= inp.get_buffer_size();
@@ -295,8 +295,8 @@ namespace nodepp { namespace _zlib_ {
             }
 
             while( inp.is_available() ){
-            while( _read(&inp)==1 ){ _Next; } 
-               if( _read.y.empty() ){ break; }
+            while( _read(&inp)==1 ){ _Next; }
+               if( _read.c <= 0 )  { break; }
 
                 str->avail_in = _read.y.size();
                 str->avail_out= inp.get_buffer_size();
@@ -348,7 +348,7 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 ){ _Next; }
-               if( _read.y.empty() ){ break; }
+               if( _read.c <= 0 )  { break; }
 
                 str->avail_in = _read.y.size();
                 str->avail_out= inp.get_buffer_size();
@@ -388,8 +388,8 @@ namespace nodepp { namespace _zlib_ {
             }
 
             while( inp.is_available() ){
-            while( _read(&inp)==1 ){ _Next; } 
-               if( _read.y.empty() ){ break; }
+            while( _read(&inp)==1 ){ _Next; }
+               if( _read.c <= 0 )  { break; }
 
                 str->avail_in = _read.y.size();
                 str->avail_out= inp.get_buffer_size();
@@ -432,8 +432,8 @@ namespace nodepp { namespace _stream_ {
         _Start inp.onPipe.emit();
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ _Next; } 
-               if( _read.y.empty() ){ break; }
-            inp.onData.emit( _read.y ); _Next;
+               if( _read.c <= 0 )  { break; }
+                inp.onData.emit( _read.y ); _Next;
             }   inp.close();
         _Stop
         }
@@ -442,9 +442,9 @@ namespace nodepp { namespace _stream_ {
         _Start inp.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 ){ _Next; } 
-               if( _read.y.empty() ){ break; }
+               if( _read.c <= 0 )  { break; }
             while( _write(&out,_read.y)==1 ){ _Next; }
-            inp.onData.emit( _read.y ); _Next;
+                inp.onData.emit( _read.y ); _Next;
             }   inp.close(); out.close();
         _Stop
         }
@@ -462,8 +462,8 @@ namespace nodepp { namespace _stream_ {
         _Start inp.onPipe.emit();
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ _Next; } 
-               if( _read.y.empty() ){ break; }
-            inp.onData.emit( _read.y ); _Next;
+               if( _read.c <= 0 )  { break; }
+                inp.onData.emit( _read.y ); _Next;
             }   inp.close();
         _Stop
         }
@@ -472,9 +472,9 @@ namespace nodepp { namespace _stream_ {
         _Start inp.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 ){ _Next; } 
-               if( _read.y.empty() ){ break; }
+               if( _read.c <= 0 )  { break; }
             while( _write(&out,_read.y)==1 ){ _Next; }
-            inp.onData.emit( _read.y ); _Next;
+                inp.onData.emit( _read.y ); _Next;
             }   inp.close(); out.close();
         _Stop
         }

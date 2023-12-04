@@ -178,7 +178,7 @@ public:
         SOCKADDR cli; if( skt->srv==1 ) cli = skt->client_addr; else cli = skt->server_addr;
         while( is_blocked( c=::getpeername( obj->fd, &cli, &skt->len )) ){ process::next(); }
         inet_ntop( AF, &(((SOCKADDR_IN*)&cli)->sin_addr), (char*)buff, buff.size() );
-        return c<0 ? "127.0.0.1" : buff;
+        return c < 0 ? "127.0.0.1" : buff;
     }
     
     /*─······································································─*/
@@ -198,6 +198,7 @@ public:
     /*─······································································─*/
 
     virtual bool   is_feof() const noexcept { return get_error() != 0; }
+
             bool is_server() const noexcept { return skt->srv; }
     
     /*─······································································─*/
@@ -235,7 +236,7 @@ public:
     
     /*─······································································─*/
 
-    socket_t( int df=-1, ulong _size=CHUNK_SIZE ){
+    socket_t( int df=-1, ulong _size=CHUNK_SIZE ) noexcept {
         obj->fd = df; set_nonbloking_mode();
         set_buffer_size( _size );
     }
@@ -263,8 +264,8 @@ public:
         set_reuse_port(1);
 
         SOCKADDR_IN server, client;
-        server.sin_port    = htons ( port );
         server.sin_family  = AF;
+        server.sin_port    = htons(port);
 
              if( host == "0.0.0.0" || host == "globalhost" )       { server.sin_addr.s_addr = INADDR_ANY; }
         else if( host == "255.255.255.255" || host == "broadcast" ){ server.sin_addr.s_addr = INADDR_BROADCAST; } 

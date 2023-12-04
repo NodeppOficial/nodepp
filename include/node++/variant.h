@@ -12,7 +12,7 @@ public:
 
     template< class T > variant_t( T V ) noexcept : any_t(V), idx(new int( get_index<T,Types...>::value )) {}
        variant_t( const char* V ) noexcept : any_t(V), idx(new int( get_index<string_t,Types...>::value )) {}
-       variant_t() noexcept : any_t() {}
+       variant_t() noexcept : any_t()m idx(new int(0)) {}
     
     /*─······································································─*/
     
@@ -25,7 +25,7 @@ public:
     template< class T >
     T get() const noexcept { return any_t::get<T>(); }
 
-    template< class T > void set( T f ){ 
+    template< class T > void set( T f ) noexcept { 
         idx = new int( get_index<T,Types...>::value );
         any_t::set( f );
     }
@@ -44,7 +44,7 @@ protected:
         static constexpr ulong value = 1 + get_index<T,Us...>::value;
     };
     
-    ptr_t<int> idx = new int(0);
+    ptr_t<int> idx;
 
 };}
 
