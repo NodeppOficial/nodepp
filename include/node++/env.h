@@ -57,14 +57,12 @@ namespace nodepp { namespace process {
     
     /*─······································································─*/
 
-    bool  is_child(){ return !process::env::get("CHILD").empty(); }
-
-    bool is_parent(){ return  process::env::get("CHILD").empty(); }
-    
-    /*─······································································─*/
-
     template< class... T >
     int      spawn( T... args ){ return ::system(args...); }
+
+    bool  is_child(){ return !env::get("CHILD").empty(); }
+
+    bool is_parent(){ return  env::get("CHILD").empty(); }
     
     string_t shell(){ return env::get("SHELL"); }
 

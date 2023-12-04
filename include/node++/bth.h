@@ -101,7 +101,7 @@ public:
         ptr_t<bth_t> self = new bth_t( *this );
 
         if( sk.connect() < 0 ){ _onError(onError,"Error while accepting Bluetooth"); close(); return; }
-        if( cb != nullptr ){ (*cb)(sk); }  sk.onClose.on([=](){ self->close(); });
+        if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
 
     }

@@ -71,16 +71,16 @@ public: file_t() noexcept {}
         obj->fd = fileno( obj->fl ); set_nonbloking_mode(); set_buffer_size( _size );
     }
 
-    file_t( const int& df, const string_t& mode, const ulong& _size=CHUNK_SIZE ){
-        obj->fl = fdopen( df, (char*)mode ); if( obj->fl == nullptr ) 
-                  _Error("such file or directory does not exist");
-        obj->fd = df; set_nonbloking_mode(); set_buffer_size( _size );
-    }
-
     file_t( FILE* stream, const ulong& _size=CHUNK_SIZE ){
         if( stream == nullptr ){ _Error("such file or directory does not exist"); }
         obj->fl = stream; obj->fd = fileno( obj->fl ); 
         set_nonbloking_mode(); set_buffer_size( _size );
+    }
+
+    file_t( const int& df, const string_t& mode, const ulong& _size=CHUNK_SIZE ){
+        obj->fl = fdopen( df, (char*)mode ); if( obj->fl == nullptr ) 
+                  _Error("such file or directory does not exist");
+        obj->fd = df; set_nonbloking_mode(); set_buffer_size( _size );
     }
 
     /*─······································································─*/

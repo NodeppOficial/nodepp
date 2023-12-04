@@ -12,7 +12,7 @@ public:
 
     template< class T > variant_t( T V ) noexcept : any_t(V), idx(new int( get_index<T,Types...>::value )) {}
        variant_t( const char* V ) noexcept : any_t(V), idx(new int( get_index<string_t,Types...>::value )) {}
-       variant_t() noexcept : any_t()m idx(new int(0)) {}
+       variant_t() noexcept : any_t(), idx(new int(0)) {}
     
     /*─······································································─*/
     

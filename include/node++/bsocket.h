@@ -54,8 +54,8 @@ protected:
 
 public:
 
-    virtual ~bluetooth_t() st noexcept {
-        if( obj.count() > 1 ){ return; } 
+    virtual ~bluetooth_t() noexcept {
+        if( obj->count() > 1 ){ return; } 
             close( obj->sk );
     }
 
@@ -65,13 +65,12 @@ public:
     }
 
     int turn_on() const noexcept { 
-        obj->sk = hci_open_dev(obj->id); if( obj->sk < 0 )
-            { return -1; } return 0;
+        obj->sk = hci_open_dev(obj->id); 
+        return obj->sk < 0 ? -1 : 0;
     }
 
     int turn_off() const noexcept { 
-        if( hci_close_dev(obj->sk); < 0 )
-          { return -1; } return 0;
+        return hci_close_dev(obj->sk) < 0 ? -1 : 0;
     }
 
     array_t<string_t> get_devices() const noexcept { 

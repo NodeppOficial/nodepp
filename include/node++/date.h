@@ -1,6 +1,5 @@
 #ifndef NODEPP_DATE
 #define NODEPP_DATE
-
 using DATE = struct tm;
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -112,9 +111,7 @@ protected:
     struct _str_ {
         DATE*  info =  nullptr;
         time_t time =::time( nullptr );
-    };  
-    
-    ptr_t<_str_> obj;
+    };  ptr_t<_str_> obj;
     
 public:
 
