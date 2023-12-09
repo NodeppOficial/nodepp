@@ -53,11 +53,11 @@ public:
         string_t base, line, a, b;
         int idx;
 
-    _Start
+    $Start
 
         base = read_line(); protocol = "HTTPS";
-          if( !regex::test( base,"HTTP/\\d\\.\\d" ) ) _End; 
-        init = regex::match_all( base, "[^\\s\t\r\n ]+" ); _Next;
+          if( !regex::test( base,"HTTP/\\d\\.\\d" ) ) $End; 
+        init = regex::match_all( base, "[^\\s\t\r\n ]+" ); $Next;
         
         if( !regex::test( init[1], "^\\d+" ) ) {
             auto idx = init[1].index_of([]( char x ){ return x=='?'; });
@@ -74,21 +74,21 @@ public:
             url     = string::format( "https://%s%s%s", (char*)headers["Host"], (char*)path, (char*)search );
         } else {
             version = init[0]; status = string::to_int(init[1]);
-        }   _Next;
+        }   $Next;
 
         do{ line = read_line();   idx = line.index_of([]( char x ){ return x==':'; });
             if( idx < 0 ){ break; } a = line.slice( 0,idx ).to_capital_case();
                                     b = line.slice( idx+2 ); headers[a] = b;
-        } while ( true ); _Return(0); _Goto(0);
+        } while ( true ); $Return(0); $Goto(0);
 
-    _Stop
+    $Stop
     }
     
     /*─······································································─*/
 
     void write_headers( uint status, https_header_t headers ) noexcept {
         if( has_header == 1 ){ return; } has_header = 1;
-        string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::_get_http_status(status));
+        string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::$get_http_status(status));
         for( auto x:headers ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
                                res += "\r\n"; write( res ); if( method == "HEAD" ){ close(); }
     }

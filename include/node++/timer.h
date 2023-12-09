@@ -1,15 +1,13 @@
 #ifndef NODEPP_TIMER
 #define NODEPP_TIMER
 
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #include "generators.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp {
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace timer {
+namespace nodepp { namespace timer {
     
     template< class V, class... T >
     ptr_t<int> add ( V func, ulong* time, T... args ){
@@ -65,11 +63,11 @@ namespace timer {
 
     void clear( const ptr_t<int>& address ){ if( !address ) *address = 0; }
 
-}
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace utimer {
+namespace nodepp { namespace utimer {
     
     template< class V, class... T >
     ptr_t<int> add ( V func, ulong* time, T... args ){
@@ -125,10 +123,8 @@ namespace utimer {
 
     void clear( const ptr_t<int>& address ){ if( !address ) *address = 0; }
 
-}
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-
-}
 
 #endif

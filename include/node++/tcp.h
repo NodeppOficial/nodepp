@@ -20,7 +20,7 @@ protected:
         int                       state = 0;
         poll_t                    poll;
         function_t<void,socket_t> func;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<_str_> obj;
     
     /*─······································································─*/
 
@@ -59,24 +59,24 @@ public:
                   sk->PROT = IPPROTO_TCP;
                   sk->socket( host, port ); 
         
-        if(   sk->bind() < 0 ){ _onError(onError,"Error while binding TCP"); close(); delete sk; return; }
-        if( sk->listen() < 0 ){ _onError(onError,"Error while listening TCP"); close(); delete sk; return; }
+        if(   sk->bind() < 0 ){ $onError(onError,"Error while binding TCP"); close(); delete sk; return; }
+        if( sk->listen() < 0 ){ $onError(onError,"Error while listening TCP"); close(); delete sk; return; }
         
         onOpen.emit(*sk); init_poll_loop(); if( cb != nullptr ){ (*cb)(*sk); }
         
         process::task::add([=]( tcp_t inp ){
-            static int _accept=0; _Start
+            static int _accept=0; $Start
 
             while(( _accept=sk->_accept() )==-2 ){ 
                 if( !sk->is_available() || inp.is_closed() )
-                  { break; } _Yield(1);
+                  { break; } $Yield(1);
             }
             
-            if( _accept == -1 ){ _onError(inp.onError,"Error while accepting TCP"); _Goto(2); }
-            else if( !sk->is_available() || inp.is_closed() ){ _Goto(2); }
-            else { inp.obj->poll.push_read(_accept); _Goto(0); }
+            if( _accept == -1 ){ $onError(inp.onError,"Error while accepting TCP"); $Goto(2); }
+            else if( !sk->is_available() || inp.is_closed() ){ $Goto(2); }
+            else { inp.obj->poll.push_read(_accept); $Goto(0); }
 
-            _Yield(2); inp.close(); delete sk; _Stop
+            $Yield(2); inp.close(); delete sk; $Stop
         }, *this );
 
     }
@@ -96,7 +96,7 @@ public:
                  sk.socket( host, port );  
                  sk.set_sockopt( obj->agent );
 
-        if( sk.connect() < 0 ){ _onError(onError,"Error while accepting TCP"); close(); return; }
+        if( sk.connect() < 0 ){ $onError(onError,"Error while accepting TCP"); close(); return; }
         if( cb != nullptr ){ (*cb)(sk); }  sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }

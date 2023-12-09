@@ -43,10 +43,10 @@ namespace { template< class T, class U > void WSServer( T cli, U cb ) {
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace { template< class U, class T, class V > U WSClient( T fetch, string_t key, V cb ) {
-    auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) _Error( tuple::get<2>(res).what() );
+    auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) $Error( tuple::get<2>(res).what() );
     auto cli = tuple::get<1>(res);
 
-    if( cli.status != 101 ){ _onError(cli.onError,"WSE: Can't connect to WS Server"); }
+    if( cli.status != 101 ){ $onError(cli.onError,"WSE: Can't connect to WS Server"); }
     if(!cli.headers["Sec-Websocket-Accept"].empty() ){
 
         string_t dta = regex::match(cli.headers["Sec-Websocket-Accept"],"[^\\s\n ]+");
@@ -56,7 +56,7 @@ namespace { template< class U, class T, class V > U WSClient( T fetch, string_t 
             auto b64 = crypto::enc::BASE64();  b64.update(sha.done());
             auto enc = b64.done().slice(0,-1);
 
-    if( dta != enc ){ _onError(cli.onError,"WSE: secret key does not match"); } 
+    if( dta != enc ){ $onError(cli.onError,"WSE: secret key does not match"); } 
         cb(cli); cli.stop();
     }   return cli;
 

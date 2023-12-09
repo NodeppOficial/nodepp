@@ -1,42 +1,15 @@
-#ifndef NODEPP_OS
-#define NODEPP_OS
+#ifndef NODEPP_OSS
+#define NODEPP_OSS
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include <unistd.h>
-#include <cerrno>
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace nodepp { namespace os {
-    
-    string_t hostname(){ char buff[UNBFF_SIZE] = {0}; ::gethostname(buff,UNBFF_SIZE); return buff; }
-    
-    /*─······································································─*/
-
-    string_t user(){ char buff[UNBFF_SIZE] = {0}; ::getlogin_r(buff,UNBFF_SIZE); return buff; }
-    
-    /*─······································································─*/
-
-    string_t cwd(){ char buff[UNBFF_SIZE] = {0}; ::getcwd(buff,UNBFF_SIZE); return buff; }
-    
-    /*─······································································─*/
-
-    uint cpus(){ return ::sysconf( _SC_NPROCESSORS_ONLN ); }
-    
-    /*─······································································─*/
-
-    void exit( int err=0 ){ ::exit(err); }
-
-    /*─······································································─*/
-
-    uint pid(){ return ::getpid(); }
-
-    /*─······································································─*/
-
-    uint error(){ return errno; }
-
-}}
+#if NODEPP_KERNEL == NODEPP_KERNEL_WINDOWS && NODEPP_ENVIRONMENT == NODEPP_ENVIRONMENT_UNKNOWN
+#include "windows/os.h"
+#elif NODEPP_KERNEL == NODEPP_KERNEL_POSIX
+#include "linux/os.h"
+#else
+#error "This OS Does not support os.h"
+#endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

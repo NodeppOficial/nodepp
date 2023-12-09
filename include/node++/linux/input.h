@@ -1,5 +1,4 @@
-#ifndef NODEPP_SIMKEY
-#define NODEPP_SIMKEY
+#pragma once
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -7,6 +6,8 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <X11/extensions/XTest.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { class simkey_t {
 protected:
@@ -115,44 +116,44 @@ public: simkey_t() noexcept : obj(new _str_) {}
     bool is_button_released( uint btn ) const noexcept {
         if( obj->button.empty() ) return 1; 
         else { for( auto x : obj->button ){
-           	if( x == btn ) return 0;
-        }}  return 1;
+           if( x == btn ) return 0;
+        }}                return 1;
     }
 
     bool is_button_pressed( uint btn ) const noexcept {
         if( obj->button.empty() ) return 0; 
         else { for( auto x : obj->button ){
-           	if( x == btn ) return 1;
-        }}  return 0;
+           if( x == btn ) return 1;
+        }}                return 0;
     }
 
     bool is_key_released( uint btn ) const noexcept {
         if( obj->key.empty() ) return 1; 
         else { for( auto x : obj->key ){
-           	if( x == btn ) return 0;
-        }}                 return 1;
+           if( x == btn ) return 0;
+        }}                return 1;
     }
 
     bool is_key_pressed( uint btn ) const noexcept {
         if( obj->key.empty() ) return 0; 
         else { for( auto x : obj->key ){
-           	if( x == btn ) return 1;
-        }}                 return 0;
+           if( x == btn ) return 1;
+        }}                return 0;
     }
     
     /*─······································································─*/
 
 	void pipe(){ if( obj->state == 1 ){ return; }
 
-        if( obj->dpy == NULL ){ _onError( onError, "can't start X11 server" ); close(); return; }
+        if( obj->dpy == NULL ){ $onError( onError, "can't start X11 server" ); close(); return; }
 
         auto events = ButtonPressMask | ButtonReleaseMask   | ButtonMotionMask   |
                       KeyReleaseMask  | KeyPressMask        ;
 
         XSelectInput( obj->dpy, obj->win, events ); obj->state = 1;
 
-        process::loop::add([=](){ _Start 
-			while( XPending(obj->dpy) <= 0 ){ _Next; } XNextEvent( obj->dpy, &obj->event );
+        process::loop::add([=](){ $Start 
+			while( XPending(obj->dpy) <= 0 ){ $Next; } XNextEvent( obj->dpy, &obj->event );
 
     /*─······································································─*/
 
@@ -197,7 +198,7 @@ public: simkey_t() noexcept : obj(new _str_) {}
 
     /*─······································································─*/
 
-            if( obj->state == 1 ) _Goto(0);
+            if( obj->state == 1 ) $Goto(0);
 			
 		_Stop });
 
@@ -206,5 +207,3 @@ public: simkey_t() noexcept : obj(new _str_) {}
 };}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-
-#endif

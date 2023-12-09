@@ -113,7 +113,7 @@ public: ssl_t() noexcept : obj( new _str_() ) {}
 
     ssl_t( string_t _key, string_t _cert, onSNI* _func=nullptr ) : obj(new _str_()) {
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) )
-            _Error("such key or cert does not exist");
+            $Error("such key or cert does not exist");
         if( _func != nullptr ) obj->func = new onSNI(*_func); 
              obj->key = _key;  obj->cert = _cert; 
     }
@@ -125,10 +125,10 @@ public: ssl_t() noexcept : obj( new _str_() ) {}
     /*─······································································─*/
 
     ssl_t( ssl_t* xtc, int df ) : obj(new _str_()) {
-        if( xtc == nullptr ) _Error("ctx is nullptr");
-        if( xtc->get_ctx() == nullptr ) _Error("ctx has no context");
+        if( xtc == nullptr ) $Error("ctx is nullptr");
+        if( xtc->get_ctx() == nullptr ) $Error("ctx has no context");
         obj->ctx=xtc->get_ctx(); obj->ssl=SSL_new(obj->ctx); obj->srv=xtc->is_server();
-        if( obj->ctx == nullptr ) _Error("can't start SSL"); set_nonbloking_mode(); set_fd( df );
+        if( obj->ctx == nullptr ) $Error("can't start SSL"); set_nonbloking_mode(); set_fd( df );
     }
     
     /*─······································································─*/

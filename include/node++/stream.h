@@ -6,7 +6,6 @@
 #include "generators.h"
 #include "event.h"
 #include "file.h"
-#include "fork.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -16,21 +15,14 @@ namespace nodepp {
 
 namespace stream {
 
-    file_t  readable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "r", _size ); }
-
-    file_t  writable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
-
-    file_t  tmp( const ulong& _size=CHUNK_SIZE ){ return file_t( tmpfile(), _size ); }
-    
-    file_t  cout( const ulong& _size=CHUNK_SIZE ){ return file_t( stdout, _size ); }
-    
-    file_t  cerr( const ulong& _size=CHUNK_SIZE ){ return file_t( stderr, _size ); }
-
-    file_t  cin( const ulong& _size=CHUNK_SIZE ){ return file_t( stdin, _size ); }
-
     template< class T > void unpipe( T input ){ input.stop(); }
     
     /*─······································································─*/
+    
+    file_t pipe( const string_t& path, const string_t& mode ){
+        auto inp = file_t( path, mode ); _stream_::pipe arg;
+        process::poll::add( arg, inp );  return inp;
+    }
     
     template< class T, class V >
     void pipe( const T& inp, const V& out ){
@@ -46,6 +38,11 @@ namespace stream {
     
     /*─······································································─*/
     
+    file_t line( const string_t& path, const string_t& mode ){
+        auto inp = file_t( path, mode ); _stream_::line arg;
+        process::poll::add( arg, inp );  return inp;
+    }
+    
     template< class T, class V >
     void line( const T& inp, const V& out ){
         _stream_::line arg;
@@ -56,6 +53,28 @@ namespace stream {
     void line( const T& inp ){
         _stream_::line arg;
         process::poll::add( arg, inp );
+    }
+    
+    /*─······································································─*/
+    
+    file_t async( const string_t& path, const string_t& mode ){
+        auto fp = popen( (char*)path, (char*)mode ); if( fp == nullptr ) 
+                       { $Error("such file or directory does not exist"); }
+        auto fd = file_t( fileno( fp ) );
+        fd.onClose([=](){ fclose( fp ); });
+        return fd;
+    }
+    
+    /*─······································································─*/
+    
+    string_t sync( const string_t& path, const string_t& mode ){
+        auto fp = fopen( (char*)path, (char*)mode ); if( fp == nullptr ) 
+                       { $Error("such file or directory does not exist"); }
+        string_t result; ptr_t<char> buffer ( CHUNK_SIZE ); ulong c=0; 
+        while ( !feof( fp ) ) {
+            if((c=fread( &buffer, sizeof(char), CHUNK_SIZE, fp ))>0 )
+              { result += (string_t){ &buffer, c }; } else { break; }
+        }   fclose(fp); return result;
     }
 
 }

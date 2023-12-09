@@ -3,11 +3,6 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include <iconv.h>
-#include "generators.h"
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 /*
   437, 500, 500V1, 850, 851, 852, 855, 856, 857, 858, 860, 861, 862, 863, 864,
   865, 866, 866NAV, 869, 874, 904, 1026, 1046, 1047, 8859_1, 8859_2, 8859_3,
@@ -185,6 +180,11 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#include <iconv.h>
+#include "generators.h"
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -192,7 +192,7 @@ namespace nodepp {
 namespace { string_t _encode_( string_t from, string_t to, string_t message, ulong mult=1 ){ 
       
       auto ctx = iconv_open( to.c_str(), from.c_str() ); 
-      if ( ctx == (iconv_t)-1 ) _Error((except_t)"can't open a encode context");
+      if ( ctx == (iconv_t)-1 ) $Error((except_t)"can't open a encode context");
 
       string_t output; ptr_t<char> obff ( message.size() * mult );
       char* ibff = message.data(); ulong ibfz = message.size();
@@ -201,11 +201,11 @@ namespace { string_t _encode_( string_t from, string_t to, string_t message, ulo
       ulong result = iconv( ctx, (char**)&ibff, &ibfz, &obfp, &obfz );
 
       if( result == (ulong)-1 ){
-                 if( errno == EINVAL ) _Error((except_t)"Input conversion stopped due to an incomplete character or shift sequence at the end of the input buffer.");
-            else if( errno == EILSEQ ) _Error((except_t)"Input conversion stopped due to an input byte that does not belong to the input codeset.");
-            else if( errno == E2BIG )  _Error((except_t)"Input conversion stopped due to lack of space in the output buffer.");
-            else if( errno == EBADF )  _Error((except_t)"The cd argument is not a valid open conversion descriptor");
-            else                       _Error((except_t)"can't encode correctly");
+                 if( errno == EINVAL ) $Error((except_t)"Input conversion stopped due to an incomplete character or shift sequence at the end of the input buffer.");
+            else if( errno == EILSEQ ) $Error((except_t)"Input conversion stopped due to an input byte that does not belong to the input codeset.");
+            else if( errno == E2BIG )  $Error((except_t)"Input conversion stopped due to lack of space in the output buffer.");
+            else if( errno == EBADF )  $Error((except_t)"The cd argument is not a valid open conversion descriptor");
+            else                       $Error((except_t)"can't encode correctly");
       } 
 
       output += (string_t){ &obff, obff.size() };

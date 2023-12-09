@@ -55,30 +55,30 @@ public:
 
     void listen( string_t host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx == nullptr || obj->ctx->create_server() == -1 )
-          { _onError(onError,"Error Initializing SSL context"); close(); return; }
+          { $onError(onError,"Error Initializing SSL context"); close(); return; }
         
         ssocket_t *sk = new ssocket_t; 
                    sk->PROT = IPPROTO_TCP;
                    sk->socket( host, port ); 
         
-        if(   sk->bind() < 0 ){ _onError(onError,"Error while binding TLS"); close(); delete sk; return; }
-        if( sk->listen() < 0 ){ _onError(onError,"Error while listening TLS"); close(); delete sk; return; }
+        if(   sk->bind() < 0 ){ $onError(onError,"Error while binding TLS"); close(); delete sk; return; }
+        if( sk->listen() < 0 ){ $onError(onError,"Error while listening TLS"); close(); delete sk; return; }
 
         onOpen.emit(*sk); init_poll_loop(); if( cb != nullptr ){ (*cb)(*sk); } 
         
         process::task::add([=]( tls_t inp ){
-            int _accept=0; _Start
+            int _accept=0; $Start
 
             while(( _accept=sk->_accept() )==-2 ){
                 if( !sk->is_available() || inp.is_closed() )
-                  { break; } _Yield(1);
+                  { break; } $Yield(1);
             }
             
-            if( _accept == -1 ){ _onError(onError,"Error while accepting TLS"); _Goto(2); }
-            else if( !sk->is_available() || inp.is_closed() ){ _Goto(2); }
-            else { inp.obj->poll.push_read(_accept); _Goto(0); }
+            if( _accept == -1 ){ $onError(onError,"Error while accepting TLS"); $Goto(2); }
+            else if( !sk->is_available() || inp.is_closed() ){ $Goto(2); }
+            else { inp.obj->poll.push_read(_accept); $Goto(0); }
 
-            _Yield(2); inp.close(); delete sk; _Stop
+            $Yield(2); inp.close(); delete sk; $Stop
         }, *this );
 
     }
@@ -91,7 +91,7 @@ public:
 
     void connect( string_t host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx == nullptr || obj->ctx->create_client() < 0 )
-          { _onError(onError,"Error Initializing SSL context"); close(); return; }
+          { $onError(onError,"Error Initializing SSL context"); close(); return; }
             ptr_t<tls_t> self = new tls_t( *this );
 
         ssocket_t sk = ssocket_t(); 
@@ -100,14 +100,14 @@ public:
                   sk.set_sockopt( obj->agent );
 
         if( sk.connect() < 0 ){ 
-            _onError(onError,"Error while connecting TLS"); 
+            $onError(onError,"Error while connecting TLS"); 
             close(); return; 
         }
 
         sk.ssl = new ssl_t( obj->ctx, sk.get_fd() ); 
 
         if( sk.ssl->connect() <= 0 ){ 
-            _onError(onError,"Error while handshaking TLS");
+            $onError(onError,"Error while handshaking TLS");
             close(); return; 
         }
 

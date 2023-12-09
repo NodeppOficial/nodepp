@@ -1,6 +1,5 @@
 #ifndef NODEPP_DATE
 #define NODEPP_DATE
-using DATE = struct tm;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -15,7 +14,7 @@ namespace nodepp { namespace date {
     /*─······································································─*/
 
     uint year( const bool& UTC=false ){
-        time_t _time = time( nullptr ); DATE *info;
+        time_t _time = time( nullptr ); struct tm *info;
         if( UTC ) info = gmtime( &_time ); 
         else info = localtime( &_time );
         return (info->tm_year+1900); 
@@ -24,7 +23,7 @@ namespace nodepp { namespace date {
     /*─······································································─*/
 
     uint month( const bool& UTC=false ){
-        time_t _time = time( nullptr ); DATE *info;
+        time_t _time = time( nullptr ); struct tm *info;
         if( UTC ) info = gmtime( &_time ); 
         else info = localtime( &_time );
         return info->tm_mon; 
@@ -33,7 +32,7 @@ namespace nodepp { namespace date {
     /*─······································································─*/
 
     uint day( const bool& UTC=false ){
-        time_t _time = time( nullptr ); DATE *info;
+        time_t _time = time( nullptr ); struct tm *info;
         if( UTC ) info = gmtime( &_time ); 
         else info = localtime( &_time );
         return info->tm_mday; 
@@ -42,7 +41,7 @@ namespace nodepp { namespace date {
     /*─······································································─*/
     
     uint hour( const bool& UTC=false ){
-        time_t _time = time( nullptr ); DATE *info;
+        time_t _time = time( nullptr ); struct tm *info;
         if( UTC ) info = gmtime( &_time ); 
         else info = localtime( &_time );
         return info->tm_hour; 
@@ -51,7 +50,7 @@ namespace nodepp { namespace date {
     /*─······································································─*/
 
     uint minute( const bool& UTC=false ){
-        time_t _time = time( nullptr ); DATE *info;
+        time_t _time = time( nullptr ); struct tm *info;
         if( UTC ) info = gmtime( &_time ); 
         else info = localtime( &_time );
         return info->tm_min; 
@@ -60,7 +59,7 @@ namespace nodepp { namespace date {
     /*─······································································─*/
 
     uint second( const bool& UTC=false ){
-        time_t _time = time( nullptr ); DATE *info;
+        time_t _time = time( nullptr ); struct tm *info;
         if( UTC ) info = gmtime( &_time ); 
         else info = localtime( &_time );
         return info->tm_sec; 
@@ -69,7 +68,7 @@ namespace nodepp { namespace date {
     /*─······································································─*/
 
     uint weekday( const bool& UTC=false ){
-        time_t _time = time( nullptr ); DATE *info;
+        time_t _time = time( nullptr ); struct tm *info;
         if( UTC ) info = gmtime( &_time ); 
         else info = localtime( &_time );
         return info->tm_wday; 
@@ -78,7 +77,7 @@ namespace nodepp { namespace date {
     /*─······································································─*/
 
     uint monthday( const bool& UTC=false ){
-        time_t _time = time( nullptr ); DATE *info;
+        time_t _time = time( nullptr ); struct tm *info;
         if( UTC ) info = gmtime( &_time ); 
         else info = localtime( &_time );
         return info->tm_mday; 
@@ -87,7 +86,7 @@ namespace nodepp { namespace date {
     /*─······································································─*/
 
     uint yearday( const bool& UTC=false ){
-        time_t _time = time( nullptr ); DATE *info;
+        time_t _time = time( nullptr ); struct tm *info;
         if( UTC ) info = gmtime( &_time ); 
         else info = localtime( &_time );
         return info->tm_yday; 
@@ -109,7 +108,7 @@ namespace nodepp { class date_t {
 protected:
 
     struct _str_ {
-        DATE*  info =  nullptr;
+        struct tm*  info =  nullptr;
         time_t time =::time( nullptr );
     };  ptr_t<_str_> obj;
     

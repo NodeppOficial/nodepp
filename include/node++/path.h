@@ -95,6 +95,15 @@ namespace _path_ { map_t<string_t,string_t> mimetype ({
 
 namespace path {
 
+#if NODEPP_KERNEL == NODEPP_KERNEL_WINDOWS && NODEPP_ENVIRONMENT == NODEPP_ENVIRONMENT_UNKNOWN
+    string_t sep  = "\\\\";
+    string_t root = "c:\\\\";
+    string_t none = "[\\\\]+";
+    string_t  one = "[^\\\\]+";
+    string_t init = "\\w:\\\\";
+    string_t _beg = "\\w:\\\\";
+    string_t  beg = "^\\w:\\\\";
+#else
     string_t init = "";
     string_t  sep = "/";
     string_t _beg = "/";
@@ -102,6 +111,7 @@ namespace path {
     string_t  beg = "^/";
     string_t none = "[/]+";
     string_t  one = "[^/]+";
+#endif
     
     /*─······································································─*/
 

@@ -51,7 +51,7 @@ public:
                  sk.socket(host,port);
                  sk.set_sockopt(obj->agent);
         
-        if( sk.bind() < 0 ){ _onError(onError,"Error while binding UDP"); close(); return; }
+        if( sk.bind() < 0 ){ $onError(onError,"Error while binding UDP"); close(); return; }
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }
@@ -73,7 +73,7 @@ public:
 
         ptr_t<udp_t> self = new udp_t( *this );
         
-        if( sk.connect() < 0 ){ _onError(onError,"Error while accepting UDP"); close(); return;  }
+        if( sk.connect() < 0 ){ $onError(onError,"Error while accepting UDP"); close(); return;  }
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }

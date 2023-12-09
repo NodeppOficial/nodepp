@@ -4,6 +4,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include "process.h"
+#include "regex.h"
 #include "loop.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -22,9 +23,16 @@ namespace nodepp { namespace process {
 
     void start( int argc, char** args ){
         int i=0; do {
-            process::args.push(args[i]);
+            if(!regex::test(args[i],"^\\?") ) {
+                process::args.push(args[i]);
+            } else {
+                auto data = regex::match_all( args[i], "[^?=]+" );
+                process::env::set( data[0], data[1] ); 
+            } 
         }   while( i ++< argc );
-        process::signal_handler();
+        #if NODEPP_KERNEL != NODEPP_KERNEL_ARDUINO
+            process::signal_handler();
+        #endif
     }
 
     /*─······································································─*/
@@ -37,15 +45,17 @@ namespace nodepp { namespace process {
     /*─······································································─*/
 
     int next(){
-        static uint x = 0; _Start 
+        static uint x = 0; $Start 
 
-        x = process::task::size(); while( x-->0 ){ process::task::next(); _Next; }
-        x = process::loop::size(); while( x-->0 ){ process::loop::next(); _Next; }
-        x = process::poll::size(); while( x-->0 ){ process::poll::next(); _Next; }
+        x = process::task::size(); while( x-->0 ){ process::task::next(); $Next; }
+        x = process::loop::size(); while( x-->0 ){ process::loop::next(); $Next; }
+        x = process::poll::size(); while( x-->0 ){ process::poll::next(); $Next; }
 
+        #if NODEPP_KERNEL != NODEPP_KERNEL_ARDUINO
             process::delay( TIMEOUT ); 
+        #endif
 
-        _Stop
+        $Stop
     }
     
     /*─······································································─*/
