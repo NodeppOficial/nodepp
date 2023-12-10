@@ -88,7 +88,7 @@ public:
 
     void write_headers( uint status, https_header_t headers ) noexcept {
         if( has_header == 1 ){ return; } has_header = 1;
-        string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::$get_http_status(status));
+        string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::_get_http_status(status));
         for( auto x:headers ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
                                res += "\r\n"; write( res ); if( method == "HEAD" ){ close(); }
     }

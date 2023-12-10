@@ -321,7 +321,7 @@ public:
     
     string_t slice( long start ) const noexcept {
         
-        auto r = get_slice_range( start, last() );
+        auto r = get_slice_range( start, size() );
          if( r == nullptr ){ return ""; }
 
         auto n_buffer = (string_t){ buffer.data()+r[0], r[2] };

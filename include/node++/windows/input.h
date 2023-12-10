@@ -10,8 +10,7 @@
 namespace nodepp { class simkey_t {
 protected:
 
-    struct _str_ {
-		MSG event;
+    struct _str_ {   MSG event;
         INPUT input; int state=0;
     	array_t<uint> button, key;
     };  ptr_t<_str_> obj = new _str_();

@@ -13,13 +13,11 @@ namespace nodepp { namespace fs {
 
     file_t  writable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
 
-    file_t  cout( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_OUTPUT_HANDLE), _size ); }
+    file_t  cout( const ulong& _size=CHUNK_SIZE ){ return file_t( "CONOUT$", "w+", _size ); }
     
-    file_t  cerr( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_ERROR_HANDLE), _size ); }
+    file_t  cerr( const ulong& _size=CHUNK_SIZE ){ return file_t( "CONERR$", "w+", _size ); }
 
-    file_t   cin( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_INPUT_HANDLE), _size ); }
-
-    file_t   tmp( const ulong& _size=CHUNK_SIZE ){ return file_t( mktemp(TMP_FILE), "w+", _size ); }
+    file_t   cin( const ulong& _size=CHUNK_SIZE ){ return file_t( "CONIN$", "r+", _size ); }
     
     /*─······································································─*/
 

@@ -57,24 +57,15 @@ namespace stream {
     
     /*─······································································─*/
     
-    file_t async( const string_t& path, const string_t& mode ){
-        auto fp = popen( (char*)path, (char*)mode ); if( fp == nullptr ) 
-                       { $Error("such file or directory does not exist"); }
-        auto fd = file_t( fileno( fp ) );
-        fd.onClose([=](){ fclose( fp ); });
-        return fd;
-    }
+    file_t async( const string_t& path, const string_t& mode ){ return file_t( path, mode ); }
     
     /*─······································································─*/
     
     string_t sync( const string_t& path, const string_t& mode ){
-        auto fp = fopen( (char*)path, (char*)mode ); if( fp == nullptr ) 
-                       { $Error("such file or directory does not exist"); }
-        string_t result; ptr_t<char> buffer ( CHUNK_SIZE ); ulong c=0; 
-        while ( !feof( fp ) ) {
-            if((c=fread( &buffer, sizeof(char), CHUNK_SIZE, fp ))>0 )
-              { result += (string_t){ &buffer, c }; } else { break; }
-        }   fclose(fp); return result;
+        auto fp = file_t( path, mode ); string_t result;
+        while ( !fp.is_available() ){ auto data = fp.read();
+            if( !data.empty() ){ result += data; }
+        }   return result;
     }
 
 }

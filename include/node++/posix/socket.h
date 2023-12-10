@@ -274,8 +274,8 @@ public: socket_t() noexcept {}
 
              if( host == "0.0.0.0" || host == "globalhost" )       { server.sin_addr.s_addr = INADDR_ANY; }
         else if( host == "255.255.255.255" || host == "broadcast" ){ server.sin_addr.s_addr = INADDR_BROADCAST; } 
-        else if( host == "127.0.0.1" || host == "localhost" )      { inet_pton(AF_INET, "127.0.0.1", &server.sin_addr); }
-        else                                                       { inet_pton(AF_INET, host.c_str(), &server.sin_addr); }
+        else if( host == "127.0.0.1" || host == "localhost" )      { inet_pton(AF, "127.0.0.1", &server.sin_addr); }
+        else                                                       { inet_pton(AF, host.c_str(), &server.sin_addr); }
 
         skt->server_addr = *((SOCKADDR*) &server);
         skt->client_addr = *((SOCKADDR*) &client);

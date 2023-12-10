@@ -5,6 +5,15 @@
 #include <ws2bth.h>
 #include <BluetoothAPIs.h>
 
+namespace { namespace nodepp {
+int str2ba( const string_t& straddr, const BTH_ADDR& addr ) {
+    auto y = regex::split( straddr, ":" );
+    for( auto x : y ) { addr <<= 8;
+        addr|=strtol(x,nullptr,16);
+    }   return y.size()<6 ? 0 : 1;
+} 
+} }
+
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { class bsocket_t : public socket_t { public:
@@ -12,12 +21,14 @@ namespace nodepp { class bsocket_t : public socket_t { public:
     using SOCKADDR_RC = struct sockaddr_rc;
 
     virtual int socket( string_t host, int port ) noexcept { addrlen = sizeof(server_addr);
+        WSADATA wsaData; WSAStartup(MAKEWORD(2,2),&wsaData);
+        obj->addrlen = sizeof( obj->server_addr );
 
-        if(( sid = ::socket( AF, SOCK, PROT ) ) <= 0 ) return -1; 
+        if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )
+          { return -1; } set_nonbloking_mode();
  
         set_buffer_size( CHUNK_SIZE );
-        set_nonbloking_mode(1);
-        set_reuse_address(1); 
+        set_reuse_address( 1 ); 
         
         SOCKADDR_BTH server= {0}, client = {0};
         addr.rc_channel    = (uint8_t) port;

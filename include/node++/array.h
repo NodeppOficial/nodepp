@@ -324,7 +324,7 @@ public: array_t() noexcept {};
 
     array_t slice( long start ) const noexcept {
 
-	    auto r = get_slice_range( start, last() );
+	    auto r = get_slice_range( start, size() );
          if( r == nullptr ){ return {0,0}; } 
 
         auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
@@ -379,11 +379,14 @@ public: array_t() noexcept {};
 namespace nodepp { namespace string {
 
     array_t<string_t> split( string_t _str, char ch ){
-        array_t<string_t> result; int c = 0;
-        while( (c=_str.index_of([=]( char c ){ return c == ch; })) >= 0 ){
-            string_t word = _str.splice( 0, c+1 ); word.pop();
-            result.push( word );
-        }   result.push( _str ); return result;
+        array_t<string_t> result; int c;
+
+        while( !_str.empty() ){
+            while((c=_str.index_of([=]( char c ){ return c==ch; }))==0 )
+                 { _str.erase(0); continue; }
+            if( c != -1 ){ result.push(_str.splice( 0, c )); }
+            else         { result.push(_str); break; }
+        }   return result;
     }
 
     /*─······································································─*/

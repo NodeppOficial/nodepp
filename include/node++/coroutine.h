@@ -102,13 +102,13 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define NODEPP_KERNEL_UNKNOWN 0
 
 #if defined(WINDOWS) || defined(_WIN32) || defined(_WIN64)
-   #define NODEPP_KERNEL NODEPP_KERNEL_WINDOWS
+   #define $KERNEL NODEPP_KERNEL_WINDOWS
 #elif defined(__linux__)
-   #define NODEPP_KERNEL NODEPP_KERNEL_POSIX
+   #define $KERNEL NODEPP_KERNEL_POSIX
 #elif defined(ARDUINO)
-   #define NODEPP_KERNEL NODEPP_KERNEL_ARDUINO
+   #define $KERNEL NODEPP_KERNEL_ARDUINO
 #else
-   #define NODEPP_KERNEL NODEPP_KERNEL_UNKNOWN
+   #define $KERNEL NODEPP_KERNEL_UNKNOWN
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -123,21 +123,21 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define NODEPP_OS_UNKNOWN 0
 
 #if defined(WINDOWS) || defined(_WIN32) || defined(_WIN64)
-   #define NODEPP_OS NODEPP_OS_WINDOWS
+   #define $OS NODEPP_OS_WINDOWS
 #elif defined(__APPLE__) && defined(__MACH__)
-   #define NODEPP_OS NODEPP_OS_IOS
+   #define $OS NODEPP_OS_IOS
 #elif defined(__TIZEN__)
-   #define NODEPP_OS NODEPP_OS_TIZEN
+   #define $OS NODEPP_OS_TIZEN
 #elif defined(__ANDROID__)
-   #define NODEPP_OS NODEPP_OS_ANDROID
+   #define $OS NODEPP_OS_ANDROID
 #elif defined(__APPLE__)
-   #define NODEPP_OS NODEPP_OS_APPLE
+   #define $OS NODEPP_OS_APPLE
 #elif defined(__linux__)
-   #define NODEPP_OS NODEPP_OS_LINUX
+   #define $OS NODEPP_OS_LINUX
 #elif defined(ARDUINO)
-   #define NODEPP_OS NODEPP_OS_ARDUINO
+   #define $OS NODEPP_OS_ARDUINO
 #else
-   #define NODEPP_OS NODEPP_OS_UNKNOWN
+   #define $OS NODEPP_OS_UNKNOWN
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -150,27 +150,27 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 
 #if defined(__GNUC__)
    #if defined(__x86_64__)
-      #define NODEPP_ARCH NODEPP_ARCH_CPU_64
+      #define $ARCH NODEPP_ARCH_CPU_64
    #elif defined(__aarch64__)
-      #define NODEPP_ARCH NODEPP_ARCH_ARM_64
+      #define $ARCH NODEPP_ARCH_ARM_64
    #elif defined(__i386__)
-      #define NODEPP_ARCH NODEPP_ARCH_CPU_32
+      #define $ARCH NODEPP_ARCH_CPU_32
    #elif defined(__arm__)
-      #define NODEPP_ARCH NODEPP_ARCH_ARM_64
+      #define $ARCH NODEPP_ARCH_ARM_64
    #else
-      #define NODEPP_ARCH NODEPP_ARCH_UNKNOWN
+      #define $ARCH NODEPP_ARCH_UNKNOWN
    #endif
 #else
    #if defined(_M_IX86)
-      #define NODEPP_ARCH NODEPP_ARCH_CPU_32
+      #define $ARCH NODEPP_ARCH_CPU_32
    #elif defined(_M_ARM64)
-      #define NODEPP_ARCH NODEPP_ARCH_ARM_64
+      #define $ARCH NODEPP_ARCH_ARM_64
    #elif defined(_M_X64)
-      #define NODEPP_ARCH NODEPP_ARCH_CPU_64
+      #define $ARCH NODEPP_ARCH_CPU_64
    #elif defined(_M_ARM)
-      #define NODEPP_ARCH NODEPP_ARCH_ARM_32
+      #define $ARCH NODEPP_ARCH_ARM_32
    #else
-      #define NODEPP_ARCH NODEPP_ARCH_UNKNOWN
+      #define $ARCH NODEPP_ARCH_UNKNOWN
    #endif
 #endif
 
@@ -183,17 +183,17 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define NODEPP_ENVIRONMENT_UNKNOWN 0
 
 #if defined(_MSYS2_MINGW_H)
-   #define NODEPP_ENVIRONMENT NODEPP_ENVIRONMENT_MSYS2
+   #define $ENVIRONMENT NODEPP_ENVIRONMENT_MSYS2
 #elif defined(__CYGWIN__)
-   #define NODEPP_ENVIRONMENT NODEPP_ENVIRONMENT_CYWIN
+   #define $ENVIRONMENT NODEPP_ENVIRONMENT_CYWIN
 /*
 #elif defined(__MINGW32__) || defined(__MINGW64__)
-   #define NODEPP_ENVIRONMENT NODEPP_ENVIRONMENT_MINGW
+   #define $ENVIRONMENT NODEPP_ENVIRONMENT_MINGW
 #elif defined(__GNUC__)
-   #define NODEPP_ENVIRONMENT NODEPP_ENVIRONMENT_GNU
+   #define $ENVIRONMENT NODEPP_ENVIRONMENT_GNU
 */
 #else
-   #define NODEPP_ENVIRONMENT NODEPP_ENVIRONMENT_UNKNOWN
+   #define $ENVIRONMENT NODEPP_ENVIRONMENT_UNKNOWN
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/

@@ -3,12 +3,12 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if NODEPP_KERNEL == NODEPP_KERNEL_WINDOWS && NODEPP_ENVIRONMENT == NODEPP_ENVIRONMENT_UNKNOWN
+#if $KERNEL == NODEPP_KERNEL_WINDOWS && $ENVIRONMENT == NODEPP_ENVIRONMENT_UNKNOWN
 #include "event.h"
 #include "windows/signal.h"
-#elif NODEPP_KERNEL == NODEPP_KERNEL_POSIX
+#elif $KERNEL == NODEPP_KERNEL_POSIX
 #include "event.h"
-#include "linux/signal.h"
+#include "posix/signal.h"
 #else
 #error "This OS Does not support worker.h"
 #endif

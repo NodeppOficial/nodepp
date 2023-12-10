@@ -3,12 +3,12 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if NODEPP_KERNEL == NODEPP_KERNEL_WINDOWS && NODEPP_ENVIRONMENT == NODEPP_ENVIRONMENT_UNKNOWN
+#if $KERNEL == NODEPP_KERNEL_WINDOWS
 #include "url.h"
 #include "windows/ip.h"
-#elif NODEPP_KERNEL == NODEPP_KERNEL_POSIX
+#elif $KERNEL == NODEPP_KERNEL_POSIX
 #include "url.h"
-#include "linux/ip.h"
+#include "posix/ip.h"
 #else
 #error "This OS Does not support ip.h"
 #endif

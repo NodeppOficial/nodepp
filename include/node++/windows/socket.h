@@ -5,7 +5,7 @@
 #include <winsock.h>
 #include <ws2tcpip.h>
 #include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib,"ws2_32.lib")
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -211,10 +211,10 @@ public: socket_t() noexcept {}
     void   free() const noexcept { force_close(); } 
     
     /*─······································································─*/
-    
+
+    ulong* get_range() const noexcept { return obj == nullptr ? nullptr : obj->range; }
     int    get_state() const noexcept { return obj == nullptr ?      -1 : obj->state; }
-    int       get_fd() const noexcept { return obj == nullptr ?      -1 : obj->fd;    }
-    ulong* get_range() const noexcept { return obj == nullptr ? nullptr ;             }
+    HANDLE    get_fd() const noexcept { return obj == nullptr ? nullptr : obj->fd; }
     
     /*─······································································─*/
 
@@ -293,7 +293,7 @@ public: socket_t() noexcept {}
         WSADATA wsaData; WSAStartup(MAKEWORD(2,2),&wsaData);
         obj->addrlen = sizeof( obj->server_addr );
 
-        if( (obj->fd=::socket( AF, SOCK, PROT )) <=0 )
+        if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )
           { return -1; } set_nonbloking_mode();
 
         set_buffer_size( CHUNK_SIZE );

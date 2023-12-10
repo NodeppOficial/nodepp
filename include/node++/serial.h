@@ -3,12 +3,12 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if NODEPP_KERNEL == NODEPP_KERNEL_WINDOWS //Nothing
+#if $KERNEL == NODEPP_KERNEL_WINDOWS //Nothing
 #include "fs.h"
 #include "windows/serial.h"
-#elif NODEPP_KERNEL == NODEPP_KERNEL_POSIX
+#elif $KERNEL == NODEPP_KERNEL_POSIX
 #include "fs.h"
-#include "linux/serial.h"
+#include "posix/serial.h"
 #else
 #error "This OS Does not support serial.h"
 #endif

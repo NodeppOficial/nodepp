@@ -14,8 +14,6 @@ namespace nodepp { namespace fs {
 
     file_t  writable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
 
-    file_t   tmp( const ulong& _size=CHUNK_SIZE ){ return file_t( mktemp(TMP_FILE), "w+", _size ); }
-
     file_t  cout( const ulong& _size=CHUNK_SIZE ){ return file_t( STDOUT_FILENO, _size ); }
     
     file_t  cerr( const ulong& _size=CHUNK_SIZE ){ return file_t( STDERR_FILENO, _size ); }

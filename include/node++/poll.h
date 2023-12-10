@@ -3,12 +3,12 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if NODEPP_KERNEL == NODEPP_KERNEL_WINDOWS && NODEPP_ENVIRONMENT == NODEPP_ENVIRONMENT_UNKNOWN
+#if $KERNEL == NODEPP_KERNEL_WINDOWS
 #include "event.h"
 #include "windows/poll.h"
-#elif NODEPP_KERNEL == NODEPP_KERNEL_POSIX
+#elif $KERNEL == NODEPP_KERNEL_POSIX
 #include "event.h"
-#include "linux/poll.h"
+#include "posix/poll.h"
 #else
 #error "This OS Does not support poll.h"
 #endif

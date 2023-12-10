@@ -3,10 +3,10 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if NODEPP_KERNEL == NODEPP_KERNEL_WINDOWS //Nothing
+#if $KERNEL == NODEPP_KERNEL_WINDOWS //Nothing
 #include "windows/worker.h"
-#elif NODEPP_KERNEL == NODEPP_KERNEL_POSIX
-#include "linux/workes.h"
+#elif $KERNEL == NODEPP_KERNEL_POSIX
+#include "posix/workes.h"
 #else
 #error "This OS Does not support worker.h"
 #endif

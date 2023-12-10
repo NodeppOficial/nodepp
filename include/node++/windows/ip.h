@@ -17,38 +17,23 @@ namespace nodepp { namespace ip {
 
     string_t lookup( string_t host ) {
 
-             if( host == "255.255.255.255" || host == "broadcast" ) { return "255.255.255.255"; }
-        else if( host == "127.0.0.1" || host == "localhost" )       { return "127.0.0.1";       }
+             if( host == "255.255.255.255" || host == "broadcast" ) { return "255.255.255.255"; } 
+        else if( host == "127.0.0.1" || host == "localhost" )       { return "127.0.0.1";       } 
         else if( host == "0.0.0.0" || host == "globalhost" )        { return "0.0.0.0";         }
 
         if( url::is_valid(host) ){ host = url::hostname(host); }
+        struct hostent* host_info = gethostbyname(host.c_str());
 
-        struct addrinfo* result = nullptr; struct addrinfo hints;
-               ZeroMemory(&hints, sizeof(hints));
-
-        hints.ai_family   = AF_UNSPEC;
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_protocol = IPPROTO_TCP;
-
-        int status = getaddrinfo(host.c_str(), nullptr, &hints, &result);
-        if( status != 0 ) { return ""; } string_t ipAddress;
-        
-        for( struct addrinfo* ptr=result; ptr!=nullptr; ptr=ptr->ai_next ) { void* addr;
-
-            if( ptr->ai_family == AF_INET ) {
-                struct sockaddr_in* ipv4 = (struct sockaddr_in*)ptr->ai_addr;
-                addr = &(ipv4->sin_addr);
-            } else {
-                struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)ptr->ai_addr;
-                addr = &(ipv6->sin6_addr);
+        if( host_info != NULL ){
+            struct in_addr** address_list = (struct in_addr**)host_info->h_addr_list;
+            int address_size = host_info->h_length;
+            for( int x = 0; x < address_size; x++ ) {
+             if( address_list[x] == nullptr ){ continue; }
+                 return inet_ntoa(*address_list[x]);
             }
-
-            char ipBuffer[INET6_ADDRSTRLEN];
-            inet_ntop(ptr->ai_family, addr, ipBuffer, sizeof(ipBuffer));
-            ipAddress = (string_t){ ipBuffer, (ulong) INET6_ADDRSTRLEN }; break;
         }
 
-        freeaddrinfo(result); return ipAddress;
+        return "";
     }
     
     /*─······································································─*/

@@ -19,7 +19,7 @@ namespace nodepp { namespace _file_ {
         do{ if( !y.empty() ){ break; } if( c==-2 ){ $Next; }
                  c = str->_read( str->get_buffer_data(), str->get_buffer_size() );
         } while( c == -2 );
-
+        
         if( c<=0 && y.empty() ){ str->close(); } else if( c>0 ){
             ulong act = (ulong) c; if( r[1] != 0 ) 
                   act = min( str->pos()-r[1], act );

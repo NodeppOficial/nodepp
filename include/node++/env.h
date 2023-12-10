@@ -3,10 +3,10 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if NODEPP_KERNEL == NODEPP_KERNEL_WINDOWS && NODEPP_ENVIRONMENT == NODEPP_ENVIRONMENT_UNKNOWN
+#if $KERNEL == NODEPP_KERNEL_WINDOWS
 #include "windows/env.h"
-#elif NODEPP_KERNEL == NODEPP_KERNEL_POSIX
-#include "linux/env.h"
+#elif $KERNEL == NODEPP_KERNEL_POSIX
+#include "posix/env.h"
 #else
 #error "This OS Does not support env.h"
 #endif
