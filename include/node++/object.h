@@ -46,7 +46,7 @@ public: object_t() noexcept {}
 
     /*─······································································─*/
 
-    object_t& operator[]( const string_t& name ) const noexcept { 
+    object_t& operator[]( const string_t& name ) noexcept { 
         
         auto mem = type::cast<NODE_OBJECT>( memory );
 
