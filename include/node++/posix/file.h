@@ -26,7 +26,8 @@ protected:
     virtual bool is_blocked( const int& c ) const noexcept {
         auto error = os::error(); if( c < 0 ){ return (
              error == EWOULDBLOCK || error == EINPROGRESS ||
-             error == ECONNRESET  || error == EALREADY 
+             error == ECONNRESET  || error == EALREADY    ||
+             error == EAGAIN
     ); } return 0; }
     
     /*─······································································─*/

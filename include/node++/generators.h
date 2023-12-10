@@ -5,25 +5,26 @@ namespace nodepp { namespace _file_ {
     $Generator( read ){ public: 
 
         ulong*   r; int c;
-        string_t y;
+        string_t y; 
+        ulong dist;
 
     template< class T > $Emit( T* str, ulong size=CHUNK_SIZE ){
-    $Start c=0; y.clear(); r=nullptr;
+    $Start c=0; y = str->get_borrow(); str->del_borrow(); str->flush();
 
         if( !str->is_available() ){ str->close(); $End; } r = str->get_range();
-        if( r[1] != 0 && str->pos() < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
-        if( r[1] != 0 && str->pos() >=r[1] ){ str->close(); $End; }
 
-        y = str->get_borrow(); str->del_borrow(); str->flush();
+        if( r[1] != 0 ){ auto pos = str->pos(); dist = r[1]-r[0];
+             if( pos < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
+        else if( pos >=r[1] ){ str->close(); $End; }
+        } else { dist = size; }
 
         do{ if( !y.empty() ){ break; } if( c==-2 ){ $Next; }
-                 c = str->_read( str->get_buffer_data(), str->get_buffer_size() );
+          auto act = clamp( size, dist, str->get_buffer_size() );
+                 c = str->_read( str->get_buffer_data(), act );
         } while( c == -2 );
-        
+
         if( c<=0 && y.empty() ){ str->close(); $End; } else if( c>0 ){
             y+= (string_t){ str->get_buffer_data(), (ulong) c };
-        } if( !y.empty() && size < y.size() ){
-            str->set_borrow( y.splice(size,y.size()) );
         }   c = y.size();
 
     $Stop
@@ -38,17 +39,15 @@ namespace nodepp { namespace _file_ {
         ulong size;
         
     template< class T > $Emit( T* str, const string_t& msg ){
-    $Start c=0; y=0;
+    $Start c=0; y=0; str->flush();
 
         if(!str->is_available() || msg.empty() )
-          { str->close(); $End; } str->flush();
+          { str->close(); $End; } 
 
         if( str->get_borrow().empty() ){ str->set_borrow(msg); }
 
-        size = clamp( str->get_borrow_size(), 0UL, str->get_buffer_size() );
-
-        do{ while(( c=str->_write( str->get_borrow_data(), size ))==-2 )
-                 { $Next; } if(c>0){ str->get_borrow().splice(0,c); y+=c; }
+        do{ while(( c=str->_write( str->get_borrow_data(), str->get_borrow_size() ))==-2 )
+                 { $Next; } str->get_borrow().splice(0,c); y+=c;
         }   while( c>=0 && !str->get_borrow().empty() ); 
 
                if( c<=0 ){ str->close(); $End; }
@@ -123,38 +122,38 @@ namespace nodepp { namespace _encode_ {
                 if( result == (ulong)-1 ){
 
                     if( errno == EINVAL ) {
-                            string_t message = "Input conversion stopped due to an incomplete character or shift sequence at the end of the input buffer.";
-                            $onError(inp.onError,message);
-                            $onError(out.onError,message); break;
+                        string_t message = "Input conversion stopped due to an incomplete character or shift sequence at the end of the input buffer.";
+                        $onError(inp.onError,message);
+                        $onError(out.onError,message); break;
                     }
 
                     else if( errno == EILSEQ ) {
-                            string_t message = "Input conversion stopped due to an input byte that does not belong to the input codeset.";
-                            $onError(inp.onError,message);
-                            $onError(out.onError,message); break;
+                        string_t message = "Input conversion stopped due to an input byte that does not belong to the input codeset.";
+                        $onError(inp.onError,message);
+                        $onError(out.onError,message); break;
                     }
 
                     else if( errno == E2BIG ) {
-                            string_t message = "Input conversion stopped due to lack of space in the output buffer.";
-                            $onError(inp.onError,message);
-                            $onError(out.onError,message); break;
+                        string_t message = "Input conversion stopped due to lack of space in the output buffer.";
+                        $onError(inp.onError,message);
+                        $onError(out.onError,message); break;
                     }
 
                     else if( errno == EBADF ) {
-                            string_t message = "The cd argument is not a valid open conversion descriptor";
-                            $onError(inp.onError,message);
-                            $onError(out.onError,message); break;
+                        string_t message = "The cd argument is not a valid open conversion descriptor";
+                        $onError(inp.onError,message);
+                        $onError(out.onError,message); break;
                     }
 
                     else {
-                            string_t message = "can't encode correctly";
-                            $onError(inp.onError,message);
-                            $onError(out.onError,message); break;
+                        string_t message = "can't encode correctly";
+                        $onError(inp.onError,message);
+                        $onError(out.onError,message); break;
                     }
 
                 } else {
                     string_t info = (string_t){ &obff, obff.size() }; 
-                    out.write( info ); inp.onData.emit( info ); 
+                    inp.onData.emit( info ); out.write( info );
                 }
 
             }   iconv_close(ctx); out.close(); inp.close();
@@ -183,28 +182,28 @@ namespace nodepp { namespace _encode_ {
                 if( result == (ulong)-1 ){
 
                     if( errno == EINVAL ) {
-                            string_t message = "Input conversion stopped due to an incomplete character or shift sequence at the end of the input buffer.";
-                            $onError(inp.onError,message); break;
+                        string_t message = "Input conversion stopped due to an incomplete character or shift sequence at the end of the input buffer.";
+                        $onError(inp.onError,message); break;
                     }
 
                     else if( errno == EILSEQ ) {
-                            string_t message = "Input conversion stopped due to an input byte that does not belong to the input codeset.";
-                            $onError(inp.onError,message); break;
+                        string_t message = "Input conversion stopped due to an input byte that does not belong to the input codeset.";
+                        $onError(inp.onError,message); break;
                     }
 
                     else if( errno == E2BIG ) {
-                            string_t message = "Input conversion stopped due to lack of space in the output buffer.";
-                            $onError(inp.onError,message); break;
+                        string_t message = "Input conversion stopped due to lack of space in the output buffer.";
+                        $onError(inp.onError,message); break;
                     }
 
                     else if( errno == EBADF ) {
-                            string_t message = "The cd argument is not a valid open conversion descriptor";
-                            $onError(inp.onError,message); break;
+                        string_t message = "The cd argument is not a valid open conversion descriptor";
+                        $onError(inp.onError,message); break;
                     }
 
                     else {
-                            string_t message = "can't encode correctly";
-                            $onError(inp.onError,message); break;
+                        string_t message = "can't encode correctly";
+                        $onError(inp.onError,message); break;
                     }
 
                 } else {
@@ -264,8 +263,8 @@ namespace nodepp { namespace _zlib_ {
 
                 if(( size=inp.get_buffer_size()-str->avail_out )>0){
                     dout = (string_t){ inp.get_buffer_data(), size };
-                    while( _write(&out,dout)==1 ){ $Next; } 
-                    inp.onData.emit(dout); continue;
+                    inp.onData.emit(dout); 
+                    while( _write(&out,dout)==1 ){ $Next; } continue;
                 }
                 
                 if( x==Z_STREAM_END ) { break; } else if( x < 0 ){ 
@@ -310,7 +309,7 @@ namespace nodepp { namespace _zlib_ {
 
                 if( x==Z_STREAM_END ) { break; } else if( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
-                    $onError( inp.onError, message ); inp.close(); $End;
+                    $onError( inp.onError, message ); inp.close(); break;
                 } 
 
             }   inflateEnd( &str ); inp.close(); $Stop
@@ -357,8 +356,8 @@ namespace nodepp { namespace _zlib_ {
 
                 if(( size=inp.get_buffer_size()-str->avail_out )>0){
                     dout = (string_t){ inp.get_buffer_data(), size };
-                    while( _write(&out,dout)==1 ){ $Next; } 
-                    inp.onData.emit(dout); continue;
+                    inp.onData.emit(dout); 
+                    while( _write(&out,dout)==1 ){ $Next; } continue;
                 }
 
                 if( x==Z_STREAM_END ) { break; } else if( x < 0 ){ 
@@ -400,11 +399,10 @@ namespace nodepp { namespace _zlib_ {
                     dout = (string_t){ inp.get_buffer_data(), size };
                     inp.onData.emit(dout); continue;
                 }
-
                 
                 if( x==Z_STREAM_END ) { break; } else if( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
-                    $onError( inp.onError, message ); inp.close(); $End;
+                    $onError( inp.onError, message ); inp.close(); break;
                 } 
 
             }   deflateEnd( &str ); inp.close(); $Stop
@@ -432,7 +430,7 @@ namespace nodepp { namespace _stream_ {
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ $Next; } 
                if( _read.c <= 0 )  { break; }
-                inp.onData.emit( _read.y ); $Next;
+                inp.onData.emit( _read.y );
             }   inp.close();
         $Stop
         }
@@ -440,10 +438,10 @@ namespace nodepp { namespace _stream_ {
         template< class T, class V > $Emit( const T& inp, const V& out ){
         $Start inp.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
-            while( _read(&inp)==1 ){ $Next; } 
-               if( _read.c <= 0 )  { break; }
+            while( _read(&inp)==1 )         { $Next; } 
+               if( _read.c <= 0 )           { break; }
+                inp.onData.emit( _read.y );
             while( _write(&out,_read.y)==1 ){ $Next; }
-                inp.onData.emit( _read.y ); $Next;
             }   inp.close(); out.close();
         $Stop
         }
@@ -462,7 +460,7 @@ namespace nodepp { namespace _stream_ {
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ $Next; } 
                if( _read.c <= 0 )  { break; }
-                inp.onData.emit( _read.y ); $Next;
+                inp.onData.emit( _read.y );
             }   inp.close();
         $Stop
         }
@@ -470,10 +468,10 @@ namespace nodepp { namespace _stream_ {
         template< class T, class V > $Emit( const T& inp, const V& out ){
         $Start inp.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
-            while( _read(&inp)==1 ){ $Next; } 
-               if( _read.c <= 0 )  { break; }
+            while( _read(&inp)==1 )         { $Next; } 
+               if( _read.c <= 0 )           { break; }
+                inp.onData.emit( _read.y );
             while( _write(&out,_read.y)==1 ){ $Next; }
-                inp.onData.emit( _read.y ); $Next;
             }   inp.close(); out.close();
         $Stop
         }

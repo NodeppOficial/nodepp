@@ -17,9 +17,9 @@ namespace nodepp { namespace socket {
 namespace nodepp {
 
 struct agent_t {
-    bool  reuse_address =  1;
-    uint  recv_timeout  = 60;
-    uint  send_timeout  = 60;
+    bool  reuse_address = 1;
+    uint  recv_timeout  = 0;
+    uint  send_timeout  = 0;
     ulong buffer_size   = CHUNK_SIZE;
     bool  keep_alive    = 0;
     bool  broadcast     = 0;

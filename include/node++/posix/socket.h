@@ -14,12 +14,12 @@
 namespace nodepp {
 
 struct agent_t {
-    bool  reuse_address =  1;
-    uint  recv_timeout  = 60;
-    uint  send_timeout  = 60;
+    bool  reuse_address = 1;
+    uint  recv_timeout  = 0;
+    uint  send_timeout  = 0;
     ulong buffer_size   = CHUNK_SIZE;
     bool  reuse_port    = 1;
-    bool  keep_alive    = 0;
+    bool  keep_alive    = 1;
     bool  broadcast     = 0;
 };
 
@@ -40,7 +40,8 @@ protected:
     virtual bool is_blocked( const int& c ) const noexcept { 
         auto error = os::error(); if( c < 0 ){ return (
              error == EWOULDBLOCK || error == EINPROGRESS ||
-             error == ECONNRESET  || error == EALREADY
+             error == ECONNRESET  || error == EALREADY    ||
+             error == EAGAIN
     ); } return 0; }
     
     /*─······································································─*/
