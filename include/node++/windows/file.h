@@ -34,13 +34,13 @@ protected:
     
     /*─······································································─*/
 
-    virtual int is_blocked( const bool& x, DWORD& c ) const noexcept {
-             if( x || c>0 )                       { return c; } 
+    virtual bool is_blocked( const bool& x, DWORD& c ) const noexcept {
+             if( x || c>0 )                       { return 0; } 
         else if( os::error() == ERROR_HANDLE_EOF ){ return 0; }
         else if( os::error() == ERROR_IO_PENDING ){
-                 if ( GetOverlappedResult( obj->fd, &obj->ov, &c, 0 ) ){ return  c; } 
-            else if ( os::error() == ERROR_IO_INCOMPLETE )             { return -2; }
-        }   return -1;
+                 if ( GetOverlappedResult( obj->fd, &obj->ov, &c, 0 ) ){ return 0; } 
+            else if ( os::error() == ERROR_IO_INCOMPLETE )             { return 1; }
+        }   return 0;
     }
     
 public: file_t() noexcept {}
@@ -182,12 +182,12 @@ public: file_t() noexcept {}
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } DWORD c = 0;
-        return is_blocked( ReadFile( obj->fd, bf, sx, &c, &obj->ov ), c );
+        return is_blocked( ReadFile( obj->fd, bf, sx, &c, &obj->ov ), c ) ? -2 : c;
     }
 
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } DWORD c = 0;
-        return is_blocked( WriteFile( obj->fd, bf, sx, &c, &obj->ov ), c );
+        return is_blocked( WriteFile( obj->fd, bf, sx, &c, &obj->ov ), c ) ? -2 : c;
     }
     
 };}
