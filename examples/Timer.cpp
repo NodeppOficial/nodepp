@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _Ready() {
+void $Ready() {
 
     auto t = timer::interval([=](){ 
         static int i=0; i++; i%=1000;

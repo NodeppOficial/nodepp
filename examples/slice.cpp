@@ -2,7 +2,7 @@
 
 using namespace nodepp;
 
-void _Ready() { 
+void $Ready() { 
     
     string_t str = "0123456789";
     

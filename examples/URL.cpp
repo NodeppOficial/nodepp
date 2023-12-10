@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _Ready() {
+void $Ready() {
 	
     string_t uri = "http://becerra:enmanuel@www.google.com/mojon#done?mojon=10";
 

@@ -8,7 +8,7 @@ using namespace nodepp;
 
 ptr_t<float> vec ({ 0, 0 });
 
-void _Ready() { 
+void $Ready() { 
 
     timer::interval([](){
         control::mouse::set_position( vec[0], vec[1] );

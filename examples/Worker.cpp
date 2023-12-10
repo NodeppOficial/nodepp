@@ -4,7 +4,7 @@
 
 using namespace nodepp;
 
-void _Ready() {
+void $Ready() {
 
     worker::add([]( int arg, string_t str ){
         console::log( str, arg );

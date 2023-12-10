@@ -3,6 +3,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include <windows.h>
+#include <processthreadsapi.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -106,16 +107,14 @@ public:
     /*─······································································─*/
 
     int add() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
-        obj->thread = CreateThread( NULL, 0, &sfunc, (void*)obj->cb, CREATE_SUSPENDED, &obj->id );
-        if(!CloseHandle(obj->thread) )  { return -1; } 
-        if( ResumeThread(obj->thread)<0){ return -1; }
-        if( obj->thread == NULL ){ process::threads++; } return obj->thread == NULL ? -1 : 0;
+        obj->thread = CreateThread( NULL, 0, &jfunc, (void*)obj->cb, 0, &obj->id );
+        WaitForSingleObject( obj->thread, 0 ); if( obj->thread != NULL ) 
+            { process::threads++; } return obj->thread == NULL ? -1 : 0;
     }
 
     int detach() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
-        obj->thread = CreateThread( NULL, 0, &dfunc, (void*)obj->cb, CREATE_SUSPENDED, &obj->id );
-        if(!CloseHandle(obj->thread) )  { return -1; } 
-        if( ResumeThread(obj->thread)<0){ return -1; } return obj->thread == NULL ?-1:0;   
+        obj->thread = CreateThread( NULL, 0, &jfunc, (void*)obj->cb, 0, &obj->id );
+        WaitForSingleObject( obj->thread, 0 ); return obj->thread == NULL ? -1 : 0;
     }
 
     int join() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;

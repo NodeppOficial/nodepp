@@ -4,7 +4,7 @@
 
 using namespace nodepp;
 
-void _Ready() { 
+void $Ready() { 
 
     auto t = timer::add([](){
         static int i=0; i++;

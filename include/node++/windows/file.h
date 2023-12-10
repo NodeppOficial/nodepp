@@ -32,6 +32,17 @@ protected:
         return  fg;
     }
     
+    /*─······································································─*/
+
+    virtual int is_blocked( const bool& x, DWORD& c ) const noexcept {
+             if( x || c>0 )                       { return c; } 
+        else if( os::error() == ERROR_HANDLE_EOF ){ return 0; }
+        else if( os::error() == ERROR_IO_PENDING ){
+                 if ( GetOverlappedResult( obj->fd, &obj->ov, &c, 0 ) ){ return  c; } 
+            else if ( os::error() == ERROR_IO_INCOMPLETE )             { return -2; }
+        }   return -1;
+    }
+    
 public: file_t() noexcept {}
 
     event_t<>          onUnpipe;
@@ -171,40 +182,12 @@ public: file_t() noexcept {}
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } DWORD c = 0;
-    $Start
-
-        if( ReadFile( obj->fd, bf, sx, &c, &obj->ov ) ) 
-                { $Set(0); return  c; } 
-        else if ( os::error() == ERROR_IO_PENDING )
-                { $Set(1); return -2; } 
-        else    { $Set(0); return -1; } $Yield(1);
-
-        if( GetOverlappedResult( obj->fd, &obj->ov, &c, 0 ) )
-                { $Set(0); return  c; } 
-        else if ( os::error() == ERROR_IO_INCOMPLETE )
-                { $Set(1); return -2; }
-        else    { $Set(0); return -1; } $Goto(0);
-    
-    $Stop
+        return is_blocked( ReadFile( obj->fd, bf, sx, &c, &obj->ov ), c );
     }
 
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } DWORD c = 0;
-    $Start
-
-        if( WriteFile( obj->fd, bf, sx, &c, &obj->ov ) ) 
-                { $Set(0); return  c; }
-        else if ( os::error() == ERROR_IO_PENDING )
-                { $Set(1); return -2; }
-        else    { $Set(0); return -1; } $Yield(1);
-
-        if( GetOverlappedResult( obj->fd, &obj->ov, &c, 0 ) )
-                { $Set(0); return  c; }
-        else if ( os::error() == ERROR_IO_INCOMPLETE )
-                { $Set(1); return -2; }
-        else    { $Set(0); return -1; } $Goto(0);
-    
-    $Stop
+        return is_blocked( WriteFile( obj->fd, bf, sx, &c, &obj->ov ), c );
     }
     
 };}

@@ -5,7 +5,7 @@ using namespace nodepp;
 
 ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
 
-void _Ready() {
+void $Ready() {
 
     auto client = tls::client( &ssl );
 

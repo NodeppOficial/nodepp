@@ -4,15 +4,15 @@ namespace nodepp { namespace _file_ {
 
     $Generator( read ){ public: 
 
-        ulong*   r; int c=0;
+        ulong*   r; int c;
         string_t y;
 
     template< class T > $Emit( T* str, ulong size=CHUNK_SIZE ){
     $Start c=0; y.clear(); r=nullptr;
 
-        if( !str->is_available() ){ str->close(); y.clear(); $End; } r = str->get_range();
+        if( !str->is_available() ){ str->close(); $End; } r = str->get_range();
         if( r[1] != 0 && str->pos() < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
-        if( r[1] != 0 && str->pos() >=r[1] ){ str->close(); y.clear(); $End; }
+        if( r[1] != 0 && str->pos() >=r[1] ){ str->close(); $End; }
 
         y = str->get_borrow(); str->del_borrow(); str->flush();
 
@@ -20,13 +20,11 @@ namespace nodepp { namespace _file_ {
                  c = str->_read( str->get_buffer_data(), str->get_buffer_size() );
         } while( c == -2 );
         
-        if( c<=0 && y.empty() ){ str->close(); } else if( c>0 ){
-            ulong act = (ulong) c; if( r[1] != 0 ) 
-                  act = min( str->pos()-r[1], act );
-            y = (string_t){ str->get_buffer_data(), act };
+        if( c<=0 && y.empty() ){ str->close(); $End; } else if( c>0 ){
+            y+= (string_t){ str->get_buffer_data(), (ulong) c };
         } if( !y.empty() && size < y.size() ){
             str->set_borrow( y.splice(size,y.size()) );
-        }
+        }   c = y.size();
 
     $Stop
     }};
@@ -35,7 +33,9 @@ namespace nodepp { namespace _file_ {
 
     $Generator( write ){ public:
 
-        ulong y=0; int c=-1; ulong size=0;
+        ulong    y; 
+        int      c;
+        ulong size;
         
     template< class T > $Emit( T* str, const string_t& msg ){
     $Start c=0; y=0;
@@ -69,7 +69,7 @@ namespace nodepp { namespace _file_ {
 
         while( str->is_available() ){
         while( prs(str) == 1 ){ $Next; }
-           if( prs.y.empty() ){ break; } c=1; s += prs.y; 
+           if( prs.c<=0 ){ break; } c=1; s += prs.y; 
           for( auto x:s ){ if( x == '\n' ){ break; } c++; }
            if( c<=s.size() ){ break; }
         }      str->set_borrow(s);

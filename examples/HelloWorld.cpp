@@ -2,6 +2,6 @@
 
 using namespace nodepp;
 
-void _Ready() { 
+void $Ready() { 
     console::log("¡Hello World!");    
 }

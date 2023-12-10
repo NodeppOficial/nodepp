@@ -16,6 +16,6 @@ _Generator( process_1 ) {
 
 };
 
-void _Ready() {
+void $Ready() {
     process_1 A; process::loop::add(A);
 }

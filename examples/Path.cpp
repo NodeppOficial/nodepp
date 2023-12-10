@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _Ready() {
+void $Ready() {
 	
     string_t dir = path::join( process::cwd(), "www", "index.html" );
     console::log( dir );

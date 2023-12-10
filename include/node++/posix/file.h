@@ -2,6 +2,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -38,13 +39,13 @@ protected:
     /*─······································································─*/
 
     uint get_fd_flag( const string_t& flag ){ uint _flag = O_NONBLOCK;
-             if( flag == "r"  ){ _flag |= O_RDONLY | O_CREAT; }
-        else if( flag == "w"  ){ _flag |= O_WRONLY | O_CREAT; }
-        else if( flag == "a"  ){ _flag |= O_APPEND | O_CREAT; }
-        else if( flag == "r+" ){ _flag |= O_RDWR   ;          }
-        else if( flag == "w+" ){ _flag |= O_RDWR   | O_CREAT; }
-        else if( flag == "a+" ){ _flag |= O_APPEND ;          }
-        else                   { _flag |= O_RDONLY | O_CREAT; }
+             if( flag == "r"  ){ _flag |= O_RDONLY ;                     }
+        else if( flag == "w"  ){ _flag |= O_WRONLY | O_CREAT  | O_TRUNC; }
+        else if( flag == "a"  ){ _flag |= O_WRONLY | O_APPEND | O_CREAT; }
+        else if( flag == "r+" ){ _flag |= O_RDWR   | O_APPEND ;          }
+        else if( flag == "w+" ){ _flag |= O_RDWR   | O_APPEND | O_CREAT; }
+        else if( flag == "a+" ){ _flag |= O_RDWR   | O_APPEND ;          }
+        else                   { _flag |= O_WRONLY | O_TMPFILE;          }
         return  _flag;
     }
 
@@ -70,7 +71,7 @@ public: file_t() noexcept {}
     /*─······································································─*/
 
     file_t( const string_t& path, const string_t& mode, const ulong& _size=CHUNK_SIZE ){
-            obj->fd = open( path.data(), get_fd_flag(mode) );
+            obj->fd = open( path.data(), get_fd_flag( mode ), 0644 );
         if( obj->fd < 0 ) $Error("such file or directory does not exist");
             set_nonbloking_mode(); set_buffer_size( _size );
     }
@@ -99,8 +100,8 @@ public: file_t() noexcept {}
     /*─······································································─*/
 
     void set_range( const ulong(&x) [2] ) const noexcept { obj->range[0] = x[0]; obj->range[1] = x[1]; }
-    void   set_range( ptr_t< ulong > x ) const noexcept { obj->range[0] = x[0]; obj->range[1] = x[1]; }
-    void   set_range( ulong x, ulong y ) const noexcept { obj->range[0] = x;    obj->range[1] = y;    }
+    void    set_range( ptr_t< ulong > x ) const noexcept { obj->range[0] = x[0]; obj->range[1] = x[1]; }
+    void    set_range( ulong x, ulong y ) const noexcept { obj->range[0] = x;    obj->range[1] = y;    }
     
     /*─······································································─*/
 

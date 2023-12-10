@@ -29,7 +29,11 @@ protected:
         if( inp.is_closed() ){ return -1; } auto x = inp.obj->poll._emit(); if( x != nullptr ) {
             if( x[0] == 0 ){ ssocket_t cli(inp.obj->ctx,x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
             if( x[0] == 1 ){ ssocket_t cli(inp.obj->ctx,x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
+        #if $KERNEL == NODEPP_KERNEL_WINDOWS
+            if( x[0] ==-1 ){ ::closesocket(x[1]); }
+        #else
             if( x[0] ==-1 ){ ::close(x[1]); }
+        #endif
         }   return 1; 
     }, *this ); }
     

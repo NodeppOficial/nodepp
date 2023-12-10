@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _Ready(){
+void $Ready(){
 
     fetch::http({
         .url = "http://www.google.com/",

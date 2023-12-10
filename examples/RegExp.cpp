@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _Ready() {
+void $Ready() {
 
     regex_t reg("[0-9]+","i");
     console::log( "hola 123: ", reg.test("hola 123") ? "true" : "false" );

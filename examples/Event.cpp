@@ -6,7 +6,7 @@ using namespace nodepp;
 
 event_t<> ev; 
 
-void _Ready() {
+void $Ready() {
 
   ev.on([](){ console::log("hello world"); });
 

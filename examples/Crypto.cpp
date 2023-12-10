@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _Ready() {
+void $Ready() {
 
     auto ppt = crypto::enc::DES_CBC( "mojon", "mojon" );
          ppt.update(" mojon ");

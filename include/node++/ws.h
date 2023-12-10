@@ -11,17 +11,6 @@
 
 namespace nodepp {
 
-    class ws_t : public socket_t {
-    public: ws_t() noexcept : socket_t(){}
-    
-    }
-
-}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace nodepp {
-
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace { template< class T, class U > void WSServer( T cli, U cb ) {

@@ -4,7 +4,7 @@
 
 using namespace nodepp;
 
-void _Ready() {
+void $Ready() {
 
     promise_t<int,int>([=]( auto res, auto rej ){
         timer::delay(1000); rej(10);

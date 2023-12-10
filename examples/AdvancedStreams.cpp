@@ -4,7 +4,7 @@
 
 using namespace nodepp;
 
-void _Ready() { 
+void $Ready() { 
     auto _rdb = fs::readable( path::join( process::cwd(), "www", "kloud.mp4" ) );
     auto _wrt = fs::writable( path::join( process::cwd(), "www", "mojon.mp4" ) );
 

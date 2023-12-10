@@ -7,6 +7,11 @@
 #include <winsock2.h>
 #pragma comment(lib,"ws2_32.lib")
 
+namespace nodepp { namespace socket {
+    void start_device(){ WSADATA wsaData; WSAStartup(MAKEWORD(2,2),&wsaData); }
+    void   end_device(){ WSACleanup(); }
+}}
+
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp {
@@ -36,7 +41,7 @@ protected:
         int          state = 0;
         ptr_t<char>  buffer;
         string_t     borrow;
-        int          fd;
+        SOCKET       fd;
 
     };  ptr_t<_str_> obj = new _str_();
     
@@ -214,7 +219,7 @@ public: socket_t() noexcept {}
 
     ulong* get_range() const noexcept { return obj == nullptr ? nullptr : obj->range; }
     int    get_state() const noexcept { return obj == nullptr ?      -1 : obj->state; }
-    HANDLE    get_fd() const noexcept { return obj == nullptr ? nullptr : obj->fd; }
+    SOCKET    get_fd() const noexcept { return obj == nullptr ?      -1 : obj->fd;    }
     
     /*─······································································─*/
 
@@ -271,7 +276,7 @@ public: socket_t() noexcept {}
     
     /*─······································································─*/
 
-    socket_t( int fd, ulong _size=CHUNK_SIZE ){
+    socket_t( SOCKET fd, ulong _size=CHUNK_SIZE ){
         if( fd < 0 ) $Error("Socket does not exist");
         obj->fd = fd; set_nonbloking_mode();
         set_buffer_size( _size );
@@ -283,15 +288,13 @@ public: socket_t() noexcept {}
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
         if( obj->state == -2 ){ return; } obj->state = -2;
         if( obj->srv   ==  1 )::shutdown(obj->fd,SD_BOTH);
-        closesocket(obj->fd); ::WSACleanup();
-        close(); onClose.emit();
+        closesocket(obj->fd); close(); onClose.emit();
     }
 
     /*─······································································─*/
 
     virtual int socket( string_t host, int port ) noexcept { 
-        WSADATA wsaData; WSAStartup(MAKEWORD(2,2),&wsaData);
-        obj->addrlen = sizeof( obj->server_addr );
+        skt->addrlen = sizeof( skt->server_addr );
 
         if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )
           { return -1; } set_nonbloking_mode();
@@ -305,8 +308,8 @@ public: socket_t() noexcept {}
 
              if( host == "0.0.0.0" || host == "globalhost" )        { server.sin_addr.s_addr = INADDR_ANY; }
         else if( host == "255.255.255.255" || host == "broadcast" ) { server.sin_addr.s_addr = INADDR_BROADCAST; } 
-        else if( host == "127.0.0.1" || host == "localhost" )       { inet_pton(AF_INET, "127.0.0.1", &server.sin_addr); }
-        else                                                        { inet_pton(AF_INET, host.c_str(), &server.sin_addr); }
+        else if( host == "127.0.0.1" || host == "localhost" )       { inet_pton(AF, "127.0.0.1", &server.sin_addr); }
+        else                                                        { inet_pton(AF, host.c_str(), &server.sin_addr); }
 
         obj->server_addr = *((SOCKADDR*) &server);
         obj->client_addr = *((SOCKADDR*) &client);

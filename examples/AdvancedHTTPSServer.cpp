@@ -63,4 +63,4 @@ void server( int process ){
 
 }
 
-void _Ready() { server( os::pid() ); }
+void $Ready() { server( os::pid() ); }

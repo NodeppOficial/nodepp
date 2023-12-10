@@ -17,4 +17,4 @@ void client( int process ){
 
 }
 
-void _Ready() { client( os::pid() ); }
+void $Ready() { client( os::pid() ); }

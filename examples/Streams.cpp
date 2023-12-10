@@ -4,7 +4,7 @@
 
 using namespace nodepp;
 
-void _Ready() { 
+void $Ready() { 
     string_t dir = path::join( process::cwd(), "LICENSE" );
     auto _str = fs::readable( dir );
 

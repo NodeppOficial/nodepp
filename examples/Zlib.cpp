@@ -4,15 +4,15 @@
 
 using namespace nodepp;
 
-void _Ready() {
+void $Ready() {
 
     auto B = fs::writable("mojon.txt");
-    auto A = fs::readable("ppt.txt");
+    auto A = fs::readable("LICENSE");
 
-    A.onDone([](){
+    A.onClose([](){
         console::log("done");
     });
 
-    zlib::inflate_pipe( A, B );
+    zlib::gzip::pipe( A, B );
 
 }

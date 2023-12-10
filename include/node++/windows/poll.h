@@ -51,9 +51,9 @@ public: poll_t() noexcept {}
         while( s-->0 ){ auto x = poll[s]; if(
                 x.revents == POLLNVAL || x.revents == POLLERR ||
                 x.revents == POLLHUP
-            )                              { poll.erase(s); return {{-1, x.fd }}; }
-            else if( x.revents == POLLIN  ){ poll.erase(s); return {{ 0, x.fd }}; }
-            else if( x.revents == POLLOUT ){ poll.erase(s); return {{ 1, x.fd }}; }
+            )                              { poll.erase(s); return {{ -1, (int)x.fd }}; }
+            else if( x.revents == POLLIN  ){ poll.erase(s); return {{  0, (int)x.fd }}; }
+            else if( x.revents == POLLOUT ){ poll.erase(s); return {{  1, (int)x.fd }}; }
         }  
         
         s = poll.size(); return nullptr;
@@ -80,11 +80,11 @@ public: poll_t() noexcept {}
     };
     /*─······································································─*/
 
-    void push_write( const int& fd ) noexcept { 
+    void push_write( const SOCKET& fd ) noexcept { 
 	     poll.unshift({ fd, POLLOUT, 0 }); 
     }
 
-    void push_read( const int& fd ) noexcept { 
+    void push_read( const SOCKET& fd ) noexcept { 
          poll.unshift({ fd, POLLIN, 0 }); 
     }
 

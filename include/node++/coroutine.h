@@ -14,7 +14,7 @@ template< class T > T clamp( T val, T _min, T _max ){ return max( _min, min( _ma
 #define $Ready $Init(); int main( int argc, char** args ){ \
    process::start( argc, args ); $Init(); \
    process::pipe(); return 0; \
-} void $Init
+}  void $Init
 
 #define $Main $Ready
 
@@ -182,7 +182,7 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define NODEPP_ENVIRONMENT_CYWIN   1
 #define NODEPP_ENVIRONMENT_UNKNOWN 0
 
-#if defined(_MSYS2_MINGW_H)
+#if defined(__MSYS__)
    #define $ENVIRONMENT NODEPP_ENVIRONMENT_MSYS2
 #elif defined(__CYGWIN__)
    #define $ENVIRONMENT NODEPP_ENVIRONMENT_CYWIN

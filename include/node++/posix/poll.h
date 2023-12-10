@@ -50,9 +50,9 @@ public: poll_t() noexcept {}
         while( s-->0 ){ auto x = poll[s]; if(
                 x.revents == POLLNVAL || x.revents == POLLERR ||
                 x.revents == POLLHUP
-            )                              { poll.erase(s); return {{-1, x.fd }}; }
-            else if( x.revents == POLLIN  ){ poll.erase(s); return {{ 0, x.fd }}; }
-            else if( x.revents == POLLOUT ){ poll.erase(s); return {{ 1, x.fd }}; }
+            )                              { poll.erase(s); return {{ -1, x.fd }}; }
+            else if( x.revents == POLLIN  ){ poll.erase(s); return {{  0, x.fd }}; }
+            else if( x.revents == POLLOUT ){ poll.erase(s); return {{  1, x.fd }}; }
         }  
         
         s = poll.size(); return nullptr;

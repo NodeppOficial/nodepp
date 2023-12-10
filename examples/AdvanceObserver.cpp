@@ -8,7 +8,7 @@ observer_t obj ({
     { "int", 10 }
 });
 
-void _Ready() {
+void $Ready() {
 
     obj.on( "string", []( any_t A, any_t B ){
         console::log( (string_t) A, "|", (string_t) B );

@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _Ready() { console::start(9600);
+void $Ready() { console::start(9600);
 
     timer::add([](){
         static int i = 0; i++;

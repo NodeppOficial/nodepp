@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _Ready() { 
+void $Ready() { 
 
     object_t ppt ({
         { "var1", 10 },

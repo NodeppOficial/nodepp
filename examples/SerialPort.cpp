@@ -4,7 +4,7 @@
 
 using namespace nodepp;
 
-void _Ready(){
+void $Ready(){
 
     auto str = serial::connect( "/dev/ttyUSB0", 9600 );
 

@@ -2,7 +2,7 @@
 
 using namespace nodepp;
 
-void _Ready() {
+void $Ready() {
 
     process::loop::add([=](){ static int itr = 10;
     _Start

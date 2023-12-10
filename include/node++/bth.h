@@ -28,7 +28,11 @@ protected:
             if( inp.is_closed() ){ return -1; } auto x = inp.obj->poll._emit(); if( x != nullptr ) {
                 if( data[0] == 0 ){ bsocket_t cli(data[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
                 if( data[0] == 1 ){ bsocket_t cli(data[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
-                if( data[0] ==-1 ){ ::close(data[1]); }
+            #if $KERNEL == NODEPP_KERNEL_WINDOWS
+                if( x[0] ==-1 ){ ::closesocket(x[1]); }
+            #else
+                if( x[0] ==-1 ){ ::close(x[1]); }
+            #endif
             }   return  1;
         }, *this );
     }

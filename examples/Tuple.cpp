@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _Ready() { 
+void $Ready() { 
 
     tuple_t<int,float,string_t> tp ( 10, 10.50, "hello world!" );
 

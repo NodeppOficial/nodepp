@@ -9,7 +9,7 @@ observer_t obj ({
     { "b", 0 },
 });
 
-void _Ready(){
+void $Ready(){
 
     obj.on( "b", []( any_t A, any_t B ){
         console::done( " B:>", (int)A, "|", (int)B );
