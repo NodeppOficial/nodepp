@@ -25,7 +25,7 @@ namespace nodepp { class bsocket_t : public socket_t { public:
         obj->addrlen = sizeof( obj->server_addr );
 
         if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )
-          { return -1; } set_nonbloking_mode();
+          { return -1; }
  
         set_buffer_size( CHUNK_SIZE );
         set_reuse_address( 1 ); 
