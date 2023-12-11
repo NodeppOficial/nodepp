@@ -5,7 +5,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include "crypto.h"
-#include "http.h"
+#include "https.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -64,12 +64,12 @@ namespace { template< class U, class T, class V > U WSClient( T fetch, string_t 
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace ws {
+namespace wss {
 
-    tcp_t server( const tcp_t& server ){ server.onSocket([=]( http_t cli ){
+    tls_t server( const tls_t& server ){ server.onSocket([=]( https_t cli ){
         nodepp::WSServer( cli, [=](){ ptr_t<_file_::read> _read = new _file_::read;
 
-            server.onConnect([=]( socket_t cli ){ process::task::add([=](){
+            server.onConnect([=]( ssocket_t cli ){ process::task::add([=](){ 
                 if(!cli.is_available() ){ cli.close(); return -1; }
                 if((*_read)(&cli)==1 )   { return 1; } 
                 if(  _read->c <= 0  )    { return 1; }
@@ -78,37 +78,37 @@ namespace ws {
 
             process::task::add([=](){
                 cli.resume(); server.onConnect.emit(cli); return -1;
-            }); cli.onDrain([=](){ cli.free(); });
+            }); cli.onDrain([=](){ cli.free(); }); 
 
         });
     }); return server; }
 
     /*─······································································─*/
 
-    tcp_t server( agent_t* opt=nullptr ){
-        auto server = http::server( [=]( http_t cli ){}, opt );
-                        ws::server( server ); return server; 
+    tls_t server( ssl_t* ctx, agent_t* opt=nullptr ){
+        auto server = https::server( [=]( https_t cli ){}, ctx, opt );
+                        wss::server( server ); return server;     
     }
 
     /*─······································································─*/
 
-    http_t client( string_t url, agent_t* opt=nullptr ){
+    https_t client( string_t url, ssl_t* ctx, agent_t* opt=nullptr ){
 
         string_t key = hash::hash("abcdefABCDEF0123456789");
 
-        auto cli = http::fetch({ .agent=opt, .headers={{ 
+        auto cli = https::fetch({ .ssl=ctx, .agent=opt, .headers={{ 
             { "Sec-Websocket-Version", "13" },  
             { "Sec-Websocket-Key", key },   
             { "Connection", "Upgrade" },          
             { "Upgrade", "Websocket" }
         }}, .url = url });
 
-        return nodepp::WSClient<http_t>( cli, key, [=]( socket_t cli ){
+        return nodepp::WSClient<https_t>( cli, key, [=]( ssocket_t cli ){
             ptr_t<_file_::read> _read = new _file_::read;
 
             cli.onOpen([=](){ process::task::add([=](){
                 if(!cli.is_available() ){ cli.close(); return -1; }
-                if((*_read)(&cli)==1 )   { return 1; }
+                if((*_read)(&cli)==1 )   { return 1; } 
                 if(  _read->c <= 0  )    { return 1; }
                 cli.onData.emit(_read->y); return 1;
             });});
@@ -116,6 +116,7 @@ namespace ws {
             process::task::add([=](){
                 cli.resume(); cli.onOpen.emit(); return -1;
             }); cli.onDrain([=](){ cli.free(); });
+        
         });
          
     }

@@ -1,5 +1,5 @@
 #include <node++/node++.h>
-#include <node++/fetch.h>
+#include <node++/https.h>
 
 using namespace nodepp;
 
@@ -7,7 +7,7 @@ ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
 
 void $Ready(){
 
-    fetch::https({
+    https::fetch({
         .ssl = &ssl,
         .url = "https://www.google.com/",
     })

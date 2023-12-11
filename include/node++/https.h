@@ -8,13 +8,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp {
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-using https_header_t = map_t< string_t, string_t >;
-
-/*────────────────────────────────────────────────────────────────────────────*/
+namespace nodepp { using https_header_t = map_t< string_t, string_t >;
 
 class https_t : public ssocket_t {
 protected:
@@ -102,11 +96,31 @@ public:
                                res += "\r\n"; write( res );
     }
 
-};
+};}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace https {
+namespace nodepp { struct https_fetch_t {
+
+    ssl_t*     ssl = nullptr;
+    file_t*   body = nullptr;
+    agent_t* agent = nullptr;
+    
+    /*─······································································─*/
+
+    http_header_t headers;
+    
+    /*─······································································─*/
+
+    string_t     url;
+    string_t  method = "GET";
+    string_t version = "HTTP/1.0";
+    
+};}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp { namespace https {
 
     template< class T > tls_t server( const T& cb, ssl_t* ctx, agent_t* opt=nullptr ){
         return tls_t([=]( https_t cli ){ int c=0;
@@ -124,10 +138,39 @@ namespace https {
         client.onOpen( cb ); return client;
     }
     
-}
+    /*─······································································─*/
+    
+    promise_t<https_t,except_t> fetch ( https_fetch_t cfg ) { ptr_t<https_fetch_t> _cfg = new https_fetch_t( cfg );
+    return promise_t<https_t,except_t>([=]( function_t<void,https_t> res, function_t<void,except_t> rej ){
+
+        if( !url::is_valid( _cfg->url ) ){ rej(except_t("invalid URL")); return; }
+        
+        url_t    uri = url::parse( _cfg->url );
+        string_t dip = ip::lookup( uri.hostname );
+        string_t dir = uri.pathname + uri.search + uri.hash;
+
+        if( uri.protocol != "https" ){ rej(except_t("wrong protocol")); return; }
+        if( !ip::is_ip( dip ) ){ rej(except_t("couldn't get IP")); return; }
+
+        _cfg->headers["Host"] = uri.hostname;
+       
+        auto client = https::client([=]( https_t cli ){ int c = 0;
+            cli.write_headers( _cfg->method, dir, _cfg->version, _cfg->headers );
+            while( _cfg->body!=nullptr && _cfg->body->is_available() )
+                 { cli.write( _cfg->body->read() ); }
+            while((c=cli.read_header())>0 ){ process::next(); }
+            if( c==0 ){ res( cli ); return; } else { 
+                rej(except_t("couldn't connect to the server")); return; 
+            }
+        }, _cfg->ssl, _cfg->agent );
+
+        client.onError([=]( except_t error ){ rej(error); });
+        client.connect( dip, uri.port );
+
+    }); }
+
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-
-}
 
 #endif

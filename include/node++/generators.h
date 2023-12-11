@@ -9,7 +9,7 @@ namespace nodepp { namespace _file_ {
         ulong dist;
 
     template< class T > $Emit( T* str, ulong size=CHUNK_SIZE ){
-    $Start c=0; y = str->get_borrow(); str->del_borrow(); str->flush();
+    $Start c=0; y.clear(); y = str->get_borrow(); str->del_borrow(); str->flush();
 
         if( !str->is_available() ){ str->close(); $End; } r = str->get_range();
 
@@ -18,13 +18,13 @@ namespace nodepp { namespace _file_ {
         else if( pos >=r[1] ){ str->close(); $End; }
         } else { dist = str->get_buffer_size(); }
 
-        do{ if( !y.empty() ){ break; } if( c==-2 ){ $Next; }
-          auto act = clamp( size, 0UL, dist ); 
+        do{ if( c==0 && !y.empty() ){ break; } if( c==-2 ){ $Next; }
+         ulong act = clamp( act, size, dist ); 
                  c = str->_read( str->get_buffer_data(), act );
         } while( c == -2 );
 
         if( c<=0 && y.empty() ){ str->close(); $End; } else if( c>0 ){
-            y+= (string_t){ str->get_buffer_data(), (ulong) c };
+            y = (string_t){ str->get_buffer_data(), (ulong) c };
         }   c = y.size();
 
     $Stop

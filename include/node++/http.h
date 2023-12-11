@@ -9,14 +9,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp {
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-using http_header_t = map_t< string_t, string_t >;
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
+namespace nodepp { using http_header_t = map_t< string_t, string_t >;
 namespace HTTP_NODEPP {
 
     string_t _get_http_status( uint status ){
@@ -88,11 +81,11 @@ namespace HTTP_NODEPP {
         }
     }
 
-}
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-class http_t : public socket_t {
+namespace nodepp { class http_t : public socket_t {
 protected:
 
     bool          has_header=0;
@@ -178,11 +171,35 @@ public:
                                res += "\r\n"; write( res );
     }
 
-};
+};}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace http {
+#include "ip.h"
+#include "promise.h"
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp { struct http_fetch_t {
+
+    file_t*   body = nullptr;
+    agent_t* agent = nullptr;
+    
+    /*─······································································─*/
+
+    http_header_t headers;
+    
+    /*─······································································─*/
+
+    string_t     url;
+    string_t  method = "GET";
+    string_t version = "HTTP/1.0";
+    
+};}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp { namespace http {
 
     template< class T > tcp_t server( const T& cb, agent_t* opt=nullptr ){
         return tcp_t([=]( http_t cli ){ int c=0;
@@ -199,10 +216,39 @@ namespace http {
         return tcp_t([=]( http_t cli ){ cb( cli ); }, opt ); 
     }
     
-}
+    /*─······································································─*/
+
+    promise_t<http_t,except_t> fetch ( http_fetch_t cfg ) { ptr_t<http_fetch_t> _cfg = new http_fetch_t( cfg );
+    return promise_t<http_t,except_t>([=]( function_t<void,http_t> res, function_t<void,except_t> rej ){
+
+        if( !url::is_valid( _cfg->url ) ){ rej(except_t("invalid URL")); return; }
+        
+        url_t    uri = url::parse( _cfg->url );
+        string_t dip = ip::lookup( uri.hostname );
+        string_t dir = uri.pathname + uri.search + uri.hash;
+
+        if( uri.protocol != "http" ){ rej(except_t("wrong protocol")); return; }
+        if( !ip::is_ip( dip ) ){ rej(except_t("couldn't get IP")); return; }
+
+        _cfg->headers["Host"] = uri.hostname;
+       
+        auto client = http::client([=]( http_t cli ){ int c = 0;
+            cli.write_headers( _cfg->method, dir, _cfg->version, _cfg->headers );
+            while( _cfg->body!=nullptr && _cfg->body->is_available() )
+                 { cli.write( _cfg->body->read() ); }
+            while(( c=cli.read_header() )>0 ){ process::next(); }
+            if( c==0 ){ res( cli ); return; } else { 
+                rej(except_t("couldn't connect to the server")); return; 
+            }
+        }, _cfg->agent );
+
+        client.onError([=]( except_t error ){ rej(error); });
+        client.connect( dip, uri.port );
+
+    }); }
+
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-
-}
 
 #endif

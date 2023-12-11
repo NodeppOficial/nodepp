@@ -1,11 +1,11 @@
 #include <node++/node++.h>
-#include <node++/fetch.h>
+#include <node++/http.h>
 
 using namespace nodepp;
 
 void $Ready(){
 
-    fetch::http({
+    http::fetch({
         .url = "http://www.google.com/",
     })
 

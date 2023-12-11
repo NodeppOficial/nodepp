@@ -21,7 +21,7 @@ void server( int process ){
 
         if( !fs::exists_file(dir) ){
             cli.write_headers( 404, {{ { "content-type", "text/plain" } }} );
-            cli.write( regex::format("404: Oops time: ${0}",date::fulltime()) ); 
+            cli.write( string::format("404: Oops time: %s",date::fulltime().data()) ); 
             cli.close(); return;
         }
 
@@ -45,7 +45,7 @@ void server( int process ){
                   rang[1] = min( rang[0]+CHUNK_MB(10), str.size()-1 );
 
             cli.write_headers( 206, {{
-                { "Content-Range", regex::format("bytes ${0}-${1}/${2}",rang[0],rang[1],str.size()) },
+                { "Content-Range", string::format("bytes %lu-%lu/%lu",rang[0],rang[1],str.size()) },
                 { "Content-Type",  path::mimetype(dir) }, 
                 { "Accept-Range", "bytes" }
             }});
