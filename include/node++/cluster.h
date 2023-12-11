@@ -1,35 +1,30 @@
-#ifndef NODEPP_EXEC
-#define NODEPP_EXEC
+#ifndef NODEPP_CLUSTER
+#define NODEPP_CLUSTER
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #if $KERNEL == NODEPP_KERNEL_WINDOWS
 #include "stream.h"
-#include "windows/exec.h"
+#include "windows/cluster.h"
 #elif $KERNEL == NODEPP_KERNEL_POSIX
 #include "stream.h"
-#include "posix/exec.h"
+#include "posix/cluster.h"
 #else
-#error "This OS Does not support exec.h"
+#error "This OS Does not support cluster.h"
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace exec {
-    
-    popen_t async( const string_t& cmd  ){ return popen_t( cmd ); }
-    
-    /*─······································································─*/
-    
-    string_t sync( const string_t& path ){
-        auto fp = popen_t( path ); string_t result;
-        while (!fp.is_available() ){
-                auto data = fp.readable().read();
-            if(!data.empty() ){ result += data; }
-        }   return result;
-    }
+namespace nodepp { namespace cluster {
 
-}}
+    template< class... T > 
+    cluster_t add( T... args ){ return cluster_t( args... ); }
+
+    bool  is_child(){ return !process::env::get("CHILD").empty(); }
+
+    bool is_parent(){ return  process::env::get("CHILD").empty(); }
+
+} }
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

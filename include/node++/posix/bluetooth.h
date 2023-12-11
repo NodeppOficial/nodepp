@@ -24,7 +24,7 @@ public:
         set_buffer_size( CHUNK_SIZE );
         set_reuse_address(1);
 
-    #if NODEPP_KERNEL == NODEPP_KERNEL_POSIX
+    #if $KERNEL == NODEPP_KERNEL_POSIX
         set_reuse_port(1);
     #endif
         

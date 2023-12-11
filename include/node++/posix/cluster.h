@@ -6,7 +6,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { class popen_t { 
+namespace nodepp { class cluster_t { 
 protected:
 
     struct _str_ {
@@ -17,30 +17,33 @@ protected:
     };  ptr_t<_str_> obj;
 
 public:
-
-    virtual ~popen_t() noexcept {
+    
+    virtual ~cluster_t() noexcept {
         if( obj.count() > 1 ){ return; } 
         if( obj->state == 0 ){ return; }
     //  _init_( obj->writable, obj->readable );
     }
 
     template< class... T >
-    popen_t( const string_t& cmd, T... args ) : obj( new _str_() ) {
+    cluster_t( T... args ) : obj( new _str_() ) {
 
-        if( process::is_child() ){
-            obj->writable = { STDOUT_FILENO };
-            obj->readable = { STDIN_FILENO  }; return;
+        if( process::is_child() ){ 
+            int fd[2] = { 0, 0 };
+            string_t ch = process::env::get("CHILD");
+            string::parse( ch.data(), "%i@%i", &fd[0], &fd[1] );
+            obj->writable = { fd[0] }; obj->readable = { fd[1] };
+            return;
         }
 
         int fda[2]; ::pipe( fda ); 
-        int fdb[2]; ::pipe( fdb ); obj->pid = ::fork();
+        int fdb[2]; ::pipe( fdb ); int pid = ::fork();
 
-        if( obj->pid == 0 ){ // Child process
-            ::dup2( fdb[1], STDOUT_FILENO ); ::close( fdb[0] );
-            ::dup2( fda[0], STDIN_FILENO  ); ::close( fda[1] );
-            ::execl( cmd.data(), cmd.data(), args..., NULL );
-            console::error("while spawning new process"); process::exit(1);
-        } else if( obj->pid > 0 ) { // Parent process
+        if( pid == 0 ){ // Child process
+            auto cm = process::args[0];::close(fdb[0]);::close(fda[1]);
+            auto ch = string::format( "?CHILD=%d@%d", fda[0], fdb[0] );
+            ::execl( cm.data(), cm.data(), args..., ch.data(), NULL );
+            console::error("while running new process"); process::exit(1);
+        } else if( pid > 0 ) { // Parent process
             obj->writable = { fda[1] }; ::close( fda[0] );
             obj->readable = { fdb[0] }; ::close( fdb[1] );
         } else {

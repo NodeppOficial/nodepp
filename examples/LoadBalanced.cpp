@@ -1,4 +1,6 @@
 #include <node++/node++.h>
+
+#include <node++/cluster.h>
 #include <node++/timer.h>
 #include <node++/http.h>
 #include <node++/path.h>
@@ -22,8 +24,8 @@ void server( int process ){
 void $Ready() {
 
     if( process::is_child() ){ server( os::pid() ); } else {
-        for( auto x=os::cpus(); x--; ){
-             auto y=fork_t( "./main" );
+        for( auto x = os::cpus(); x--; ){
+             auto y = cluster_t();
         }
     }
 
