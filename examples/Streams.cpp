@@ -5,7 +5,7 @@
 using namespace nodepp;
 
 void $Ready() { 
-    string_t dir = path::join( process::cwd(), "LICENSE" );
+    string_t dir = path::join( os::cwd(), "LICENSE" );
     auto _str = fs::readable( dir );
 
     _str.onData.on([]( string_t chunk ){

@@ -16,10 +16,10 @@ namespace nodepp { namespace _file_ {
         if( r[1] != 0 ){ auto pos = str->pos(); dist = r[1]-r[0];
              if( pos < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
         else if( pos >=r[1] ){ str->close(); $End; }
-        } else { dist = size; }
+        } else { dist = str->get_buffer_size(); }
 
         do{ if( !y.empty() ){ break; } if( c==-2 ){ $Next; }
-          auto act = clamp( size, dist, str->get_buffer_size() );
+          auto act = clamp( size, 0UL, dist ); 
                  c = str->_read( str->get_buffer_data(), act );
         } while( c == -2 );
 

@@ -21,24 +21,24 @@ protected:
     /*─······································································─*/
 
     ptr_t<uint> get_fd_flag( const string_t& flag ){ 
-        ptr_t<uint> fg ({ 0, 0, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED });
-             if( flag == "r"  ){ fg[0] |= FILE_READ_DATA;                   fg[1] |= OPEN_EXISTING; }
-        else if( flag == "w"  ){ fg[0] |= FILE_WRITE_DATA;                  fg[1] |= CREATE_ALWAYS; }
-        else if( flag == "a"  ){ fg[0] |= FILE_APPEND_DATA;                 fg[1] |= OPEN_ALWAYS;   }
-        else if( flag == "r+" ){ fg[0] |= FILE_READ_DATA | FILE_WRITE_DATA; fg[1] |= OPEN_EXISTING; }
-        else if( flag == "w+" ){ fg[0] |= FILE_READ_DATA | FILE_WRITE_DATA; fg[1] |= OPEN_ALWAYS;   }
-        else if( flag == "a+" ){ fg[0] |= FILE_APPEND_DATA;                 fg[1] |= OPEN_EXISTING; }
-        else                   { fg[0] |= FILE_READ_DATA;                   fg[1] |= OPEN_EXISTING; }
+        ptr_t<uint> fg ({ 0, 0, FILE_FLAG_OVERLAPPED });
+             if( flag == "r"  ){ fg[0] |= GENERIC_READ;                 fg[1] |= OPEN_EXISTING; }
+        else if( flag == "w"  ){ fg[0] |= GENERIC_WRITE;                fg[1] |= CREATE_ALWAYS; }
+        else if( flag == "a"  ){ fg[0] |= FILE_APPEND_DATA;             fg[1] |= OPEN_ALWAYS;   }
+        else if( flag == "r+" ){ fg[0] |= GENERIC_READ | GENERIC_WRITE; fg[1] |= OPEN_EXISTING; }
+        else if( flag == "w+" ){ fg[0] |= GENERIC_READ | GENERIC_WRITE; fg[1] |= OPEN_ALWAYS;   }
+        else if( flag == "a+" ){ fg[0] |= FILE_APPEND_DATA;             fg[1] |= OPEN_EXISTING; }
+        else                   { fg[0] |= GENERIC_READ | GENERIC_WRITE; fg[1] |= CREATE_ALWAYS; fg[1] |= FILE_ATTRIBUTE_TEMPORARY; }
         return  fg;
     }
     
     /*─······································································─*/
 
     virtual bool is_blocked( const bool& x, DWORD& c ) const noexcept {
-             if( x || c>0 )                       { return 0; } 
-        else if( os::error() == ERROR_HANDLE_EOF ){ return 0; }
-        else if( os::error() == ERROR_IO_PENDING ){
-                 if ( GetOverlappedResult( obj->fd, &obj->ov, &c, 0 ) ){ return 0; } 
+        if ( x ){ return 0; } else if ( os::error() == ERROR_IO_PENDING ){
+                 if ( GetOverlappedResult( obj->fd, &obj->ov, &c, 0 ) )
+                    { obj->ov.Offset += c; return 0; }
+            else if ( os::error() == ERROR_HANDLE_EOF )                { return 0; } 
             else if ( os::error() == ERROR_IO_INCOMPLETE )             { return 1; }
         }   return 0;
     }
@@ -65,8 +65,7 @@ public: file_t() noexcept {}
     /*─······································································─*/
 
     file_t( const string_t& path, const string_t& mode, const ulong& _size=CHUNK_SIZE ){
-        auto fg = get_fd_flag( mode );
-        obj->fd = CreateFileA((char*)path, fg[0], 0, NULL, fg[1], fg[2], NULL ); 
+        auto fg = get_fd_flag( mode ); obj->fd = CreateFileA((char*)path, fg[0], 0, NULL, fg[1], fg[2], NULL ); 
         if( obj->fd == INVALID_HANDLE_VALUE ) $Error("such file or directory does not exist");
             set_buffer_size( _size );
     }
@@ -119,10 +118,9 @@ public: file_t() noexcept {}
     
     /*─······································································─*/
 
-    ulong size() const noexcept { auto curr = pos(); obj->ov.Offset = 0;
-        if( SetFilePointer( obj->fd, obj->ov.Offset, NULL, FILE_END )<0 ) return 0;
-        ulong size = SetFilePointer( obj->fd, obj->ov.Offset, NULL, FILE_END );
-        pos( curr ); return size;
+    ulong size() const noexcept { auto curr = obj->ov.Offset; obj->ov.Offset = 0;
+        if( SetFilePointer( obj->fd, obj->ov.Offset, NULL, FILE_END ) == INVALID_SET_FILE_POINTER ) return 0;
+        ulong size = SetFilePointer( obj->fd, obj->ov.Offset, NULL, FILE_END ); pos( curr ); return size;
     }
     
     /*─······································································─*/
@@ -141,15 +139,12 @@ public: file_t() noexcept {}
     
     /*─······································································─*/
 
-    ulong pos() const noexcept { obj->ov.Offset = 0;
-        auto   _npos = SetFilePointer( obj->fd, obj->ov.Offset, NULL, FILE_CURRENT );
-        return _npos < 0 ? 0 : _npos; 
-    }
-
     ulong pos( ulong _pos ) const noexcept { obj->ov.Offset = _pos;
         auto   _npos = SetFilePointer( obj->fd, obj->ov.Offset, NULL, FILE_BEGIN );
-        return _npos < 0 ? 0 : _npos; 
+        return _npos == INVALID_SET_FILE_POINTER ? 0 : _npos; 
     }
+
+    ulong pos() const noexcept { return obj->ov.Offset; }
     
     /*─······································································─*/
 

@@ -121,8 +121,7 @@ namespace nodepp { namespace fs {
     /*─······································································─*/
 
     bool exists_folder( const string_t& path ){
-        if( path.empty() ){ return -1; } 
-        DWORD attributes = GetFileAttributesA( path.c_str() );
+        if( path.empty() ){ return -1; } DWORD attributes = GetFileAttributesA( path.c_str() );
         return ( attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) );
     }
     
@@ -131,18 +130,18 @@ namespace nodepp { namespace fs {
     array_t<string_t> read_folder( const string_t& path ){ 
         if( path.empty() ) $Error("Error path is empty"); 
 
-        LPWIN32_FIND_DATAA findData; array_t<string_t> list; 
-        HANDLE hFind = FindFirstFileA( path.c_str(), findData );
+        WIN32_FIND_DATAA findData; array_t<string_t> list;  
+        HANDLE hFind = FindFirstFileA( path.c_str(), &findData );
 
         if( hFind == INVALID_HANDLE_VALUE )
             $Error("Error: Failed to open directory");
 
-        do {
-            string_t fileName = findData->cFileName;
+        while ( FindNextFileA(hFind,&findData) != 0 ){
+            string_t fileName = findData.cFileName;
             if( fileName != "." && fileName != ".." ){
                 list.push( fileName );
-            }
-        } while ( FindNextFileA(hFind,findData) != 0 );
+            }   
+        }
 
         FindClose( hFind ); return list;
     }

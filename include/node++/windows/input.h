@@ -10,17 +10,17 @@
 namespace nodepp { class input_t {
 protected:
 
-    struct _str_ {   MSG event;
+    struct _str_ {   MSG msg;
         INPUT input; int state=0;
     	array_t<uint> button, key;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<_str_> obj;
 
 	function_t<float,float> screen_ref[2] = {
 		[=]( float value ){ return value * get_screen_size()[0] / 100; },
 		[=]( float value ){ return value * get_screen_size()[1] / 100; }
 	};
 
-public: input_t(){}
+public: input_t() noexcept : obj( new _str_() ) {}
 
     event_t<uint>      onButtonRelease;
     event_t<uint>      onButtonPress;
@@ -54,14 +54,17 @@ public: input_t(){}
     /*─······································································─*/
 
 	int get_screen_length() const noexcept { 
-		int count = 0; auto cb = [&]( ... ){ return true; };
-		return ::EnumDisplayMonitors( NULL, NULL, cb, (LPARAM)&count ) ? count : 0;
+	//	int count = 0; auto cb = [&]( ... ){ return true; };
+	//	return ::EnumDisplayMonitors( NULL, NULL, cb, (LPARAM)&count ) ? count : 0;
+        return 0;
 	}
 
-	ptr_t<int> get_screen_size() const noexcept { return {{
-		::GetSystemMetrics( SM_CYSCREEN ),
-		::GetSystemMetrics( SM_CXSCREEN )
-	}}; }
+	ptr_t<int> get_screen_size() const noexcept { 
+        return {{
+		    ::GetSystemMetrics( SM_CYSCREEN ),
+		    ::GetSystemMetrics( SM_CXSCREEN )
+	    }}; 
+    }
 
     /*─······································································─*/
 
@@ -70,14 +73,14 @@ public: input_t(){}
 	void   scroll_mouse_up() const noexcept { mouse_event( MOUSEEVENTF_WHEEL, 0, 0,-120, 0 ); }
 
 	void mouse_position( float x, float y ) const noexcept {
-		auto dx = screen::screen_ref[0](x) * ( 65535.0f / screen::screen[0] );
-		auto dy = screen::screen_ref[1](y) * ( 65535.0f / screen::screen[1] );
 		auto fg = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
+		auto dx = screen_ref[0](x) * ( 65535.0f / x );
+		auto dy = screen_ref[1](y) * ( 65535.0f / y );
 		mouse_event( fg, dx, dy, 0, 0 );
 	}
 
 	void release_mouse_button( int btn ) const noexcept { int fg = 0;
-		input.type = INPUT_MOUSE; switch( btn ){
+		obj->input.type = INPUT_MOUSE; switch( btn ){
 			case 3: fg = MOUSEEVENTF_MIDDLEUP; break;
 			case 2: fg = MOUSEEVENTF_RIGHTUP;  break;
 			case 1: fg = MOUSEEVENTF_LEFTUP;   break;
@@ -85,7 +88,7 @@ public: input_t(){}
 	}
 
 	void press_mouse_button( int btn ) const noexcept { int fg = 0;
-		input.type = INPUT_MOUSE; switch( btn ){
+		obj->input.type = INPUT_MOUSE; switch( btn ){
 			case 3: fg = MOUSEEVENTF_MIDDLEDOWN; break;
 			case 2: fg = MOUSEEVENTF_RIGHTDOWN;  break;
 			case 1: fg = MOUSEEVENTF_LEFTDOWN;   break;
@@ -136,7 +139,7 @@ public: input_t(){}
 
 	void pipe(){ if( obj->state == 1 ){ return; }
 
-        if( obj->dpy == NULL ){ $onError( onError, "can't create a canvas" ); close(); return; }
+    //  if( obj->dpy == NULL ){ $onError( onError, "can't create a canvas" ); close(); return; }
 
         process::loop::add([=](){ $Start 
 			while( GetMessage( &obj->msg, NULL, 0, 0 ) == 0 ){ $Next; }
@@ -144,34 +147,38 @@ public: input_t(){}
 
     /*─······································································─*/
 
-			if( msg.message == WM_MOUSEMOVE ){
-                int btX = GET_X_LPARAM( msg.lParam );
-                int btY = GET_Y_LPARAM( msg.lParam );
+    /*
+			if( obj->msg.message == WM_MOUSEMOVE ) {
+                int btX = GET_X_LPARAM( obj->msg.lParam );
+                int btY = GET_Y_LPARAM( obj->msg.lParam );
                 	onMouseMotion.emit( btX, btY ); 
             }
+    */
 
     /*─······································································─*/
 
     /*─······································································─*/
 
-            else if( msg.message == WM_KEYDOWN ) { auto bt = wParam;
+    /*
+            else if( obj->msg.message == WM_KEYDOWN ) { auto bt = wParam;
                 for( ulong x=obj->key.size(); x--; ){
                     if( obj->key[x] == bt ){ return 1; }
                 }   obj->key.push( bt ); onKeyPress.emit( bt );
             }
 
-            else if( msg.message == WM_KEYUP ) { auto bt = wParam;
+            else if( obj->msg.message == WM_KEYUP ) { auto bt = wParam;
                 for( ulong x=obj->key.size(); x--; ){
                     if( obj->key[x] == bt ) 
                       { obj->key.erase(x); }
                 }   onKeyRelease.emit( bt ); 
             }
+    */
 
     /*─······································································─*/
 
             if( obj->state == 1 ) $Goto(0);
 			
-		_Stop });
+		$Stop });
 
     }
 

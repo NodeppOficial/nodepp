@@ -46,7 +46,7 @@ protected:
         else if( flag == "r+" ){ _flag |= O_RDWR   | O_APPEND ;          }
         else if( flag == "w+" ){ _flag |= O_RDWR   | O_APPEND | O_CREAT; }
         else if( flag == "a+" ){ _flag |= O_RDWR   | O_APPEND ;          }
-        else                   { _flag |= O_WRONLY | O_TMPFILE;          }
+        else                   { _flag |= O_RDWR   | O_TMPFILE;          }
         return  _flag;
     }
 

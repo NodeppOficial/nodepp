@@ -200,7 +200,7 @@ public: simkey_t() noexcept : obj(new _str_) {}
 
             if( obj->state == 1 ) $Goto(0);
 			
-		_Stop });
+		$Stop });
 
     }
 

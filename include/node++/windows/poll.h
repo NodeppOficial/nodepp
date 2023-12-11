@@ -49,11 +49,11 @@ public: poll_t() noexcept {}
         if( ::WSAPoll( poll.data(), poll.size(), timeout )<=0 ){ return nullptr; }
 
         while( s-->0 ){ auto x = poll[s]; if(
-                x.revents == POLLNVAL || x.revents == POLLERR ||
-                x.revents == POLLHUP
+                x.events == POLLNVAL || x.events == POLLERR ||
+                x.events == POLLHUP
             )                              { poll.erase(s); return {{ -1, (int)x.fd }}; }
-            else if( x.revents == POLLIN  ){ poll.erase(s); return {{  0, (int)x.fd }}; }
-            else if( x.revents == POLLOUT ){ poll.erase(s); return {{  1, (int)x.fd }}; }
+            else if( x.events == POLLIN  ){ poll.erase(s); return {{  0, (int)x.fd }}; }
+            else if( x.events == POLLOUT ){ poll.erase(s); return {{  1, (int)x.fd }}; }
         }  
         
         s = poll.size(); return nullptr;
@@ -69,11 +69,11 @@ public: poll_t() noexcept {}
         if( ::WSAPoll( poll.data(), poll.size(), timeout )<=0 ){ $Next; }
 
         while( s-->0 ){ x = poll[s]; if(
-                x.revents == POLLNVAL || x.revents == POLLERR ||
-                x.revents == POLLHUP
+                x.events == POLLNVAL || x.events == POLLERR ||
+                x.events == POLLHUP
             )                              { poll.erase(s); onError.emit(x.fd); $Next; }
-            else if( x.revents == POLLIN  ){ poll.erase(s);  onRead.emit(x.fd); $Next; }
-            else if( x.revents == POLLOUT ){ poll.erase(s); onWrite.emit(x.fd); $Next; }
+            else if( x.events == POLLIN  ){ poll.erase(s);  onRead.emit(x.fd); $Next; }
+            else if( x.events == POLLOUT ){ poll.erase(s); onWrite.emit(x.fd); $Next; }
         }
         
         s = poll.size(); $Stop
