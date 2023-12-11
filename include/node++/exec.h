@@ -17,13 +17,15 @@
 
 namespace nodepp { namespace exec {
     
-    popen_t async( const string_t& cmd  ){ return popen_t( cmd ); }
+    template< class... T >
+    popen_t async( T... args ){ return popen_t( args... ); }
     
     /*─······································································─*/
     
-    string_t sync( const string_t& path ){
-        auto fp = popen_t( path ); string_t result;
-        while (!fp.is_available() ){
+    template< class... T >
+    string_t sync( T... args ){
+        auto fp = popen_t( args... ); string_t result;
+        while ( fp.is_available() ){
                 auto data = fp.readable().read();
             if(!data.empty() ){ result += data; }
         }   return result;

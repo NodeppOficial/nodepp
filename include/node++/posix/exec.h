@@ -38,7 +38,7 @@ public:
         if( obj->pid == 0 ){ // Child process
             ::dup2( fdb[1], STDOUT_FILENO ); ::close( fdb[0] );
             ::dup2( fda[0], STDIN_FILENO  ); ::close( fda[1] );
-            ::execl( cmd.data(), cmd.data(), args..., NULL );
+            ::execl( "/bin/bash", "bash", "-c", cmd.data(), args..., NULL );
             console::error("while spawning new process"); process::exit(1);
         } else if( obj->pid > 0 ) { // Parent process
             obj->writable = { fda[1] }; ::close( fda[0] );
