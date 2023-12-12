@@ -36,7 +36,7 @@ To use **Node++**, simply include the `node++.h` header file in your project and
 
   using namespace nodepp;
 
-  void _Ready() {
+  void $Ready() {
     console::log("Hello World!");
   }
 ```

@@ -51,7 +51,7 @@ public: poll_t() noexcept {}
         while( s-->0 ){ auto x = poll[s]; if(
                 x.events == POLLNVAL || x.events == POLLERR ||
                 x.events == POLLHUP
-            )                              { poll.erase(s); return {{ -1, (int)x.fd }}; }
+            )                             { poll.erase(s); return {{ -1, (int)x.fd }}; }
             else if( x.events == POLLIN  ){ poll.erase(s); return {{  0, (int)x.fd }}; }
             else if( x.events == POLLOUT ){ poll.erase(s); return {{  1, (int)x.fd }}; }
         }  
@@ -71,7 +71,7 @@ public: poll_t() noexcept {}
         while( s-->0 ){ x = poll[s]; if(
                 x.events == POLLNVAL || x.events == POLLERR ||
                 x.events == POLLHUP
-            )                              { poll.erase(s); onError.emit(x.fd); $Next; }
+            )                             { poll.erase(s); onError.emit(x.fd); $Next; }
             else if( x.events == POLLIN  ){ poll.erase(s);  onRead.emit(x.fd); $Next; }
             else if( x.events == POLLOUT ){ poll.erase(s); onWrite.emit(x.fd); $Next; }
         }

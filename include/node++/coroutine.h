@@ -101,6 +101,7 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define NODEPP_KERNEL_ARDUINO 1
 #define NODEPP_KERNEL_UNKNOWN 0
 
+#ifndef $KERNEL
 #if defined(WINDOWS) || defined(_WIN32) || defined(_WIN64)
    #define $KERNEL NODEPP_KERNEL_WINDOWS
 #elif defined(__linux__)
@@ -109,6 +110,7 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
    #define $KERNEL NODEPP_KERNEL_ARDUINO
 #else
    #define $KERNEL NODEPP_KERNEL_UNKNOWN
+#endif
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -122,6 +124,7 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define NODEPP_OS_ARDUINO 1
 #define NODEPP_OS_UNKNOWN 0
 
+#ifndef $OS
 #if defined(WINDOWS) || defined(_WIN32) || defined(_WIN64)
    #define $OS NODEPP_OS_WINDOWS
 #elif defined(__APPLE__) && defined(__MACH__)
@@ -139,6 +142,7 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #else
    #define $OS NODEPP_OS_UNKNOWN
 #endif
+#endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -148,6 +152,7 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define NODEPP_ARCH_ARM_32  1
 #define NODEPP_ARCH_UNKNOWN 0
 
+#ifndef $ARCH
 #if defined(__GNUC__)
    #if defined(__x86_64__)
       #define $ARCH NODEPP_ARCH_CPU_64
@@ -173,6 +178,7 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
       #define $ARCH NODEPP_ARCH_UNKNOWN
    #endif
 #endif
+#endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -182,6 +188,7 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define NODEPP_ENVIRONMENT_CYWIN   1
 #define NODEPP_ENVIRONMENT_UNKNOWN 0
 
+#ifndef $ENVIRONMENT
 #if defined(__MSYS__)
    #define $ENVIRONMENT NODEPP_ENVIRONMENT_MSYS2
 #elif defined(__CYGWIN__)
@@ -194,6 +201,7 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 */
 #else
    #define $ENVIRONMENT NODEPP_ENVIRONMENT_UNKNOWN
+#endif
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
