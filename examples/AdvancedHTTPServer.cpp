@@ -1,4 +1,5 @@
 #include <node++/node++.h>
+#include <node++/cluster.h>
 #include <node++/timer.h>
 #include <node++/http.h>
 #include <node++/path.h>

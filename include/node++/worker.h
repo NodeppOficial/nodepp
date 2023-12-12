@@ -6,7 +6,7 @@
 #if $KERNEL == NODEPP_KERNEL_WINDOWS
 #include "windows/worker.h"
 #elif $KERNEL == NODEPP_KERNEL_POSIX
-#include "posix/workes.h"
+#include "posix/worker.h"
 #else
 #error "This OS Does not support worker.h"
 #endif
