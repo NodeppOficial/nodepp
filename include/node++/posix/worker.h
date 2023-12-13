@@ -75,7 +75,7 @@ protected:
         pthread_t id;
     };  ptr_t<_str_> obj;
 
-public: worker_t() noexcept {}
+public:
 
     virtual ~worker_t() noexcept {
         if( obj.count() > 1 ){ return; } 
@@ -102,15 +102,18 @@ public: worker_t() noexcept {}
     /*─······································································─*/
 
     int detach() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
-        return pthread_create(&obj->id, NULL, &dfunc, (void*)obj->cb );
+        auto pth = pthread_create(&obj->id, NULL, &dfunc, (void*)obj->cb );
+        return pthread_join( obj->id, NULL );
     }
 
     int join() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
-        return pthread_create(&obj->id, NULL, &jfunc, (void*)obj->cb );
+        pthread_create(&obj->id, NULL, &jfunc, (void*)obj->cb );
+        return pthread_detach( obj->id ); 
     }
 
-    int pipe() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
-        return pthread_create(&obj->id, NULL, &sfunc, (void*)obj->cb );
+    int add() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
+        auto pth = pthread_create(&obj->id, NULL, &sfunc, (void*)obj->cb );
+        if( pthread_detach( obj->id ) == 0 ) { process::threads++; } return pth;
     }
 
 };}
@@ -118,8 +121,5 @@ public: worker_t() noexcept {}
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace worker { template< class... T >
-    worker_t add( T... args ){ 
-        worker_t wrk( args... );
-        wrk.pipe(); return wrk;
-    }
+    worker_t add( T... args ){ worker_t wrk( args... ); wrk.add(); return wrk; }
 }}
