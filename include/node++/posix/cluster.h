@@ -16,7 +16,7 @@ protected:
         file_t readable;
     };  ptr_t<_str_> obj;
 
-public: cluster_t noexcept : obj( new _str_ ) {}
+public: cluster_t() noexcept : obj( new _str_ ) {}
     
     virtual ~cluster_t() noexcept {
         if( obj.count() > 1 ){ return; } 

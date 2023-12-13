@@ -37,7 +37,7 @@ protected:
         }   return 1; 
     }, *this ); }
     
-public:
+public: tls_t() noexcept : obj( new _str_() ) {}
 
     event_t<ssocket_t> onConnect;
     event_t<ssocket_t> onSocket;

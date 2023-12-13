@@ -36,7 +36,7 @@ protected:
         }   return 1;
     }, *this ); }
     
-public:
+public: tcp_t() noexcept : obj( new _str_() ) {}
 
     event_t<socket_t> onConnect;
     event_t<socket_t> onSocket;

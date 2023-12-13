@@ -21,7 +21,7 @@ protected:
         function_t<void,socket_t> func;
     };  ptr_t<_str_> obj;
     
-public:
+public: udp_t() noexcept : obj( new _str_() ) {}
 
     event_t<socket_t>         onConnect;
     event_t<socket_t>         onSocket;

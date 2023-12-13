@@ -247,7 +247,7 @@ protected:
         }); return _res;
     }
     
-public:
+public: regex_t() noexcept {}
 
     regex_t( string_t _reg, string_t _flags="" ) noexcept {
         for( auto x:_flags ){

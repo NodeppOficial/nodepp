@@ -108,7 +108,7 @@ namespace nodepp { class date_t {
 protected:
 
     struct _str_ {
-        struct tm*  info =  nullptr;
+        struct tm* info = nullptr;
         time_t time =::time( nullptr );
     };  ptr_t<_str_> obj;
     

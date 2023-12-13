@@ -19,7 +19,7 @@ protected:
         int                        state = 0;
         poll_t                     poll;
         function_t<void,bsocket_t> func;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<_str_> obj;
     
     /*─······································································─*/
 
@@ -37,7 +37,7 @@ protected:
         }, *this );
     }
     
-public:
+public: bth_t() noexcept : obj( new _str_() ) {}
 
     event_t<bsocket_t> onConnect;
     event_t<bsocket_t> onSocket;
@@ -47,7 +47,7 @@ public:
     
     /*─······································································─*/
 
-    bth_t( decltype(func) _func, agent_t* opt ) noexcept 
+    bth_t( decltype(func) _func, agent_t* opt ) noexcept : obj( new _str_() ) 
          { obj->agent=opt; obj->func=_func; }
     
     /*─······································································─*/

@@ -9,7 +9,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { class simkey_t {
+namespace nodepp { class input_t {
 protected:
 
     struct _str_ {
@@ -26,7 +26,7 @@ protected:
 		[=]( float value ){ return value * get_screen_size()[1] / 100; }
 	};
 
-public: simkey_t() noexcept : obj(new _str_) {}
+public: input_t() noexcept : obj( new _str_() ) {}
 
     event_t<uint>      onButtonRelease;
     event_t<uint>      onButtonPress;
@@ -41,7 +41,7 @@ public: simkey_t() noexcept : obj(new _str_) {}
 	
     /*─······································································─*/
 
-	virtual ~simkey_t() noexcept { 
+	virtual ~input_t() noexcept { 
 		if( obj.count() > 1 ){ return; } 
 			force_close(); 
 	}

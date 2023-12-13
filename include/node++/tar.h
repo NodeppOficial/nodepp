@@ -32,7 +32,8 @@ struct tar_header_t {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-class tar_t : public file_t { public:
+class tar_t : public file_t {     
+public: tar_t() noexcept : file_t(){} 
 
     template< class... T > tar_t( T... args ) noexcept : file_t( args... ) {}
 
