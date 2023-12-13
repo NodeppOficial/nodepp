@@ -21,7 +21,7 @@ namespace task {
         queue.push([=](){ return (*pcb)(arg...); });
     }
 
-    void next(){
+    void next(){ 
         if( queue.empty() ){ return; }
         int result = queue.get()->data();
              if( result == 1 ){ queue.next(); }
