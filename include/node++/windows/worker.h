@@ -80,7 +80,7 @@ protected:
         DWORD  id;
     };  ptr_t<_str_> obj;
 
-public:
+public: worker_t() noexcept : obj( new _str_ ) {}
 
     virtual ~worker_t() noexcept {
         if( obj.count() > 1 ){ return; } 

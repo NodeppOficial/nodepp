@@ -16,7 +16,8 @@ int str2ba( const string_t& straddr, const BTH_ADDR& addr ) {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { class bsocket_t : public socket_t { public:
+namespace nodepp { class bsocket_t : public socket_t { 
+public: bsocket_t() noexcept : socket_t() {}
 
     using SOCKADDR_RC = struct sockaddr_rc;
 

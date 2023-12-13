@@ -16,7 +16,7 @@ protected:
         file_t readable;
     };  ptr_t<_str_> obj;
 
-public:
+public: popen_t() noexcept : obj( new _str_ ) {}
 
     virtual ~popen_t() noexcept {
         if( obj.count() > 1 ){ return; } 

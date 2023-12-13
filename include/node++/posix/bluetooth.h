@@ -14,7 +14,7 @@ private:
 
     using SOCKADDR_RC = struct sockaddr_rc;
 
-public:
+public: bsocket_t() noexcept : socket_t() {}
 
     virtual int socket( string_t host, int port ) noexcept { addrlen = sizeof(server_addr);
 
