@@ -24,7 +24,7 @@ protected:
 
     array_t<T> node;
 
-public:
+public: observer_t() noexcept {}
 
     template< class... O >
     observer_t( const T& argc, const O&... args ) noexcept {
