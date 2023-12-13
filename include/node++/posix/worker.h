@@ -103,12 +103,12 @@ public:
 
     int detach() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
         auto pth = pthread_create(&obj->id, NULL, &dfunc, (void*)obj->cb );
-        return pthread_join( obj->id, NULL );
+        return pthread_detach( obj->id ); 
     }
 
     int join() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
         pthread_create(&obj->id, NULL, &jfunc, (void*)obj->cb );
-        return pthread_detach( obj->id ); 
+        return pthread_join( obj->id, NULL );
     }
 
     int add() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
