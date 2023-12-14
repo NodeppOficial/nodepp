@@ -8,13 +8,13 @@ void $Ready() {
 
     promise_t<int,int>([=]( auto res, auto rej ){
         timer::delay(1000); rej(10);
-    })A
+    })
     
     .then([=]( int res ){
         console::done(res);
     })
     
-    .fail([=]( int rej ){AC
+    .fail([=]( int rej ){
         console::error(rej);
     });
 
