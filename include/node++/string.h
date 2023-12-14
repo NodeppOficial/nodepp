@@ -153,34 +153,34 @@ public:
     
     /*─······································································─*/
 
-    long index_of( function_t<bool,char&> func ) const noexcept { long i=0;
+    long index_of( const function_t<bool,char&>& func ) const noexcept { long i=0;
         for( auto x : *this ){ if( func(x) ) return i; i++; } return -1;
     }
 
-    ulong count( function_t<bool,char&> func ) const noexcept { ulong n=0; 
+    ulong count( const function_t<bool,char&>& func ) const noexcept { ulong n=0; 
         for( auto x : *this ){ if( func(x) ) n++; } return n;
     }
     
     /*─······································································─*/
 
-    char reduce( function_t<char,char&,char&> func ) const noexcept { char act = (*this)[0];
+    char reduce( const function_t<char,char&,char&>& func ) const noexcept { char act = (*this)[0];
         for( auto x=this->begin() + 1; x != this->end(); x++ )
            { act = func( act, *x ); } return act;
     }
 
-    bool some( function_t<bool,char&> func ) const noexcept { 
+    bool some( const function_t<bool,char&>& func ) const noexcept { 
         for( auto x : *this ){ if( func(x) ) return 1; } return 0;
     }
 
-    bool none( function_t<bool,char&> func ) const noexcept { 
+    bool none( const function_t<bool,char&>& func ) const noexcept { 
         for( auto x : *this ){ if( func(x) ) return 0; } return 1;
     }
 
-    bool every( function_t<bool,char&> func ) const noexcept { 
+    bool every( const function_t<bool,char&>& func ) const noexcept { 
         for( auto x : *this ){ if(!func(x) ) return 0; } return 1;
     }
 
-    void map( function_t<void,char&> func ) const noexcept { 
+    void map( const function_t<void,char&>& func ) const noexcept { 
         for( auto x : *this ) func(x);
     }
     
@@ -197,7 +197,7 @@ public:
     
     /*─······································································─*/
 
-    string_t remove( function_t<bool,char&> func ) noexcept {
+    string_t remove( const function_t<bool,char&>& func ) noexcept {
         ulong n=size(); while( n-->0 ){ if( func((*this)[n]) ) erase(n); } return (*this);
     }
 
@@ -209,7 +209,7 @@ public:
         ulong n=size(); for( auto x : *this ){ n--; n_buffer[n]=x; } return n_buffer;
     }
     
-    string_t replace( function_t<bool,char&> func, char targ ) const noexcept {
+    string_t replace( const function_t<bool,char&>& func, char targ ) const noexcept {
         for( auto& x : *this ){ if(func(x)) x=targ; } return (*this); 
     }
 
@@ -222,7 +222,7 @@ public:
     
     /*─······································································─*/
 
-    string_t sort( function_t<bool,char,char> func ) const noexcept {
+    string_t sort( const function_t<bool,char,char>& func ) const noexcept {
         auto n_buffer = copy();
 
         while(1){ ulong nn = 0; for( ulong i=0; i<size(); i++ ){
@@ -283,7 +283,7 @@ public:
         }
     }
 
-    void insert( ulong index, string_t value ) noexcept {
+    void insert( ulong index, const string_t& value ) noexcept {
 	    index = clamp( index, 0UL, size() );
         if( empty() ){ buffer = string::buffer( value.size() ); 
             for( ulong i=0; i<value.size(); i++ ){ buffer[i] = value[i]; }
@@ -403,63 +403,63 @@ string_t operator+( const string_t& A, const string_t& B ){
 
 namespace string {
 
-    int to_int( string_t buffer ){ 
+    int to_int( const string_t& buffer ){ 
         int out=0; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%d", &out ); return out;
     }
 
-    bool to_bool( string_t buffer ){ 
+    bool to_bool( const string_t& buffer ){ 
         int out=0; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%d", &out ); return out;
     }
 
-    double to_double( string_t buffer ){
+    double to_double( const string_t& buffer ){
         double out=0.0f; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%lf", &out ); return out;
     }
 
-    float to_float( string_t buffer ){
+    float to_float( const string_t& buffer ){
         float out=0.0f; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%f", &out ); return out;
     }
 
-    char to_char( string_t buffer ){ 
+    char to_char( const string_t& buffer ){ 
         char out=0; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%c", &out ); return out;
     }
 
-    uint to_uint( string_t buffer ){
+    uint to_uint( const string_t& buffer ){
         uint out=0; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%u", &out ); return out;
     }
 
-    void* to_addr( string_t buffer ){
+    void* to_addr( const string_t& buffer ){
         void* out=nullptr; if( buffer.empty() ){ return out; }
         sprintf( (char*) buffer, "%p", out ); return out;
     }
 
-    wchar to_wchar( string_t buffer ){
+    wchar to_wchar( const string_t& buffer ){
         wchar out=0; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%lc", &out ); return out;
     }
 
-    long to_long( string_t buffer ){
+    long to_long( const string_t& buffer ){
         long out=0; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%ld", &out ); return out;
     }
 
-    llong to_llong( string_t buffer ){
+    llong to_llong( const string_t& buffer ){
         llong out=0; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%lld", &out ); return out;
     }
 
 
-    ulong to_ulong( string_t buffer ){
+    ulong to_ulong( const string_t& buffer ){
         ulong out=0; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%lu", &out ); return out;
     }
 
-    ullong to_ullong( string_t buffer ){
+    ullong to_ullong( const string_t& buffer ){
         ullong out=0; if( buffer.empty() ){ return out; }
         sscanf( (char*) buffer, "%llu", &out ); return out;
     }
@@ -467,13 +467,13 @@ namespace string {
     /*─······································································─*/
 
     template< class... T >
-    string_t format( string_t str, T... args ){
+    string_t format( const string_t& str, const T&... args ){
         char buffer[256] = {0}; sprintf( buffer, (char*)str, args... ); 
         return buffer;
     }
 
     template< class... T >
-    int parse( string_t data, string_t str, T... args ){
+    int parse( const string_t& data, const string_t& str, const T&... args ){
         return sscanf( (char*)data, (char*)str, args... ); 
     }
     
@@ -493,9 +493,9 @@ namespace string {
     
     string_t to_string( char* num ){ return num; }
 
-    string_t to_string( string_t num ){ return num; }
-
     string_t to_string( const char* num ){ return num; }
+
+    string_t to_string( const string_t& num ){ return num; }
 
     string_t to_string( char num ){
         char buffer[32] = {0}; sprintf( buffer, "%c", num ); return buffer;
@@ -535,6 +535,10 @@ namespace string {
 
     template< class T > string_t to_string( T* num ){
         char buffer[32] = {0}; sprintf( buffer, "%p", (void*)num ); return buffer;
+    }
+
+    template< class T > string_t to_string( const ptr_t<T>& num ){
+        char buffer[32] = {0}; sprintf( buffer, "%p", (void*)&num ); return buffer;
     }
 
     string_t to_string( float num ){

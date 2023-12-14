@@ -3,8 +3,8 @@
 
 using namespace nodepp;
 
-void $Ready() { console::start(9600);
-
+void $Ready() {
+    
     timer::add([](){
         static int i = 0; i++;
         console::log("interval every: 1 second - ",i," seconds");

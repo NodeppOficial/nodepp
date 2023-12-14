@@ -13,7 +13,7 @@ namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace { template< class T, class U > void WSServer( T cli, U cb ) {
+namespace { template< class T, class U > void WSServer( T cli, const U& cb ) {
     
     auto data = cli.read(); cli.set_borrow( data ); int c=0;
     
@@ -26,8 +26,8 @@ namespace { template< class T, class U > void WSServer( T cli, U cb ) {
         string_t key = sec + SECRET;
 
             auto sha = crypto::SHA1();         sha.update(key);
-            auto b64 = crypto::enc::BASE64();  b64.update(sha.done());
-            auto enc = b64.done().slice(0,-1);
+            auto b64 = crypto::enc::BASE64();  b64.update(sha.get());
+            auto enc = b64.get().slice(0,-1);
 
         cli.write_headers( 101, {{
             { "Sec-Websocket-Accept", enc },
@@ -42,7 +42,7 @@ namespace { template< class T, class U > void WSServer( T cli, U cb ) {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace { template< class U, class T, class V > U WSClient( T fetch, string_t key, V cb ) {
+namespace { template< class U, class T, class V > U WSClient( const T& fetch, const string_t& key, const V& cb ) {
     auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) $Error( tuple::get<2>(res).what() );
     auto cli = tuple::get<1>(res);
 
@@ -53,8 +53,8 @@ namespace { template< class U, class T, class V > U WSClient( T fetch, string_t 
         string_t sec = key + SECRET;
 
             auto sha = crypto::SHA1();         sha.update(sec);
-            auto b64 = crypto::enc::BASE64();  b64.update(sha.done());
-            auto enc = b64.done().slice(0,-1);
+            auto b64 = crypto::enc::BASE64();  b64.update(sha.get());
+            auto enc = b64.get().slice(0,-1);
 
     if( dta != enc ){ $onError(cli.onError,"WSE: secret key does not match"); } 
         cb(cli); cli.stop();
@@ -92,7 +92,7 @@ namespace wss {
 
     /*─······································································─*/
 
-    https_t client( string_t url, ssl_t* ctx, agent_t* opt=nullptr ){
+    https_t client( const string_t& url, ssl_t* ctx, agent_t* opt=nullptr ){
 
         string_t key = hash::hash("abcdefABCDEF0123456789");
 

@@ -10,7 +10,7 @@
 namespace nodepp { template< class... Types > class variant_t : public any_t {
 public:
 
-    template< class T > variant_t( T V ) noexcept : any_t(V), idx(new int( get_index<T,Types...>::value )) {}
+    template< class T > variant_t( const T& V ) noexcept : any_t(V), idx(new int( get_index<T,Types...>::value )) {}
        variant_t( const char* V ) noexcept : any_t(V), idx(new int( get_index<string_t,Types...>::value )) {}
        variant_t() noexcept : any_t(), idx(new int(0)) {}
     
@@ -25,7 +25,7 @@ public:
     template< class T >
     T get() const noexcept { return any_t::get<T>(); }
 
-    template< class T > void set( T f ) noexcept { 
+    template< class T > void set( const T& f ) noexcept { 
         idx = new int( get_index<T,Types...>::value );
         any_t::set( f );
     }

@@ -25,7 +25,7 @@ public:
     }
 
     template< class... T >
-    cluster_t( T... args ) : obj( new _str_() ) {
+    cluster_t( const T&... args ) : obj( new _str_() ) {
 
         if( process::is_child() ){ 
             int fd[2] = { 0, 0 };

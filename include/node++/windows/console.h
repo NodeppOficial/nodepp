@@ -5,18 +5,18 @@
 namespace nodepp { namespace console {
 
     template< class V, class... T >
-    int perr( V argc, T... args ){ return fprintf( stderr, (char*)argc, args... ); }
+    int perr( const V& argc, const T&... args ){ return fprintf( stderr, (char*)argc, args... ); }
 
     template< class V, class... T >
-    int pout( V argc, T... args ){ return fprintf( stdout, (char*)argc, args... ); }
+    int pout( const V& argc, const T&... args ){ return fprintf( stdout, (char*)argc, args... ); }
 
     template< class V, class... T >
-    int scan( V format, T... args ){ return scanf( (char*)format, args... ); }
+    int scan( const V& argc, const T&... args ){ return scanf( (char*)format, args... ); }
     
     /*─······································································─*/
 
     template< class... T >
-    int log( T... args ){ 
+    int log( const T&... args ){ 
         string::map([=]( string_t arg ){ 
             pout("%s ",(char*)arg); 
         },  args... ); 
@@ -26,19 +26,19 @@ namespace nodepp { namespace console {
     /*─······································································─*/
 
     template< class... T >
-    int success( T... input ){ pout("SUCCESS: "); return log(input...); }
+    int success( const T&... input ){ pout("SUCCESS: "); return log(input...); }
 
     template< class... T >
-    int warning( T... input ){ pout("WARNING: "); return log(input...); }
+    int warning( const T&... input ){ pout("WARNING: "); return log(input...); }
 
     template< class... T >
-    int error( T... input ){ perr("ERROR: "); return log(input...); }
+    int error( const T&... input ){ perr("ERROR: "); return log(input...); }
 
     template< class... T >
-    int info( T... input ){ pout("INFO: "); return log(input...); }
+    int info( const T&... input ){ pout("INFO: "); return log(input...); }
 
     template< class... T >
-    int done( T... input ){ pout("DONE: "); return log(input...); }
+    int done( const T&... input ){ pout("DONE: "); return log(input...); }
 
     void clear(){ ::system("cls"); }
 

@@ -44,13 +44,13 @@ namespace nodepp { namespace ip {
     
     /*─······································································─*/
 
-    bool is_ipv4( string_t URL ){ return regex::test( URL, ipv4 ) ? 1 : 0; }
+    bool is_ipv4( const string_t& URL ){ return regex::test( URL, ipv4 ) ? 1 : 0; }
 
-    bool is_ipv6( string_t URL ){ return regex::test( URL, ipv6 ) ? 1 : 0; }
+    bool is_ipv6( const string_t& URL ){ return regex::test( URL, ipv6 ) ? 1 : 0; }
     
     /*─······································································─*/
 
-    bool is_ip( string_t URL ){ 
+    bool is_ip( const string_t& URL ){ 
         if( URL.empty() )     { return 0; }
         if( is_ipv4(URL) > 0 ){ return 1; }
         if( is_ipv6(URL) > 0 ){ return 1; } return 0;

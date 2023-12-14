@@ -86,7 +86,7 @@ public: worker_t() noexcept : obj( new _str_ ) {}
     /*─······································································─*/
 
     template< class T, class... V >
-    worker_t( T cb, V... args ) noexcept : obj( new _str_() ){
+    worker_t( T cb, const V&... args ) noexcept : obj( new _str_() ){
         ptr_t<int> out = new int(1);
         obj->cb = new function_t<int>([=](){ 
             return *out!=1 ? -1 : cb( args... ); 
@@ -121,5 +121,5 @@ public: worker_t() noexcept : obj( new _str_ ) {}
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace worker { template< class... T >
-    worker_t add( T... args ){ worker_t wrk( args... ); wrk.add(); return wrk; }
+    worker_t add( const T&... args ){ worker_t wrk( args... ); wrk.add(); return wrk; }
 }}

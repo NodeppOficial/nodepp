@@ -256,7 +256,7 @@ public: socket_t() noexcept {}
 
     /*─······································································─*/
 
-    virtual int socket( string_t host, int port ) noexcept { 
+    virtual int socket( const string_t& host, int port ) noexcept { 
         skt->addrlen = sizeof( skt->server_addr );
 
         if( (obj->fd=::socket( AF, SOCK, PROT )) <=0 )

@@ -15,17 +15,17 @@ public:
     virtual ~function_t() noexcept = default;
     
     template< class F >
-    function_t( F f ) : func_ptr( new func_impl<F>(f) ) {}
+    function_t( const F& f ) : func_ptr( new func_impl<F>(f) ) {}
     
     /*─······································································─*/
     
-    V operator()( T... arg ) const { return func_ptr->invoke(arg...); }
+    V operator()( const T&... arg ) const { return func_ptr->invoke(arg...); }
     
 private:
 
     class func_base { public:
         virtual ~func_base() {}
-        virtual V invoke( T... arg ) const = 0;
+        virtual V invoke( const T&... arg ) const = 0;
     };
     
     /*─······································································─*/
@@ -35,8 +35,8 @@ private:
 
     public:
 
-        func_impl( F f ) : func(f) {}
-        virtual V invoke( T... arg ) const { return func(arg...); }
+        func_impl( const F& f ) : func(f) {}
+        virtual V invoke( const T&... arg ) const { return func(arg...); }
 
     private:
         F func;

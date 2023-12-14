@@ -100,8 +100,8 @@ namespace nodepp { namespace _encode_ {
 
     $Generator(pipe) { public:
         
-        template< class T, class V, class U >
-        $Emit( string_t from, string_t to, const T& inp, const V& out, ulong mult=1 ){
+        template< class T, class V >
+        $Emit( const string_t& from, const string_t& to, const T& inp, const V& out, ulong mult=1 ){
         $Start  ctx = iconv_open( to.data(), from.data() ); 
 
             if( ctx == (iconv_t)-1 ){
@@ -161,7 +161,7 @@ namespace nodepp { namespace _encode_ {
         $Stop
         }
         
-        template< class T, class V, class U >
+        template< class T >
         $Emit( string_t from, string_t to, const T& inp, ulong mult=1 ){
         $Start  ctx = iconv_open( to.data(), from.data() ); 
 
@@ -236,7 +236,7 @@ namespace nodepp { namespace _zlib_ {
         
 
         template< class T, class V, class U >
-        $Emit( const T& inp, const V& out, U cb ){
+        $Emit( const T& inp, const V& out, const U& cb ){
         $Start inp.onPipe.emit();
 
             str->zfree    = Z_NULL;
@@ -278,7 +278,7 @@ namespace nodepp { namespace _zlib_ {
         }
 
         template< class T, class U >
-        $Emit( const T& inp, U cb ){
+        $Emit( const T& inp, const U& cb ){
         $Start inp.onPipe.emit();
 
             str->zfree    = Z_NULL;
@@ -329,7 +329,7 @@ namespace nodepp { namespace _zlib_ {
         
 
         template< class T, class V, class U >
-        $Emit( const T& inp, const V& out, U cb ){
+        $Emit( const T& inp, const V& out, const U& cb ){
         $Start inp.onPipe.emit();
 
             str->zfree    = Z_NULL;
@@ -371,7 +371,7 @@ namespace nodepp { namespace _zlib_ {
         }
 
         template< class T, class U >
-        $Emit( const T& inp, U cb ){
+        $Emit( const T& inp, const U& cb ){
         $Start inp.onPipe.emit();
 
             str->zfree    = Z_NULL;
@@ -492,7 +492,7 @@ namespace nodepp { namespace _timer_ {
         ulong stamp = 0;
 
         template< class V, class... T > 
-        $Emit( V func, ptr_t<int> out, ulong time, T... args ){
+        $Emit( const V& func, const ptr_t<int>& out, ulong time, const T&... args ){
         $Start stamp = process::millis() + time; $Next;
             do { if(*out <= 0 )                   {  $End; }
                  if( process::millis() >= stamp ) { break; } $Next;
@@ -501,7 +501,7 @@ namespace nodepp { namespace _timer_ {
         }
 
         template< class V, class... T > 
-        $Emit( V func, ptr_t<int> out, ulong* time, T... args ){
+        $Emit( const V& func, const ptr_t<int>& out, ulong* time, const T&... args ){
         $Start stamp = process::millis() +*time; $Next;
             do { if(*out <= 0 )                   {  $End; }
                  if( process::millis() >= stamp ) { break; } $Next;
@@ -518,7 +518,7 @@ namespace nodepp { namespace _timer_ {
         ulong stamp = 0;
 
         template< class V, class... T > 
-        $Emit( V func, ptr_t<int> out, ulong time, T... args ){
+        $Emit( const V& func, const ptr_t<int>& out, ulong time, const T&... args ){
         $Start stamp = process::micros() + time; $Next;
             do { if(*out <= 0 )                   {  $End; }
                  if( process::micros() >= stamp ) { break; } $Next;
@@ -527,7 +527,7 @@ namespace nodepp { namespace _timer_ {
         }
 
         template< class V, class... T > 
-        $Emit( V func, ptr_t<int> out, ulong* time, T... args ){
+        $Emit( const V& func, const ptr_t<int>& out, ulong* time, const T&... args ){
         $Start stamp = process::micros() +*time; $Next;
             do { if(*out <= 0 )                   {  $End; }
                  if( process::micros() >= stamp ) { break; } $Next;

@@ -80,7 +80,7 @@ public:
     
     /*─······································································─*/
 
-    void write_headers( uint status, https_header_t headers ) noexcept {
+    void write_headers( uint status, const https_header_t& headers ) noexcept {
         if( has_header == 1 ){ return; } has_header = 1;
         string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::_get_http_status(status));
         for( auto x:headers ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
@@ -89,7 +89,7 @@ public:
     
     /*─······································································─*/
 
-    void write_headers( string_t method, string_t path, string_t version, https_header_t headers ) noexcept {
+    void write_headers( const string_t& method, const string_t& path, const string_t& version, const https_header_t& headers ) noexcept {
         if( has_header == 1 ){ return; } has_header = 1; 
         string_t res; res += string::format("%s %s %s\r\n",(char*)method,(char*)path,(char*)version);
         for( auto x:headers ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
@@ -140,7 +140,7 @@ namespace nodepp { namespace https {
     
     /*─······································································─*/
     
-    promise_t<https_t,except_t> fetch ( https_fetch_t cfg ) { ptr_t<https_fetch_t> _cfg = new https_fetch_t( cfg );
+    promise_t<https_t,except_t> fetch ( const https_fetch_t& cfg ) { ptr_t<https_fetch_t> _cfg = new https_fetch_t( cfg );
     return promise_t<https_t,except_t>([=]( function_t<void,https_t> res, function_t<void,except_t> rej ){
 
         if( !url::is_valid( _cfg->url ) ){ rej(except_t("invalid URL")); return; }

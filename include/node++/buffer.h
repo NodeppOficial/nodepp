@@ -60,7 +60,7 @@ public: ptr_t() noexcept {}
     bool operator==( T* value ) const noexcept { return value_ == value; }
     bool operator!=( T* value ) const noexcept { return value_ != value; }
 
-    T& operator[]( int i ) const noexcept { return value_[i]; }
+    T& operator[]( ulong i ) const noexcept { return value_[i]; }
     
     /*─······································································─*/
 

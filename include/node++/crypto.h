@@ -12,8 +12,6 @@
 #include <openssl/aes.h>
 #include <openssl/des.h>
 
-#include "node++/stream.h"
-
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp {
@@ -33,26 +31,24 @@ protected:
 public:
 
     template< class T >
-    hash_t( T type, ulong length ) noexcept : obj( new _str_() ) { 
+    hash_t( const T& type, ulong length ) noexcept : obj( new _str_() ) {
         obj->buffer = ptr_t<uchar>( length );
         obj->ctx    = EVP_MD_CTX_new();
         obj->state  = 1;
         EVP_DigestInit_ex( obj->ctx, type, NULL );
     }
 
-    void update( string_t msg ) noexcept { EVP_DigestUpdate( obj->ctx, (uchar*) msg.data(), msg.size() ); }
+    void update( const string_t& msg ) const noexcept { EVP_DigestUpdate( obj->ctx, (uchar*) msg.data(), msg.size() ); }
 
-    string_t get() const noexcept { return { (char*) &obj->buffer, obj->length }; }
+    string_t get() const noexcept { force_close(); return { (char*) &obj->buffer, obj->length }; }
 
-    string_t done()      noexcept { force_close(); return get(); }
-
-    void force_close() noexcept { 
+    void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_DigestFinal_ex( obj->ctx, &obj->buffer, &obj->length );
-        EVP_MD_CTX_free( obj->ctx ); EVP_cleanup();
+        EVP_MD_CTX_free( obj->ctx ); //EVP_cleanup();
     }
 
-    void free() noexcept { force_close(); } 
+    void free() const noexcept { force_close(); } 
 
     virtual ~hash_t() noexcept { 
         if( obj.count()>1 ){ return; } 
@@ -109,26 +105,22 @@ protected:
 public:
 
     template< class T >
-    hmac_t( string_t key, T type, ulong length ) noexcept : obj( new _str_() ) { 
-        obj->buffer = ptr_t<uchar>( length );
-        obj->ctx    = HMAC_CTX_new();
-        obj->state  = 1;
+    hmac_t( const string_t& key, const T& type, ulong length ) noexcept : obj( new _str_() ) { 
+        obj->buffer = ptr_t<uchar>( length ); obj->ctx = HMAC_CTX_new(); obj->state = 1;
         HMAC_Init_ex( obj->ctx, key.c_str(), key.size(), type, nullptr );
     }
 
-    void update( string_t msg ) noexcept { HMAC_Update( obj->ctx, (uchar*) msg.data(), msg.size() ); }
+    void update( const string_t& msg ) const noexcept { HMAC_Update( obj->ctx, (uchar*) msg.data(), msg.size() ); }
 
-    string_t  get() const noexcept { return { (char*) &obj->buffer, obj->length }; }
+    string_t get() const noexcept { force_close(); return { (char*) &obj->buffer, obj->length }; }
 
-    string_t done()       noexcept { force_close(); return get(); }
-
-    void force_close() noexcept {
+    void force_close() const noexcept {
         if( obj->state == 0 ){ return; } obj->state = 0;
         HMAC_Final( obj->ctx, &obj->buffer, &obj->length ); 
-        HMAC_CTX_free( obj->ctx ); EVP_cleanup();
+        HMAC_CTX_free( obj->ctx ); //EVP_cleanup();
     }
 
-    void free() noexcept { force_close(); } 
+    void free() const noexcept { force_close(); } 
     
     virtual ~hmac_t() noexcept { 
         if( obj.count()>1 ){ return; } 
@@ -141,27 +133,27 @@ public:
 namespace crypto {
 
     class HMAC_MD4 : public hmac_t { public:
-          HMAC_MD4 ( string_t key ) noexcept : hmac_t( key, EVP_md4(), MD4_DIGEST_LENGTH ) {}
+          HMAC_MD4 ( const string_t& key ) noexcept : hmac_t( key, EVP_md4(), MD4_DIGEST_LENGTH ) {}
     };
 
     class HMAC_MD5 : public hmac_t { public:
-          HMAC_MD5 ( string_t key ) noexcept : hmac_t( key, EVP_md5(), MD5_DIGEST_LENGTH ) {}
+          HMAC_MD5 ( const string_t& key ) noexcept : hmac_t( key, EVP_md5(), MD5_DIGEST_LENGTH ) {}
     };
 
     class HMAC_SHA1 : public hmac_t { public:
-          HMAC_SHA1 ( string_t key ) noexcept : hmac_t( key, EVP_sha1(), SHA_DIGEST_LENGTH ) {}
+          HMAC_SHA1 ( const string_t& key ) noexcept : hmac_t( key, EVP_sha1(), SHA_DIGEST_LENGTH ) {}
     };
 
     class HMAC_SHA256 : public hmac_t { public:
-          HMAC_SHA256 ( string_t key ) noexcept : hmac_t( key, EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
+          HMAC_SHA256 ( const string_t& key ) noexcept : hmac_t( key, EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
     };
 
     class HMAC_SHA384 : public hmac_t { public:
-          HMAC_SHA384 ( string_t key ) noexcept : hmac_t( key, EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
+          HMAC_SHA384 ( const string_t& key ) noexcept : hmac_t( key, EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
     };
 
     class HMAC_SHA512 : public hmac_t { public:
-          HMAC_SHA512 ( string_t key ) noexcept : hmac_t( key, EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
+          HMAC_SHA512 ( const string_t& key ) noexcept : hmac_t( key, EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
     };
 
 }
@@ -172,7 +164,8 @@ namespace crypto { class encrypt_t {
 protected:
 
     struct _str_ {
-        EVP_CIPHER_CTX* ctx; 
+        EVP_CIPHER_CTX* ctx;
+        ptr_t<uchar> bff;
         string_t buffer;
         int state, len;
     };  ptr_t<_str_> obj;
@@ -180,30 +173,28 @@ protected:
 public:
 
     template< class T >
-    encrypt_t( string_t iv, string_t key, T type ) noexcept : obj( new _str_() ) {
-        obj->ctx    = EVP_CIPHER_CTX_new();
-        obj->state  = 1;
+    encrypt_t( const string_t& iv, const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
+        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,0);
+        obj->ctx    = EVP_CIPHER_CTX_new(); 
+        obj->state  = 1; 
         EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() );
     }
 
-    void update( string_t msg ) noexcept { uchar bff[msg.size()];
-        EVP_EncryptUpdate( obj->ctx, bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
+    void update( const string_t& msg ) const noexcept {
+        EVP_EncryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size());
+        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
     }
 
-    string_t done()       noexcept { force_close(); return get(); }
+    string_t get() const noexcept { force_close(); return obj->buffer; }
 
-    string_t  get() const noexcept { return obj->buffer; }
-
-    void force_close() noexcept { 
-        if( obj->state == 0 ){ return; } 
-            obj->state = 0; uchar bff[UNBFF_SIZE];
-        EVP_EncryptFinal( obj->ctx, bff, &obj->len ); 
-        EVP_CIPHER_CTX_free( obj->ctx ); EVP_cleanup();
-        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
+    void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        EVP_EncryptFinal( obj->ctx, &obj->bff, &obj->len ); 
+        EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
+        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
     }
 
-    void free() noexcept { force_close(); } 
+    void free() const noexcept { force_close(); } 
     
     virtual ~encrypt_t() noexcept { 
         if( obj.count()>1 ){ return; } 
@@ -219,6 +210,7 @@ protected:
 
     struct _str_ {
         EVP_CIPHER_CTX* ctx; 
+        ptr_t<uchar> bff;
         string_t buffer;
         int state, len;
     };  ptr_t<_str_> obj;
@@ -226,30 +218,28 @@ protected:
 public:
 
     template< class T >
-    decrypt_t( string_t iv, string_t key, T type ) noexcept : obj( new _str_() ) {
-        obj->ctx    = EVP_CIPHER_CTX_new();
+    decrypt_t( const string_t& iv, const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
+        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,0);
+        obj->ctx    = EVP_CIPHER_CTX_new(); 
         obj->state  = 1;
         EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() );
     }
 
-    void update( string_t msg ) noexcept { uchar bff[msg.size()];
-        EVP_DecryptUpdate( obj->ctx, bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
+    void update( const string_t& msg ) const noexcept {
+        EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size());
+        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
     }
 
-    string_t done()       noexcept { force_close(); return get(); }
+    string_t get() const noexcept { force_close(); return obj->buffer; }
 
-    string_t  get() const noexcept { return obj->buffer; }
-
-    void force_close() noexcept { 
-        if( obj->state == 0 ){ return; } 
-            obj->state = 0; uchar bff[UNBFF_SIZE];
-        EVP_DecryptFinal( obj->ctx, bff, &obj->len ); 
-        EVP_CIPHER_CTX_free( obj->ctx ); EVP_cleanup();
-        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
+    void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        EVP_DecryptFinal( obj->ctx, &obj->bff, &obj->len ); 
+        EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
+        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
     }
 
-    void free() noexcept { force_close(); } 
+    void free() const noexcept { force_close(); } 
     
     virtual ~decrypt_t() noexcept { 
         if( obj.count()>1 ){ return; } 
@@ -263,45 +253,45 @@ public:
 namespace crypto { namespace enc {
     
     class AES_X128_CBC : public encrypt_t { public:
-          AES_X128_CBC( string_t iv, string_t key ) noexcept : encrypt_t( iv, key, EVP_aes_128_cbc() ) {}
+          AES_X128_CBC( const string_t& iv, const string_t& key ) noexcept : encrypt_t( iv, key, EVP_aes_128_cbc() ) {}
     };
     
     class AES_X192_CBC : public encrypt_t { public:
-          AES_X192_CBC( string_t iv, string_t key ) noexcept : encrypt_t( iv, key, EVP_aes_192_cbc() ) {}
+          AES_X192_CBC( const string_t& iv, const string_t& key ) noexcept : encrypt_t( iv, key, EVP_aes_192_cbc() ) {}
     };
     
     class AES_X256_CBC : public encrypt_t { public:
-          AES_X256_CBC( string_t iv, string_t key ) noexcept : encrypt_t( iv, key, EVP_aes_256_cbc() ) {}
+          AES_X256_CBC( const string_t& iv, const string_t& key ) noexcept : encrypt_t( iv, key, EVP_aes_256_cbc() ) {}
     };
 
     /*─······································································─*/
     
     class AES_X128_ECB : public encrypt_t { public:
-          AES_X128_ECB( string_t iv, string_t key ) noexcept : encrypt_t( iv, key, EVP_aes_128_ecb() ) {}
+          AES_X128_ECB( const string_t& iv, const string_t& key ) noexcept : encrypt_t( iv, key, EVP_aes_128_ecb() ) {}
     };
     
     class AES_X192_ECB : public encrypt_t { public:
-          AES_X192_ECB( string_t iv, string_t key ) noexcept : encrypt_t( iv, key, EVP_aes_192_ecb() ) {}
+          AES_X192_ECB( const string_t& iv, const string_t& key ) noexcept : encrypt_t( iv, key, EVP_aes_192_ecb() ) {}
     };
     
     class AES_X256_ECB : public encrypt_t { public:
-          AES_X256_ECB( string_t iv, string_t key ) noexcept : encrypt_t( iv, key, EVP_aes_256_ecb() ) {}
+          AES_X256_ECB( const string_t& iv, const string_t& key ) noexcept : encrypt_t( iv, key, EVP_aes_256_ecb() ) {}
     };
 
     /*─······································································─*/
     
     class DES_CBC : public encrypt_t { public:
-          DES_CBC ( string_t iv, string_t key ) noexcept : encrypt_t( iv, key, EVP_des_cbc() ) {}
+          DES_CBC ( const string_t& iv, const string_t& key ) noexcept : encrypt_t( iv, key, EVP_des_cbc() ) {}
     };
     
     class DES_ECB : public encrypt_t { public:
-          DES_ECB ( string_t iv, string_t key ) noexcept : encrypt_t( iv, key, EVP_des_ecb() ) {}
+          DES_ECB ( const string_t& iv, const string_t& key ) noexcept : encrypt_t( iv, key, EVP_des_ecb() ) {}
     };
 
     /*─······································································─*/
     
     class RC4 : public encrypt_t { public:
-          RC4 ( string_t iv, string_t key ) noexcept : encrypt_t( iv, key, EVP_rc4() ) {}
+          RC4 ( const string_t& iv, const string_t& key ) noexcept : encrypt_t( iv, key, EVP_rc4() ) {}
     };
 
 }   }
@@ -311,45 +301,45 @@ namespace crypto { namespace enc {
 namespace crypto { namespace dec {
     
     class AES_X128_CBC : public decrypt_t { public:
-          AES_X128_CBC( string_t iv, string_t key ) noexcept : decrypt_t( iv, key, EVP_aes_128_cbc() ) {}
+          AES_X128_CBC( const string_t& iv, const string_t& key ) noexcept : decrypt_t( iv, key, EVP_aes_128_cbc() ) {}
     };
     
     class AES_X192_CBC : public decrypt_t { public:
-          AES_X192_CBC( string_t iv, string_t key ) noexcept : decrypt_t( iv, key, EVP_aes_192_cbc() ) {}
+          AES_X192_CBC( const string_t& iv, const string_t& key ) noexcept : decrypt_t( iv, key, EVP_aes_192_cbc() ) {}
     };
     
     class AES_X256_CBC : public decrypt_t { public:
-          AES_X256_CBC( string_t iv, string_t key ) noexcept : decrypt_t( iv, key, EVP_aes_256_cbc() ) {}
+          AES_X256_CBC( const string_t& iv, const string_t& key ) noexcept : decrypt_t( iv, key, EVP_aes_256_cbc() ) {}
     };
 
     /*─······································································─*/
     
     class AES_X128_ECB : public decrypt_t { public:
-          AES_X128_ECB( string_t iv, string_t key ) noexcept : decrypt_t( iv, key, EVP_aes_128_ecb() ) {}
+          AES_X128_ECB( const string_t& iv, const string_t& key ) noexcept : decrypt_t( iv, key, EVP_aes_128_ecb() ) {}
     };
     
     class AES_X192_ECB : public decrypt_t { public:
-          AES_X192_ECB( string_t iv, string_t key ) noexcept : decrypt_t( iv, key, EVP_aes_192_ecb() ) {}
+          AES_X192_ECB( const string_t& iv, const string_t& key ) noexcept : decrypt_t( iv, key, EVP_aes_192_ecb() ) {}
     };
     
     class AES_X256_ECB : public decrypt_t { public:
-          AES_X256_ECB( string_t iv, string_t key ) noexcept : decrypt_t( iv, key, EVP_aes_256_ecb() ) {}
+          AES_X256_ECB( const string_t& iv, const string_t& key ) noexcept : decrypt_t( iv, key, EVP_aes_256_ecb() ) {}
     };
 
     /*─······································································─*/
     
     class DES_CBC : public decrypt_t { public:
-          DES_CBC ( string_t iv, string_t key ) noexcept : decrypt_t( iv, key, EVP_des_cbc() ) {}
+          DES_CBC ( const string_t& iv, const string_t& key ) noexcept : decrypt_t( iv, key, EVP_des_cbc() ) {}
     };
     
     class DES_ECB : public decrypt_t { public:
-          DES_ECB ( string_t iv, string_t key ) noexcept : decrypt_t( iv, key, EVP_des_ecb() ) {}
+          DES_ECB ( const string_t& iv, const string_t& key ) noexcept : decrypt_t( iv, key, EVP_des_ecb() ) {}
     };
 
     /*─······································································─*/
     
     class RC4 : public decrypt_t { public:
-          RC4 ( string_t iv, string_t key ) noexcept : decrypt_t( iv, key, EVP_rc4() ) {}
+          RC4 ( const string_t& iv, const string_t& key ) noexcept : decrypt_t( iv, key, EVP_rc4() ) {}
     };
 
 }   }
@@ -365,6 +355,7 @@ protected:
 
     struct _str_ {
         EVP_ENCODE_CTX* ctx; 
+        ptr_t<uchar> bff;
         string_t buffer;
         int state, len;
     };  ptr_t<_str_> obj;
@@ -372,29 +363,27 @@ protected:
 public:
 
     BASE64() noexcept : obj( new _str_() ) {
+        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,0);
         obj->ctx    = EVP_ENCODE_CTX_new();
         obj->state  = 1;
         EVP_EncodeInit( obj->ctx );
     }
 
-    void update( string_t msg ) noexcept { uchar bff[ msg.size() ];
-        EVP_EncodeUpdate( obj->ctx, bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
+    void update( const string_t& msg ) const noexcept {
+        EVP_EncodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
+        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
     }
 
-    string_t done()       noexcept { force_close(); return get(); }
+    string_t get() const noexcept { force_close(); return obj->buffer; }
 
-    string_t  get() const noexcept { return obj->buffer; }
-
-    void force_close() noexcept { 
-        if( obj->state == 0 ){ return; } 
-            obj->state = 0; uchar bff[UNBFF_SIZE];
-        EVP_EncodeFinal( obj->ctx, bff, &obj->len ); 
-        EVP_ENCODE_CTX_free( obj->ctx ); EVP_cleanup();
-        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
+    void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        EVP_EncodeFinal( obj->ctx, &obj->bff, &obj->len ); 
+        EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
+        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
     }
 
-    void free() noexcept { force_close(); } 
+    void free() const noexcept { force_close(); } 
     
     virtual ~BASE64() noexcept { 
         if( obj.count()>1 ){ return; } 
@@ -410,6 +399,7 @@ protected:
 
     struct _str_ {
         EVP_ENCODE_CTX* ctx; 
+        ptr_t<uchar> bff;
         string_t buffer;
         int state, len;
     };  ptr_t<_str_> obj;
@@ -417,29 +407,27 @@ protected:
 public:
 
     BASE64() noexcept : obj( new _str_() ) {
+        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,0);
         obj->ctx    = EVP_ENCODE_CTX_new();
         obj->state  = 1;
         EVP_DecodeInit( obj->ctx );
     }
 
-    void update( string_t msg ) noexcept { uchar bff[msg.size()];
-        EVP_DecodeUpdate( obj->ctx, bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
+    void update( const string_t& msg ) const noexcept {
+        EVP_DecodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
+        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
     }
 
-    string_t done()       noexcept { force_close(); return get(); }
+    string_t get() const noexcept { force_close(); return obj->buffer; }
 
-    string_t  get() const noexcept { return obj->buffer; }
-
-    void force_close() noexcept { 
-        if( obj->state == 0 ){ return; } 
-            obj->state = 0; uchar bff[UNBFF_SIZE];
-        EVP_DecodeFinal( obj->ctx, bff, &obj->len ); 
-        EVP_ENCODE_CTX_free( obj->ctx ); EVP_cleanup();
-        obj->buffer += (string_t){ (char*)bff, (ulong) obj->len };
+    void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        EVP_DecodeFinal( obj->ctx, &obj->bff, &obj->len ); 
+        EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
+        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
     }
 
-    void free() noexcept { force_close(); } 
+    void free() const noexcept { force_close(); } 
     
     virtual ~BASE64() noexcept { 
         if( obj.count()>1 ){ return; } 

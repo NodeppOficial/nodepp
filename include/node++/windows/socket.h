@@ -293,7 +293,7 @@ public: socket_t() noexcept {}
 
     /*─······································································─*/
 
-    virtual int socket( string_t host, int port ) noexcept { 
+    virtual int socket( const string_t& host, int port ) noexcept { 
         obj->addrlen = sizeof( obj->server_addr );
 
         if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )
@@ -373,7 +373,7 @@ public: socket_t() noexcept {}
         return gen.y;
     }
 
-    ulong write( string_t msg ) const noexcept {
+    ulong write( const string_t& msg ) const noexcept {
         static auto gen = nodepp::_file_::write();
         while( gen( this, msg ) == 1 )
              { process::next(); }

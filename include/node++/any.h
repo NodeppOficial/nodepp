@@ -6,7 +6,7 @@
 namespace nodepp { class any_t {
 public: any_t() noexcept {};
     
-    template< class T > any_t( T f ) noexcept : any_ptr( new any_impl<T>(f) ) {}
+    template< class T > any_t( const T& f ) noexcept : any_ptr( new any_impl<T>(f) ) {}
     
     any_t( const char* f ) noexcept : any_ptr( new any_impl<string_t>(string::to_string(f)) ) {}
     
@@ -16,7 +16,7 @@ public: any_t() noexcept {};
     T get() const noexcept { T any; any_ptr->get((void*)&any); return any; }
 
     template< class T >
-    void set( T f ) noexcept { any_ptr = new any_impl<T>(f); }
+    void set( const T& f ) noexcept { any_ptr = new any_impl<T>(f); }
     
     /*─······································································─*/
 
@@ -44,7 +44,7 @@ private:
     template< class T >
     class any_impl : public any_base {
     public:
-        any_impl( T f ) noexcept : any( f ) {}
+        any_impl( const T& f ) noexcept : any( f ) {}
         virtual void get( void* argc ) const noexcept { *((T*)argc) = any; }
         virtual void set( void* argc )       noexcept { any = *((T*)argc); }
     private:

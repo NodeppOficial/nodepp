@@ -57,7 +57,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    void listen( string_t host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
+    void listen( const string_t& host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx == nullptr || obj->ctx->create_server() == -1 )
           { $onError(onError,"Error Initializing SSL context"); close(); return; }
         
@@ -87,13 +87,13 @@ public: tls_t() noexcept : obj( new _str_() ) {}
 
     }
 
-    void listen( string_t host, int port, decltype(obj->func) cb ) const noexcept { 
+    void listen( const string_t& host, int port, decltype(obj->func) cb ) const noexcept { 
          listen( host, port, &cb ); 
     }
     
     /*─······································································─*/
 
-    void connect( string_t host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
+    void connect( const string_t& host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx == nullptr || obj->ctx->create_client() < 0 )
           { $onError(onError,"Error Initializing SSL context"); close(); return; }
             ptr_t<tls_t> self = new tls_t( *this );
@@ -119,7 +119,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk); 
     }
 
-    void connect( string_t host, int port, decltype(obj->func) cb ) const noexcept { 
+    void connect( const string_t& host, int port, decltype(obj->func) cb ) const noexcept { 
          connect( host, port, &cb ); 
     }
 

@@ -18,7 +18,7 @@
 namespace nodepp { namespace cluster {
 
     template< class... T > 
-    cluster_t add( T... args ){ return cluster_t( args... ); }
+    cluster_t add( const T&... args ){ return cluster_t( args... ); }
 
     bool  is_child(){ return !process::env::get("CHILD").empty(); }
 

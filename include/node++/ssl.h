@@ -47,7 +47,7 @@ protected:
     
     /*─······································································─*/
 
-    int configure_context( SSL_CTX* ctx, string_t key, string_t cert ) const noexcept { return (  
+    int configure_context( SSL_CTX* ctx, const string_t& key, const string_t& cert ) const noexcept { return (  
         SSL_CTX_use_certificate_file( ctx, (char*)cert, obj->tpy ) != 1 ||
         SSL_CTX_use_PrivateKey_file( ctx, (char*)key, obj->tpy )   != 1
     ) ? -1 : 1; }
@@ -111,20 +111,20 @@ public: ssl_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    ssl_t( string_t _key, string_t _cert, onSNI* _func=nullptr ) : obj(new _str_()) {
+    ssl_t( const string_t& _key, const string_t& _cert, onSNI* _func=nullptr ) : obj(new _str_()) {
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) )
             $Error("such key or cert does not exist");
         if( _func != nullptr ) obj->func = new onSNI(*_func); 
              obj->key = _key;  obj->cert = _cert; 
     }
 
-    ssl_t( string_t _key, string_t _cert, onSNI _func ) : obj(new _str_()) {
+    ssl_t( const string_t& _key, const string_t& _cert, onSNI _func ) : obj(new _str_()) {
         *this=ssl_t( _key, _cert, &_func );
     }
 
     /*─······································································─*/
 
-    ssl_t( ssl_t* xtc, int df ) : obj(new _str_()) {
+    ssl_t( ssl_t* xtc, int df ) : obj( new _str_() ) {
         if( xtc == nullptr ) $Error("ctx is nullptr");
         if( xtc->get_ctx() == nullptr ) $Error("ctx has no context");
         obj->ctx=xtc->get_ctx(); obj->ssl=SSL_new(obj->ctx); obj->srv=xtc->is_server();

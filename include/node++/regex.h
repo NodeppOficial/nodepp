@@ -20,7 +20,7 @@ protected:
             if(   x!=nullptr ){ delete x; x = nullptr; }
         }   if( alt!=nullptr ){ delete alt; alt = nullptr; } }
 
-        void pipe( function_t<_str_*,_str_*> cb ){
+        void pipe( const function_t<_str_*,_str_*>& cb ){
             _str_* n = this; while( n!=nullptr ){
                 idx = 0; n = cb( n );
             }
@@ -166,7 +166,7 @@ protected:
 
     return root; }
 
-    ptr_t<ulong> match( string_t _str, ulong _off, _str_* NODE ) const noexcept {
+    ptr_t<ulong> match( const string_t& _str, ulong _off, _str_* NODE ) const noexcept {
         if( icase ){ _str.to_lower_case(); }
         
         ptr_t<ulong> _res ({ 0, 0 }); if( _str.empty() )return _res;
@@ -249,19 +249,17 @@ protected:
     
 public: regex_t() noexcept {}
 
-    regex_t( string_t _reg, string_t _flags="" ) noexcept {
-        for( auto x:_flags ){
-            switch(x){
-                case 'i': icase = true; break;
-                case 'm': multi = true; break; //not available
-                case 's': dotl  = true; break; //not available
-            }
-        }   root = compile( &_reg );
+    regex_t( string_t _reg, const string_t& _flags="" ) noexcept {
+        for( auto x:_flags ){ switch(x){
+            case 'i': icase = true; break;
+            case 'm': multi = true; break; //not available
+            case 's': dotl  = true; break; //not available
+        }}  root = compile( &_reg );
     }
     
     /*─······································································─*/
 
-    array_t<string_t> split( string_t _str ) const noexcept { ulong n = 0;
+    array_t<string_t> split( const string_t& _str ) const noexcept { ulong n = 0;
         auto idx = search_all( _str ); array_t<string_t> result;
         if( idx.empty() ) { return result; } for ( auto x : idx ) {
             result.push( _str.slice( n, x[0] ) ); n = x[1];
@@ -270,16 +268,15 @@ public: regex_t() noexcept {}
     
     /*─······································································─*/
 
-    string_t replace_all( string_t _str, string_t _rep ) const noexcept {
-        auto idx = search_all( _str ).reverse();
-        for( auto x : idx ){
+    string_t replace_all( string_t _str, const string_t& _rep ) const noexcept {
+        auto idx = search_all( _str ).reverse(); for( auto x : idx ){
             _str.splice( x[0], x[1] - x[0], _rep );
         }   return _str;
     }
     
     /*─······································································─*/
 
-    string_t replace( string_t _str, string_t _rep, ulong s=0 ) const noexcept {
+    string_t replace( string_t _str, const string_t& _rep, ulong s=0 ) const noexcept {
         auto idx = search( _str, s );
         if( idx == nullptr )  { return _str; }
         if( idx[0] == idx[1] ){ return _str; }
@@ -288,7 +285,7 @@ public: regex_t() noexcept {}
     
     /*─······································································─*/
 
-    array_t<ptr_t<ulong>> search_all( string_t _str ) const noexcept {
+    array_t<ptr_t<ulong>> search_all( const string_t& _str ) const noexcept {
         array_t<ptr_t<ulong>> result; ulong s=0; while(1){
             auto idx = search( _str, s );
             if( idx == nullptr )  { return result; }
@@ -299,7 +296,7 @@ public: regex_t() noexcept {}
     
     /*─······································································─*/
 
-    ptr_t<ulong> search( string_t _str, ulong s=0 ) const noexcept {
+    ptr_t<ulong> search( const string_t& _str, ulong s=0 ) const noexcept {
         for( ulong i=s; i<_str.size(); i++ ){
             auto idx = this->match( _str, i, &root );
             if( idx[0] != idx[1] ) return idx;
@@ -308,7 +305,7 @@ public: regex_t() noexcept {}
     
     /*─······································································─*/
 
-    array_t<string_t> match_all( string_t _str ) const noexcept {
+    array_t<string_t> match_all( const string_t& _str ) const noexcept {
         auto idx = search_all( _str ); array_t<string_t> result;
         for( auto x : idx ){
             result.push(_str.slice( x[0], x[1] ));
@@ -317,7 +314,7 @@ public: regex_t() noexcept {}
     
     /*─······································································─*/
 
-    string_t match( string_t _str, ulong s=0 ) const noexcept { 
+    string_t match( const string_t& _str, ulong s=0 ) const noexcept { 
         auto idx = search( _str, s );
         if( idx == nullptr )  { return ""; }
         if( idx[0] == idx[1] ){ return ""; }
@@ -326,7 +323,7 @@ public: regex_t() noexcept {}
     
     /*─······································································─*/
 
-    bool test( string_t _str, ulong s=0 ) const noexcept {
+    bool test( const string_t& _str, ulong s=0 ) const noexcept {
         auto idx = search( _str, s );
         if( idx == nullptr )  { return 0; }
         if( idx[0] == idx[1] ){ return 0; }
@@ -339,51 +336,51 @@ public: regex_t() noexcept {}
 
 namespace regex {
 
-    string_t replace_all( string_t _str, string_t _reg, string_t _rep, string_t _flg="" ){
+    string_t replace_all( const string_t& _str, const string_t& _reg, const string_t& _rep, const string_t& _flg="" ){
         regex_t reg( _reg, _flg ); return reg.replace_all( _str, _rep );
     }
     
     /*─······································································─*/
 
-    array_t<ptr_t<ulong>> search_all( string_t _str, string_t _reg, string_t _flg="" ){
+    array_t<ptr_t<ulong>> search_all( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
         regex_t reg( _reg, _flg ); return reg.search_all( _str );
     }
     
     /*─······································································─*/
 
-    string_t replace( string_t _str, string_t _reg, string_t _rep, string_t _flg="" ){
+    string_t replace( const string_t& _str, const string_t& _reg, const string_t& _rep, const string_t& _flg="" ){
         regex_t reg( _reg, _flg ); return reg.replace( _str, _rep );
     }
     
     /*─······································································─*/
 
-    array_t<string_t> match_all( string_t _str, string_t _reg, string_t _flg="" ){
+    array_t<string_t> match_all( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
         regex_t reg( _reg, _flg ); return reg.match_all( _str );
     }
     
     /*─······································································─*/
 
-    ptr_t<ulong> search( string_t _str, string_t _reg, string_t _flg="" ){
+    ptr_t<ulong> search( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
         regex_t reg( _reg, _flg ); return reg.search( _str );
     }
     
     /*─······································································─*/
 
-    string_t match( string_t _str, string_t _reg, string_t _flg="" ){
+    string_t match( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
         regex_t reg( _reg, _flg ); return reg.match( _str );
     }
 
     /*─······································································─*/
 
-    bool test( string_t _str, string_t _reg, string_t _flg="" ){
+    bool test( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
         regex_t reg( _reg, _flg ); return reg.test( _str );
     }
 
     /*─······································································─*/
 
-    array_t<string_t> split( string_t _str, char ch ){ return string::split( _str, ch ); }
+    array_t<string_t> split( const string_t& _str, char ch ){ return string::split( _str, ch ); }
 
-    array_t<string_t> split( string_t _str, int ch ){ return string::split( _str, ch ); }
+    array_t<string_t> split( const string_t& _str, int ch ){ return string::split( _str, ch ); }
 
     array_t<string_t> split( const string_t& _str, const string_t& _reg ){ 
         if( _reg.size() == 1 ){  return string::split( _str, _reg[0] ); }
@@ -393,7 +390,7 @@ namespace regex {
 
     /*─······································································─*/
 
-    template< class T, class... V > string_t join( string_t c, const T& argc, const V&... args ){ 
+    template< class T, class... V > string_t join( const string_t& c, const T& argc, const V&... args ){ 
         return string::join( c, argc, args... ); 
     }
     

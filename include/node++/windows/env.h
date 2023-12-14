@@ -14,16 +14,16 @@ namespace nodepp { namespace {
         }   FreeEnvironmentStrings( environmentStrings ); return 0;
     }
 
-    string_t GET( string_t name ){ ptr_t<char> buffer ( UNBFF_SIZE );
+    string_t GET( const string_t& name ){ ptr_t<char> buffer ( UNBFF_SIZE );
         auto x = GetEnvironmentVariableA( name.c_str(), &buffer, buffer.size() );
         return (string_t){ &buffer, (ulong) x };
     } 
     
-    int SET( string_t name, string_t value ){ 
+    int SET( const string_t& name, const string_t& value ){ 
         return SetEnvironmentVariableA( name.c_str(), value.c_str() );
     }
 
-    int DEL( string_t name ){
+    int DEL( const string_t& name ){
         return SetEnvironmentVariableA( name.c_str(), nullptr ); 
     }
 
@@ -35,15 +35,15 @@ namespace nodepp { namespace process {
 
     namespace env {
 
-        int set( string_t name, string_t value ){ return nodepp::SET( name, value ); }
+        int set( const string_t& name, const string_t& value ){ return nodepp::SET( name, value ); }
 
-        string_t get( string_t name ){ return nodepp::GET( name ); }
+        string_t get( const string_t& name ){ return nodepp::GET( name ); }
 
-        int remove( string_t name ){ return nodepp::DEL( name );  } 
+        int remove( const string_t& name ){ return nodepp::DEL( name );  } 
 
         int clear(){ return nodepp::CLEAR(); }
 
-        int init( string_t path ){ try {
+        int init( const string_t& path ){ try {
                 
             FILE* v = fopen( path.c_str(), "r" ); 
             string_t s; bool nr = 0; bool pr = 0;
@@ -73,7 +73,7 @@ namespace nodepp { namespace process {
     /*─······································································─*/
 
     template< class... T >
-    int     spawn( T... args ){ return ::system(args...); }
+    int     spawn( const T&... args ){ return ::system(args...); }
 
     void     exit( int err=0 ){ ::exit(err); }
 

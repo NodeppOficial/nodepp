@@ -16,7 +16,7 @@ private:
 
 public: bsocket_t() noexcept : socket_t() {}
 
-    virtual int socket( string_t host, int port ) noexcept { addrlen = sizeof(server_addr);
+    virtual int socket( const string_t& host, int port ) noexcept { addrlen = sizeof(server_addr);
 
         if((obj->fd=::socket( AF, SOCK, PROT )) <= 0 ) 
           { return -1; } set_nonbloking_mode();

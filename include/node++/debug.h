@@ -29,7 +29,7 @@ public:
     /*─······································································─*/
 
     template< class... T >
-    void log( T... args ) const noexcept { console::log( "--", args... ); }
+    void log( const T&... args ) const noexcept { console::log( "--", args... ); }
 
     void error() const noexcept { console::error( message ); }
     

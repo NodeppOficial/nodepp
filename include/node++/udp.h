@@ -41,7 +41,7 @@ public: udp_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    void listen( string_t host, int port, decltype(obj->func)* cb=nullptr ) const noexcept {
+    void listen( const string_t& host, int port, decltype(obj->func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ) { return; } obj->state = 1;
             ptr_t<udp_t> self = new udp_t( *this );
 
@@ -56,13 +56,13 @@ public: udp_t() noexcept : obj( new _str_() ) {}
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }
 
-    void listen( string_t host, int port, decltype(obj->func) cb ) const noexcept { 
+    void listen( const string_t& host, int port, decltype(obj->func) cb ) const noexcept { 
          listen( host, port, &cb );
     }
     
     /*─······································································─*/
 
-    void connect( string_t host, int port, decltype(obj->func)* cb=nullptr ) const noexcept {
+    void connect( const string_t& host, int port, decltype(obj->func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1;
 
         socket_t sk = socket_t(); 
@@ -78,7 +78,7 @@ public: udp_t() noexcept : obj( new _str_() ) {}
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }
 
-    void connect( string_t host, int port, decltype(obj->func) cb ) const noexcept { 
+    void connect( const string_t& host, int port, decltype(obj->func) cb ) const noexcept { 
          connect( host, port, &cb ); 
     }
 

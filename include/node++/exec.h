@@ -18,12 +18,12 @@
 namespace nodepp { namespace exec {
     
     template< class... T >
-    popen_t async( T... args ){ return popen_t( args... ); }
+    popen_t async( const T&... args ){ return popen_t( args... ); }
     
     /*─······································································─*/
     
     template< class... T >
-    string_t sync( T... args ){
+    string_t sync( const T&... args ){
         auto fp = popen_t( args... ); string_t result;
         while ( fp.is_available() ){
                 auto data = fp.readable().read();

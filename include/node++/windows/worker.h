@@ -127,7 +127,7 @@ public: worker_t() noexcept : obj( new _str_ ) {}
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace worker { template< class... T >
-    worker_t add( T... args ){ worker_t wrk( args... ); wrk.add(); return wrk; }
+    worker_t add( const T&... args ){ worker_t wrk( args... ); wrk.add(); return wrk; }
 }}
 
 /*────────────────────────────────────────────────────────────────────────────*/

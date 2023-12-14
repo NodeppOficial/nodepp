@@ -166,7 +166,7 @@ public: file_t() noexcept {}
         return gen.y;
     }
 
-    ulong write( string_t msg ) const noexcept {
+    ulong write( const string_t& msg ) const noexcept {
         static auto gen = nodepp::_file_::write();
         while( gen( this, msg ) == 1 )
              { process::next(); }

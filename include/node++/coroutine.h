@@ -3,11 +3,11 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-template< class T > T   min( T min, T max ){ return min < max ? min : max; }
+template< class T > T   min( const T& min, const T& max ){ return min < max ? min : max; }
 
-template< class T > T   max( T min, T max ){ return max > min ? max : min; }
+template< class T > T   max( const T& min, const T& max ){ return max > min ? max : min; }
 
-template< class T > T clamp( T val, T _min, T _max ){ return max( _min, min( _max, val ) ); }
+template< class T > T clamp( const T& val, const T& _min, const T& _max ){ return max( _min, min( _max, val ) ); }
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

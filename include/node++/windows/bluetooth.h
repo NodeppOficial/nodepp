@@ -21,7 +21,7 @@ public: bsocket_t() noexcept : socket_t() {}
 
     using SOCKADDR_RC = struct sockaddr_rc;
 
-    virtual int socket( string_t host, int port ) noexcept { addrlen = sizeof(server_addr);
+    virtual int socket( const string_t& host, int port ) noexcept { addrlen = sizeof(server_addr);
         obj->addrlen = sizeof( obj->server_addr );
 
         if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )

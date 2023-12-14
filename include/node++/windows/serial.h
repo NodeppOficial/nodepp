@@ -5,14 +5,14 @@
 namespace nodepp { class serial_t : public file_t { 
 protected:
 
-	int set_baud_rate( string_t path, uint baud ) const noexcept {
+	int set_baud_rate( const string_t& path, uint baud ) const noexcept {
 		return ::system( string::format("MODE %s:%u",(char*)path,baud).data() );
 	}
 
 public: serial_t() noexcept : file_t() {}
     event_t<serial_t> onConnect;
 
-	serial_t( string_t path, uint baud=9600, const string_t& mode="r+", const ulong& _size=CHUNK_SIZE ){ 
+	serial_t( const string_t& path, uint baud=9600, const string_t& mode="r+", const ulong& _size=CHUNK_SIZE ){ 
 		set_baud_rate( path, baud ); obj->fd = open( (char*) path, get_fd_flag(flag) );
 		if( obj->fd < 0 ) $Error("such device does not exist"); set_buffer_size(_size);
 	}
@@ -23,7 +23,7 @@ public: serial_t() noexcept : file_t() {}
 
 namespace nodepp { namespace serial {
 
-    template <class... T> serial_t connect( T... args ){ 
+    template <class... T> serial_t connect( const T&... args ){ 
 
 		serial_t client( args... ); 
 

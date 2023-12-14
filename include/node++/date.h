@@ -115,8 +115,7 @@ protected:
 public:
 
     template< class... V > 
-    date_t( V... args ) noexcept : obj( new _str_() )
-          { set_time( args... ); }
+    date_t( const V&... args ) noexcept : obj( new _str_() ) { set_time( args... ); }
     
     /*─······································································─*/
 

@@ -115,13 +115,13 @@ namespace path {
     
     /*─······································································─*/
 
-    bool is_absolute( string_t path ){
+    bool is_absolute( const string_t& path ){
         regex_t reg("^"+beg); return reg.test( path );
     }
     
     /*─······································································─*/
 
-    string_t extname( string_t path ){ string_t m;
+    string_t extname( const string_t& path ){ string_t m;
         regex_t reg("\\.\\w*$"); if( !reg.test( path ) ) 
           { return m; } m = reg.match( path ); 
             return regex::replace_all( m, "\\.", "" );
@@ -129,7 +129,7 @@ namespace path {
     
     /*─······································································─*/
 
-    string_t mimetype( string_t path ){
+    string_t mimetype( const string_t& path ){
         string_t ext = extname( path ); if( ext.empty() ) 
         { return ext; } for( auto x: _path_::mimetype ){
             if( regex::test( ext, x.first ) ){ return x.second; }
@@ -138,21 +138,21 @@ namespace path {
 
     /*─······································································─*/
 
-    string_t dirname( string_t path ){ 
+    string_t dirname( const string_t& path ){ 
         auto vec = regex::split( path, none );
         vec.pop(); return vec.join( sep );
     }
     
     /*─······································································─*/
 
-    string_t basename( string_t path ){ 
+    string_t basename( const string_t& path ){ 
         auto vec = regex::match_all( path, one );
         return vec[ vec.size()-1 ];
     }
     
     /*─······································································─*/
 
-    string_t basename( string_t path, string_t del ){ 
+    string_t basename( const string_t& path, const string_t& del ){ 
         auto vec = regex::match_all( path, one );
         return regex::replace( vec[ vec.last() ], del, "" );
     }
@@ -180,7 +180,7 @@ namespace path {
     
     /*─······································································─*/
 
-    path_t parse( string_t path ) { path_t result;
+    path_t parse( const string_t& path ) { path_t result;
 
         if( regex::test( path, beg ) ) result.root = _beg;
         else                           result.root = root;
@@ -196,7 +196,7 @@ namespace path {
 
     /*─······································································─*/
 
-    string_t relative( string_t path_a, string_t path_b ){
+    string_t relative( const string_t& path_a, string_t path_b ){
         regex_t _a(sep+"+"), _b(init,"i");
         auto vec_a = _a.split( path_a );
         for( auto x:vec_a ){
@@ -226,7 +226,8 @@ namespace path {
     
     /*─······································································─*/
 
-    template< class T, class... V > string_t join( const T& argc, const V&... args ){ 
+    template< class T, class... V > 
+    string_t join( const T& argc, const V&... args ){ 
         return normalize( string::join( sep, argc, args... ) ); 
     }
     

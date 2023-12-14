@@ -15,7 +15,7 @@ namespace nodepp {
 
 namespace stream {
 
-    template< class T > void unpipe( T input ){ input.stop(); }
+    template< class T > void unpipe( const T& input ){ input.stop(); }
     
     /*─······································································─*/
     
@@ -24,16 +24,10 @@ namespace stream {
         process::poll::add( arg, inp );  return inp;
     }
     
-    template< class T, class V >
-    void pipe( const T& inp, const V& out ){
+    template< class... T >
+    void pipe( const T&... inp ){
         _stream_::pipe arg;
-        process::poll::add( arg, inp, out );
-    }
-    
-    template< class T >
-    void pipe( const T& inp ){
-        _stream_::pipe arg;
-        process::poll::add( arg, inp );
+        process::poll::add( arg, inp... );
     }
     
     /*─······································································─*/
@@ -43,16 +37,10 @@ namespace stream {
         process::poll::add( arg, inp );  return inp;
     }
     
-    template< class T, class V >
-    void line( const T& inp, const V& out ){
+    template< class... T >
+    void line( const T&... inp ){
         _stream_::line arg;
-        process::poll::add( arg, inp, out );
-    }
-    
-    template< class T >
-    void line( const T& inp ){
-        _stream_::line arg;
-        process::poll::add( arg, inp );
+        process::poll::add( arg, inp... );
     }
     
     /*─······································································─*/

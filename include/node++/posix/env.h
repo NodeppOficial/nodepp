@@ -8,11 +8,11 @@
 
 namespace nodepp { namespace { 
     
-    int SET( string_t name, string_t value ){ return setenv( name.c_str(), value.c_str(), 1 ); }
+    int SET( const string_t& name, const string_t& value ){ return setenv( name.c_str(), value.c_str(), 1 ); }
 
-    string_t GET( string_t name ){ return getenv( name.c_str() ); } 
+    string_t GET( const string_t& name ){ return getenv( name.c_str() ); } 
 
-    int DEL( string_t name ){ return unsetenv( name.c_str() ); }
+    int DEL( const string_t& name ){ return unsetenv( name.c_str() ); }
 
     int CLEAR(){ return clearenv(); }
 }}
@@ -23,15 +23,15 @@ namespace nodepp { namespace process {
 
     namespace env {
 
-        int set( string_t name, string_t value ){ return nodepp::SET( name, value ); }
+        int set( const string_t& name, const string_t& value ){ return nodepp::SET( name, value ); }
 
-        string_t get( string_t name ){ return nodepp::GET( name ); }
+        string_t get( const string_t& name ){ return nodepp::GET( name ); }
 
-        int remove( string_t name ){ return nodepp::DEL( name );  } 
+        int remove( const string_t& name ){ return nodepp::DEL( name );  } 
 
         int clear(){ return nodepp::CLEAR(); }
 
-        int init( string_t path ){ try {
+        int init( const string_t& path ){ try {
                 
             FILE* v = fopen( path.c_str(), "r" ); 
             string_t s; bool nr = 0; bool pr = 0;
@@ -61,7 +61,7 @@ namespace nodepp { namespace process {
     /*─······································································─*/
 
     template< class... T >
-    int  spawn( T... args ){ return ::system(args...); }
+    int  spawn( const T&... args ){ return ::system(args...); }
 
     void  exit( int err=0 ){ ::exit(err); }
 

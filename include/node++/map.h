@@ -38,7 +38,7 @@ public: map_t() noexcept {}
     
     /*─······································································─*/
 
-    V& operator[]( U name ) noexcept {
+    V& operator[]( const U& name ) noexcept {
         
         for( ulong x=0; x<this->size(); x++ ){
             if( this->buffer[x].first == name )
@@ -51,7 +51,7 @@ public: map_t() noexcept {}
     
     /*─······································································─*/
 
-    void erase( U name ) noexcept {
+    void erase( const U& name ) noexcept {
         if( this->empty() ){ return; } else {
             auto n_buffer = ptr_t<T>( this->last() );
             for( ulong i=0, j=0; i<this->size() && !n_buffer.empty(); i++ ){

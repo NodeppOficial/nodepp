@@ -35,9 +35,9 @@ struct tar_header_t {
 class tar_t : public file_t {     
 public: tar_t() noexcept : file_t(){} 
 
-    template< class... T > tar_t( T... args ) noexcept : file_t( args... ) {}
+    template< class... T > tar_t( const T&... args ) noexcept : file_t( args... ) {}
 
-    void write_header( string_t name, ulong size, ulong time=0, string_t chk="" ) const noexcept { 
+    void write_header( const string_t& name, ulong size, ulong time=0, const string_t& chk="" ) const noexcept { 
         tar_header_t head = {0}; memcpy( head.name, name.data(), 100 );
         memcpy( head.mtime, string::to_string(time).data(), 12 );
         memcpy( head.size,  string::to_string(size).data(), 12 );
@@ -47,7 +47,7 @@ public: tar_t() noexcept : file_t(){}
     }
 
     template < class T >
-    ulong search_file( T func ) const noexcept { 
+    ulong search_file( const T& func ) const noexcept { 
         tar_header_t head = {0}; while( pos() != size() ){ 
             head = read_header(); if( !func(head) ){ 
                 ulong siz = pos() - borrow->size() + string::to_ulong( head.size ); 
@@ -57,7 +57,7 @@ public: tar_t() noexcept : file_t(){}
     }
 
     template < class T >
-    int exists_file( T func ) const noexcept { 
+    int exists_file( const T& func ) const noexcept { 
         tar_header_t head = {0}; while( pos() != size() ){ 
             head = read_header(); if( !func(head) ){
                 ulong siz = pos() - borrow->size() + string::to_ulong( head.size ); 
