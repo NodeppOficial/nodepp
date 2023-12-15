@@ -18,12 +18,12 @@ public:
     /*─······································································─*/
 
     debug_t( const string_t& msg ) noexcept {
-        ev = process::onSIGERR([=]( int sig ){ error(); });
+        ev = process::onSIGERR([=](){ error(); });
 	    console::log( msg, "open" ); message = msg; 
     }
     
     debug_t() noexcept: message("something went wrong") {
-        ev = process::onSIGERR([=]( int sig ){ error(); });
+        ev = process::onSIGERR([=](){ error(); });
     }
     
     /*─······································································─*/
