@@ -11,7 +11,7 @@ namespace nodepp { namespace timer {
     
     template< class V, class... T >
     ptr_t<ulong> add ( const V& func, ulong* time, const T&... args ){
-        ptr_t<ulong> out = new ulong( process::millis() + *time ); 
+        ptr_t<ulong> out = new ulong( process::millis() + time ); 
         auto         prs = _timer_::timer();
         process::task::add( prs, func, out, time, args... ); 
         return out;
