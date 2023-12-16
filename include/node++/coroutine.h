@@ -20,9 +20,9 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define $Return(VALUE) do { _state_ = $LINE; $Enable; return VALUE; case $LINE:; } while (0)
-#define $Next          do { _state_ = $LINE; $Enable; return 1;     case $LINE:; } while (0)
-#define $Again         do { _state_ = $LINE; $Enable; return 0;     case $LINE:; } while (0)
+#define $Return(VALUE) do { _state_ = $Line; $Enable; return VALUE; case $Line:; } while (0)
+#define $Next          do { _state_ = $Line; $Enable; return 1;     case $Line:; } while (0)
+#define $Again         do { _state_ = $Line; $Enable; return 0;     case $Line:; } while (0)
 #define $Goto(VALUE)   do { _state_ = VALUE; $Enable; return 1;                  } while (0)
 #define $Yield(VALUE)  do { _state_ = VALUE; $Enable; return 1;     case VALUE:; } while (0)
 
@@ -87,12 +87,12 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define $FUNC  __PRETTY_FUNCTION__
-#define $NAME  __FUNCTION__
-#define $DATE  __DATE__
-#define $FILE  __FILE__
-#define $LINE  __LINE__
-#define $TIME  __TIME__
+#define $Func  __PRETTY_FUNCTION__
+#define $Name  __FUNCTION__
+#define $Date  __DATE__
+#define $File  __FILE__
+#define $Line  __LINE__
+#define $Time  __TIME__
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
