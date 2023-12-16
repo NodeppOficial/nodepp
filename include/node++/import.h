@@ -1,5 +1,5 @@
-#ifndef NODEPP_PROCESS
-#define NODEPP_PROCESS
+#ifndef NODEPP_IMPORT
+#define NODEPP_IMPORT
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
