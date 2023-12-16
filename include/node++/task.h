@@ -1,5 +1,5 @@
-#ifndef NODEPP_LOOP
-#define NODEPP_LOOP
+#ifndef NODEPP_TASK
+#define NODEPP_TASK
 
 namespace nodepp { namespace process {
 
@@ -16,7 +16,7 @@ namespace task {
     void clear(){ queue.clear(); }
 
     template< class T, class... V >
-    void add( const T& cb, const V&... arg ){ 
+    void add( const T cb, const V&... arg ){ 
         ptr_t<T> pcb = new T(cb); 
         queue.push([=](){ return (*pcb)(arg...); });
     }

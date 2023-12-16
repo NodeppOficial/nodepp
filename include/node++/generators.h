@@ -489,23 +489,23 @@ namespace nodepp { namespace _timer_ {
 
     $Generator( timer ){ public:
 
-        ulong stamp = 0;
-
         template< class V, class... T > 
-        $Emit( const V& func, const ptr_t<int>& out, ulong time, const T&... args ){
-        $Start stamp = process::millis() + time; $Next;
-            do { if(*out <= 0 )                   {  $End; }
-                 if( process::millis() >= stamp ) { break; } $Next;
-            } while( true ); if( func(args...)<0 ){  $End; } $Goto(0); 
+        $Emit( const V& func, const ptr_t<ulong>& out, ulong time, const T&... args ){
+        $Start
+            do { if(*out == 0 ) {  $End; } $Next;
+               } while( process::millis() <= *out ); 
+            if ( func(args...)<0 ){ $End; }
+            *out = process::millis() + time; $Goto(0); 
         $Stop
         }
 
         template< class V, class... T > 
         $Emit( const V& func, const ptr_t<int>& out, ulong* time, const T&... args ){
-        $Start stamp = process::millis() +*time; $Next;
-            do { if(*out <= 0 )                   {  $End; }
-                 if( process::millis() >= stamp ) { break; } $Next;
-            } while( true ); if( func(args...)<0 ){  $End; } $Goto(0); 
+        $Start
+            do { if(*out == 0 ) {  $End; } $Next;
+               } while( process::millis() <= *out ); 
+            if ( func(args...)<0 ){ $End; }
+            *out = process::millis() + time; $Goto(0); 
         $Stop
         }
 
@@ -515,23 +515,23 @@ namespace nodepp { namespace _timer_ {
 
     $Generator( utimer ){ public:
 
-        ulong stamp = 0;
-
         template< class V, class... T > 
         $Emit( const V& func, const ptr_t<int>& out, ulong time, const T&... args ){
-        $Start stamp = process::micros() + time; $Next;
-            do { if(*out <= 0 )                   {  $End; }
-                 if( process::micros() >= stamp ) { break; } $Next;
-            } while( true ); if( func(args...)<0 ){  $End; } $Goto(0); 
+        $Start
+            do { if(*out == 0 ) {  $End; } $Next;
+               } while( process::micros() <= *out ); 
+            if ( func(args...)<0 ){ $End; }
+             *out = process::micros() + time; $Goto(0); 
         $Stop
         }
 
         template< class V, class... T > 
         $Emit( const V& func, const ptr_t<int>& out, ulong* time, const T&... args ){
-        $Start stamp = process::micros() +*time; $Next;
-            do { if(*out <= 0 )                   {  $End; }
-                 if( process::micros() >= stamp ) { break; } $Next;
-            } while( true ); if( func(args...)<0 ){  $End; } $Goto(0); 
+        $Start
+            do { if(*out == 0 ) {  $End; } $Next;
+               } while( process::micros() <= *out ); 
+            if ( func(args...)<0 ){ $End; } 
+            *out = process::micros() + *time; $Goto(0);
         $Stop
         }
 
