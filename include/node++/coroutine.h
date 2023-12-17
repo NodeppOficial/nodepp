@@ -11,6 +11,21 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
+#define $Generator(NAME) struct NAME : public nodepp::NODEPP_GENERATOR
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+#define $onError( Ev, message ) if( Ev.empty() ) \
+                                  { console::error(message); exit(1); } \
+                                else Ev.emit( except_t( message ) );
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+#define $Error( MESSAGE ) throw except_t ( MESSAGE );
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #define $Ready $Init(); int main( int argc, char** args ){ \
    process::start( argc, args ); $Init(); \
    process::pipe(); return 0; \
@@ -43,6 +58,15 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#define $Func  __PRETTY_FUNCTION__
+#define $Name  __FUNCTION__
+#define $Date  __DATE__
+#define $File  __FILE__
+#define $Line  __LINE__
+#define $Time  __TIME__
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #define CHUNK_TB( VALUE ) ( 1024 * 1024 * 1024 * 1024 * VALUE )
 #define CHUNK_GB( VALUE ) ( 1024 * 1024 * 1024 * VALUE )
 #define CHUNK_MB( VALUE ) ( 1024 * 1024 * VALUE )
@@ -58,21 +82,6 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
-#define $Generator(NAME) struct NAME : public nodepp::NODEPP_GENERATOR
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-#define $onError( Ev, message ) if( Ev.empty() ) \
-                                  { console::error(message); exit(1); } \
-                                else Ev.emit( except_t( message ) );
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-#define $Error( MESSAGE ) throw except_t ( MESSAGE );
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 #define typeof(DATA) (string_t){ typeid( DATA ).name() }
 
 #define ullong  unsigned long long int
@@ -84,15 +93,6 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define uchar   unsigned char
 #define uint    unsigned int
 #define wchar   wchar_t
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-#define $Func  __PRETTY_FUNCTION__
-#define $Name  __FUNCTION__
-#define $Date  __DATE__
-#define $File  __FILE__
-#define $Line  __LINE__
-#define $Time  __TIME__
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -182,10 +182,11 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define NODEPP_ENVIRONMENT_GNU     4
-#define NODEPP_ENVIRONMENT_MSYS2   3
-#define NODEPP_ENVIRONMENT_MINGW   2
-#define NODEPP_ENVIRONMENT_CYWIN   1
+#define NODEPP_ENVIRONMENT_GNU     5
+#define NODEPP_ENVIRONMENT_MSYS2   4
+#define NODEPP_ENVIRONMENT_MINGW   3
+#define NODEPP_ENVIRONMENT_CYWIN   2
+#define NODEPP_ENVIRONMENT_WASM    1
 #define NODEPP_ENVIRONMENT_UNKNOWN 0
 
 #ifndef $ENVIRONMENT
@@ -199,6 +200,8 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #elif defined(__GNUC__)
    #define $ENVIRONMENT NODEPP_ENVIRONMENT_GNU
 */
+#elif defined(__EMSCRIPTEN__)
+   #define $ENVIRONMENT NODEPP_ENVIRONMENT_WASM
 #else
    #define $ENVIRONMENT NODEPP_ENVIRONMENT_UNKNOWN
 #endif

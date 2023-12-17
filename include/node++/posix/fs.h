@@ -1,5 +1,4 @@
 #pragma once
-#define TMP_FILE string::format("%s%s",os::tmp().c_str(),"nodepp_XXXXXX").data()
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

@@ -2,7 +2,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include <windows.h>
+#include <emscripten.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -12,16 +12,16 @@ namespace nodepp { namespace fs {
 
     file_t  writable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
 
-    file_t  cout( const ulong& _size=CHUNK_SIZE ){ return file_t( "CONOUT$", "w+", _size ); }
+    file_t  cout( const ulong& _size=CHUNK_SIZE ){ return file_t( STDOUT_FILENO, _size ); }
     
-    file_t  cerr( const ulong& _size=CHUNK_SIZE ){ return file_t( "CONERR$", "w+", _size ); }
+    file_t  cerr( const ulong& _size=CHUNK_SIZE ){ return file_t( STDERR_FILENO, _size ); }
 
-    file_t   cin( const ulong& _size=CHUNK_SIZE ){ return file_t( "CONIN$", "r+", _size ); }
+    file_t   cin( const ulong& _size=CHUNK_SIZE ){ return file_t( STDIN_FILENO, _size ); }
     
     /*─······································································─*/
 
-    string_t read_file( const string_t& path ){
-        if( path.empty() ) return ""; string_t s;
+    string_t read_file( const string_t& path ){ string_t s;
+        if( path.empty() ) return s;
         file_t _file( path, "r" );
         while( _file.is_available() )
              { s +=_file.read(); } return s;
@@ -30,27 +30,33 @@ namespace nodepp { namespace fs {
     /*─······································································─*/
 
     int copy_file( const string_t& src, const string_t& des ){ 
-        return CopyFileA( src.c_str(), des.c_str(), 0 )!=0 ? -1 : 0;
+        if( src.empty() || des.empty() ) return -1;
+        try {
+            file_t _file_a ( src, "r" );
+            file_t _file_b ( des, "w" );
+            stream::pipe( _file_a, _file_b ); 
+                       return  1;
+        } catch(...) { return -1; }
     }
     
     /*─······································································─*/
 
     int rename_file( const string_t& oname, const string_t& nname ) {
         if( oname.empty() || nname.empty() ) return -1;
-        return rename( oname.c_str(), nname.c_str() );
+        return FS.rename( oname.c_str(), nname.c_str() );
     }
     
     /*─······································································─*/
 
     int move_file( const string_t& oname, const string_t& nname ) {
-        return rename_file( oname, nname );
+        return FS.rename( oname, nname );
     }
     
     /*─······································································─*/
 
     int remove_file( const string_t& path ){
         if( path.empty() ) return -1;
-        return remove( path.c_str() );
+        return FS.rmdir( path.c_str() );
     }
     
     /*─······································································─*/
@@ -94,55 +100,55 @@ namespace nodepp { namespace fs {
     /*─······································································─*/
 
     int rename_folder( const string_t& oname, const string_t& nname ) { 
-        return rename_file( oname, nname );
+        return FS.rename( oname, nname );
     }
     
     /*─······································································─*/
 
     int move_folder( const string_t& oname, const string_t& nname ){ 
-        return rename_file( oname, nname );
+        return FS.rename( oname, nname );
     }
     
     /*─······································································─*/
 
-    int create_folder( const string_t& path, uint permission /*unused*/ ){
-        if( path.empty() ){ return -1; } 
-        return CreateDirectoryA( path.c_str(), NULL )!=0 ? -1 : 0;
+    int create_folder( const string_t& path, uint permission=0777 ){ 
+        if( path.empty() ){ return -1; }
+        return FS.mkdir( path.c_str(), permission );
     }
     
     /*─······································································─*/
 
     int remove_folder( const string_t& path ){ 
-        if( path.empty() ){ return -1; } 
-        return RemoveDirectoryA( path.c_str() )!=0 ? -1 : 0;
+        if( path.empty() ){ return -1; }
+        return FS.rmdir( path.c_str() );
     }
     
     /*─······································································─*/
 
     bool exists_folder( const string_t& path ){
-        if( path.empty() ){ return -1; } DWORD attributes = GetFileAttributesA( path.c_str() );
-        return ( attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_DIRECTORY) );
+        if( path.empty() ){ return -1; }
+        DIR* dir = opendir( path.c_str() );
+        if( dir ) { return closedir(dir); }
+                    return 0;
     }
     
     /*─······································································─*/
 
     array_t<string_t> read_folder( const string_t& path ){ 
         if( path.empty() ) $Error("Error path is empty"); 
+        DIR* dir = opendir( path.c_str() ); struct dirent* entry;
 
-        WIN32_FIND_DATAA findData; array_t<string_t> list;  
-        HANDLE hFind = FindFirstFileA( path.c_str(), &findData );
+        array_t<string_t> list; 
 
-        if( hFind == INVALID_HANDLE_VALUE )
-            $Error("Error: Failed to open directory");
-
-        while ( FindNextFileA(hFind,&findData) != 0 ){
-            string_t fileName = findData.cFileName;
-            if( fileName != "." && fileName != ".." ){
-                list.push( fileName );
-            }   
-        }
-
-        FindClose( hFind ); return list;
+        if( dir ) {
+            while ((entry = readdir(dir)) != NULL) {
+		if( string_t(entry->d_name) == ".." ) continue;
+		if( string_t(entry->d_name) == "."  ) continue;
+                list.push( entry->d_name );
+            }   closedir(dir);
+        } else {
+            $Error("Error opening directory"); 
+        }   return list;            
     }
     
     /*─······································································─*/
@@ -155,13 +161,14 @@ namespace nodepp { namespace fs {
     /*─······································································─*/
 
     bool is_folder( const string_t& path ){ return exists_folder(path); }
-
+    
     bool   is_file( const string_t& path ){ return exists_file(path); }
 
     /*─······································································─*/
 
-    int copy_folder( const string_t& opath, const string_t&  npath ){
-        return CopyFileA( opath.c_str(), npath.c_str(), 0 )!=0 ? -1 : 0;
+    int copy_folder( const string_t& opath, const string_t& npath ){
+        auto cmd = string::format( "cp -R %s %s", (char*)opath, (char*)npath );
+        return ::system( cmd.c_str() );
     }
     
 }}
