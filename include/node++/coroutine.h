@@ -96,18 +96,21 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define NODEPP_KERNEL_WINDOWS 3
-#define NODEPP_KERNEL_POSIX   2
-#define NODEPP_KERNEL_ARDUINO 1
+#define NODEPP_KERNEL_WINDOWS 4
+#define NODEPP_KERNEL_POSIX   3
+#define NODEPP_KERNEL_ARDUINO 2
+#define NODEPP_KERNEL_WASM    1
 #define NODEPP_KERNEL_UNKNOWN 0
 
 #ifndef $KERNEL
 #if defined(WINDOWS) || defined(_WIN32) || defined(_WIN64)
    #define $KERNEL NODEPP_KERNEL_WINDOWS
-#elif defined(__linux__)
-   #define $KERNEL NODEPP_KERNEL_POSIX
+#elif defined(__EMSCRIPTEN__)
+   #define $ENVIRONMENT NODEPP_ENVIRONMENT_WASM
 #elif defined(ARDUINO)
    #define $KERNEL NODEPP_KERNEL_ARDUINO
+#elif defined(__linux__)
+   #define $KERNEL NODEPP_KERNEL_POSIX
 #else
    #define $KERNEL NODEPP_KERNEL_UNKNOWN
 #endif
@@ -186,7 +189,6 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #define NODEPP_ENVIRONMENT_MSYS2   4
 #define NODEPP_ENVIRONMENT_MINGW   3
 #define NODEPP_ENVIRONMENT_CYWIN   2
-#define NODEPP_ENVIRONMENT_WASM    1
 #define NODEPP_ENVIRONMENT_UNKNOWN 0
 
 #ifndef $ENVIRONMENT
@@ -200,8 +202,6 @@ namespace nodepp { class NODEPP_GENERATOR { public: NODEPP_GENERATOR() {} }; }
 #elif defined(__GNUC__)
    #define $ENVIRONMENT NODEPP_ENVIRONMENT_GNU
 */
-#elif defined(__EMSCRIPTEN__)
-   #define $ENVIRONMENT NODEPP_ENVIRONMENT_WASM
 #else
    #define $ENVIRONMENT NODEPP_ENVIRONMENT_UNKNOWN
 #endif

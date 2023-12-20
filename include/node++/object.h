@@ -92,7 +92,6 @@ public: object_t() noexcept {}
         }
 
         else { result += "data"; }
-
         return result.data();
     }
 

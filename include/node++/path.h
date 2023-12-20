@@ -129,6 +129,13 @@ namespace path {
     
     /*─······································································─*/
 
+    string_t mimetype( const path_t& path ){
+         if( path.ext.empty() ) { return path.ext; } 
+        for( auto x: _path_::mimetype ){
+            if( regex::test( path.ext, x.first ) ){ return x.second; }
+        }   return regex::format("aplication/${0}",path.ext);
+    }
+
     string_t mimetype( const string_t& path ){
         string_t ext = extname( path ); if( ext.empty() ) 
         { return ext; } for( auto x: _path_::mimetype ){

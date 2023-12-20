@@ -5,9 +5,8 @@ using namespace nodepp;
 
 void $Ready() {
 	
-    string_t uri = "http://becerra:enmanuel@www.google.com/mojon#done?mojon=10";
-
-    auto ppt = url::parse( uri ); 
+    string_t uri = "http://becerra:enmanuel@www.google.com/mojon/agrio/verdoso#done?mojon=10";
+    auto     ppt = url::parse( uri ); 
 
     console::log( "hostname:", ppt.hostname );
     console::log( "protocol:", ppt.protocol );

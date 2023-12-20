@@ -6,7 +6,7 @@ using namespace nodepp;
 void $Ready() {
 
     auto t = timer::interval([=](){ 
-        static int i=0; i++; i%=1000;
+        static int i=0; i++; i %= 1000;
         console::done(" interval every: 1 second - ",i," seconds");
     },1000);
 

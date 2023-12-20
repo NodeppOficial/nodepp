@@ -5,19 +5,19 @@ using namespace nodepp;
 void $Ready() {
 
     process::loop::add([=](){ static int itr = 10;
-    _Start
+    $Start
         while( itr --> 0 ){
-            console::done(" Coroutine 1:",itr); _Yield(1);
+            console::done(" Coroutine 1:",itr); $Next;
         }
-    _Stop
+    $Stop
     });
 
     process::loop::add([=](){ static int itr = 10;
-    _Start
+    $Start
         while( itr --> 0 ){
-            console::error("Coroutine 2:",itr); _Yield(1);
+            console::error("Coroutine 2:",itr); $Next;
         }
-    _Stop
+    $Stop
     });
 
 }

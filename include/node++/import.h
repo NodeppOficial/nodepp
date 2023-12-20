@@ -16,10 +16,10 @@
 
 #include "type.h"
 #include "buffer.h"
-#include "function.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#include "function.h"
 #include "string.h"
 #include "array.h"
 #include "queue.h"
