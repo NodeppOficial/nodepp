@@ -64,16 +64,15 @@ public: udp_t() noexcept : obj( new _str_() ) {}
 
     void connect( const string_t& host, int port, decltype(obj->func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1;
+        ptr_t<udp_t> self = new udp_t( *this );
 
         socket_t sk = socket_t(); 
                  sk.PROT = IPPROTO_UDP;
                  sk.SOCK = SOCK_DGRAM;
                  sk.socket(host,port);  
                  sk.set_sockopt(obj->agent);
-
-        ptr_t<udp_t> self = new udp_t( *this );
         
-        if( sk.connect() < 0 ){ $onError(onError,"Error while accepting UDP"); close(); return;  }
+    //  if( sk.connect() < 0 ){ $onError(onError,"Error while accepting UDP"); close(); return;  }
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }
