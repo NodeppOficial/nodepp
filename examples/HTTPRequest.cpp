@@ -12,7 +12,7 @@ void $Ready(){
     .then([]( auto cli ){
         console::log( cli.headers["Host"] );
         cli.onData([]( string_t chunk ){
-            console::log( chunk.size(), ":>", chunk );
+            console::log( chunk );
         }); stream::pipe( cli );
     })
 

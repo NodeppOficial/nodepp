@@ -3,7 +3,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if $KERNEL == NODEPP_KERNEL_WINDOWS //Nothing
+#if $KERNEL == NODEPP_KERNEL_WINDOWS
 #include "fs.h"
 #include "windows/serial.h"
 #elif $KERNEL == NODEPP_KERNEL_POSIX

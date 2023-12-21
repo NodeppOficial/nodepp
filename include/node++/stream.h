@@ -9,11 +9,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp {
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace stream {
+namespace nodepp { namespace stream {
 
     template< class T > void unpipe( const T& input ){ input.stop(); }
     
@@ -56,10 +52,8 @@ namespace stream {
         }   return result;
     }
 
-}
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-
-}
 
 #endif

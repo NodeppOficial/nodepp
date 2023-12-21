@@ -30,6 +30,8 @@ protected:
 
     bool icase=false, multi=false, dotl=false;
 
+    _str_* null() const noexcept { _str_* nw = new _str_; nw->data = 1; return nw; }
+
     void add_new( _str_*& act, _str_*& prv, char data ) const noexcept {
         _str_* nw = new _str_; nw->data = data; 
         act->nxt.push( nw ); prv = act; act = nw;
@@ -49,10 +51,6 @@ protected:
         
     }
 
-    _str_* null() const noexcept { 
-        _str_* nw = new _str_; nw->data = 1; return nw; 
-    }
-
     void add_flag( const char& flag, _str_* act ) const noexcept {
         switch( string::to_lower(flag) ){
             case 'b': act->f = 1; act->data = flag; break;
@@ -63,13 +61,13 @@ protected:
         }
     }
 
-    _str_* compile( string_t* _reg ) const { 
+    _str_* compile( const string_t& _reg ) const { 
         
         _str_* root = new _str_;
         _str_* prv = nullptr;
         _str_* act = root;
 
-        for( ulong i=0; i<_reg->size(); i++ ){ char x = (*_reg)[i];
+        for( ulong i=0; i<_reg.size(); i++ ){ char x = _reg[i];
 
             if( x == ']' || x == '}' || x == ')' ){
                 $Error(string::format( "regex at character: %d", i ));
@@ -96,7 +94,7 @@ protected:
     /*─······································································─*/
 
             if( x == '\\' || x == '.' ){ add_new( act, prv, 0 );
-                if( x == '\\' ){ add_flag( (*_reg)[i+1], act ); i++; }
+                if( x == '\\' ){ add_flag( _reg[i+1], act ); i++; }
                 if( x == '.' ){ act->f = 1; act->data = '.'; }                                       
                 continue;
             }
@@ -106,7 +104,7 @@ protected:
             if( x == '{' ){ i++; string_t s; ulong j=0; int k=0; _str_* nw = new _str_;
                 if( prv == nullptr ){ $Error(string::format( "regex at character: %d", i )); }
 
-                while( i<_reg->size() ){ char y = (*_reg)[i];
+                while( i<_reg.size() ){ char y = _reg[i];
                     if( y == ',' ){ nw->rep[j] = string::to_ulong(s); s.clear(); i++; j++; continue; }
                     if( y == '}' ){ if( !s.empty() ){ nw->rep[j] = string::to_ulong(s); s.clear(); } k--; break; } 
                     if( !string::is_digit(y) ){ $Error(string::format( "regex at character: %d", i )); } s.push(y); i++;
@@ -122,7 +120,7 @@ protected:
 
             if( x == '[' ){ i++; string_t s; ulong j=0; int k=0, n=0; add_new( act, prv, 0 );
 
-                while( i<_reg->size() ){ char y = (*_reg)[i];
+                while( i<_reg.size() ){ char y = _reg[i];
                     if( j == 0 && y == '^' ){ n = true; i++; j++; continue; }
                     if( y == ']' ){ k--; break; } s.push(y); i++; j++;
                 }   if( k!=-1 ){ $Error(string::format( "regex at character: %d", i )); }
@@ -145,12 +143,12 @@ protected:
             }
 
             if( x == '(' ){ i++; string_t s; add_new( act, prv, 0 ); long j=0;
-                while( i<_reg->size() ){ char y = (*_reg)[i]; 
+                while( i<_reg.size() ){ char y = _reg[i]; 
                     if( y == '(' ){ j++; } else if( y == ')' ){ j--; }
                     if( j<0 && y == ')' ){ break; } s.push(y); i++; 
                 } if( j!=-1 ) { 
                     $Error(string::format( "regex at character: %d", i )); }
-                if( !s.empty() ){ act->alt = compile(&s); } continue;
+                if( !s.empty() ){ act->alt = compile(s); } continue;
             }
     
     /*─······································································─*/
@@ -249,12 +247,12 @@ protected:
     
 public: regex_t() noexcept {}
 
-    regex_t( string_t _reg, const string_t& _flags="" ) noexcept {
+    regex_t( const string_t& _reg, const string_t& _flags="" ) noexcept {
         for( auto x:_flags ){ switch(x){
             case 'i': icase = true; break;
             case 'm': multi = true; break; //not available
             case 's': dotl  = true; break; //not available
-        }}  root = compile( &_reg );
+        }}  root = compile( _reg );
     }
     
     /*─······································································─*/

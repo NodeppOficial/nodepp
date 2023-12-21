@@ -12,13 +12,13 @@ public:
 
     template< class T > variant_t( const T& V ) noexcept : any_t(V), idx(new int( get_index<T,Types...>::value )) {}
        variant_t( const char* V ) noexcept : any_t(V), idx(new int( get_index<string_t,Types...>::value )) {}
-       variant_t() noexcept : any_t(), idx(new int(0)) {}
+       variant_t() noexcept : any_t(), idx(new int(-1)) {}
     
     /*─······································································─*/
     
     template< class T >
     int get_type_id() const noexcept { return get_index<T,Types...>::value; }
-    int get_type_id() const noexcept { return idx == nullptr ? 0 : *idx; }
+    int get_type_id() const noexcept { return idx == nullptr ? -1 : *idx; }
     
     /*─······································································─*/
 

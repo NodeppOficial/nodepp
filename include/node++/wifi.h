@@ -3,7 +3,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if $KERNEL == NODEPP_KERNEL_WINDOWS //Nothing
+#if $KERNEL == NODEPP_KERNEL_WINDOWS
 #include "windows/wifi.h"
 #elif $KERNEL == NODEPP_KERNEL_POSIX
 #include "posix/wifi.h"

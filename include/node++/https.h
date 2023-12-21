@@ -100,22 +100,8 @@ public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { struct https_fetch_t {
-
-    ssl_t*     ssl = nullptr;
-    file_t*   body = nullptr;
-    agent_t* agent = nullptr;
-    
-    /*─······································································─*/
-
-    http_header_t headers;
-    
-    /*─······································································─*/
-
-    string_t     url;
-    string_t  method = "GET";
-    string_t version = "HTTP/1.0";
-    
+namespace nodepp { struct https_fetch_t : public http_fetch_t {
+          ssl_t*   ssl = nullptr;
 };}
 
 /*────────────────────────────────────────────────────────────────────────────*/

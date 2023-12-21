@@ -9,11 +9,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp {
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-class ssl_t { 
+namespace nodepp { class ssl_t { 
 protected:
     
     using onSNI = function_t<ssl_t*,string_t>;
@@ -225,10 +221,8 @@ public: ssl_t() noexcept : obj( new _str_() ) {}
 
     void free() const noexcept { force_close(); } 
     
-};
+};}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-
-}
 
 #endif
