@@ -11,7 +11,7 @@ namespace nodepp { namespace console {
     int pout( const V& argc, const T&... args ){ return fprintf( stdout, (char*)argc, args... ); }
 
     template< class V, class... T >
-    int scan( const V& argc, const T&... args ){ return scanf( (char*)format, args... ); }
+    int scan( const V& argc, const T&... args ){ return scanf( (char*)argc, args... ); }
     
     /*─······································································─*/
 
