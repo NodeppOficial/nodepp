@@ -6,39 +6,39 @@
 namespace nodepp { namespace string {
 
     template< class U, class T >
-    void map( const U& func, const T& argc ){ func( string::to_string(argc) ); }
+    void map( U func, const T& argc ){ func( string::to_string(argc) ); }
 
     template< class U, class T, class... V > 
-    void map( const U& func, const T& argc, const V&... args ){ func( string::to_string(argc) ); string::map( func, args... ); }
+    void map( U func, const T& argc, const V&... args ){ func( string::to_string(argc) ); string::map( func, args... ); }
 
     /*─······································································─*/
 
     template< class U, class T, class... V > 
-    long count( const U& func, const T& argc, const V&... args ){ ulong n = 0;
+    long count( U func, const T& argc, const V&... args ){ ulong n = 0;
 	    string::map([&]( T argc ){ if( func(argc) ) n++; }, argc, args... ); return n;
     }
 
     template< class U, class T, class... V > 
-    T reduce( const U& func, const T& argc, const V&... args ){ T act = argc;
+    T reduce( U func, const T& argc, const V&... args ){ T act = argc;
 	    string::map([&]( T argc ){ act = func( act, argc ); }, args... ); return act;
     }
     
     /*─······································································─*/
 
     template< class U, class T, class... V > 
-    bool every( const U& func, const T& argc, const V&... args ){ ulong n = 0;
+    bool every( U func, const T& argc, const V&... args ){ ulong n = 0;
 	    string::map([&]( T argc ){ if( func(argc) ) n++; }, argc, args... ); 
 	    return ( n == (sizeof...(V)+1) );
     }
 
     template< class U, class T, class... V > 
-    bool some( const U& func, const T& argc, const V&... args ){ ulong n = 0;
+    bool some( U func, const T& argc, const V&... args ){ ulong n = 0;
 	    string::map([&]( T argc ){ if( func(argc) ) n++; }, argc, args... ); 
 	    return ( n > 0 );
     }
 
     template< class U, class T, class... V > 
-    bool none( const U& func, const T& argc, const V&... args ){ ulong n = 0;
+    bool none( U func, const T& argc, const V&... args ){ ulong n = 0;
 	    string::map([&]( T argc ){ if( func(argc) ) n++; }, argc, args... ); 
 	    return ( n == 0 );
     }
@@ -75,39 +75,39 @@ namespace nodepp { namespace string {
 namespace nodepp { namespace iterator {
 
     template< class U, class T >
-    void map( const U& func, const T& argc ){ func( argc ); }
+    void map( U func, const T& argc ){ func( argc ); }
 
     template< class U, class T, class... V > 
-    void map( const U& func, const T& argc, const V&... args ){ func( argc ); iterator::map( func, args... ); }
+    void map( U func, const T& argc, const V&... args ){ func( argc ); iterator::map( func, args... ); }
 
     /*─······································································─*/
 
     template< class U, class T, class... V > 
-    long count( const U& func, const T& argc, const V&... args ){ ulong n = 0;
+    long count( U func, const T& argc, const V&... args ){ ulong n = 0;
 	    iterator::map([&]( T argc ){ if( func(argc) ) n++; }, argc, args... ); return n;
     }
 
     template< class U, class T, class... V > 
-    T reduce( const U& func, const T& argc, const V&... args ){ T act = argc;
+    T reduce( U func, const T& argc, const V&... args ){ T act = argc;
 	    iterator::map([&]( T argc ){ act = func( act, argc ); }, args... ); return act;
     }
     
     /*─······································································─*/
 
     template< class U, class T, class... V > 
-    bool every( const U& func, const T& argc, const V&... args ){ ulong n = 0;
+    bool every( U func, const T& argc, const V&... args ){ ulong n = 0;
 	    iterator::map([&]( T argc ){ if( func(argc) ) n++; }, argc, args... ); 
 	    return ( n == (sizeof...(V)+1) );
     }
 
     template< class U, class T, class... V > 
-    bool some( const U& func, const T& argc, const V&... args ){ ulong n = 0;
+    bool some( U func, const T& argc, const V&... args ){ ulong n = 0;
 	    iterator::map([&]( T argc ){ if( func(argc) ) n++; }, argc, args... ); 
 	    return ( n > 0 );
     }
 
     template< class U, class T, class... V > 
-    bool none( const U& func, const T& argc, const V&... args ){ ulong n = 0;
+    bool none( U func, const T& argc, const V&... args ){ ulong n = 0;
 	    iterator::map([&]( T argc ){ if( func(argc) ) n++; }, argc, args... ); 
 	    return ( n == 0 );
     }

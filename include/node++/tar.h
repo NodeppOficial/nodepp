@@ -47,7 +47,7 @@ public: tar_t() noexcept : file_t(){}
     }
 
     template < class T >
-    ulong search_file( const T& func ) const noexcept { 
+    ulong search_file( T func ) const noexcept { 
         tar_header_t head = {0}; while( pos() != size() ){ 
             head = read_header(); if( !func(head) ){ 
                 ulong siz = pos() - borrow->size() + string::to_ulong( head.size ); 
@@ -57,7 +57,7 @@ public: tar_t() noexcept : file_t(){}
     }
 
     template < class T >
-    int exists_file( const T& func ) const noexcept { 
+    int exists_file( T func ) const noexcept { 
         tar_header_t head = {0}; while( pos() != size() ){ 
             head = read_header(); if( !func(head) ){
                 ulong siz = pos() - borrow->size() + string::to_ulong( head.size ); 

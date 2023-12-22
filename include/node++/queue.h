@@ -129,7 +129,7 @@ public: queue_t() noexcept {}
     
     /*─······································································─*/
 
-    long index_of( const function_t<bool,V&>& func ) const noexcept {
+    long index_of( function_t<bool,V> func ) const noexcept {
         long i=0; self* n = first(); if( empty() ){ return -1; } 
         while( n!=nullptr ) { 
             if( func(n->data)== 1 ){ return i; }
@@ -138,7 +138,7 @@ public: queue_t() noexcept {}
         }   return -1;
     }
 
-    ulong count( const function_t<bool,V&>& func ) const noexcept { 
+    ulong count( function_t<bool,V> func ) const noexcept { 
         ulong i=0; self* n = first(); if( empty() ){ return 0; } 
         while( n!=nullptr ) { 
             if( func(n->data)== 1 ){ i++; }
@@ -149,7 +149,7 @@ public: queue_t() noexcept {}
     
     /*─······································································─*/
 
-    bool some( const function_t<bool,V&>& func ) const noexcept {
+    bool some( function_t<bool,V> func ) const noexcept {
         if( empty() ){ return false; } self* n = first(); 
         while( n!=nullptr ) { 
             if( func(n->data)== 1 ){ return 1; }
@@ -158,7 +158,7 @@ public: queue_t() noexcept {}
         }   return 0;
     }
 
-    bool none( const function_t<bool,V&>& func ) const noexcept {
+    bool none( function_t<bool,V> func ) const noexcept {
         if( empty() ) return false;
         self* n = first(); while( n!=nullptr ) { 
             if( func(n->data)== 1 ){ return 0; }
@@ -167,7 +167,7 @@ public: queue_t() noexcept {}
         }   return 1;
     }
 
-    bool every( const function_t<bool,V&>& func ) const noexcept {
+    bool every( function_t<bool,V> func ) const noexcept {
         if( empty() ) return false;
         self* n = first(); while( n!=nullptr ) { 
             if( func(n->data)== 0 ){ return 0; }
@@ -176,7 +176,7 @@ public: queue_t() noexcept {}
         }   return 1;
     }
 
-    void map( const function_t<void,V&>& func ) const noexcept {
+    void map( function_t<void,V> func ) const noexcept {
         if( empty() ){ return; } self* n = first(); 
         while( n!=nullptr ){ func( n->data ); n = n->nxt; }
     }

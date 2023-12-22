@@ -201,7 +201,7 @@ namespace nodepp { struct http_fetch_t {
 
 namespace nodepp { namespace http {
 
-    template< class T > tcp_t server( const T& cb, agent_t* opt=nullptr ){
+    template< class T > tcp_t server( T cb, agent_t* opt=nullptr ){
         return tcp_t([=]( http_t cli ){ int c=0;
             while(( c=cli.read_header() ) > 0 )
                  { process::next(); }
@@ -212,7 +212,7 @@ namespace nodepp { namespace http {
     
     /*─······································································─*/
 
-    template< class T > tcp_t client( const T& cb, agent_t* opt=nullptr ){ 
+    template< class T > tcp_t client( T cb, agent_t* opt=nullptr ){ 
         return tcp_t([=]( http_t cli ){ cb( cli ); }, opt ); 
     }
     

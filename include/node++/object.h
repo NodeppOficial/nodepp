@@ -70,7 +70,7 @@ public:
     /*─······································································─*/
 
     template< class U >
-    void map( const U& cb ) const noexcept {
+    void map( U cb ) const noexcept {
 
         if( get_type_id() == get_type_id<NODE_OBJECT>() ){
             auto y = 0; for( auto x : type::cast<NODE_ARRAY>(memory) ){

@@ -13,7 +13,7 @@ namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace { template< class T, class U > void WSServer( T cli, const U& cb ) {
+namespace { template< class T, class U > void WSServer( T cli, U cb ) {
     
     auto data = cli.read(); cli.set_borrow( data ); int c=0;
     
@@ -42,7 +42,7 @@ namespace { template< class T, class U > void WSServer( T cli, const U& cb ) {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace { template< class U, class T, class V > U WSClient( const T& fetch, const string_t& key, const V& cb ) {
+namespace { template< class U, class T, class V > U WSClient( const T& fetch, const string_t& key, V cb ) {
     auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) $Error( tuple::get<2>(res).what() );
     auto cli = tuple::get<1>(res);
 

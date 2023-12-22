@@ -23,14 +23,14 @@ public: event_t() noexcept : once_queue(new ev), every_queue(new ev) {}
 
     void emit( const A&... args ) const noexcept {
         every_queue->map([=]( _str_ arg ){ arg.cb(args...); });
-        once_queue->map([=]( _str_ arg ){ arg.cb(args...); });
+        once_queue->map([=]( _str_ arg ) { arg.cb(args...); });
         if( !once_queue->empty() ) once_queue->clear();
     }
     
     /*─······································································─*/
 
     ulong empty() const noexcept { return ( every_queue->empty() && once_queue->empty() ); }
-    ulong operator()( const function_t<void,A...>& func ) const noexcept { return on(func); }
+    ulong operator()( function_t<void,A...> func ) const noexcept { return on(func); }
     ulong  size() const noexcept { return once_queue->size() + every_queue->size(); }
     void  clear() const noexcept { every_queue->clear(); once_queue->clear(); }
     
@@ -42,13 +42,13 @@ public: event_t() noexcept : once_queue(new ev), every_queue(new ev) {}
         every_queue->erase( every_queue->get( index_A ) ); once_queue->erase( once_queue->get( index_B ) );
     }
 
-    ulong once( const function_t<void,A...>&func ) const noexcept {
+    ulong once( function_t<void,A...> func ) const noexcept {
         ulong _hash = nodepp::hash::hash();
         once_queue->push({ _hash, func }); 
         return _hash;
     }
 
-    ulong on( const function_t<void,A...>& func ) const noexcept {
+    ulong on( function_t<void,A...> func ) const noexcept {
         ulong _hash = nodepp::hash::hash();
         every_queue->push({ _hash, func });
         return _hash;

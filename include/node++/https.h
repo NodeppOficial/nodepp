@@ -108,7 +108,7 @@ namespace nodepp { struct https_fetch_t : public http_fetch_t {
 
 namespace nodepp { namespace https {
 
-    template< class T > tls_t server( const T& cb, ssl_t* ctx, agent_t* opt=nullptr ){
+    template< class T > tls_t server( T cb, ssl_t* ctx, agent_t* opt=nullptr ){
         return tls_t([=]( https_t cli ){ int c=0;
             while(( c=cli.read_header() ) > 0 )
                  { process::next(); }
@@ -119,7 +119,7 @@ namespace nodepp { namespace https {
     
     /*─······································································─*/
 
-    template< class T > tls_t client( const T& cb, ssl_t* ctx, agent_t* opt=nullptr ){ 
+    template< class T > tls_t client( T cb, ssl_t* ctx, agent_t* opt=nullptr ){ 
         auto client = tls::client( ctx, opt );
         client.onOpen( cb ); return client;
     }

@@ -15,7 +15,7 @@ public:
     virtual ~function_t() noexcept = default;
     
     template< class F >
-    function_t( const F& f ) : func_ptr( new func_impl<F>(f) ) {}
+    function_t( F f ) : func_ptr( new func_impl<F>(f) ) {}
     
     /*─······································································─*/
     

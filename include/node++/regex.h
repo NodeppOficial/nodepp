@@ -20,7 +20,7 @@ protected:
             if(   x!=nullptr ){ delete x; x = nullptr; }
         }   if( alt!=nullptr ){ delete alt; alt = nullptr; } }
 
-        void pipe( const function_t<_str_*,_str_*>& cb ){
+        void pipe( function_t<_str_*,_str_*> cb ){
             _str_* n = this; while( n!=nullptr ){
                 idx = 0; n = cb( n );
             }

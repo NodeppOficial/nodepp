@@ -47,7 +47,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    bth_t( const decltype(func)& _func, agent_t* opt ) noexcept : obj( new _str_() ) 
+    bth_t( decltype(func) _func, agent_t* opt ) noexcept : obj( new _str_() ) 
          { obj->agent=opt; obj->func=_func; }
     
     /*─······································································─*/
@@ -87,7 +87,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
 
     }
 
-    void listen( const string_t& host, int port, const decltype(func)& cb ) const noexcept { 
+    void listen( const string_t& host, int port, decltype(func) cb ) const noexcept { 
          listen( host, port, &cb ); 
     }
     
@@ -110,7 +110,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
 
     }
 
-    void connect( const string_t& host, int port, const decltype(func)& cb ) const noexcept { 
+    void connect( const string_t& host, int port, decltype(func) cb ) const noexcept { 
          connect( host, port,&cb ); 
     }
 

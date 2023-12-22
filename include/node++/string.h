@@ -153,34 +153,34 @@ public:
     
     /*─······································································─*/
 
-    long index_of( const function_t<bool,char&>& func ) const noexcept { long i=0;
+    long index_of( function_t<bool,char> func ) const noexcept { long i=0;
         for( auto x : *this ){ if( func(x) ) return i; i++; } return -1;
     }
 
-    ulong count( const function_t<bool,char&>& func ) const noexcept { ulong n=0; 
+    ulong count( function_t<bool,char> func ) const noexcept { ulong n=0; 
         for( auto x : *this ){ if( func(x) ) n++; } return n;
     }
     
     /*─······································································─*/
 
-    char reduce( const function_t<char,char&,char&>& func ) const noexcept { char act = (*this)[0];
+    char reduce( function_t<char,char,char> func ) const noexcept { char act = (*this)[0];
         for( auto x=this->begin() + 1; x != this->end(); x++ )
            { act = func( act, *x ); } return act;
     }
 
-    bool some( const function_t<bool,char&>& func ) const noexcept { 
+    bool some( function_t<bool,char> func ) const noexcept { 
         for( auto x : *this ){ if( func(x) ) return 1; } return 0;
     }
 
-    bool none( const function_t<bool,char&>& func ) const noexcept { 
+    bool none( function_t<bool,char> func ) const noexcept { 
         for( auto x : *this ){ if( func(x) ) return 0; } return 1;
     }
 
-    bool every( const function_t<bool,char&>& func ) const noexcept { 
+    bool every( function_t<bool,char> func ) const noexcept { 
         for( auto x : *this ){ if(!func(x) ) return 0; } return 1;
     }
 
-    void map( const function_t<void,char&>& func ) const noexcept { 
+    void map( function_t<void,char> func ) const noexcept { 
         for( auto x : *this ) func(x);
     }
     
@@ -197,7 +197,7 @@ public:
     
     /*─······································································─*/
 
-    string_t remove( const function_t<bool,char&>& func ) noexcept {
+    string_t remove( function_t<bool,char> func ) noexcept {
         ulong n=size(); while( n-->0 ){ if( func((*this)[n]) ) erase(n); } return (*this);
     }
 
@@ -209,7 +209,7 @@ public:
         ulong n=size(); for( auto x : *this ){ n--; n_buffer[n]=x; } return n_buffer;
     }
     
-    string_t replace( const function_t<bool,char&>& func, char targ ) const noexcept {
+    string_t replace( function_t<bool,char> func, char targ ) const noexcept {
         for( auto& x : *this ){ if(func(x)) x=targ; } return (*this); 
     }
 
@@ -222,7 +222,7 @@ public:
     
     /*─······································································─*/
 
-    string_t sort( const function_t<bool,char,char>& func ) const noexcept {
+    string_t sort( function_t<bool,char,char> func ) const noexcept {
         auto n_buffer = copy();
 
         while(1){ ulong nn = 0; for( ulong i=0; i<size(); i++ ){

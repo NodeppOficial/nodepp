@@ -16,7 +16,7 @@ namespace task {
     void clear(){ queue.clear(); }
 
     template< class T, class... V >
-    void add( const T cb, const V&... arg ){ 
+    void add( T cb, const V&... arg ){ 
         ptr_t<T> pcb = new T(cb); 
         queue.push([=](){ return (*pcb)(arg...); });
     }
@@ -43,7 +43,7 @@ namespace loop {
     void clear(){ queue.clear(); }
 
     template< class T, class... V >
-    void add( const T& cb, const V&... arg ){ 
+    void add( T cb, const V&... arg ){ 
         ptr_t<T> pcb = new T(cb); 
         queue.push([=](){ return (*pcb)(arg...); });
     }
@@ -70,7 +70,7 @@ namespace poll {
     void clear(){ queue.clear(); }
 
     template< class T, class... V >
-    void add( const T& cb, const V&... arg ){ 
+    void add( T cb, const V&... arg ){ 
         ptr_t<T> pcb = new T(cb); 
         queue.push([=](){ return (*pcb)(arg...); });
     }

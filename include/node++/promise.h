@@ -10,8 +10,8 @@
 namespace nodepp { namespace promise {
 
     template< class T, class V > void resolve( 
-        const function_t<void,function_t<void,T>,function_t<void,V>>& func,
-        const function_t<void,T>& res, const function_t<void,V>& rej
+        function_t<void,function_t<void,T>,function_t<void,V>> func,
+        function_t<void,T> res, function_t<void,V> rej
     ){  process::task::add([=](){ func(
             [=]( T data ){ res(data); },
             [=]( V data ){ rej(data); }
@@ -21,10 +21,9 @@ namespace nodepp { namespace promise {
     /*─······································································─*/
 
     template< class T > void resolve( 
-        const function_t<void,function_t<void,T>>& func,
-        const function_t<void,T>& res
-    ){  process::task::add([=](){ 
-        func(
+        function_t<void,function_t<void,T>> func,
+        function_t<void,T> res
+    ){  process::task::add([=](){ func(
             [=]( T data ){ res(data); }
         ); return -1; });
     }
@@ -32,7 +31,7 @@ namespace nodepp { namespace promise {
     /*─······································································─*/
 
     template< class T > T await ( 
-        const function_t<void,function_t<void,T>>& func 
+        function_t<void,function_t<void,T>> func 
     ){  T result; ptr_t<int> done = new int(0); 
         resolve<T>( func, [&]( T res ){ result = res; *done = 1; });
         while( *done == 0 ){ process::next(); } return result;
@@ -41,7 +40,7 @@ namespace nodepp { namespace promise {
     /*─······································································─*/
 
     template< class T, class V > tuple_t<int,T,V> await ( 
-        const function_t<void,function_t<void,T>,function_t<void,V>>& func 
+        function_t<void,function_t<void,T>,function_t<void,V>> func 
     ){  T res; V rej; int st=-1; ptr_t<int> done = new int(0); 
         promise::resolve<T,V>( func, 
             [&]( T _data ){ res = _data; st=0; *done = 1; }, 
@@ -66,19 +65,18 @@ protected:
         function_t<void,function_t<void,T>,function_t<void,V>> main_func;
         function_t<void,T> res_func;
         function_t<void,V> rej_func;
-        function_t<void>   fin_func;
-        int state = 0;
+        function_t<void>   fin_func; int state = 0;
     };  ptr_t<_str_> obj = new _str_();
 
 public:
 
-    promise_t& then( const decltype(obj->res_func)& cb ) noexcept { obj->state=2; obj->res_func = cb; return (*this); }
+    promise_t& then( decltype(obj->res_func) cb ) noexcept { obj->state=2; obj->res_func = cb; return (*this); }
     
-    promise_t& fail( const decltype(obj->rej_func)& cb ) noexcept { obj->state=2; obj->rej_func = cb; return (*this); }
+    promise_t& fail( decltype(obj->rej_func) cb ) noexcept { obj->state=2; obj->rej_func = cb; return (*this); }
 
     /*─······································································─*/
 
-    promise_t( const decltype(obj->main_func)& cb ) noexcept { obj->main_func = cb; }
+    promise_t( decltype(obj->main_func) cb ) noexcept { obj->main_func = cb; }
 
     virtual ~promise_t() noexcept {
         if( obj.count()>1 || obj->state != 2 ){ return; } obj->state=0;
