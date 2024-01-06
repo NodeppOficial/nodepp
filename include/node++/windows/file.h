@@ -11,8 +11,8 @@ protected:
 
     struct _str_ {
         ulong        range[2] = { 0, 0 };
-        OVERLAPPED   ov    = {0};
-        int          state = 0;
+        OVERLAPPED   ov       = { 0 };
+        int          state    =   0;
         ptr_t<char>  buffer;
         string_t     borrow;
         HANDLE       fd;
