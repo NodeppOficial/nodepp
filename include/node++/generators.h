@@ -539,3 +539,119 @@ namespace nodepp { namespace _timer_ {
 
 }}
 #endif
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+#if !defined(GENERATOR_WS) && defined(NODEPP_WS)
+    #define  GENERATOR_WS
+namespace nodepp { 
+
+    template< class T, class U > void WSServer( T cli, U cb ) {
+        
+        auto data = cli.read(); cli.set_borrow( data ); int c=0;
+        
+        while(( c=cli.read_header() )>0 ){ process::next(); }
+           if(  c == -1  ){ return; }
+
+        if( !cli.headers["Sec-Websocket-Key"].empty() ){
+
+            string_t sec = regex::match(cli.headers["Sec-Websocket-Key"],"[^\\s\n ]+");
+            string_t key = sec + SECRET;
+
+                auto sha = crypto::SHA1();         sha.update(key);
+                auto b64 = crypto::enc::BASE64();  b64.update(sha.get());
+                auto enc = b64.get().slice(0,-1);
+
+            cli.write_headers( 101, {{
+                { "Sec-Websocket-Accept", enc },
+                { "Connection", "Upgrade" },
+                { "Upgrade", "Websocket" }
+            }});
+
+            cb(); cli.stop(); return;
+        }   cli.set_borrow( data );
+
+    }
+    
+    /*─······································································─*/
+
+    template< class U, class T, class V > U WSClient( const T& fetch, const string_t& key, V cb ) {
+        auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) $Error( tuple::get<2>(res).what() );
+        auto cli = tuple::get<1>(res);
+
+        if( cli.status != 101 ){ $onError(cli.onError,"WSE: Can't connect to WS Server"); }
+        if(!cli.headers["Sec-Websocket-Accept"].empty() ){
+
+            string_t dta = regex::match(cli.headers["Sec-Websocket-Accept"],"[^\\s\n ]+");
+            string_t sec = key + SECRET;
+
+                auto sha = crypto::SHA1();         sha.update(sec);
+                auto b64 = crypto::enc::BASE64();  b64.update(sha.get());
+                auto enc = b64.get().slice(0,-1);
+
+        if( dta != enc ){ $onError(cli.onError,"WSE: secret key does not match"); } 
+            cb(cli); cli.stop();
+        }   return cli;
+
+    }
+
+}
+#endif
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+#if !defined(GENERATOR_WSS) && defined(NODEPP_WSS)
+    #define  GENERATOR_WSS
+namespace nodepp { 
+    
+    namespace { template< class T, class U > void WSServer( T cli, U cb ) {
+        
+        auto data = cli.read(); cli.set_borrow( data ); int c=0;
+        
+        while(( c=cli.read_header() )>0 ){ process::next(); }
+           if(  c == -1  ){ return; }
+
+        if( !cli.headers["Sec-Websocket-Key"].empty() ){
+
+            string_t sec = regex::match(cli.headers["Sec-Websocket-Key"],"[^\\s\n ]+");
+            string_t key = sec + SECRET;
+
+                auto sha = crypto::SHA1();         sha.update(key);
+                auto b64 = crypto::enc::BASE64();  b64.update(sha.get());
+                auto enc = b64.get().slice(0,-1);
+
+            cli.write_headers( 101, {{
+                { "Sec-Websocket-Accept", enc },
+                { "Connection", "Upgrade" },
+                { "Upgrade", "Websocket" }
+            }});
+
+            cb(); cli.stop(); return;
+        }   cli.set_borrow( data );
+
+    }}
+    
+    /*─······································································─*/
+
+    namespace { template< class U, class T, class V > U WSClient( const T& fetch, const string_t& key, V cb ) {
+        auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) $Error( tuple::get<2>(res).what() );
+        auto cli = tuple::get<1>(res);
+
+        if( cli.status != 101 ){ $onError(cli.onError,"WSE: Can't connect to WS Server"); }
+        if(!cli.headers["Sec-Websocket-Accept"].empty() ){
+
+            string_t dta = regex::match(cli.headers["Sec-Websocket-Accept"],"[^\\s\n ]+");
+            string_t sec = key + SECRET;
+
+                auto sha = crypto::SHA1();         sha.update(sec);
+                auto b64 = crypto::enc::BASE64();  b64.update(sha.get());
+                auto enc = b64.get().slice(0,-1);
+
+        if( dta != enc ){ $onError(cli.onError,"WSE: secret key does not match"); } 
+            cb(cli); cli.stop();
+        }   return cli;
+
+    }}
+
+}
+#endif
