@@ -1,9 +1,13 @@
-#include <node++/node++.h>
-#include <node++/tcp.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/tcp.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() {
 
     auto server = tcp::server();
 
@@ -20,7 +24,9 @@ void _Ready() {
     });
 
     server.listen( "localhost", 8000, []( socket_t srv ){
-        console::log("server started at http://localhost:8000");
+        console::log("server started at tcp://localhost:8000");
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

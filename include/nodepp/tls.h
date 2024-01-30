@@ -1,0 +1,208 @@
+#ifndef NODEPP_TLS
+#define NODEPP_TLS
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+#include "ssocket.h"
+#include "poll.h"
+#include "dns.h"
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp {
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+class tls_t {
+protected:
+
+    struct _str_ {
+        int                        state = 0;
+        bool                       chck  = 1;
+        agent_t                    agent;
+        ssl_t                      ctx  ; 
+        poll_t                     poll ;
+        function_t<void,ssocket_t> func ;
+    };  ptr_t<_str_> obj;
+    
+    /*─······································································─*/
+
+    void init_poll_loop() const noexcept { process::task::add([=]( tls_t inp ){
+        if( inp.is_closed() ){ return -1; } if( inp.obj->poll.emit() != -1 ) { auto x = inp.obj->poll.get_last_poll();
+            if( x[0] == 0 ){ ssocket_t cli(inp.obj->ctx,x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
+            if( x[0] == 1 ){ ssocket_t cli(inp.obj->ctx,x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
+        #if _KERNEL == NODEPP_KERNEL_WINDOWS
+            if( x[0] ==-1 ){ ::closesocket(x[1]); }
+        #else
+            if( x[0] ==-1 ){ ::close(x[1]); }
+        #endif
+        }   return 1; 
+    }, *this ); }
+    
+public: tls_t() noexcept : obj( new _str_() ) {}
+
+    event_t<ssocket_t> onConnect;
+    event_t<ssocket_t> onSocket;
+    event_t<>          onClose;
+    event_t<except_t>  onError;
+    event_t<ssocket_t> onOpen;
+    
+    /*─······································································─*/
+
+    tls_t( decltype(obj->func) _func, ssl_t* xtc, agent_t* opt=nullptr )
+    : obj( new _str_() ){ 
+    if( xtc == nullptr ) _Error("Invalid SSL Contenx");
+        obj->agent = opt==nullptr ? agent_t():*opt; 
+        obj->func = _func; obj->ctx = *xtc; 
+    }
+
+    /*─······································································─*/
+    
+    void     close() const noexcept { if( obj->state<0 ){ return; } obj->state=-1; onClose.emit(); }
+    bool is_closed() const noexcept { return obj == nullptr ? 1 : obj->state < 0; }
+    
+    /*─······································································─*/
+
+    void poll( bool chck ) const noexcept { obj->chck = chck; }
+    
+    /*─······································································─*/
+
+    void listen( const string_t& host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
+        if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_server() == -1 )
+          { _EError(onError,"Error Initializing SSL context"); close(); return; }
+        if( dns::lookup(host).empty() ){ _EError(onError,"dns couldn't get ip"); close(); return; }
+        
+        ssocket_t *sk = new ssocket_t; 
+                   sk->PROT = IPPROTO_TCP;
+                   sk->socket( dns::lookup(host), port );
+        
+        if( sk->bind()   < 0 ){ _EError(onError,"Error while binding TLS"); close(); delete sk; return; }
+        if( sk->listen() < 0 ){ _EError(onError,"Error while listening TLS"); close(); delete sk; return; }
+        if( obj->chck == true ){ init_poll_loop(); }
+
+        onOpen.emit(*sk); if( cb != nullptr ){ (*cb)(*sk); } 
+        
+        process::task::add([=]( tls_t inp ){
+            static int _accept = 0; 
+        _Start
+
+            while( sk != nullptr ){ _accept = sk->_accept();
+                if( inp.is_closed() || !sk->is_available() )
+                  { break; } elif ( _accept != -2 )
+                  { break; } _Yield(1);
+            }
+            
+            if( _accept == -1 ){ _EError(onError,"Error while accepting TLS"); _Goto(2); }
+            elif ( !sk->is_available() || inp.is_closed() ){ _Goto(2); }
+            elif ( inp.obj->chck == true ){ inp.obj->poll.push_read(_accept); _Goto(0); }
+            else { ssocket_t cli( inp.obj->ctx, _accept ); if( cli.is_available() ){ 
+                   process::poll::add([]( ssocket_t cli, tls_t inp ){
+                        cli.set_sockopt( inp.obj->agent ); 
+                        inp.onSocket.emit( cli ); 
+                        inp.obj->func( cli ); 
+                        return -1;
+                   }, cli, inp );
+            } _Goto(0); } 
+
+            _Yield(2); inp.close(); delete sk; 
+            
+        _Stop
+        }, *this );
+
+    }
+
+    void listen( const string_t& host, int port, decltype(obj->func) cb ) const noexcept { 
+         listen( host, port, &cb ); 
+    }
+    
+    /*─······································································─*/
+
+    void connect( const string_t& host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
+        if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_client() == -1 )
+          { _EError(onError,"Error Initializing SSL context"); close(); return; }
+        if( dns::lookup(host).empty() ){ _EError(onError,"dns couldn't get ip"); close(); return; }
+            ptr_t<tls_t> self = new tls_t( *this );
+
+        ssocket_t sk = ssocket_t(); 
+                  sk.PROT = IPPROTO_TCP;
+                  sk.socket( dns::lookup(host), port );
+                  sk.set_sockopt( obj->agent );
+
+        if( sk.connect() < 0 ){ 
+            _EError(onError,"Error while connecting TLS"); 
+            close(); return; 
+        }
+
+        sk.ssl = new ssl_t( obj->ctx, sk.get_fd() ); 
+        sk.ssl->set_hostname( host );
+
+        if( sk.ssl->connect() <= 0 ){ 
+            _EError(onError,"Error while handshaking TLS");
+            close(); return; 
+        }
+
+        if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
+        onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk); 
+    }
+
+    void connect( const string_t& host, int port, decltype(obj->func) cb ) const noexcept { 
+         connect( host, port, &cb ); 
+    }
+
+};
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace tls {
+    
+    tls_t server( const tls_t& server ){ server.onSocket([=]( ssocket_t cli ){
+        ptr_t<_file_::read> _read = new _file_::read;
+
+        server.onConnect([=]( ssocket_t cli ){ process::task::add([=](){
+            if(!cli.is_available() ){ cli.close(); return -1; }
+            if((*_read)(&cli)==1 )   { return 1; } 
+            if(  _read->c <= 0 )     { return 1; }
+            cli.onData.emit(_read->y); return 1;
+        }) ; });
+
+        process::task::add([=](){
+            server.onConnect.emit(cli); return -1;
+        }); cli.onDrain([=](){ cli.free(); });
+
+    }); server.poll( false ); return server; }
+
+    /*─······································································─*/
+
+    tls_t server( ssl_t* ctx, agent_t* opt=nullptr ){
+        auto server = (tls_t){ [=]( ssocket_t cli ){}, ctx, opt };
+        tls::server( server ); return server; 
+    }
+
+    /*─······································································─*/
+
+    tls_t client( const tls_t& client ){ client.onOpen([=]( ssocket_t cli ){
+        ptr_t<_file_::read> _read = new _file_::read;
+
+        process::task::add([=](){
+            if(!cli.is_available() ){ cli.close(); return -1; }
+            if((*_read)(&cli)==1 )   { return 1; } 
+            if(  _read->c <= 0 )     { return 1; }
+            cli.onData.emit(_read->y); return 1;
+        }); cli.onDrain([=](){ cli.free(); });
+
+    }); return client; }
+
+    /*─······································································─*/
+
+    tls_t client( ssl_t* ctx, agent_t* opt=nullptr ){
+        auto client = (tls_t){ [=]( ssocket_t cli ){}, ctx, opt };
+        tls::client( client ); return client; 
+    }
+
+}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+}
+
+#endif

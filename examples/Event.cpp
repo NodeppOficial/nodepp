@@ -1,12 +1,16 @@
-#include <node++/node++.h>
-#include <node++/event.h>
-#include <node++/timer.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/event.h>
+#include <nodepp/timer.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
+/*────────────────────────────────────────────────────────────────────────────*/
+
 event_t<> ev; 
 
-void _Ready() {
+void _main_() {
 
   ev.on([](){ console::log("hello world"); });
 
@@ -15,3 +19,5 @@ void _Ready() {
   console::log("before event");
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

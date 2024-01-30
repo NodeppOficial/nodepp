@@ -1,14 +1,18 @@
-#include <node++/node++.h>
-#include <node++/timer.h>
-#include <node++/ws.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/timer.h>
+#include <nodepp/ws.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() { 
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() {
 
     auto server = ws::server();
 
-    server.onConnect([]( socket_t cli ){
+    server.onConnect([]( ws_t cli ){
 
         console::log("connected");
 
@@ -23,7 +27,9 @@ void _Ready() {
     });
 
     server.listen( "localhost", 8000, []( ... ){
-        console::log("server started at http://localhost:8000");
+        console::log("server started at ws://localhost:8000");
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

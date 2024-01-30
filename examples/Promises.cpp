@@ -1,21 +1,27 @@
-#include <node++/node++.h>
-#include <node++/timer.h>
-#include <node++/promise.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/timer.h>
+#include <nodepp/promise.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
 
-    promise_t<int,int>([=]( auto res, auto rej ){
-        timer::delay(1000); rej(10);
+void _main_() {
+
+    promise_t<int,int>([=]( function_t<void,int> res, function_t<void,int> rej ){
+        timer::timeout([=](){ res(10); },1000);
     })
     
     .then([=]( int res ){
-        console::done(res);
+        console::done(":>",res);
     })
     
     .fail([=]( int rej ){
-        console::error(rej);
+        console::error(":>",rej);
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

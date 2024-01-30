@@ -1,21 +1,30 @@
-#include <node++/node++.h>
+#include <nodepp/nodepp.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 _Generator( process_1 ) {
     
     ptr_t<int> counter = new int(10);
 
     _Emit(){ 
-    _Start;
+    _GStart;
         while( (*counter)-->0 ){
-            console::done(" :>",*counter); _Again();
+            console::done(" :>",*counter); _Next;
         }
-    _Stop;
+    _GStop;
     }
 
 };
 
-void _Ready() {
-    process_1 A; process::loop::add(A);
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() { 
+    process_1 A; 
+    process::add(A); 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

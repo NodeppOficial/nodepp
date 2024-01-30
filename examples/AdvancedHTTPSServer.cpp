@@ -1,15 +1,19 @@
-#include <node++/node++.h>
-#include <node++/https.h>
-#include <node++/timer.h>
-#include <node++/path.h>
-#include <node++/date.h>
-#include <node++/fs.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/https.h>
+#include <nodepp/timer.h>
+#include <nodepp/path.h>
+#include <nodepp/date.h>
+#include <nodepp/fs.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
+/*────────────────────────────────────────────────────────────────────────────*/
 
-void server( int process ){
+void _main_() {
+
+    ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
 
     auto server = https::server([=]( https_t cli ){ 
 
@@ -17,11 +21,11 @@ void server( int process ){
         if( cli.path.size() > 1 )
             dir = path::join( "www", cli.path );
 
-        console::log( cli.path, process );
+        console::log( cli.path, cli.get_fd() );
 
         if( !fs::exists_file(dir) ){
             cli.write_headers( 404, {{ { "content-type", "text/plain" } }} );
-            cli.write( regex::format("404: Oops time: ${0}",date::fulltime()) ); 
+            cli.write( string::format("404: Oops time: %s",date::fulltime().data()) ); 
             cli.close(); return;
         }
 
@@ -38,14 +42,14 @@ void server( int process ){
             if(!regex::test(path::mimetype(dir),"audio|video","i") ) 
                 stream::pipe( str, cli );
 
-        } else if( !cli.headers["Range"].empty() ) {
+        } elif ( !cli.headers["Range"].empty() ) {
 
             array_t<string_t> range = regex::match_all(cli.headers["Range"],"\\d+","i");
             ulong rang[2]; rang[0] = string::to_ulong( range[0] );
                   rang[1] = min( rang[0]+CHUNK_MB(10), str.size()-1 );
 
             cli.write_headers( 206, {{
-                { "Content-Range", regex::format("bytes ${0}-${1}/${2}",rang[0],rang[1],str.size()) },
+                { "Content-Range", string::format("bytes %lu-%lu/%lu",rang[0],rang[1],str.size()) },
                 { "Content-Type",  path::mimetype(dir) }, 
                 { "Accept-Range", "bytes" }
             }});
@@ -63,4 +67,4 @@ void server( int process ){
 
 }
 
-void _Ready() { server( os::pid() ); }
+/*────────────────────────────────────────────────────────────────────────────*/

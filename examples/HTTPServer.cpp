@@ -1,10 +1,14 @@
-#include <node++/node++.h>
-#include <node++/http.h>
-#include <node++/date.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/http.h>
+#include <nodepp/date.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void server( int process ){
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() {
 
     auto server = http::server([=]( http_t cli ){ 
 
@@ -25,4 +29,4 @@ void server( int process ){
 
 }
 
-void _Ready() { server( os::pid() ); }
+/*────────────────────────────────────────────────────────────────────────────*/

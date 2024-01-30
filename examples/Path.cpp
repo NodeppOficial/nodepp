@@ -1,20 +1,24 @@
-#include <node++/node++.h>
-#include <node++/path.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/path.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() {
 	
-    string_t dir = path::join( process::cwd(), "www", "index.html" );
-    console::log( dir );
+    string_t dir = path::join( os::cwd(), "www", "index.html" );
+    auto     ppt = path::parse( dir );
 
-    auto ppt = path::parse( dir );
-
+    console::log( "mime:", path::mimetype(ppt) );
     console::log( "root:", ppt.root );
     console::log( "path:", ppt.path );
     console::log( "name:", ppt.name );
     console::log( "base:", ppt.base );
     console::log( "extn:", ppt.ext );
-    console::log( "dirn:", ppt.dir );
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

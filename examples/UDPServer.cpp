@@ -1,22 +1,32 @@
-#include <node++/node++.h>
-#include <node++/date.h>
-#include <node++/udp.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/udp.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void server( int process ){
+/*────────────────────────────────────────────────────────────────────────────*/
 
-    auto server = udp::server([=]( socket_t cli ){ 
-        process::loop::add([=](){
-            console::log( "cli:", cli.read() );
-            cli.write("hola cliente\n");
+void _main_() {
+
+    auto server = udp::server();
+
+    server.onConnect([=]( socket_t cli ){
+    
+        cli.onData([=]( string_t data ){
+            console::log( data );
         });
+
+        cli.onClose([=](){
+            console::log("closed");
+        });
+
     });
 
-    server.listen( "localhost", 8000, []( socket_t server ){
-        console::log("-> server started");
+    server.listen( "localhost", 8000, []( socket_t srv ){
+        console::log("server started at udp://localhost:8000");
     });
 
 }
 
-void _Ready() { server( os::pid() ); }
+/*────────────────────────────────────────────────────────────────────────────*/

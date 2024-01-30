@@ -1,23 +1,27 @@
-#include <node++/node++.h>
-#include <node++/object.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/object.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() { 
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() {
 
     object_t ppt ({
-        { "var1", 10 },
-        { "var2", 20 },
-        { "var3", 30 },
-        { "var4", {{
-            { "var3", {{
-                { "var1", "hola mundo" }
-            }} }
-        }} }
+        { "var1", 1000 },
+        { "var2", true },
+        { "var3", {{ { "var1", "Hello World!" } }} },
+        { "var4", array_t<int>({ 10, 20, 30, 40, 50 }) }
     });
 
-    ppt["var4"]["var3"]["var1"] = "hola mundo de mierda";
+    console::log( (int)  ppt["var1"] );
+    console::log( (bool) ppt["var2"] ? "true" : "false" );
 
-    console::log( (string_t) ppt["var4"]["var3"]["var1"] );
+    console::log( (string_t)     ppt["var3"]["var1"] );
+    console::log(((array_t<int>) ppt["var4"]).join() );
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

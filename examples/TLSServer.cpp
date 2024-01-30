@@ -1,11 +1,15 @@
-#include <node++/node++.h>
-#include <node++/tls.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/tls.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
 ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() {
 
     auto server = tls::server( &ssl );
 
@@ -24,7 +28,9 @@ void _Ready() {
     });
 
     server.listen( "localhost", 8000, []( ssocket_t srv ){
-        console::log("server started at https://localhost:8000");
+        console::log("server started at tls://localhost:8000");
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

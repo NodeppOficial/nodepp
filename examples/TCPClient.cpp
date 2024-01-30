@@ -1,9 +1,13 @@
-#include <node++/node++.h>
-#include <node++/tcp.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/tcp.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() {
 
     auto client = tcp::client();
 
@@ -17,12 +21,14 @@ void _Ready() {
             console::log("closed");
         });
 
-        cli.write("hola mundo");
+        cli.write("Hello World!");
 
     });
 
     client.connect( "localhost", 8000, []( socket_t cli ){
-        console::log("client started at http://localhost:8000");
+        console::log("client connected to tcp://localhost:8000");
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

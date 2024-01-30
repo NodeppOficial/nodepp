@@ -1,10 +1,14 @@
-#include <node++/node++.h>
-#include <node++/stream.h>
-#include <node++/serial.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/stream.h>
+#include <nodepp/serial.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready(){
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() {
 
     auto str = serial::connect( "/dev/ttyUSB0", 9600 );
 
@@ -14,3 +18,5 @@ void _Ready(){
 
     stream::pipeline( str );
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

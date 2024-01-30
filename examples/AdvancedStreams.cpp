@@ -1,10 +1,15 @@
-#include <node++/node++.h>
-#include <node++/path.h>
-#include <node++/fs.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/path.h>
+#include <nodepp/fs.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() { 
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void _main_() {
+    
     auto _rdb = fs::readable( path::join( process::cwd(), "www", "kloud.mp4" ) );
     auto _wrt = fs::writable( path::join( process::cwd(), "www", "mojon.mp4" ) );
 
@@ -18,3 +23,5 @@ void _Ready() {
 
     stream::pipe( _rdb, _wrt );
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/
