@@ -45,9 +45,11 @@ namespace nodepp { namespace process {
         static int x = 0;
     _Start
 
-        x = process::task::size(); while( x-->0 ){ process::task::next(); _Next; }
-        x = process::loop::size(); while( x-->0 ){ process::loop::next(); _Next; }
-        x = process::poll::size(); while( x-->0 ){ process::poll::next(); _Next; }
+        while( x>0 ){
+            if( !process::poll::empty() ){ process::poll::next(); _Next; x--; }
+            if( !process::loop::empty() ){ process::loop::next(); _Next; x--; }
+            if( !process::task::empty() ){ process::task::next(); _Next; x--; }
+        }    x = process::size();
 
         #if _KERNEL != NODEPP_KERNEL_ARDUINO
             process::delay( TIMEOUT );
@@ -60,6 +62,14 @@ namespace nodepp { namespace process {
 
     template< class... T >
     void add( const T&... args ){ process::loop::add( args... ); }
+
+    /*─······································································─*/
+
+    template< class T, class... V > 
+    void await( T cb, const V&... args ){
+        while( cb( args... ) >= 0 )
+             { next(); }
+    }
     
     /*─······································································─*/
 

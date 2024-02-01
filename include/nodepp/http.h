@@ -223,7 +223,7 @@ namespace nodepp { namespace http {
     /*─······································································─*/
 
     promise_t<http_t,except_t> fetch ( const fetch_t& cfg, agent_t* opt=nullptr ) { 
-           ptr_t<agent_t>       agn = new agent_t( opt==nullptr?agent_t():*opt );
+           ptr_t<agent_t>  agn = new agent_t( opt==nullptr?agent_t():*opt );
            ptr_t<fetch_t> _cfg = new fetch_t( cfg ); 
     return promise_t<http_t,except_t>([=]( function_t<void,http_t> res, function_t<void,except_t> rej ){
 

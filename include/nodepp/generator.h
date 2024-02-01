@@ -550,8 +550,7 @@ namespace nodepp { namespace _zlib_ {
     #define  GENERATOR_WS
 namespace nodepp { 
 
-    template< class T, class U > void WSServer( T cli, U cb ) {
-        
+    template< class T, class U > void WSServer( T& cli, U cb ) {
         auto data = cli.read(); cli.set_borrow( data ); int c=0;
         
         while(( c=cli.read_header() )>0 ){ process::next(); }
@@ -572,15 +571,16 @@ namespace nodepp {
                 { "Upgrade", "Websocket" }
             }});
 
-            cb(); cli.stop(); return;
+            cli.stop(); cb( cli  ); return;
         }   cli.set_borrow( data );
 
     }
     
     /*─······································································─*/
 
-    template< class U, class T, class V > U WSClient( const T& fetch, const string_t& key, V cb ) {
+    template< class T > socket_t WSClient( const T& fetch, const string_t& key ) {
         auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) _Error( tuple::get<2>(res).what() );
+        if( tuple::get<0>(res) == 1 ){ _Error("Cant start ws client"); }
         auto cli = tuple::get<1>(res);
 
         if( cli.status != 101 ){ 
@@ -597,10 +597,8 @@ namespace nodepp {
                 auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
-        if( dta != enc ){ 
-            _EError(cli.onError,"WSE: secret key does not match"); 
-            cli.close(); return cli; 
-        }   cb(cli); cli.stop();
+        if( dta != enc ){ _Error("secret key does not match"); }
+            cli.stop();
         }   return cli;
 
     }
@@ -614,8 +612,7 @@ namespace nodepp {
     #define  GENERATOR_WSS
 namespace nodepp { 
     
-    template< class T, class U > void WSServer( T cli, U cb ) {
-        
+    template< class T, class U > void WSServer( T& cli, U cb ) {
         auto data = cli.read(); cli.set_borrow( data ); int c=0;
         
         while(( c=cli.read_header() )>0 ){ process::next(); }
@@ -636,15 +633,16 @@ namespace nodepp {
                 { "Upgrade", "Websocket" }
             }});
 
-            cb(); cli.stop(); return;
+            cli.stop(); cb( cli  ); return;
         }   cli.set_borrow( data );
 
     }
     
     /*─······································································─*/
 
-    template< class U, class T, class V > U WSClient( const T& fetch, const string_t& key, V cb ) {
+    template< class T > ssocket_t WSClient( const T& fetch, const string_t& key ) {
         auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) _Error( tuple::get<2>(res).what() );
+        if( tuple::get<0>(res) == 1 ){ _Error("Cant start ws client"); }
         auto cli = tuple::get<1>(res);
 
         if( cli.status != 101 ){ 
@@ -661,10 +659,8 @@ namespace nodepp {
                 auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
-        if( dta != enc ){ 
-            _EError(cli.onError,"WSE: secret key does not match"); 
-            cli.close(); return cli; 
-        }   cb(cli); cli.stop();
+        if( dta != enc ){ _Error("secret key does not match"); }   
+            cli.stop();
         }   return cli;
 
     }

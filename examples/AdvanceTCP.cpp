@@ -6,6 +6,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
+file_t cin;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -24,18 +25,10 @@ void server() {
         cli.onClose([=](){
             console::log("closed");
         });
-
-        process::add([=]( file_t inp ){
-            string_t bff ( UNBFF_SIZE, '\0' ); int c=0;
-        _Start
-
-            while( cli.is_available() ){
-              if ((c=inp._read( bff.data(), bff.size() )) == -2 ){ _Next; continue; }
-                cli.write({ bff.data(), (ulong)c });
-            }   inp.close();
         
-        _Stop
-        }, fs::cin() );
+        cin.onData([=]( string_t data ){
+            cli.write( data );
+        });
 
     });
 
@@ -61,19 +54,12 @@ void client() {
 
         cli.onClose([](){ 
             console::log("closed"); 
+            process::exit(1);
         });
-
-        process::add([=]( file_t inp ){
-            string_t bff ( UNBFF_SIZE, '\0' ); int c=0;
-        _Start
-
-            while( cli.is_available() ){
-              if ((c=inp._read( bff.data(), bff.size() )) == -2 ){ _Next; continue; }
-                cli.write({ bff.data(), (ulong)c });
-            }   inp.close();
         
-        _Stop
-        }, fs::cin() );
+        cin.onData([=]( string_t data ){
+            cli.write( data );
+        });
 
     });
 
@@ -86,8 +72,12 @@ void client() {
 /*────────────────────────────────────────────────────────────────────────────*/
 
 void _main_() {
+    cin = fs::cin();
+
     if( process::env::get("mode") == "client" )
         client(); else server();
+
+    stream::pipe( cin );
 }
 
 /*────────────────────────────────────────────────────────────────────────────*/

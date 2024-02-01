@@ -98,7 +98,7 @@ namespace udp {
     udp_t server( const udp_t& server ){ server.onSocket([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
 
-        server.onConnect([=]( socket_t cli ){ process::task::add([=](){
+        server.onConnect([=]( socket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
             if(  _read->c  <=  0 )   { return 1; }
@@ -123,7 +123,7 @@ namespace udp {
     udp_t client( const udp_t& client ){ client.onOpen([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
 
-        process::task::add([=](){
+        process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
             if(  _read->c  <=  0 )   { return 1; }

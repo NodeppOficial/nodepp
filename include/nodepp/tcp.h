@@ -26,7 +26,7 @@ protected:
     
     /*─······································································─*/
 
-    void init_poll_loop() const noexcept { process::task::add([=]( tcp_t inp ){
+    void init_poll_loop() const noexcept { process::poll::add([=]( tcp_t inp ){
         if( inp.is_closed() ){ return -1; } if( inp.obj->poll.emit() != -1 ) { auto x = inp.obj->poll.get_last_poll();
             if( x[0] == 0 ){ socket_t cli(x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
             if( x[0] == 1 ){ socket_t cli(x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
@@ -139,7 +139,7 @@ namespace tcp {
     tcp_t server( const tcp_t& server ){ server.onSocket([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
 
-        server.onConnect([=]( socket_t cli ){ process::task::add([=](){
+        server.onConnect([=]( socket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
             if(  _read->c  <=  0 )   { return 1; }
@@ -164,7 +164,7 @@ namespace tcp {
     tcp_t client( const tcp_t& client ){ client.onOpen([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
 
-        process::task::add([=](){
+        process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
             if(  _read->c  <=  0 )   { return 1; }
