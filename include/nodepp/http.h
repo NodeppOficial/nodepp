@@ -195,8 +195,7 @@ public:
         if ( !body.empty() ){ write( body ); return; } 
         while( file.is_available() ){ 
             string_t s = file.read();
-            if( s.empty() ){ break; }
-            write( s ); 
+            if( s.empty() ){ break; } write( s ); 
         }
     }
 
