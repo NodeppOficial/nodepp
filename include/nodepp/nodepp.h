@@ -11,8 +11,7 @@
 
 namespace nodepp { namespace process {
 
-    array_t<string_t> args; 
-    int threads = 0; 
+    array_t<string_t> args; int threads = 0; 
 
     ulong size(){ 
         return process::poll::size() + 
@@ -36,14 +35,14 @@ namespace nodepp { namespace process {
             }} 
         }   while( i ++< argc - 1 );
         #if _KERNEL != NODEPP_KERNEL_ARDUINO
-            process::start_signal_handler();
+            process::signal::start();
         #endif
     }
     
     /*─······································································─*/
 
     int next(){ 
-        static uint x = 0;
+        static int x = 0;
     _Start
 
         x = process::task::size(); while( x-->0 ){ process::task::next(); _Next; }
@@ -78,13 +77,13 @@ namespace nodepp { namespace process {
         process::poll::empty() && 
         process::loop::empty() && 
         process::threads < 1 
-    );}
+    ) ; }
     
     /*─······································································─*/
 
     void pipe(){
-        while(!process::empty() )
-               process::next();
+        while( !process::empty() )
+                process::next();
     }
 
 }}

@@ -70,8 +70,8 @@ public:
         do {  line = read_line(); idx = line.index_of([]( char x ){ return x==':'; });
             if( idx < 0 ){ break; } a = line.slice( 0,idx ).to_capital_case();
                                     b = line.slice( idx+2 ); 
-                                    headers[a] = b; _Next;
-        } while ( true ); _Return(0); _Goto(0);
+                                    headers[a] = b; //_Next;
+        } while ( true ); _Set(0); return 0;
 
     _GStop
     }

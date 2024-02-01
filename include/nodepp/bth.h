@@ -25,8 +25,7 @@ protected:
     
     /*─······································································─*/
 
-    void init_poll_loop() const noexcept {
-        process::task::add([=]( bth_t inp ){
+    void init_poll_loop() const noexcept { process::task::add([=]( bth_t inp ){
         if( inp.is_closed() ){ return -1; } if( inp.obj->poll.emit() != -1 ) { auto x = inp.obj->poll.get_last_poll();
                 if( x[0] == 0 ){ bsocket_t cli(x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
                 if( x[0] == 1 ){ bsocket_t cli(x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
@@ -141,9 +140,9 @@ namespace bth {
         ptr_t<_file_::read> _read = new _file_::read;
 
         server.onConnect([=]( bsocket_t cli ){ process::task::add([=](){
-            if(!cli.is_available() ){ cli.close(); return -1; }
+            if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; } 
-            if(  _read->c <= 0 )     { return 1; }
+            if(  _read->c  <=  0 )   { return 1; }
             cli.onData.emit(_read->y); return 1;
         }) ; });
 
@@ -166,9 +165,9 @@ namespace bth {
         ptr_t<_file_::read> _read = new _file_::read;
 
         process::task::add([=](){
-            if(!cli.is_available() ){ cli.close(); return -1; }
+            if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; } 
-            if(  _read->c <= 0 )     { return 1; }
+            if(  _read->c  <=  0 )   { return 1; }
             cli.onData.emit(_read->y); return 1;
         }); cli.onDrain([=](){ cli.free(); });
 

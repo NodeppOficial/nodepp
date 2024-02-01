@@ -47,7 +47,7 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 #define _Available static bool _available_ = 1; if( !_available_ ){ return 1; } _Disable;
 #define _Generator(NAME) struct NAME : public NODEPP_GENERATOR_BASE
-#define _Disable         _available_ = 0
+#define _Disable         _available_ = 1 // 0
 #define _Enable          _available_ = 1
 #define _Set(VALUE)      _state_ = VALUE
 #define _Get             _state_

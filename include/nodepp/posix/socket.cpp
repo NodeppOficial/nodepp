@@ -56,14 +56,14 @@ protected:
     struct _str_ {
         socklen_t addrlen; bool srv=0; socklen_t len;
         SOCKADDR server_addr, client_addr;
-        int _retry = 0, retry = 0;
+        int _retry=10, retry=10;
     };  ptr_t<_str_> skt = new _str_();
     
     /*─······································································─*/
 
     virtual bool is_blocked( int& c ) const noexcept { 
         if ( c >= 0 ){ return 0; } auto error = os::error(); 
-        if ( error == EISCONN ){ c = 0; }
+        if ( error == EISCONN ){ c =0; return 0; }
       elif ( error == ECONNRESET ){
         if ( skt->retry<=0 )           return 0;
              skt->retry--;             return 1;
@@ -243,8 +243,8 @@ public: socket_t() noexcept { socket::start_device(); }
     agent_t get_sockopt() const noexcept { 
     agent_t opt;
         opt.reuse_address = get_reuse_address();
-        opt.recv_timeout  = get_recv_timeout();
-        opt.send_timeout  = get_send_timeout();
+    //  opt.recv_timeout  = get_recv_timeout();
+    //  opt.send_timeout  = get_send_timeout();
         opt.buffer_size   = get_buffer_size();
     #ifdef SO_REUSEPORT
         opt.reuse_port    = get_reuse_port();

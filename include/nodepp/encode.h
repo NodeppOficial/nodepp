@@ -181,75 +181,66 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include <iconv.h>
+#include "stream.h"
 #include "generator.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp {
+namespace nodepp { namespace encode {
 
-/*────────────────────────────────────────────────────────────────────────────*/
+      namespace { string_t _enc_( const string_t& from, const string_t& to, const string_t& message, ulong mult=1 ){ 
+            
+            auto ctx = iconv_open( to.c_str(), from.c_str() ); 
+            if ( ctx == (iconv_t)-1 ) _Error((except_t)"can't open a encode context");
 
-namespace { string_t _encode_( const string_t& from, const string_t& to, const string_t& message, ulong mult=1 ){ 
-      
-      auto ctx = iconv_open( to.c_str(), from.c_str() ); 
-      if ( ctx == (iconv_t)-1 ) _Error((except_t)"can't open a encode context");
+            string_t output; ptr_t<char> obff ( message.size() * mult );
+            char* ibff = message.data(); ulong ibfz = message.size();
+            ulong obfz = obff.size(); char* obfp = &obff;
 
-      string_t output; ptr_t<char> obff ( message.size() * mult );
-      char* ibff = message.data(); ulong ibfz = message.size();
-      ulong obfz = obff.size();    char* obfp = &obff;
-    
-      ulong result = iconv( ctx, (char**)&ibff, &ibfz, &obfp, &obfz );
+            if ( iconv( ctx, (char**)&ibff, &ibfz, &obfp, &obfz ) == (ulong)-1 ){
+                    if ( errno == EINVAL ){ _Error((except_t)"Input conversion stopped due to an incomplete character or shift sequence at the end of the input buffer."); }
+                  elif ( errno == EILSEQ ){ _Error((except_t)"Input conversion stopped due to an input byte that does not belong to the input codeset."); }
+                  elif ( errno == E2BIG ) { _Error((except_t)"Input conversion stopped due to lack of space in the output buffer."); }
+                  elif ( errno == EBADF ) { _Error((except_t)"The cd argument is not a valid open conversion descriptor"); }
+                  else                    { _Error((except_t)"can't encode correctly"); }
+            } 
 
-      if( result == (ulong)-1 ){
-                 if( errno == EINVAL ) _Error((except_t)"Input conversion stopped due to an incomplete character or shift sequence at the end of the input buffer.");
-            else if( errno == EILSEQ ) _Error((except_t)"Input conversion stopped due to an input byte that does not belong to the input codeset.");
-            else if( errno == E2BIG )  _Error((except_t)"Input conversion stopped due to lack of space in the output buffer.");
-            else if( errno == EBADF )  _Error((except_t)"The cd argument is not a valid open conversion descriptor");
-            else                       _Error((except_t)"can't encode correctly");
-      } 
+            output += (string_t){ &obff, obff.size() };
+            iconv_close( ctx ); return output;
 
-      output += (string_t){ &obff, obff.size() };
-      iconv_close( ctx ); return output;
-
-}}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace encode {
+      }}
 
       string_t get_16( const string_t& from, const string_t& to, const string_t& message ){
-            return nodepp::_encode_( from, to, message, sizeof(char16_t) );
+            return _enc_( from, to, message, sizeof(char16_t) );
       }
 
       string_t get_32( const string_t& from, const string_t& to, const string_t& message ){
-            return nodepp::_encode_( from, to, message, sizeof(char32_t) );
+            return _enc_( from, to, message, sizeof(char32_t) );
       }
 
       string_t get( const string_t& from, const string_t& to, const string_t& message ){
-            return nodepp::_encode_( from, to, message );
+            return _enc_( from, to, message );
       }
 
     /*─······································································─*/
 
-      template< class T, class V >
+      template< class... T >
       void pipe_16( const string_t& from, const string_t& to, const T&... inp ){ 
             _encode_::pipe arg; process::poll::add( arg, from, to, inp..., sizeof(char16_t) );
       }
 
-      template< class T, class V >
+      template< class... T >
       void pipe_32( const string_t& from, const string_t& to, const T&... inp ){ 
             _encode_::pipe arg; process::poll::add( arg, from, to, inp..., sizeof(char32_t) );
       }
 
-      template< class T, class V >
+      template< class... T >
       void pipe( const string_t& from, const string_t& to, const T&... inp ){ 
             _encode_::pipe arg; process::poll::add( arg, from, to, inp... );
       }
 
-}
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-
-}
 
 #endif

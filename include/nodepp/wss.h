@@ -21,12 +21,12 @@ public:
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         int    x = ssocket_t::_read( bf, sx );
-        return x<=0 ? x : read_ws_frame( bf, x, this );
+        return x<=0 ? x : read_ws_frame( bf, x );
     }
     
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        int    y = write_ws_frame( bf, sx, this );
-        return y<=0 ? y : ssocket_t::_write( bf, y );
+        int    x = write_ws_frame( bf, sx );
+        return x<=0 ? x : ssocket_t::_write( bf, x );
     } 
 
 }; }
@@ -39,11 +39,11 @@ namespace nodepp { namespace wss {
         nodepp::WSServer( cli, [=](){ ptr_t<_file_::read> _read = new _file_::read;
 
             server.onConnect([=]( wss_t cli ){ process::task::add([=](){ 
-                if(!cli.is_available() ){ cli.close(); return -1; }
+                if(!cli.is_available() ) { cli.close(); return -1; }
                 if((*_read)(&cli)==1 )   { return 1; }
-                if(  _read->c <= 0 )     { return 1; }
+                if(  _read->c  <=  0 )   { return 1; }
                 cli.onData.emit(_read->y); return 1;
-            });});
+            }) ; });
 
             process::task::add([=](){
                 cli.resume(); server.onConnect.emit(cli); return -1;
@@ -81,11 +81,11 @@ namespace nodepp { namespace wss {
             ptr_t<_file_::read> _read = new _file_::read;
 
             cli.onOpen([=](){ process::task::add([=](){
-                if(!cli.is_available() ){ cli.close(); return -1; }
+                if(!cli.is_available() ) { cli.close(); return -1; }
                 if((*_read)(&cli)==1 )   { return 1; }
-                if(  _read->c <= 0 )     { return 1; }
+                if(  _read->c  <=  0 )   { return 1; }
                 cli.onData.emit(_read->y); return 1;
-            }); });
+            }) ; });
 
             process::task::add([=](){
                 cli.resume(); cli.onOpen.emit(); return -1;

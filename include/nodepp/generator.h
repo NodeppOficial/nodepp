@@ -74,7 +74,7 @@ namespace nodepp { namespace _file_ {
         if( !str->is_available() ){ str->close(); _End; } r = str->get_range();
         if( !str->get_borrow().empty() ){ y=str->get_borrow(); str->del_borrow(); }
 
-        if( r[1] != 0 ){ auto pos = str->pos(); d = r[1]-r[0];
+          if ( r[1] != 0 ){ auto pos = str->pos(); d = r[1]-r[0];
           if ( pos < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
         elif ( pos >=r[1] ){ str->close(); _End; } }
         else { d = str->get_buffer_size(); }
@@ -107,7 +107,7 @@ namespace nodepp { namespace _file_ {
         do { do { c = str->_write(str->get_borrow_data()+y,str->get_borrow_size()-y);
               if( c==-2 ){ _Next; }
         }  while( c==-2 ); if( c>0 ){ y += c; }
-        }  while( c>0 && y<str->get_borrow_size() ); str->del_borrow(); 
+        }  while( c>=0 && y<str->get_borrow_size() ); str->del_borrow(); 
         
         if( c<=0 ){ str->close(); _End; }
         
@@ -687,10 +687,9 @@ namespace nodepp {
         ulong LEN = 0; //64b
     };
 
-    template< class T >
-    ulong write_ws_frame( char* bf, const ulong& sx, T* /**/ ){
+    ulong write_ws_frame( char* bf, const ulong& sx ){
 
-        if( bf == nullptr ){ return -1; }
+        if( bf == nullptr ){ return 0; }
 
         string_t y = string_t( bf, sx ); uint idx = 0; 
 
@@ -718,8 +717,7 @@ namespace nodepp {
         return idx; 
     }
 
-    template< class T >
-    ulong read_ws_frame( char* bf, const ulong& sx, T* str ){
+    ulong read_ws_frame( char* bf, const ulong& sx ){
 
         if( bf == nullptr ){ return 0; }
 
@@ -743,10 +741,6 @@ namespace nodepp {
             st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
             st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
             st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
         }
 
         if ( st.MSK ) for( ulong x=0; x<4; x++ )
@@ -757,10 +751,8 @@ namespace nodepp {
         else for ( ulong x=0; x<st.LEN; x++ )
            { bf[x] = bf[idx]; idx++; }
 
-        if ( st.OPC == 24 ){ 
-            _EError( str->onError, string_t( bf, st.LEN ) );
-            return 0;
-        } elif ( st.OPC == 8 ){ return 0; }
+        if ( st.OPC == 24 ){ return 0; } 
+        if ( st.OPC ==  8 ){ return 0; }
 
         return st.LEN; 
 
