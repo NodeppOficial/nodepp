@@ -94,6 +94,7 @@ public: socket_t() noexcept { socket::start_device(); }
     event_t<except_t>  onError;
     event_t<>          onDrain;
     event_t<>          onClose;
+    event_t<>          onBusy;
     event_t<>          onStop;
     event_t<>          onOpen;
     event_t<>          onPipe;
@@ -248,15 +249,17 @@ public: socket_t() noexcept { socket::start_device(); }
     /*─······································································─*/
 
             bool    is_closed() const noexcept { return obj->state <  0 || is_feof() || !is_available(); }
-            bool is_available() const noexcept { return obj->state == 0 && obj->fd != -1; }
+            bool      is_busy() const noexcept { return obj->state == 1 && is_available(); }
+            bool is_available() const noexcept { return obj->state >= 0 && obj->fd != -1; }
     virtual bool      is_feof() const noexcept { return get_error()!= 0; }
             bool    is_server() const noexcept { return obj->srv; }
 
     /*─······································································─*/
     
     void resume() const noexcept { if(obj->state== 0) { return; } obj->state= 0; onResume.emit(); }
-    void  close() const noexcept { if(obj->state < 0) { return; } obj->state=-1; onDrain.emit(); }
-    void   stop() const noexcept { if(obj->state==-3) { return; } obj->state=-3; onStop.emit(); }
+    void  close() const noexcept { if(obj->state < 0) { return; } obj->state=-1; onDrain.emit();  }
+    void   stop() const noexcept { if(obj->state==-3) { return; } obj->state=-3; onStop.emit();   }
+    void   busy() const noexcept { if(obj->state== 1) { return; } obj->state= 1; onStop.emit();   }
     void  reset() const noexcept { if(obj->state!=-2) { return; } resume(); pos(0); }
     void  flush() const noexcept { obj->buffer.fill(0); }
     void   free() const noexcept { force_close(); } 
@@ -293,8 +296,8 @@ public: socket_t() noexcept { socket::start_device(); }
 
     void set_sockopt( agent_t opt ) const noexcept { 
         set_reuse_address( opt.reuse_address );
-        set_recv_timeout ( opt.recv_timeout  );
-        set_send_timeout ( opt.send_timeout  );
+    //  set_recv_timeout ( opt.recv_timeout  );
+    //  set_send_timeout ( opt.send_timeout  );
         set_buffer_size  ( opt.buffer_size   );
     #ifdef SO_REUSEPORT
         set_reuse_port   ( opt.reuse_port    );
@@ -307,8 +310,8 @@ public: socket_t() noexcept { socket::start_device(); }
     agent_t get_sockopt() const noexcept { 
     agent_t opt;
         opt.reuse_address = get_reuse_address();
-    //  opt.recv_timeout  = get_recv_timeout();
-    //  opt.send_timeout  = get_send_timeout();
+        opt.recv_timeout  = get_recv_timeout();
+        opt.send_timeout  = get_send_timeout();
         opt.buffer_size   = get_buffer_size();
     #ifdef SO_REUSEPORT
         opt.reuse_port    = get_reuse_port();

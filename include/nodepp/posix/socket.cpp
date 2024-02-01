@@ -229,8 +229,8 @@ public: socket_t() noexcept { socket::start_device(); }
 
     void set_sockopt( agent_t opt ) const noexcept { 
         set_reuse_address( opt.reuse_address );
-        set_recv_timeout ( opt.recv_timeout  );
-        set_send_timeout ( opt.send_timeout  );
+    //  set_recv_timeout ( opt.recv_timeout  );
+    //  set_send_timeout ( opt.send_timeout  );
         set_buffer_size  ( opt.buffer_size   );
     #ifdef SO_REUSEPORT
         set_reuse_port   ( opt.reuse_port    );
@@ -243,8 +243,8 @@ public: socket_t() noexcept { socket::start_device(); }
     agent_t get_sockopt() const noexcept { 
     agent_t opt;
         opt.reuse_address = get_reuse_address();
-    //  opt.recv_timeout  = get_recv_timeout();
-    //  opt.send_timeout  = get_send_timeout();
+        opt.recv_timeout  = get_recv_timeout();
+        opt.send_timeout  = get_send_timeout();
         opt.buffer_size   = get_buffer_size();
     #ifdef SO_REUSEPORT
         opt.reuse_port    = get_reuse_port();
