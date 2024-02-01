@@ -65,13 +65,13 @@ public:
 
     void push_write( const int& fd ) noexcept { 
         EPOLLFD event; event.data.fd = fd;
-        event.events = EPOLLOUT | EPOLLET;
+        event.events = EPOLLOUT | EPOLLONESHOT;
         epoll_ctl( obj->pd, EPOLL_CTL_ADD, fd, &event );
     }
 
     void push_read( const int& fd ) noexcept { 
         EPOLLFD event; event.data.fd = fd;
-        event.events = EPOLLIN  | EPOLLET;
+        event.events = EPOLLIN | EPOLLONESHOT;
         epoll_ctl( obj->pd, EPOLL_CTL_ADD, fd, &event );
     }
 

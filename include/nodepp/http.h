@@ -216,12 +216,6 @@ namespace nodepp { namespace http {
     
     /*─······································································─*/
 
-    template< class T > tcp_t client( T cb, agent_t* opt=nullptr ){ 
-        return tcp_t([=]( http_t cli ){ cb( cli ); }, opt ); 
-    }
-    
-    /*─······································································─*/
-
     promise_t<http_t,except_t> fetch ( const fetch_t& cfg, agent_t* opt=nullptr ) { 
            ptr_t<agent_t>  agn = new agent_t( opt==nullptr?agent_t():*opt );
            ptr_t<fetch_t> _cfg = new fetch_t( cfg ); 
@@ -233,7 +227,7 @@ namespace nodepp { namespace http {
         string_t dip = uri.hostname ;
         string_t dir = uri.pathname + uri.search + uri.hash;
        
-        auto client = http::client([=]( http_t cli ){ int c = 0;
+        auto client = tcp_t ([=]( http_t cli ){ int c = 0;
             cli.write_headers( _cfg->method, dir, _cfg->version, _cfg->headers );
             cli.write_filestream( _cfg->body, _cfg->file );
             while(( c=cli.read_header() )>0 ){ process::next(); }

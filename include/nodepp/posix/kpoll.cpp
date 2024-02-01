@@ -66,12 +66,12 @@ public:
     /*─······································································─*/
 
     void push_write( const int& fd ) noexcept { KPOLLFD event;
-	    EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_CLEAR | EV_DELETE, 0, 0, NULL );
+	    EV_SET(&event, fd, EVFILT_WRITE, EV_ADD | EV_ONESHOT, 0, 0, NULL );
         kevent( obj->pd, &event, 1, NULL, 0, NULL );
     }
 
     void push_read( const int& fd ) noexcept { KPOLLFD event;
-	    EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_CLEAR | EV_DELETE, 0, 0, NULL );
+	    EV_SET(&event, fd, EVFILT_READ, EV_ADD | EV_ONESHOT, 0, 0, NULL );
         kevent( obj->pd, &event, 1, NULL, 0, NULL );
     }
 

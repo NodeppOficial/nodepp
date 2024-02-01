@@ -36,22 +36,21 @@ public:
 
 namespace nodepp { namespace wss {
 
-    tls_t server( const tls_t& server ){ server.onSocket([=]( https_t cli ){
+    tls_t server( const tls_t& server ){ server.onSocket([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
-        nodepp::WSServer( cli, [=]( wss_t cli ){ 
+        if ( !nodepp::WSServer( (https_t) cli ) ){ return; }
 
-            server.onConnect([=]( ... ){ process::poll::add([=](){ 
-                if(!cli.is_available() ) { cli.close(); return -1; }
-                if((*_read)(&cli)==1 )   { return 1; }
-                if(  _read->c  <=  0 )   { return 1; }
-                cli.onData.emit(_read->y); return 1;
-            }) ; });
+        server.onConnect.once([=]( wss_t cli ){ process::poll::add([=](){ 
+            if(!cli.is_available() ) { cli.close(); return -1; }
+            if((*_read)(&cli)==1 )   { return 1; }
+            if(  _read->c  <=  0 )   { return 1; }
+            cli.onData.emit(_read->y); return 1;
+        }) ; });
 
-            process::task::add([=](){
-                cli.resume(); server.onConnect.emit(cli); return -1;
-            }); cli.onDrain([=](){ cli.free(); }); 
+        process::task::add([=](){
+            cli.resume(); server.onConnect.emit(cli); return -1;
+        }); cli.onDrain.once([=](){ cli.free(); }); 
 
-        });
     }); return server; }
 
     /*─······································································─*/
@@ -63,7 +62,7 @@ namespace nodepp { namespace wss {
 
     /*─······································································─*/
 
-    wss_t client( const string_t& url, ssl_t* ctx, agent_t* opt=nullptr ){
+    socket_t client( const string_t& url, ssl_t* ctx, agent_t* opt=nullptr ){
 
         string_t hsh = hash::hash("abcdefghiABCDEFGHI0123456789",22);
         string_t key = string::format("%s==",hsh.data());
@@ -80,7 +79,7 @@ namespace nodepp { namespace wss {
 
         auto cli = nodepp::WSClient( https::fetch( args, ctx, opt ), key );
 
-        cli.onOpen([=](){ process::poll::add([=](){
+        cli.onOpen.once([=](){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
             if(  _read->c  <=  0 )   { return 1; }
@@ -89,7 +88,7 @@ namespace nodepp { namespace wss {
 
         process::task::add([=](){
             cli.resume(); cli.onOpen.emit(); return -1;
-        }); cli.onDrain([=](){ cli.free(); });
+        }); cli.onDrain.once([=](){ cli.free(); });
 
         return cli; 
     }

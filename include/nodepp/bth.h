@@ -139,7 +139,7 @@ namespace bth {
     bth_t server( const bth_t& server ){ server.onSocket([=]( bsocket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
 
-        server.onConnect([=]( bsocket_t cli ){ process::poll::add([=](){
+        server.onConnect.once([=]( bsocket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; } 
             if(  _read->c  <=  0 )   { return 1; }
@@ -148,7 +148,7 @@ namespace bth {
 
         process::task::add([=](){
             server.onConnect.emit(cli); return -1;
-        }); cli.onDrain([=](){ cli.free(); });
+        }); cli.onDrain.once([=](){ cli.free(); });
 
     }); server.poll( false ); return server; }
 
@@ -161,7 +161,7 @@ namespace bth {
 
     /*─······································································─*/
 
-    bth_t client( const bth_t& client ){ client.onOpen([=]( bsocket_t cli ){
+    bth_t client( const bth_t& client ){ client.onOpen.once([=]( bsocket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
 
         process::poll::add([=](){
@@ -169,7 +169,7 @@ namespace bth {
             if((*_read)(&cli)==1 )   { return 1; } 
             if(  _read->c  <=  0 )   { return 1; }
             cli.onData.emit(_read->y); return 1;
-        }); cli.onDrain([=](){ cli.free(); });
+        }); cli.onDrain.once([=](){ cli.free(); });
 
     }); return client; }
 

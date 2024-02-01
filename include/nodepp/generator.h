@@ -100,14 +100,15 @@ namespace nodepp { namespace _file_ {
         ulong size = 0;
         
     template< class T > _Emit( T* str, const string_t& msg ){
-    _GStart c=0; y=0; str->flush(); str->set_borrow( msg );
+    _GStart c=0; y=0; str->flush(); str->del_borrow();
 
         if( !str->is_available() || msg.empty() ){ str->close(); _End; } 
+        if(  str->get_borrow().empty() ){ str->set_borrow( msg ); }
         
         do { do { c = str->_write(str->get_borrow_data()+y,str->get_borrow_size()-y);
-              if( c==-2 ){ _Next; }
-        }  while( c==-2 ); if( c>0 ){ y += c; }
-        }  while( c>=0 && y<str->get_borrow_size() ); str->del_borrow(); 
+             if ( c==-2 ){ _Next; }
+        } while ( c==-2 ); if( c>0 ){ y += c; }
+        } while ( c>=0 && y<str->get_borrow_size() ); str->del_borrow();
         
         if( c<=0 ){ str->close(); _End; }
         
@@ -550,11 +551,11 @@ namespace nodepp { namespace _zlib_ {
     #define  GENERATOR_WS
 namespace nodepp { 
 
-    template< class T, class U > void WSServer( T& cli, U cb ) {
+    bool WSServer( http_t cli ) {
         auto data = cli.read(); cli.set_borrow( data ); int c=0;
         
         while(( c=cli.read_header() )>0 ){ process::next(); }
-           if(  c == -1  ){ return; }
+           if(  c == -1  ){ return 0; }
 
         if( !cli.headers["Sec-Websocket-Key"].empty() ){
 
@@ -571,8 +572,8 @@ namespace nodepp {
                 { "Upgrade", "Websocket" }
             }});
 
-            cli.stop(); cb( cli  ); return;
-        }   cli.set_borrow( data );
+            cli.stop();             return 1;
+        }   cli.set_borrow( data ); return 0;
 
     }
     
@@ -612,11 +613,11 @@ namespace nodepp {
     #define  GENERATOR_WSS
 namespace nodepp { 
     
-    template< class T, class U > void WSServer( T& cli, U cb ) {
+    bool WSServer( https_t cli ) {
         auto data = cli.read(); cli.set_borrow( data ); int c=0;
         
         while(( c=cli.read_header() )>0 ){ process::next(); }
-           if(  c == -1  ){ return; }
+           if(  c == -1  ){ return 0; }
 
         if( !cli.headers["Sec-Websocket-Key"].empty() ){
 
@@ -633,8 +634,8 @@ namespace nodepp {
                 { "Upgrade", "Websocket" }
             }});
 
-            cli.stop(); cb( cli  ); return;
-        }   cli.set_borrow( data );
+            cli.stop();             return 1;
+        }   cli.set_borrow( data ); return 0;
 
     }
     
@@ -685,12 +686,12 @@ namespace nodepp {
 
     ulong write_ws_frame( char* bf, const ulong& sx ){
 
-        if( bf == nullptr ){ return 0; }
+        if( bf == nullptr ){ return  0; }
 
         string_t y = string_t( bf, sx ); uint idx = 0; 
 
         bf[idx] = 0b10000001; idx++;
-        bf[idx] = 0b00000000;
+        bf[idx] = 0b00000000; // 0b10000000 MASKED
 
         if ( y.size() < 126 ){ 
             bf[idx]|= (uchar) y.size(); idx++;
@@ -715,7 +716,7 @@ namespace nodepp {
 
     ulong read_ws_frame( char* bf, const ulong& sx ){
 
-        if( bf == nullptr ){ return 0; }
+        if( bf == nullptr ){ return  0; }
 
         uint   idx = 0; ws_frame_t st;
         string_t y = string::to_bin( bf[idx] ); idx++;

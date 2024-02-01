@@ -120,13 +120,6 @@ namespace nodepp { namespace https {
     }
     
     /*─······································································─*/
-
-    template< class T > tls_t client( T cb, ssl_t* ctx, agent_t* opt=nullptr ){ 
-        auto client = tls::client( ctx, opt );
-        client.onOpen( cb ); return client;
-    }
-    
-    /*─······································································─*/
     
     promise_t<https_t,except_t> fetch ( const fetch_t& cfg, ssl_t* ctx, agent_t* opt=nullptr ) { 
            ptr_t<fetch_t> _cfg = new fetch_t( cfg );
@@ -141,7 +134,7 @@ namespace nodepp { namespace https {
         string_t dip = uri.hostname ;
         string_t dir = uri.pathname + uri.search + uri.hash;
        
-        auto client = https::client([=]( https_t cli ){ int c = 0;
+        auto client = tls_t ([=]( https_t cli ){ int c = 0;
             cli.write_headers( _cfg->method, dir, _cfg->version, _cfg->headers );
             cli.write_filestream( _cfg->body, _cfg->file );
             while(( c=cli.read_header() )>0 ){ process::next(); }
