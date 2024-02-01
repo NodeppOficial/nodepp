@@ -55,7 +55,7 @@ namespace nodepp { namespace ws {
     /*─······································································─*/
 
     tcp_t server( agent_t* opt=nullptr ){
-        auto server = http::server( [=]( http_t cli ){}, opt );
+        auto server = http::server( [=]( ... ){}, opt );
                         ws::server( server ); return server; 
     }
 
