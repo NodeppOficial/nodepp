@@ -17,9 +17,10 @@ public:
 
     template< class... T > 
     wss_t( const T&... args ) noexcept : ssocket_t(args...) {}
-    
-    /*─······································································─*/
 
+    /*─······································································─*/
+    
+/*
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         int    x = ssocket_t::_read( bf, sx );
         return x<=0 ? x : read_ws_frame( bf, x );
@@ -29,6 +30,7 @@ public:
         int    x = write_ws_frame( bf, sx );
         return x<=0 ? x : ssocket_t::_write( bf, x );
     }
+*/
 
 }; }
 
@@ -62,7 +64,7 @@ namespace nodepp { namespace wss {
 
     /*─······································································─*/
 
-    socket_t client( const string_t& url, ssl_t* ctx, agent_t* opt=nullptr ){
+    wss_t client( const string_t& url, ssl_t* ctx, agent_t* opt=nullptr ){
 
         string_t hsh = hash::hash("abcdefghiABCDEFGHI0123456789",22);
         string_t key = string::format("%s==",hsh.data());
@@ -77,7 +79,7 @@ namespace nodepp { namespace wss {
             { "Sec-Websocket-Version", "13" }
         }};
 
-        auto cli = nodepp::WSClient( https::fetch( args, ctx, opt ), key );
+        wss_t cli = nodepp::WSClient( https::fetch( args, ctx, opt ), key );
 
         cli.onOpen.once([=](){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }

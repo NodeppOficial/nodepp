@@ -171,12 +171,12 @@ public: file_t() noexcept {}
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } DWORD c = 0;
-        return is_blocked( ReadFileEx( obj->fd, bf, sx, &obj->ov, NULL ), c ) ? -2 : c;
+        return is_blocked( ReadFile( obj->fd, bf, sx, NULL, &obj->ov ), c ) ? -2 : c;
     }
 
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } DWORD c = 0;
-        return is_blocked( WriteFileEx( obj->fd, bf, sx, &obj->ov, NULL ), c ) ? -2 : c;
+        return is_blocked( WriteFile( obj->fd, bf, sx, NULL, &obj->ov ), c ) ? -2 : c;
     }
     
 };}

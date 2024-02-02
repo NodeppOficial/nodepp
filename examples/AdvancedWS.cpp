@@ -57,7 +57,7 @@ void client() {
             process::exit(1);
         });
         
-        cli.onData([=]( string_t data ){
+        cin.onData([=]( string_t data ){
             cli.write( data );
         });
 

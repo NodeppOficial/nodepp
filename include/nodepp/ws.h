@@ -17,7 +17,10 @@ public:
 
     template< class... T > 
     ws_t( const T&... args ) : socket_t(args...) {}
-    
+
+    /*─······································································─*/
+
+/*
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         int    x = socket_t::_read( bf, sx );
         return x<=0 ? x : read_ws_frame( bf, x );
@@ -27,6 +30,7 @@ public:
         int    x = write_ws_frame( bf, sx );
         return x<=0 ? x : socket_t::_write( bf, x );
     } 
+*/
 
 }; }
 
@@ -38,7 +42,7 @@ namespace nodepp { namespace ws {
         ptr_t<_file_::read> _read = new _file_::read;
         if ( !nodepp::WSServer( (http_t) cli ) ){ return; }
 
-        server.onConnect.once([=]( socket_t cli ){ process::poll::add([=](){
+        server.onConnect.once([=]( ws_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
             if(  _read->c  <=  0 )   { return 1; }
@@ -60,7 +64,7 @@ namespace nodepp { namespace ws {
 
     /*─······································································─*/
 
-    socket_t client( const string_t& url, agent_t* opt=nullptr ){
+    ws_t client( const string_t& url, agent_t* opt=nullptr ){
 
         string_t hsh = hash::hash("abcdefghiABCDEFGHI0123456789",22);
         string_t key = string::format("%s==",hsh.data());
@@ -75,7 +79,7 @@ namespace nodepp { namespace ws {
             { "Sec-Websocket-Version", "13" }
         }};
 
-        socket_t cli = nodepp::WSClient( http::fetch( args, opt ), key );
+        ws_t cli = nodepp::WSClient( http::fetch( args, opt ), key );
 
         cli.onOpen.once([=](){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }

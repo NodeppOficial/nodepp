@@ -752,7 +752,6 @@ namespace nodepp {
         if ( st.OPC ==  8 ){ return 0; }
 
         return st.LEN; 
-
     }
 
 }
