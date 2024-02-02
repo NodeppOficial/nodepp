@@ -1,5 +1,5 @@
 #include <nodepp/nodepp.h>
-#include <nodepp/stream.h>
+#include <nodepp/timer.h>
 #include <nodepp/serial.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -10,13 +10,27 @@ using namespace nodepp;
 
 void _main_() {
 
-    auto str = serial::connect( "/dev/ttyUSB0", 9600 );
+    auto list = serial::get_devices();
 
-    str.onData.on([=]( string_t chunk ){
-        console::print( (char*) chunk );
+    if( list.empty() ){ 
+        _Error("Not Serial Device Found"); 
+    } else {
+        console::log( list[0] );
+    }
+
+    auto x = serial::connect( list[0] );
+
+    x.onConnect([]( serial_t cli ){
+
+        console::log( "connected" );
+
+        cli.onData([]( string_t chunk ){
+            console::log( chunk );
+        });
+
     });
 
-    stream::pipeline( str );
+
 }
 
 /*────────────────────────────────────────────────────────────────────────────*/

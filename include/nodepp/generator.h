@@ -106,7 +106,7 @@ namespace nodepp { namespace _file_ {
         if(  str->get_borrow().empty() ){ str->set_borrow( msg ); }
         
         do { do { c = str->_write(str->get_borrow_data()+y,str->get_borrow_size()-y);
-             if ( c==-2 ){ _Next; }
+             if ( c==-2 /* true */ ){ _Next; }
         } while ( c==-2 ); if( c>0 ){ y += c; }
         } while ( c>=0 && y<str->get_borrow_size() ); str->del_borrow();
         

@@ -30,7 +30,7 @@ protected:
         const SSL_METHOD *method; method = TLS_server_method();
         SSL_CTX* ctx = SSL_CTX_new( method );
         SSL_CTX_set_read_ahead( ctx, 1 );
-    //  SSL_CTX_set_timeout( ctx, 0 );
+        SSL_CTX_set_timeout( ctx, 0 );
         return ctx;
     }
     
@@ -40,7 +40,7 @@ protected:
         const SSL_METHOD *method; method = TLS_client_method();
         SSL_CTX* ctx = SSL_CTX_new( method ); 
         SSL_CTX_set_read_ahead( ctx, 1 );
-    //  SSL_CTX_set_timeout( ctx, 0 );
+        SSL_CTX_set_timeout( ctx, 0 );
         return ctx;
     }
     

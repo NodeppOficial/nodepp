@@ -27,8 +27,8 @@ protected:
 
     void init_poll_loop() const noexcept { process::poll::add([=]( bth_t inp ){
         if( inp.is_closed() ){ return -1; } if( inp.obj->poll.emit() != -1 ) { auto x = inp.obj->poll.get_last_poll();
-                if( x[0] == 0 ){ bsocket_t cli(x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
-                if( x[0] == 1 ){ bsocket_t cli(x[1]); if(cli.is_available()){ cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }}
+                if( x[0] == 0 ){ bsocket_t cli(x[1]); cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }
+                if( x[0] == 1 ){ bsocket_t cli(x[1]); cli.set_sockopt(inp.obj->agent); inp.onSocket.emit(cli); inp.obj->func(cli); }
             #if _KERNEL == NODEPP_KERNEL_WINDOWS
                 if( x[0] ==-1 ){ ::closesocket(x[1]); }
             #else
