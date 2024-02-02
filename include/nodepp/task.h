@@ -22,7 +22,7 @@ namespace task {
     template< class T, class... V >
     void add( T cb, const V&... arg ){ 
         ptr_t<type::pair<bool,T>> pb = new type::pair<bool,T>({ 0, cb });
-        queue.push([=](){ 
+        queue.unshift([=](){ 
             if(pb->first){ return 1; } pb->first = 1;
             int rs = (pb->second)(arg...);
             pb->first = 0; return rs; 
@@ -32,7 +32,7 @@ namespace task {
     void next(){ onNext.emit();
         if( queue.empty() ){ return; }
         int result = queue.get()->data();
-          if ( result == 1 ){ queue.next(); }
+          if ( result == 1 ){ queue.prev(); }
         elif ( result <  0 ){ queue.erase( queue.get() ); }
     }
 
@@ -53,7 +53,7 @@ namespace loop {
     template< class T, class... V >
     void add( T cb, const V&... arg ){ 
         ptr_t<type::pair<bool,T>> pb = new type::pair<bool,T>({ 0, cb });
-        queue.push([=](){ 
+        queue.unshift([=](){ 
             if(pb->first){ return 1; } pb->first = 1;
             int rs = (pb->second)(arg...);
             pb->first = 0; return rs; 
@@ -63,7 +63,7 @@ namespace loop {
     void next(){ onNext.emit();
         if( queue.empty() ){ return; }
         int result = queue.get()->data();
-          if ( result == 1 ){ queue.next(); }
+          if ( result == 1 ){ queue.prev(); }
         elif ( result <  0 ){ queue.erase( queue.get() ); }
     }
 
@@ -84,7 +84,7 @@ namespace poll {
     template< class T, class... V >
     void add( T cb, const V&... arg ){ 
         ptr_t<type::pair<bool,T>> pb = new type::pair<bool,T>({ 0, cb });
-        queue.push([=](){ 
+        queue.unshift([=](){ 
             if(pb->first){ return 1; } pb->first = 1;
             int rs = (pb->second)(arg...);
             pb->first = 0; return rs; 
@@ -94,7 +94,7 @@ namespace poll {
     void next(){ onNext.emit();
         if( queue.empty() ){ return; }
         int result = queue.get()->data();
-          if ( result == 1 ){ queue.next(); }
+          if ( result == 1 ){ queue.prev(); }
         elif ( result <  0 ){ queue.erase( queue.get() ); }
     }
 
