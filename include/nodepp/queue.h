@@ -270,7 +270,7 @@ public: queue_t() noexcept {}
         if ( x == act ){ act = next(); }
         if ( x == first() ){
             if( x->nxt != nullptr ) x->nxt->prv = nullptr;
-                queue   = x->nxt;
+                queue   = x->nxt; x = nullptr;
         } elif ( x == last() ){
             if( x->prv != nullptr ) x->prv->nxt = nullptr;
                 delete x; x = nullptr;

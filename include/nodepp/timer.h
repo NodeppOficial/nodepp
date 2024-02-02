@@ -50,16 +50,6 @@ namespace nodepp { namespace timer {
     };
     
     /*─······································································─*/
-    
-    void delay( ulong* time ){
-        ulong stamp = process::millis() + *time;
-        while( process::millis() < stamp )
-             { process::next(); }
-    };
-
-    void delay( ulong time ){ delay( (ulong*) &time ); }
-    
-    /*─······································································─*/
 
     void clear( const ptr_t<ulong>& address ){ if( !address ) *address = 0; }
 
@@ -108,16 +98,6 @@ namespace nodepp { namespace utimer {
     ptr_t<ulong> interval( V func, ulong time, const T&... args ){
         return utimer::add([=]( T... args ){ func(args...); return 1; }, time, args... );
     };
-    
-    /*─······································································─*/
-    
-    void delay( ulong* time ){
-        ulong stamp = process::micros() + *time;
-        while( process::micros() < stamp )
-             { process::next(); }
-    };
-
-    void delay( ulong time ){ delay( (ulong*) &time ); }
     
     /*─······································································─*/
 
