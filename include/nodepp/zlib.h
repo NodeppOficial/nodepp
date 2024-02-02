@@ -46,25 +46,6 @@ string_t _inflate_( const string_t& input, const T& onData ){ z_stream stream;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace zlib { namespace rawinflate {
-
-    string_t get( const string_t& input ){
-        return nodepp::_inflate_( input, []( z_stream* stream ){
-            return inflateInit( stream );
-        });        
-    }
-
-    template< class... T >
-    void pipe( const T&... file ){ _zlib_::inflate arg;
-        process::poll::add( arg, file..., []( z_stream* stream ){
-            return inflateInit( stream );
-        });
-    }
-
-}}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 namespace { template< class T >
 string_t _deflate_( const string_t& input, const T& onData ){ z_stream stream;
     string_t output; char buffer[UNBFF_SIZE]; ulong size=0;
@@ -93,6 +74,25 @@ string_t _deflate_( const string_t& input, const T& onData ){ z_stream stream;
         }
 
     } while ( stream.avail_in == 0 ); deflateEnd(&stream); return output;
+}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace zlib { namespace rawinflate {
+
+    string_t get( const string_t& input ){
+        return nodepp::_inflate_( input, []( z_stream* stream ){
+            return inflateInit( stream );
+        });        
+    }
+
+    template< class... T >
+    void pipe( const T&... file ){ _zlib_::inflate arg;
+        process::poll::add( arg, file..., []( z_stream* stream ){
+            return inflateInit( stream );
+        });
+    }
+
 }}
 
 /*────────────────────────────────────────────────────────────────────────────*/
