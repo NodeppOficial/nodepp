@@ -15,38 +15,14 @@
 
 namespace nodepp { namespace conio {
 
-    int background( int color ){ 
-        if( color & 0x10 ){ printf("\033[1m"); color &= 0x0f; }
-        switch( color ) {
-            case C_BLACK:   return printf("\033[40m"); break;
-            case C_WHITE:   return printf("\033[47m"); break;
-            case C_GREEN:   return printf("\033[42m"); break;
-            case C_RED:     return printf("\033[41m"); break;
-            case C_BLUE:    return printf("\033[44m"); break;
-            case C_CYAN:    return printf("\033[46m"); break;
-            case C_YELLOW:  return printf("\033[43m"); break;
-            case C_MAGENTA: return printf("\033[45m"); break;
-        }   return -1;
-    }
+    template< class... T >
+    int print( const T&... args ){ printf( args... ); return printf("\033[0m"); }
 
-    int foreground( int color ){
-        if( color & 0x10 ){ printf("\033[1m"); color &= 0x0f; }
-        switch( color ) {
-            case C_BLACK:   return printf("\033[30m"); break;
-            case C_WHITE:   return printf("\033[37m"); break;
-            case C_GREEN:   return printf("\033[32m"); break;
-            case C_RED:     return printf("\033[31m"); break;
-            case C_BLUE:    return printf("\033[34m"); break;
-            case C_CYAN:    return printf("\033[36m"); break;
-            case C_YELLOW:  return printf("\033[33m"); break;
-            case C_MAGENTA: return printf("\033[35m"); break;
-        }   return -1;
+    namespace { template< class... T > 
+    int pout( const T&... args ){ return printf( args... ); }
     }
 
     /*─······································································─*/
-
-    template< class... T >
-    int print( const T&... args ){ printf( args... ); return printf("\033[0m"); }
     
     int set_position( int x, int y ){ return print("\033[%d;%dH",x,y); }
 
@@ -55,13 +31,47 @@ namespace nodepp { namespace conio {
         return {{ csbi.ws_row, csbi.ws_col }};
     }
 
-    int undescore(){ return printf("\033[4m"); }
+    /*─······································································─*/
 
-    int inverse(){ return printf("\033[7m"); }
+    int gotoxy( int x, int y ){ return set_position( x, y ); }
 
-    int reset(){ return printf("\033[0m"); }
+    int undescore(){ return pout("\033[4m"); }
+
+    int inverse(){ return pout("\033[7m"); }
+
+    int reset(){ return pout("\033[0m"); }
     
-    int clear(){ return printf("\033c"); }
+    int clear(){ return pout("\033c"); }
+
+    /*─······································································─*/
+
+    int background( int color ){ 
+        if( color & 0x10 ){ pout("\033[1m"); color &= 0x0f; }
+        switch( color ) {
+            case C_BLACK:   return pout("\033[40m"); break;
+            case C_WHITE:   return pout("\033[47m"); break;
+            case C_GREEN:   return pout("\033[42m"); break;
+            case C_RED:     return pout("\033[41m"); break;
+            case C_BLUE:    return pout("\033[44m"); break;
+            case C_CYAN:    return pout("\033[46m"); break;
+            case C_YELLOW:  return pout("\033[43m"); break;
+            case C_MAGENTA: return pout("\033[45m"); break;
+        }   return -1;
+    }
+
+    int foreground( int color ){
+        if( color & 0x10 ){ pout("\033[1m"); color &= 0x0f; }
+        switch( color ) {
+            case C_BLACK:   return pout("\033[30m"); break;
+            case C_WHITE:   return pout("\033[37m"); break;
+            case C_GREEN:   return pout("\033[32m"); break;
+            case C_RED:     return pout("\033[31m"); break;
+            case C_BLUE:    return pout("\033[34m"); break;
+            case C_CYAN:    return pout("\033[36m"); break;
+            case C_YELLOW:  return pout("\033[33m"); break;
+            case C_MAGENTA: return pout("\033[35m"); break;
+        }   return -1;
+    }
 
     /*─······································································─*/
 

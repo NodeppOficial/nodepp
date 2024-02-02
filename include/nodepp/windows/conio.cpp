@@ -77,9 +77,13 @@ namespace nodepp { namespace conio { WORD attr = 0, dflt = 7;
         }};
     }
 
+    /*─······································································─*/
+
     int inverse(){ attr |= COMMON_LVB_REVERSE_VIDEO; return 1; }
 
     int underscore(){ attr |= COMMON_LVB_UNDERSCORE; return 1; }
+
+    int gotoxy( int x, int y ){ return set_position( x, y ); }
 
     int clear(){ return system("cls"); }
 
