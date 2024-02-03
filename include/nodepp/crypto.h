@@ -38,7 +38,7 @@ namespace nodepp {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace {
+namespace crypto {
 
     string_t buff2hex( const string_t& inp ){
         string_t out; for( auto x : inp ){
@@ -88,7 +88,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -174,7 +174,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept {
@@ -274,7 +274,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -394,7 +394,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -505,7 +505,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -573,7 +573,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -659,7 +659,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -731,7 +731,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -826,7 +826,7 @@ public:
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return buff2hex( this->get_public_key() );
+        return crypto::buff2hex( this->get_public_key() );
     }
 
     string_t get_private_key() const noexcept { 
@@ -837,7 +837,7 @@ public:
 
     string_t get_private_key_hex() const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return buff2hex( this->get_private_key() );
+        return crypto::buff2hex( this->get_private_key() );
     }
 
     void force_close() const noexcept { 
@@ -940,12 +940,12 @@ public:
 
     string_t get_public_key( uint x = 0 ) const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return hex2buff( get_public_key_hex(x) );
+        return crypto::hex2buff( get_public_key_hex(x) );
     }
 
     string_t get_private_key() const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return hex2buff( get_private_key_hex() );
+        return crypto::hex2buff( get_private_key_hex() );
     }
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept { 
@@ -1034,7 +1034,7 @@ public:
     }
 
     string_t get_key( uint x = 0 ) const noexcept {
-        return hex2buff( this->get_key_hex() );
+        return crypto::hex2buff( this->get_key_hex() );
     }
 
     string_t get_key_hex( uint x = 0 ) const noexcept { 
