@@ -2,7 +2,7 @@
 #define NODEPP_CRYPTO
 
 #ifndef OPENSSL_API_COMPAT
-#define OPENSSL_API_COMPAT 0x00908000L
+#define OPENSSL_API_COMPAT 0x10100000L
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -70,11 +70,12 @@ protected:
 public:
 
     template< class T >
-    hash_t( const T& type, ulong length ) noexcept : obj( new _str_() ) {
-        obj->buff = ptr_t<uchar>( length );
-        obj->ctx    = EVP_MD_CTX_new();
-        obj->state  = 1;
-        EVP_DigestInit_ex( obj->ctx, type, NULL );
+    hash_t( const T& type, ulong length ) : obj( new _str_() ) {
+        obj->buff  = ptr_t<uchar>( length );
+        obj->ctx   = EVP_MD_CTX_new();
+        obj->state = 1;
+        if ( !obj->ctx || !EVP_DigestInit_ex( obj->ctx, type, NULL ) )
+           { _Error("cant initializate hash_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { 
@@ -151,9 +152,12 @@ protected:
 public:
 
     template< class T >
-    hmac_t( const string_t& key, const T& type, ulong length ) noexcept : obj( new _str_() ) { 
-        obj->buff = ptr_t<uchar>( length ); obj->ctx = HMAC_CTX_new(); obj->state = 1;
-        HMAC_Init_ex( obj->ctx, key.c_str(), key.size(), type, nullptr );
+    hmac_t( const string_t& key, const T& type, ulong length ) : obj( new _str_() ) { 
+        obj->buff  = ptr_t<uchar>( length ); 
+        obj->ctx   = HMAC_CTX_new(); 
+        obj->state = 1;
+        if ( !obj->ctx || !HMAC_Init_ex( obj->ctx, key.c_str(), key.size(), type, nullptr ) )
+           { _Error("cant initializate hmac_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { 
@@ -233,19 +237,21 @@ public:
     event_t<>         onClose;
 
     template< class T >
-    encrypt_t( const string_t& iv, const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
-        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,'\0');
-        obj->ctx    = EVP_CIPHER_CTX_new(); 
-        obj->state  = 1; 
-        EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() );
+    encrypt_t( const string_t& iv, const string_t& key, const T& type ) : obj( new _str_() ) {
+        obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
+        obj->ctx   = EVP_CIPHER_CTX_new(); 
+        obj->state = 1; 
+        if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
+           { _Error("cant initializate encrypt_t"); }
     }
 
     template< class T >
     encrypt_t( const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
-        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,'\0');
-        obj->ctx    = EVP_CIPHER_CTX_new(); 
-        obj->state  = 1; 
-        EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), NULL );
+        obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
+        obj->ctx   = EVP_CIPHER_CTX_new(); 
+        obj->state = 1; 
+        if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), NULL ) )
+           { _Error("cant initializate encrypt_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
@@ -337,8 +343,8 @@ protected:
     struct _str_ {
         EVP_CIPHER_CTX* ctx; 
         ptr_t<uchar> bff;
-        string_t buff;
         int state, len;
+        string_t buff;
     };  ptr_t<_str_> obj;
     
 public:
@@ -348,18 +354,20 @@ public:
 
     template< class T >
     decrypt_t( const string_t& iv, const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
-        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,'\0');
-        obj->ctx    = EVP_CIPHER_CTX_new(); 
-        obj->state  = 1;
-        EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() );
+        obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
+        obj->ctx   = EVP_CIPHER_CTX_new(); 
+        obj->state = 1;
+        if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
+           { _Error("cant initializate decrypt_t"); }
     }
 
     template< class T >
     decrypt_t( const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
-        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,'\0');
-        obj->ctx    = EVP_CIPHER_CTX_new(); 
-        obj->state  = 1;
-        EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), NULL );
+        obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
+        obj->ctx   = EVP_CIPHER_CTX_new(); 
+        obj->state = 1;
+        if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), NULL ) )
+           { _Error("cant initializate decrypt_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
@@ -451,8 +459,8 @@ protected:
     struct _str_ {
         EVP_ENCODE_CTX* ctx; 
         ptr_t<uchar> bff;
-        string_t buff;
         int state, len;
+        string_t buff;
     };  ptr_t<_str_> obj;
     
 public:
@@ -460,10 +468,12 @@ public:
     event_t<string_t> onData;
     event_t<>         onClose;
 
-    enc_base64_t() noexcept : obj( new _str_() ) {
-        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,0);
-        obj->ctx    = EVP_ENCODE_CTX_new();
-        obj->state  = 1;
+    enc_base64_t() : obj( new _str_() ) {
+        obj->bff   = ptr_t<uchar>(UNBFF_SIZE,0);
+        obj->ctx   = EVP_ENCODE_CTX_new();
+        obj->state = 1;
+        if ( !obj->ctx )
+           { _Error("cant initializate base64 encoder"); }
         EVP_EncodeInit( obj->ctx );
     }
 
@@ -509,15 +519,21 @@ protected:
         BIGNUM* bn;
         string_t chr;
         string_t buff;
+        int      state;
     };  ptr_t<_str_> obj;
 
 public:
 
-    encoder_t( string_t chr ) noexcept : obj( new _str_() ) {
-        obj->chr = chr; obj->bn = (BIGNUM*) BN_new();
+    encoder_t( string_t chr ) : obj( new _str_() ) {
+        obj->state = 1; obj->chr = chr; 
+        obj->bn = (BIGNUM*) BN_new();
+        if ( !obj->bn )
+           { _Error("cant initializate encoder"); }
     }
 
     void update( const string_t& msg ) const noexcept { 
+        if( obj->state != 1 ){ return; }
+
         BN_bin2bn( (uchar*)msg.data(), msg.size(), obj->bn );
 
         while( BN_cmp( obj->bn, BN_value_one() ) > 0 ) {
@@ -541,6 +557,8 @@ public:
     }
 
     void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; }
+            obj->state  = 0;
         BN_clear_free( obj->bn );
     }
 
@@ -573,10 +591,6 @@ namespace crypto { namespace enc {
           BASE4 () noexcept : encoder_t( "123" ){}
     };
 
-    class BASE2 : public encoder_t { public: 
-          BASE2 () noexcept : encoder_t( "1" ){}
-    };
-
     class BASE64 : public enc_base64_t { public:
           BASE64 () noexcept : enc_base64_t() {}
     };
@@ -591,8 +605,8 @@ protected:
     struct _str_ {
         EVP_ENCODE_CTX* ctx; 
         ptr_t<uchar> bff;
-        string_t buff;
         int state, len;
+        string_t buff;
     };  ptr_t<_str_> obj;
 
 public:
@@ -600,10 +614,12 @@ public:
     event_t<string_t> onData;
     event_t<>         onClose;
 
-    dec_base64_t() noexcept : obj( new _str_() ) {
-        obj->bff    = ptr_t<uchar>(UNBFF_SIZE,0);
-        obj->ctx    = EVP_ENCODE_CTX_new();
-        obj->state  = 1;
+    dec_base64_t() : obj( new _str_() ) {
+        obj->bff   = ptr_t<uchar>(UNBFF_SIZE,0);
+        obj->ctx   = EVP_ENCODE_CTX_new();
+        obj->state = 1;
+        if ( !obj->ctx )
+           { _Error("cant initializate base64 decoder"); }
         EVP_DecodeInit( obj->ctx );
     }
 
@@ -649,6 +665,7 @@ protected:
         BIGNUM* bn;
         string_t chr;
         string_t buff;
+        int      state;
     };  ptr_t<_str_> obj;
 
 public:
@@ -656,18 +673,22 @@ public:
     event_t<string_t> onData;
     event_t<>         onClose;
 
-    decoder_t( string_t chr ) noexcept : obj( new _str_() ) {
-        obj->chr = chr; obj->bn = (BIGNUM*) BN_new();
+    decoder_t( string_t chr ) : obj( new _str_() ) {
+        obj->state = 1; obj->chr = chr; 
+        obj->bn = (BIGNUM*) BN_new();
+        if ( !obj->bn )
+           { _Error("cant initializate decoder"); }
     }
 
     void update( const string_t& msg ) const { 
+        if( obj->state != 1 ){ return; }
 
         for( const auto& c : msg ) {
-            const char* pos = strchr( obj->chr.data(), c );
-            if( pos == nullptr ) _Error("Invalid BaseX character");
+             const char* pos = strchr( obj->chr.data(), c );
+             if( pos == nullptr ) _Error("Invalid BaseX character");
 
-            BN_mul_word( obj->bn, obj->chr.size() );
-            BN_add_word( obj->bn, pos - obj->chr.data() );
+             BN_mul_word( obj->bn, obj->chr.size() );
+             BN_add_word( obj->bn, pos - obj->chr.data() );
         }
 
         ptr_t<uchar> out ( BN_num_bytes(obj->bn) );
@@ -686,6 +707,7 @@ public:
     }
 
     void force_close() const noexcept { 
+        if( obj->state == 1 ){ return; } obj->state = 0;
          BN_clear_free( obj->bn ); onClose.emit();
     }
 
@@ -718,10 +740,6 @@ namespace crypto { namespace dec {
           BASE4 () noexcept : decoder_t( "123" ){}
     };
 
-    class BASE2 : public decoder_t { public: 
-          BASE2 () noexcept : decoder_t( "1" ){}
-    };
-
     class BASE64 : public dec_base64_t { public:
           BASE64 () noexcept : dec_base64_t() {}
     };
@@ -734,15 +752,17 @@ class ecdh_t {
 protected:
 
     struct _str_ {
-        EC_POINT *pub_key   = nullptr;
-        BIGNUM   *priv_key  = nullptr;
-        EC_KEY   *key_pair  = nullptr;
+        EC_POINT *pub_key  = nullptr;
+        BIGNUM   *priv_key = nullptr;
+        EC_KEY   *key_pair = nullptr;
+        int       state;
     };  ptr_t<_str_> obj;
     
 public:
 
     template< class T >
     ecdh_t( const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
+        obj->state = 1;
 
         obj->key_pair = EC_KEY_new_by_curve_name(type);
                         EC_KEY_generate_key( obj->key_pair );
@@ -753,41 +773,43 @@ public:
 
         const EC_POINT* pub_key = EC_KEY_get0_public_key( obj->key_pair );
         obj->pub_key = EC_POINT_dup(pub_key, EC_KEY_get0_group(obj->key_pair));
-
     }
 
     template< class T >
     ecdh_t( const T& type ) noexcept : obj( new _str_() ) {
+        obj->state = 1;
 
         obj->key_pair = EC_KEY_new_by_curve_name(type);
                         EC_KEY_generate_key( obj->key_pair );
 
         obj->pub_key  = EC_KEY_get0_public_key( obj->key_pair );
         obj->priv_key = EC_KEY_get0_private_key( obj->key_pair );
-
     }
 
     string_t get_public_key( uint x = 0 ) const noexcept { 
-        unsigned char *key = NULL;
+        if( obj->state != 1 ){ return ""; } uchar *key = NULL;
         int len = i2o_ECPublicKey( obj->key_pair , &key );
         return { (char*) &key, (ulong) len };
     }
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept {
+        if( obj->state != 1 ){ return ""; }
         return crypto::buff2hex( this->get_public_key() );
     }
 
     string_t get_private_key() const noexcept { 
-        unsigned char *key = NULL;
+        if( obj->state != 1 ){ return ""; } uchar *key = NULL;
         int len = i2d_ECPrivateKey( obj->key_pair , &key ); 
         return { (char*) &key, (ulong) len };
     }
 
     string_t get_private_key_hex() const noexcept {
+        if( obj->state != 1 ){ return ""; }
         return crypto::buff2hex( this->get_private_key() );
     }
 
     void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
         if( obj->priv_key != nullptr ) BN_free( obj->priv_key );
     //  if( obj->key_pair != nullptr ) EC_KEY_free( obj->key_pair );
         if( obj->pub_key  != nullptr ) EC_POINT_free( obj->pub_key );
@@ -844,12 +866,14 @@ protected:
         EC_POINT *pub_key   = nullptr;
         BIGNUM   *priv_key  = nullptr;
         EC_KEY   *key_pair  = nullptr;
+        int       state;
     };  ptr_t<_str_> obj;
     
 public:
 
     template< class T >
     ecdsa_t( const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
+        obj->state = 1;
 
         obj->key_pair  = EC_KEY_new_by_curve_name(type);
         obj->key_group = EC_GROUP_new_by_curve_name(type);
@@ -866,6 +890,7 @@ public:
 
     template< class T >
     ecdsa_t( const T& type ) noexcept : obj( new _str_() ) {
+        obj->state = 1;
 
         obj->key_pair  = EC_KEY_new();
         obj->key_group = EC_GROUP_new_by_curve_name( type );
@@ -874,26 +899,21 @@ public:
         EC_KEY_generate_key( obj->key_pair );
 
         obj->pub_key  = (EC_POINT*) EC_KEY_get0_public_key( obj->key_pair );
-        obj->priv_key = (BIGNUM*) EC_KEY_get0_private_key( obj->key_pair );
+        obj->priv_key = (BIGNUM*)  EC_KEY_get0_private_key( obj->key_pair );
     }
 
     string_t get_public_key( uint x = 0 ) const noexcept {
-        string_t inp = get_public_key_hex(x), out; while( !inp.empty() ){
-            string_t sec = inp.splice(0,2); char ch = 0; 
-            string::parse( sec, "%02x", &ch );
-            out.push( ch );
-        }   return out;
+        if( obj->state != 1 ){ return ""; }
+        return crypto::hex2buff( get_public_key_hex(x) );
     }
 
     string_t get_private_key() const noexcept {
-        string_t inp = get_private_key_hex(), out; while( !inp.empty() ){
-            string_t sec = inp.splice(0,2); char ch = 0; 
-            string::parse( sec, "%02x", &ch );
-            out.push( ch );
-        }   return out;
+        if( obj->state != 1 ){ return ""; }
+        return crypto::hex2buff( get_private_key_hex() );
     }
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept { 
+        if( obj->state != 1 ){ return ""; }
         point_conversion_form_t y; switch( x ){
             case 0:  y = POINT_CONVERSION_HYBRID;       break;
             case 1:  y = POINT_CONVERSION_COMPRESSED;   break;
@@ -904,6 +924,7 @@ public:
     string_t get_private_key_hex() const noexcept { return BN_bn2hex( obj->priv_key ); }
 
     void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
         if( obj->priv_key  != nullptr ) BN_free( obj->priv_key );
     //  if( obj->key_pair  != nullptr ) EC_KEY_free( obj->key_pair );
         if( obj->pub_key   != nullptr ) EC_POINT_free( obj->pub_key );
@@ -952,7 +973,7 @@ namespace crypto { namespace ecdsa { //openssl ecparam -list_curves
 }   }
 
 /*────────────────────────────────────────────────────────────────────────────*/
-/* DH & rsa falta OK
+/* rsa falta OK
 class rsa_t {
 protected:
 
@@ -973,11 +994,11 @@ public:
     }
 
     string_t get_key( uint x = 0 ) const noexcept {
-        return hex2buff( this->get_key_hex() );
+        return crypto::hex2buff( this->get_key_hex() );
     }
 
     string_t get_key_hex( uint x = 0 ) const noexcept { 
-        if ( RSA_generate_key_ex( obj->rsa, obj->len, obj->key, NULL ) != 1 ) 
+        if (!RSA_generate_key_ex( obj->rsa, obj->len, obj->key, NULL ) ) 
            { return ""; } BN_bn2hex( obj->key ); return obj->key;
     }
 
@@ -997,28 +1018,103 @@ public:
 */
 /*────────────────────────────────────────────────────────────────────────────*/
 
+class dh_t {
+protected:
+
+    struct _str_ {
+        DH* dh;
+        BIGNUM* g;
+        BIGNUM* p;
+        int state;
+    };  ptr_t<_str_> obj;
+
+public:
+
+    dh_t( int primeLength, int generator ) { obj->state = 1;
+        obj->dh    = DH_new(); 
+        obj->g     = BN_new();
+        obj->p     = BN_new();
+        obj->state = 1;
+        if( !obj->dh || !obj->g )
+          { _Error( "creating new dh_t" ); }
+        if( !DH_check( obj->dh, nullptr ) )
+          { _Error( "while checking dh" ); }
+        if( !DH_generate_key( obj->dh ) )
+          { _Error( "while generating dh params" ); }
+    }
+
+    int set_public_key( string_t key ) const noexcept {
+        if( obj->state != 1 ){ return 0; }
+               BN_hex2bn( &obj->p, key.c_str() );
+        return DH_set0_key( obj->dh, nullptr, obj->p );
+    }
+
+    int set_private_key( string_t key ) const noexcept {
+        if( obj->state != 1 ){ return 0; }
+               BN_hex2bn( &obj->p, key.c_str() );
+        return DH_set0_key( obj->dh, obj->p, nullptr );
+    }
+
+    string_t get_private_key() const noexcept {
+        if( obj->state != 1 ){ return ""; } 
+        return BN_bn2hex( DH_get0_priv_key( obj->dh ) );
+    }
+
+    string_t get_public_key() const noexcept {
+        if( obj->state != 1 ){ return ""; } 
+        return BN_bn2hex( DH_get0_pub_key( obj->dh ) );
+    }
+
+    string_t compute_key( string_t key ) const noexcept {
+        if( obj->state != 1 ){ return ""; } 
+        ptr_t<uchar> shared ( DH_size( obj->dh ) );
+                  BN_hex2bn( &obj->p, key.c_str() );
+        int len = DH_compute_key( &shared, obj->p, obj->dh );
+        return (string_t){ (char*) &shared, (ulong) len };
+    }
+
+    void force_close() const noexcept {
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        DH_free( obj->dh ); BN_free( obj->p ); BN_free( obj->g );
+    }
+
+};
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace crypto { namespace DH {
+    
+    class DH : public dh_t { public: template< class... T >
+          DH ( const T&... args ) noexcept : dh_t( args... ) {}
+    };
+
+} }
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 class dsa_t {
 protected:
 
     struct _str_ {
         DSA    *dsa = nullptr;
         uint    len = 512;
+        int     state;
     };  ptr_t<_str_> obj;
     
 public:
 
     template< class T >
     dsa_t( uint size ) : obj( new _str_() ) {
-        obj->len = size; obj->dsa = DSA_new();
-        if( DSA_generate_parameters_ex( obj->dsa, obj->len, NULL, 0, NULL, NULL, NULL ) != 1 )
+        obj->state = 1; obj->len = size; obj->dsa = DSA_new(); 
+        if(!DSA_generate_parameters_ex( obj->dsa, obj->len, NULL, 0, NULL, NULL, NULL ) )
           { _Error("while generating DSA parameters"); }
-        if( DSA_generate_key( obj->dsa ) != 1 )
+        if(!DSA_generate_key( obj->dsa ) )
           { _Error("while generating DSA key"); }
 
     }
 
     template< class T >
-    dsa_t( string_t path, uint size ) : obj( new _str_() ) {
+    dsa_t( string_t path, uint size ) : obj( new _str_() ) { obj->state = 1;
         obj->len = size; obj->dsa = DSA_new(); FILE* fp = fopen(path.c_str(),"r");
         if ( fp == nullptr ) _Error("such file or directory does not exist");
         obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, nullptr, nullptr );
@@ -1026,26 +1122,30 @@ public:
     }
 
     string_t sign( string_t hash, uint hash_digest ) const noexcept {
+        if( obj->state != 1 ){ return ""; }
         uchar signature[DSA_size(obj->dsa)]; uint len;
         DSA_sign( 0, (uchar*)hash.c_str(), hash_digest, signature, &len, obj->dsa );
         return { (char*)signature, (ulong) len };
     }
 
     void save_private_key( string_t path ) const {
+        if( obj->state != 1 ){ return; }
         FILE* fp = fopen( path.c_str(), "w" );
         if ( fp == nullptr ) { _Error("while creating file"); }
-        if ( PEM_write_DSA_PUBKEY( fp, obj->dsa ) != 1 ) 
+        if (!PEM_write_DSA_PUBKEY( fp, obj->dsa ) ) 
            { fclose( fp ); _Error("while writting the private key"); } fclose( fp );
     }
 
     void save_public_key( string_t path ) const {
+        if( obj->state != 1 ){ return; }
         FILE* fp = fopen( path.c_str(), "w" );
         if ( fp == nullptr ) { _Error("while creating file"); }
-        if ( PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, nullptr, nullptr ) != 1 )
+        if (!PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, nullptr, nullptr ) )
            { fclose( fp ); _Error("while writting the public key"); } fclose( fp );
     }
 
     void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
         if( obj->dsa != nullptr ) DSA_free( obj->dsa );
     }
 
