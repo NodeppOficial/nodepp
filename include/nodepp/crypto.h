@@ -278,30 +278,30 @@ public:
 
 namespace crypto { namespace enc {
     
-    class AES_X128_CBC : public encrypt_t { public: template< class... T >
-          AES_X128_CBC( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_128_cbc() ) {}
+    class AES_128_CBC : public encrypt_t { public: template< class... T >
+          AES_128_CBC( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_128_cbc() ) {}
     };
     
-    class AES_X192_CBC : public encrypt_t { public: template< class... T >
-          AES_X192_CBC( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_192_cbc() ) {}
+    class AES_192_CBC : public encrypt_t { public: template< class... T >
+          AES_192_CBC( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_192_cbc() ) {}
     };
     
-    class AES_X256_CBC : public encrypt_t { public: template< class... T >
-          AES_X256_CBC( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_256_cbc() ) {}
+    class AES_256_CBC : public encrypt_t { public: template< class... T >
+          AES_256_CBC( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_256_cbc() ) {}
     };
 
     /*─······································································─*/
     
-    class AES_X128_ECB : public encrypt_t { public: template< class... T >
-          AES_X128_ECB( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_128_ecb() ) {}
+    class AES_128_ECB : public encrypt_t { public: template< class... T >
+          AES_128_ECB( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_128_ecb() ) {}
     };
     
-    class AES_X192_ECB : public encrypt_t { public: template< class... T >
-          AES_X192_ECB( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_192_ecb() ) {}
+    class AES_192_ECB : public encrypt_t { public: template< class... T >
+          AES_192_ECB( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_192_ecb() ) {}
     };
     
-    class AES_X256_ECB : public encrypt_t { public: template< class... T >
-          AES_X256_ECB( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_256_ecb() ) {}
+    class AES_256_ECB : public encrypt_t { public: template< class... T >
+          AES_256_ECB( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_256_ecb() ) {}
     };
 
     /*─······································································─*/
@@ -385,30 +385,30 @@ public:
 
 namespace crypto { namespace dec {
     
-    class AES_X128_CBC : public decrypt_t { public: template< class... T >
-          AES_X128_CBC( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_128_cbc() ) {}
+    class AES_128_CBC : public decrypt_t { public: template< class... T >
+          AES_128_CBC( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_128_cbc() ) {}
     };
     
-    class AES_X192_CBC : public decrypt_t { public: template< class... T >
-          AES_X192_CBC( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_192_cbc() ) {}
+    class AES_192_CBC : public decrypt_t { public: template< class... T >
+          AES_192_CBC( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_192_cbc() ) {}
     };
     
-    class AES_X256_CBC : public decrypt_t { public: template< class... T >
-          AES_X256_CBC( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_256_cbc() ) {}
+    class AES_256_CBC : public decrypt_t { public: template< class... T >
+          AES_256_CBC( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_256_cbc() ) {}
     };
 
     /*─······································································─*/
     
-    class AES_X128_ECB : public decrypt_t { public: template< class... T >
-          AES_X128_ECB( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_128_ecb() ) {}
+    class AES_128_ECB : public decrypt_t { public: template< class... T >
+          AES_128_ECB( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_128_ecb() ) {}
     };
     
-    class AES_X192_ECB : public decrypt_t { public: template< class... T >
-          AES_X192_ECB( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_192_ecb() ) {}
+    class AES_192_ECB : public decrypt_t { public: template< class... T >
+          AES_192_ECB( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_192_ecb() ) {}
     };
     
-    class AES_X256_ECB : public decrypt_t { public: template< class... T >
-          AES_X256_ECB( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_256_ecb() ) {}
+    class AES_256_ECB : public decrypt_t { public: template< class... T >
+          AES_256_ECB( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_256_ecb() ) {}
     };
 
     /*─······································································─*/
