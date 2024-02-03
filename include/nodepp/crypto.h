@@ -108,31 +108,31 @@ public:
 namespace crypto { namespace hash {
 
     class MD4 : public hash_t { public:
-          MD4() noexcept : hash_t( EVP_md4(), MD4_DIGEST_LENGTH ) {}
+          MD4() : hash_t( EVP_md4(), MD4_DIGEST_LENGTH ) {}
     };
 
     class MD5 : public hash_t { public:
-          MD5() noexcept : hash_t( EVP_md5(), MD5_DIGEST_LENGTH ) {}
+          MD5() : hash_t( EVP_md5(), MD5_DIGEST_LENGTH ) {}
     };
 
     class SHA1 : public hash_t { public:
-          SHA1() noexcept : hash_t( EVP_sha1(), SHA_DIGEST_LENGTH ) {}
+          SHA1() : hash_t( EVP_sha1(), SHA_DIGEST_LENGTH ) {}
     };
 
     class SHA256 : public hash_t { public:
-          SHA256() noexcept : hash_t( EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
+          SHA256() : hash_t( EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
     };
 
     class SHA384 : public hash_t { public:
-          SHA384() noexcept : hash_t( EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
+          SHA384() : hash_t( EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
     };
 
     class SHA512 : public hash_t { public:
-          SHA512() noexcept : hash_t( EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
+          SHA512() : hash_t( EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
     };
 
     class RIPEMD160 : public hash_t { public:
-          RIPEMD160() noexcept : hash_t( EVP_ripemd160(), RIPEMD160_DIGEST_LENGTH ) {}
+          RIPEMD160() : hash_t( EVP_ripemd160(), RIPEMD160_DIGEST_LENGTH ) {}
     }; 
 
 }}
@@ -190,31 +190,31 @@ public:
 namespace crypto { namespace hmac {
 
     class MD4 : public hmac_t { public:
-          MD4 ( const string_t& key ) noexcept : hmac_t( key, EVP_md4(), MD4_DIGEST_LENGTH ) {}
+          MD4 ( const string_t& key ) : hmac_t( key, EVP_md4(), MD4_DIGEST_LENGTH ) {}
     };
 
     class MD5 : public hmac_t { public:
-          MD5 ( const string_t& key ) noexcept : hmac_t( key, EVP_md5(), MD5_DIGEST_LENGTH ) {}
+          MD5 ( const string_t& key ) : hmac_t( key, EVP_md5(), MD5_DIGEST_LENGTH ) {}
     };
 
     class SHA1 : public hmac_t { public:
-          SHA1 ( const string_t& key ) noexcept : hmac_t( key, EVP_sha1(), SHA_DIGEST_LENGTH ) {}
+          SHA1 ( const string_t& key ) : hmac_t( key, EVP_sha1(), SHA_DIGEST_LENGTH ) {}
     };
 
     class SHA256 : public hmac_t { public:
-          SHA256 ( const string_t& key ) noexcept : hmac_t( key, EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
+          SHA256 ( const string_t& key ) : hmac_t( key, EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
     };
 
     class SHA384 : public hmac_t { public:
-          SHA384 ( const string_t& key ) noexcept : hmac_t( key, EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
+          SHA384 ( const string_t& key ) : hmac_t( key, EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
     };
 
     class SHA512 : public hmac_t { public:
-          SHA512 ( const string_t& key ) noexcept : hmac_t( key, EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
+          SHA512 ( const string_t& key ) : hmac_t( key, EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
     };
 
     class RIPEMD160 : public hmac_t { public:
-          RIPEMD160( const string_t& key ) noexcept : hmac_t( key, EVP_ripemd160(), RIPEMD160_DIGEST_LENGTH ) {}
+          RIPEMD160( const string_t& key ) : hmac_t( key, EVP_ripemd160(), RIPEMD160_DIGEST_LENGTH ) {}
     }; 
 
 }}
@@ -246,7 +246,7 @@ public:
     }
 
     template< class T >
-    encrypt_t( const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
+    encrypt_t( const string_t& key, const T& type ) : obj( new _str_() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1; 
@@ -292,45 +292,45 @@ public:
 namespace crypto { namespace enc {
     
     class AES_128_CBC : public encrypt_t { public: template< class... T >
-          AES_128_CBC( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_128_cbc() ) {}
+          AES_128_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_128_cbc() ) {}
     };
     
     class AES_192_CBC : public encrypt_t { public: template< class... T >
-          AES_192_CBC( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_192_cbc() ) {}
+          AES_192_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_192_cbc() ) {}
     };
     
     class AES_256_CBC : public encrypt_t { public: template< class... T >
-          AES_256_CBC( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_256_cbc() ) {}
+          AES_256_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_256_cbc() ) {}
     };
 
     /*─······································································─*/
     
     class AES_128_ECB : public encrypt_t { public: template< class... T >
-          AES_128_ECB( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_128_ecb() ) {}
+          AES_128_ECB( const T&... args ) : encrypt_t( args..., EVP_aes_128_ecb() ) {}
     };
     
     class AES_192_ECB : public encrypt_t { public: template< class... T >
-          AES_192_ECB( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_192_ecb() ) {}
+          AES_192_ECB( const T&... args ) : encrypt_t( args..., EVP_aes_192_ecb() ) {}
     };
     
     class AES_256_ECB : public encrypt_t { public: template< class... T >
-          AES_256_ECB( const T&... args ) noexcept : encrypt_t( args..., EVP_aes_256_ecb() ) {}
+          AES_256_ECB( const T&... args ) : encrypt_t( args..., EVP_aes_256_ecb() ) {}
     };
 
     /*─······································································─*/
     
     class DES_CBC : public encrypt_t { public: template< class... T >
-          DES_CBC ( const T&... args ) noexcept : encrypt_t( args..., EVP_des_cbc() ) {}
+          DES_CBC ( const T&... args ) : encrypt_t( args..., EVP_des_cbc() ) {}
     };
     
     class DES_ECB : public encrypt_t { public: template< class... T >
-          DES_ECB ( const T&... args ) noexcept : encrypt_t( args..., EVP_des_ecb() ) {}
+          DES_ECB ( const T&... args ) : encrypt_t( args..., EVP_des_ecb() ) {}
     };
 
     /*─······································································─*/
     
     class RC4 : public encrypt_t { public: template< class... T >
-          RC4 ( const T&... args ) noexcept : encrypt_t( args..., EVP_rc4() ) {}
+          RC4 ( const T&... args ) : encrypt_t( args..., EVP_rc4() ) {}
     };
 
 }   }
@@ -353,7 +353,7 @@ public:
     event_t<>         onClose;
 
     template< class T >
-    decrypt_t( const string_t& iv, const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
+    decrypt_t( const string_t& iv, const string_t& key, const T& type ) : obj( new _str_() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1;
@@ -362,7 +362,7 @@ public:
     }
 
     template< class T >
-    decrypt_t( const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
+    decrypt_t( const string_t& key, const T& type ) : obj( new _str_() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1;
@@ -408,45 +408,45 @@ public:
 namespace crypto { namespace dec {
     
     class AES_128_CBC : public decrypt_t { public: template< class... T >
-          AES_128_CBC( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_128_cbc() ) {}
+          AES_128_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_128_cbc() ) {}
     };
     
     class AES_192_CBC : public decrypt_t { public: template< class... T >
-          AES_192_CBC( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_192_cbc() ) {}
+          AES_192_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_192_cbc() ) {}
     };
     
     class AES_256_CBC : public decrypt_t { public: template< class... T >
-          AES_256_CBC( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_256_cbc() ) {}
+          AES_256_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_256_cbc() ) {}
     };
 
     /*─······································································─*/
     
     class AES_128_ECB : public decrypt_t { public: template< class... T >
-          AES_128_ECB( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_128_ecb() ) {}
+          AES_128_ECB( const T&... args ) : decrypt_t( args..., EVP_aes_128_ecb() ) {}
     };
     
     class AES_192_ECB : public decrypt_t { public: template< class... T >
-          AES_192_ECB( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_192_ecb() ) {}
+          AES_192_ECB( const T&... args ) : decrypt_t( args..., EVP_aes_192_ecb() ) {}
     };
     
     class AES_256_ECB : public decrypt_t { public: template< class... T >
-          AES_256_ECB( const T&... args ) noexcept : decrypt_t( args..., EVP_aes_256_ecb() ) {}
+          AES_256_ECB( const T&... args ) : decrypt_t( args..., EVP_aes_256_ecb() ) {}
     };
 
     /*─······································································─*/
     
     class DES_CBC : public decrypt_t { public: template< class... T >
-          DES_CBC ( const T&... args ) noexcept : decrypt_t( args..., EVP_des_cbc() ) {}
+          DES_CBC ( const T&... args ) : decrypt_t( args..., EVP_des_cbc() ) {}
     };
     
     class DES_ECB : public decrypt_t { public: template< class... T >
-          DES_ECB ( const T&... args ) noexcept : decrypt_t( args..., EVP_des_ecb() ) {}
+          DES_ECB ( const T&... args ) : decrypt_t( args..., EVP_des_ecb() ) {}
     };
 
     /*─······································································─*/
     
     class RC4 : public decrypt_t { public: template< class... T >
-          RC4 ( const T&... args ) noexcept : decrypt_t( args..., EVP_rc4() ) {}
+          RC4 ( const T&... args ) : decrypt_t( args..., EVP_rc4() ) {}
     };
 
 }   }
@@ -576,23 +576,23 @@ public:
 namespace crypto { namespace enc { 
 
     class BASE58 : public encoder_t { public:
-          BASE58 () noexcept : encoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
+          BASE58 () : encoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
     };
 
     class BASE16 : public encoder_t { public: 
-          BASE16 () noexcept : encoder_t( "123456789ABCDEF" ){}
+          BASE16 () : encoder_t( "123456789ABCDEF" ){}
     };
 
     class BASE8 : public encoder_t { public: 
-          BASE8 () noexcept : encoder_t( "1234567" ){}
+          BASE8 () : encoder_t( "1234567" ){}
     };
 
     class BASE4 : public encoder_t { public: 
-          BASE4 () noexcept : encoder_t( "123" ){}
+          BASE4 () : encoder_t( "123" ){}
     };
 
     class BASE64 : public enc_base64_t { public:
-          BASE64 () noexcept : enc_base64_t() {}
+          BASE64 () : enc_base64_t() {}
     };
 
 }   }
@@ -725,23 +725,23 @@ public:
 namespace crypto { namespace dec { 
 
     class BASE58 : public decoder_t { public:
-          BASE58 () noexcept : decoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
+          BASE58 () : decoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
     };
 
     class BASE16 : public decoder_t { public: 
-          BASE16 () noexcept : decoder_t( "123456789ABCDEF" ){}
+          BASE16 () : decoder_t( "123456789ABCDEF" ){}
     };
 
     class BASE8 : public decoder_t { public: 
-          BASE8 () noexcept : decoder_t( "1234567" ){}
+          BASE8 () : decoder_t( "1234567" ){}
     };
 
     class BASE4 : public decoder_t { public: 
-          BASE4 () noexcept : decoder_t( "123" ){}
+          BASE4 () : decoder_t( "123" ){}
     };
 
     class BASE64 : public dec_base64_t { public:
-          BASE64 () noexcept : dec_base64_t() {}
+          BASE64 () : dec_base64_t() {}
     };
 
 }}
@@ -1085,7 +1085,7 @@ public:
 namespace crypto { namespace DH {
     
     class DH : public dh_t { public: template< class... T >
-          DH ( const T&... args ) noexcept : dh_t( args... ) {}
+          DH ( const T&... args ) : dh_t( args... ) {}
     };
 
 } }
@@ -1163,7 +1163,7 @@ public:
 namespace crypto { namespace sign {
     
     class DSA : public ecdsa_t { public: template< class... T >
-          DSA ( const T&... args ) noexcept : dsa_t( args... ) {}
+          DSA ( const T&... args ) : dsa_t( args... ) {}
     };
 
 } }
