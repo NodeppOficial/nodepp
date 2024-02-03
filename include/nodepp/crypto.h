@@ -57,11 +57,11 @@ namespace crypto {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class hash_t {
+class hash_t {
 protected:
 
     struct _str_ {
-        ptr_t<uchar> buffer;
+        ptr_t<uchar> buff;
         EVP_MD_CTX* ctx;
         uint length;
         int  state;
@@ -71,7 +71,7 @@ public:
 
     template< class T >
     hash_t( const T& type, ulong length ) noexcept : obj( new _str_() ) {
-        obj->buffer = ptr_t<uchar>( length );
+        obj->buff = ptr_t<uchar>( length );
         obj->ctx    = EVP_MD_CTX_new();
         obj->state  = 1;
         EVP_DigestInit_ex( obj->ctx, type, NULL );
@@ -83,26 +83,26 @@ public:
     }
 
     string_t get() const noexcept { 
-        force_close(); return { (char*) &obj->buffer, obj->length }; 
+        force_close(); return { (char*) &obj->buff, obj->length }; 
     }
 
     string_t get_hex() const noexcept { 
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
-        EVP_DigestFinal_ex( obj->ctx, &obj->buffer, &obj->length );
+        EVP_DigestFinal_ex( obj->ctx, &obj->buff, &obj->length );
         EVP_MD_CTX_free( obj->ctx ); //EVP_cleanup();
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
 
     virtual ~hash_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
-};  }
+};
 
 namespace crypto { namespace hash {
 
@@ -138,11 +138,11 @@ namespace crypto { namespace hash {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class hmac_t {
+class hmac_t {
 protected:
 
     struct _str_ {
-        ptr_t<uchar> buffer;
+        ptr_t<uchar> buff;
         HMAC_CTX* ctx; 
         uint length;
         int  state;
@@ -152,7 +152,7 @@ public:
 
     template< class T >
     hmac_t( const string_t& key, const T& type, ulong length ) noexcept : obj( new _str_() ) { 
-        obj->buffer = ptr_t<uchar>( length ); obj->ctx = HMAC_CTX_new(); obj->state = 1;
+        obj->buff = ptr_t<uchar>( length ); obj->ctx = HMAC_CTX_new(); obj->state = 1;
         HMAC_Init_ex( obj->ctx, key.c_str(), key.size(), type, nullptr );
     }
 
@@ -162,26 +162,26 @@ public:
     }
 
     string_t get() const noexcept { 
-        force_close(); return { (char*) &obj->buffer, obj->length }; 
+        force_close(); return { (char*) &obj->buff, obj->length }; 
     }
 
     string_t get_hex() const noexcept { 
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept {
         if( obj->state == 0 ){ return; } obj->state = 0;
-        HMAC_Final( obj->ctx, &obj->buffer, &obj->length ); 
+        HMAC_Final( obj->ctx, &obj->buff, &obj->length ); 
         HMAC_CTX_free( obj->ctx ); //EVP_cleanup();
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~hmac_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
-};  }
+};
 
 namespace crypto { namespace hmac {
 
@@ -217,17 +217,20 @@ namespace crypto { namespace hmac {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class encrypt_t {
+class encrypt_t {
 protected:
 
     struct _str_ {
         EVP_CIPHER_CTX* ctx;
         ptr_t<uchar> bff;
-        string_t buffer;
+        string_t buff;
         int state, len;
     };  ptr_t<_str_> obj;
 
 public:
+
+    event_t<string_t> onData;
+    event_t<>         onClose;
 
     template< class T >
     encrypt_t( const string_t& iv, const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
@@ -247,32 +250,36 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_EncryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size() );
-        obj->buffer += (string_t){ (char*)&obj->bff, (ulong)obj->len };
+        if ( obj->len > 0 ) if ( onData.empty() )
+             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
     }
 
     string_t get() const noexcept { 
-        force_close(); return obj->buffer; 
+        force_close(); return obj->buff; 
     }
 
-    string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+    string_t get_hex() const noexcept { 
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_EncryptFinal( obj->ctx, &obj->bff, &obj->len );
         EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
-        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        if ( obj->len > 0 ) if ( onData.empty() )
+             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~encrypt_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};  }
+};
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -324,17 +331,20 @@ namespace crypto { namespace enc {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class decrypt_t {
+class decrypt_t {
 protected:
 
     struct _str_ {
         EVP_CIPHER_CTX* ctx; 
         ptr_t<uchar> bff;
-        string_t buffer;
+        string_t buff;
         int state, len;
     };  ptr_t<_str_> obj;
     
 public:
+
+    event_t<string_t> onData;
+    event_t<>         onClose;
 
     template< class T >
     decrypt_t( const string_t& iv, const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
@@ -354,32 +364,36 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size());
-        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        if ( obj->len > 0 ) if ( onData.empty() )
+             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
     }
 
     string_t get() const noexcept { 
-        force_close(); return obj->buffer; 
+        force_close(); return obj->buff; 
     }
 
     string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_DecryptFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
-        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        if ( obj->len > 0 ) if ( onData.empty() )
+             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~decrypt_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};  }
+};
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -431,17 +445,20 @@ namespace crypto { namespace dec {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class enc_base64_t {
+class enc_base64_t {
 protected:
 
     struct _str_ {
         EVP_ENCODE_CTX* ctx; 
         ptr_t<uchar> bff;
-        string_t buffer;
+        string_t buff;
         int state, len;
     };  ptr_t<_str_> obj;
     
 public:
+
+    event_t<string_t> onData;
+    event_t<>         onClose;
 
     enc_base64_t() noexcept : obj( new _str_() ) {
         obj->bff    = ptr_t<uchar>(UNBFF_SIZE,0);
@@ -452,36 +469,40 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_EncodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        if ( obj->len > 0 ) if ( onData.empty() )
+             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); 
     }
 
     string_t get() const noexcept { 
-        force_close(); return obj->buffer; 
+        force_close(); return obj->buff; 
     }
 
     string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_EncodeFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
-        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        if ( obj->len > 0 ) if ( onData.empty() )
+             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~enc_base64_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};  }
+};
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class encoder_t {
+class encoder_t {
 protected:
 
     struct _str_ {
@@ -512,25 +533,25 @@ public:
     }
 
     string_t get() const noexcept { 
-        return obj->buff; 
+        force_close(); return obj->buff; 
     }
 
     string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         BN_clear_free( obj->bn );
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~encoder_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};}
+};
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -564,17 +585,20 @@ namespace crypto { namespace enc {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class dec_base64_t {
+class dec_base64_t {
 protected:
 
     struct _str_ {
         EVP_ENCODE_CTX* ctx; 
         ptr_t<uchar> bff;
-        string_t buffer;
+        string_t buff;
         int state, len;
     };  ptr_t<_str_> obj;
 
 public:
+
+    event_t<string_t> onData;
+    event_t<>         onClose;
 
     dec_base64_t() noexcept : obj( new _str_() ) {
         obj->bff    = ptr_t<uchar>(UNBFF_SIZE,0);
@@ -585,36 +609,40 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_DecodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        if ( obj->len > 0 ) if ( onData.empty() )
+             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
     }
 
     string_t get() const noexcept { 
-        force_close(); return obj->buffer; 
+        force_close(); return obj->buff; 
     }
 
     string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_DecodeFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
-        obj->buffer += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        if ( obj->len > 0 ) if ( onData.empty() )
+             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~dec_base64_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};  }
+};
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class decoder_t {
+class decoder_t {
 protected:
 
     struct _str_ {
@@ -624,6 +652,9 @@ protected:
     };  ptr_t<_str_> obj;
 
 public:
+
+    event_t<string_t> onData;
+    event_t<>         onClose;
 
     decoder_t( string_t chr ) noexcept : obj( new _str_() ) {
         obj->chr = chr; obj->bn = (BIGNUM*) BN_new();
@@ -641,27 +672,31 @@ public:
 
         ptr_t<uchar> out ( BN_num_bytes(obj->bn) );
         BN_bn2bin( obj->bn, out.data() );
-        obj->buff += (string_t){ (char*) &out, out.size() };
+        if ( onData.empty() )
+             obj->buff += (string_t){ (char*) &out, out.size() };
+        else onData.emit( (string_t){ (char*) &out, out.size() } );
     }
 
-    string_t get() const noexcept { return obj->buff; }
+    string_t get() const noexcept { 
+        force_close(); return obj->buff; 
+    }
 
-    string_t get_hex() const noexcept {  
-        return buff2hex( this->get() );
+    string_t get_hex() const noexcept { 
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
-        BN_clear_free( obj->bn );
+         BN_clear_free( obj->bn ); onClose.emit();
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~decoder_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};}
+};
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -695,7 +730,7 @@ namespace crypto { namespace dec {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class ecdh_t {
+class ecdh_t {
 protected:
 
     struct _str_ {
@@ -739,7 +774,7 @@ public:
     }
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept {
-        return buff2hex( this->get_public_key() );
+        return crypto::buff2hex( this->get_public_key() );
     }
 
     string_t get_private_key() const noexcept { 
@@ -749,7 +784,7 @@ public:
     }
 
     string_t get_private_key_hex() const noexcept {
-        return buff2hex( this->get_private_key() );
+        return crypto::buff2hex( this->get_private_key() );
     }
 
     void force_close() const noexcept { 
@@ -758,14 +793,14 @@ public:
         if( obj->pub_key  != nullptr ) EC_POINT_free( obj->pub_key );
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~ecdh_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};  }
+};
 
 namespace crypto { namespace ecdh { //openssl ecparam -list_curves
     
@@ -801,7 +836,7 @@ namespace crypto { namespace ecdh { //openssl ecparam -list_curves
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class ecdsa_t {
+class ecdsa_t {
 protected:
 
     struct _str_ {
@@ -875,14 +910,14 @@ public:
         if( obj->key_group != nullptr ) EC_GROUP_free( obj->key_group );
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~ecdsa_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};  }
+};
 
 namespace crypto { namespace ecdsa { //openssl ecparam -list_curves
     
@@ -918,7 +953,7 @@ namespace crypto { namespace ecdsa { //openssl ecparam -list_curves
 
 /*────────────────────────────────────────────────────────────────────────────*/
 /* DH & rsa falta OK
-namespace crypto { class rsa_t {
+class rsa_t {
 protected:
 
     struct _str_ {
@@ -951,18 +986,18 @@ public:
         if( obj->key != nullptr ) BN_free( obj->key );
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~rsa_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};  }
+};
 */
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { class dsa_t {
+class dsa_t {
 protected:
 
     struct _str_ {
@@ -1014,14 +1049,16 @@ public:
         if( obj->dsa != nullptr ) DSA_free( obj->dsa );
     }
 
-    void free() const noexcept { force_close(); } 
+    void close() const noexcept { force_close(); } 
     
     virtual ~dsa_t() noexcept { 
         if( obj.count()>1 ){ return; } 
             force_close();
     }
 
-};  }
+};
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 namespace crypto { namespace sign {
     
