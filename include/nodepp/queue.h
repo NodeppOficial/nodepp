@@ -200,6 +200,16 @@ public: queue_t() noexcept {}
     }
 
 #endif
+    
+    /*─······································································─*/
+
+    bool is_item( self* item ) const noexcept {
+        auto n = first(); while( n != nullptr && item != nullptr ){
+             if( n == item ){ return 1; } n = n->nxt;
+        }    return 0;
+    }
+    
+    /*─······································································─*/
 
     void unshift( const V& value ) noexcept { insert( first(), value ); }
     void    push( const V& value ) noexcept { insert( last(), value ); }
@@ -235,8 +245,7 @@ public: queue_t() noexcept {}
     }
 
     void insert( self* index, const V& value ) noexcept {
-        if( empty() ){ queue = new self( value ); } 
-        else {
+        if( empty() ){ queue = new self( value ); } else {
             if( index == last() ) {
                 index->nxt = new self( value );
                 index->nxt->prv = index;
@@ -266,26 +275,24 @@ public: queue_t() noexcept {}
     }
 
     void erase( self* x ) noexcept {
-        if ( x == nullptr ){ return; }
         if ( x == act ){ act = next(); }
         if ( x == first() ){
-            if( x->nxt != nullptr ) x->nxt->prv = nullptr;
-                queue   = x->nxt; x = nullptr;
+            if ( x->nxt != nullptr ) x->nxt->prv = nullptr;
+                 queue   = x->nxt; x = nullptr;
         } elif ( x == last() ){
-            if( x->prv != nullptr ) x->prv->nxt = nullptr;
-                delete x; x = nullptr;
+            if ( x->prv != nullptr ) x->prv->nxt = nullptr;
+                 delete x; x = nullptr;
         } else {
-            if( x->prv != nullptr ) x->prv->nxt = x->nxt;
-            if( x->nxt != nullptr ) x->nxt->prv = x->prv; 
-                delete x; x = nullptr;
+            if ( x->prv != nullptr ) x->prv->nxt = x->nxt;
+            if ( x->nxt != nullptr ) x->nxt->prv = x->prv; 
+                 delete x; x = nullptr;
         }
     }
 
     /*─······································································─*/
 
     self* get( long i=-2 ) noexcept { 
-        if( empty() ){ return nullptr; }
-        if( i == -2 ){ 
+        if( empty() ){ return nullptr; } if( i == -2 ){ 
             return act == nullptr ? next() : act; 
         }   auto n = first(); i = ( i<0L ) ? 0L : i;
         while( n->nxt != nullptr && i-->0 ){ n = n->nxt; } return n;

@@ -7,6 +7,10 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#include "encode.h"
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #include <openssl/ripemd.h>
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
@@ -35,25 +39,6 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp {
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace crypto {
-
-    string_t buff2hex( const string_t& inp ){
-        string_t out; for( auto x : inp ){
-            out += string::format( "%02x", (uchar)x );
-        }   return out;
-    }
-
-    string_t hex2buff( const string_t& inp ){
-        auto x = inp; string_t out; while( !x.empty() ){
-            auto y = x.splice(0,2); char ch=0;
-            string::parse(y,"%02x",&ch);
-            out.push( ch );
-        }   return out;
-    }
-}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -88,7 +73,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() );
+        return encode::hex::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -96,6 +81,10 @@ public:
         EVP_DigestFinal_ex( obj->ctx, &obj->buff, &obj->length );
         EVP_MD_CTX_free( obj->ctx ); //EVP_cleanup();
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
 
@@ -170,7 +159,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() );
+        return encode::hex::buff2hex( this->get() );
     }
 
     void force_close() const noexcept {
@@ -178,6 +167,10 @@ public:
         HMAC_Final( obj->ctx, &obj->buff, &obj->length ); 
         HMAC_CTX_free( obj->ctx ); //EVP_cleanup();
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     
@@ -266,7 +259,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() );
+        return encode::hex::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -277,6 +270,10 @@ public:
              obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     
@@ -382,7 +379,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return crypto::buff2hex( this->get() );
+        return encode::hex::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -393,6 +390,10 @@ public:
              obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     
@@ -489,7 +490,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return crypto::buff2hex( this->get() );
+        return encode::hex::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -500,6 +501,10 @@ public:
              obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     
@@ -553,7 +558,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return crypto::buff2hex( this->get() );
+        return encode::hex::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -562,7 +567,11 @@ public:
         BN_clear_free( obj->bn );
     }
 
-    void close() const noexcept { force_close(); } 
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
+
+    void close() const noexcept { force_close(); }  
     
     virtual ~encoder_t() noexcept { 
         if( obj.count()>1 ){ return; } 
@@ -635,7 +644,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return crypto::buff2hex( this->get() );
+        return encode::hex::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -646,6 +655,10 @@ public:
              obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     
@@ -703,13 +716,17 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() );
+        return encode::hex::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 1 ){ return; } obj->state = 0;
          BN_clear_free( obj->bn ); onClose.emit();
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     
@@ -794,7 +811,7 @@ public:
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return crypto::buff2hex( this->get_public_key() );
+        return encode::hex::buff2hex( this->get_public_key() );
     }
 
     string_t get_private_key() const noexcept { 
@@ -805,7 +822,7 @@ public:
 
     string_t get_private_key_hex() const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return crypto::buff2hex( this->get_private_key() );
+        return encode::hex::buff2hex( this->get_private_key() );
     }
 
     void force_close() const noexcept { 
@@ -814,6 +831,10 @@ public:
     //  if( obj->key_pair != nullptr ) EC_KEY_free( obj->key_pair );
         if( obj->pub_key  != nullptr ) EC_POINT_free( obj->pub_key );
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     
@@ -904,12 +925,12 @@ public:
 
     string_t get_public_key( uint x = 0 ) const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return crypto::hex2buff( get_public_key_hex(x) );
+        return encode::hex::hex2buff( get_public_key_hex(x) );
     }
 
     string_t get_private_key() const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return crypto::hex2buff( get_private_key_hex() );
+        return encode::hex::hex2buff( get_private_key_hex() );
     }
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept { 
@@ -930,6 +951,10 @@ public:
         if( obj->pub_key   != nullptr ) EC_POINT_free( obj->pub_key );
         if( obj->key_group != nullptr ) EC_GROUP_free( obj->key_group );
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     
@@ -994,7 +1019,7 @@ public:
     }
 
     string_t get_key( uint x = 0 ) const noexcept {
-        return crypto::hex2buff( this->get_key_hex() );
+        return encode::hex::hex2buff( this->get_key_hex() );
     }
 
     string_t get_key_hex( uint x = 0 ) const noexcept { 
@@ -1006,6 +1031,10 @@ public:
         if( obj->rsa != nullptr ) RSA_free( obj->rsa );
         if( obj->key != nullptr ) BN_free( obj->key );
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     
@@ -1033,7 +1062,7 @@ public:
     dh_t( int primeLength, int generator ) { obj->state = 1;
         obj->dh    = DH_new(); 
         obj->g     = BN_new();
-        obj->p     = BN_new();
+        obj->k     = BN_new();
         obj->state = 1;
         if( !obj->dh || !obj->g )
           { _Error( "creating new dh_t" ); }
@@ -1045,14 +1074,14 @@ public:
 
     int set_public_key( string_t key ) const noexcept {
         if( obj->state != 1 ){ return 0; }
-               BN_hex2bn( &obj->p, key.c_str() );
-        return DH_set0_key( obj->dh, nullptr, obj->p );
+               BN_hex2bn( &obj->k, key.c_str() );
+        return DH_set0_key( obj->dh, nullptr, obj->k );
     }
 
     int set_private_key( string_t key ) const noexcept {
         if( obj->state != 1 ){ return 0; }
-               BN_hex2bn( &obj->p, key.c_str() );
-        return DH_set0_key( obj->dh, obj->p, nullptr );
+               BN_hex2bn( &obj->k, key.c_str() );
+        return DH_set0_key( obj->dh, obj->k, nullptr );
     }
 
     string_t get_private_key() const noexcept {
@@ -1068,14 +1097,14 @@ public:
     string_t compute_key( string_t key ) const noexcept {
         if( obj->state != 1 ){ return ""; } 
         ptr_t<uchar> shared ( DH_size( obj->dh ) );
-                  BN_hex2bn( &obj->p, key.c_str() );
-        int len = DH_compute_key( &shared, obj->p, obj->dh );
+                  BN_hex2bn( &obj->k, key.c_str() );
+        int len = DH_compute_key( &shared, obj->k, obj->dh );
         return (string_t){ (char*) &shared, (ulong) len };
     }
 
     void force_close() const noexcept {
         if( obj->state == 0 ){ return; } obj->state = 0;
-        DH_free( obj->dh ); BN_free( obj->p ); BN_free( obj->g );
+        DH_free( obj->dh ); BN_free( obj->k ); BN_free( obj->g );
     }
 
 };
@@ -1148,6 +1177,10 @@ public:
         if( obj->state == 0 ){ return; } obj->state = 0;
         if( obj->dsa != nullptr ) DSA_free( obj->dsa );
     }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { force_close(); } 
     

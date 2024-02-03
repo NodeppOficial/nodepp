@@ -8,6 +8,7 @@
 
 #include "crypto.h"
 #include "https.h"
+#include "encode.h"
 #include "generator.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/

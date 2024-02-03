@@ -27,9 +27,10 @@ namespace task {
 
     void next(){ onNext.emit();
         if( queue.empty() ){ return; }
-        int result = queue.get()->data();
-          if ( result == 1 ){ queue.next(); }
-        elif ( result <  0 ){ queue.erase( queue.get() ); }
+        auto x = queue.get();
+        int  y = x->data();
+          if ( y == 1 ){ queue.next(); }
+        elif ( y <  0 ){ queue.erase( x ); }
     }
 
 }
@@ -58,9 +59,10 @@ namespace loop {
 
     void next(){ onNext.emit();
         if( queue.empty() ){ return; }
-        int result = queue.get()->data();
-          if ( result == 1 ){ queue.next(); }
-        elif ( result <  0 ){ queue.erase( queue.get() ); }
+        auto x = queue.get();
+        int  y = x->data();
+          if ( y == 1 ){ queue.next(); }
+        elif ( y <  0 ){ queue.erase( x ); }
     }
 
 }
@@ -89,9 +91,10 @@ namespace poll {
 
     void next(){ onNext.emit();
         if( queue.empty() ){ return; }
-        int result = queue.get()->data();
-          if ( result == 1 ){ queue.next(); }
-        elif ( result <  0 ){ queue.erase( queue.get() ); }
+        auto x = queue.get();
+        int  y = x->data();
+          if ( y == 1 ){ queue.next(); }
+        elif ( y <  0 ){ queue.erase( x ); }
     }
 
 }
