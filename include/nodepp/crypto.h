@@ -7,10 +7,6 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include "encode.h"
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 #include <openssl/ripemd.h>
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
@@ -39,6 +35,25 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp {
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace {
+
+    string_t buff2hex( const string_t& inp ){
+        string_t out; for( auto x : inp ){
+            out += string::format( "%02x", (uchar)x );
+        }   return out;
+    }
+
+    string_t hex2buff( const string_t& inp ){
+        auto x = inp; string_t out; while( !x.empty() ){
+            auto y = x.splice(0,2); char ch=0;
+            string::parse(y,"%02x",&ch);
+            out.push( ch );
+        }   return out;
+    }
+}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -73,7 +88,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return encode::hex::buff2hex( this->get() );
+        return buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -159,7 +174,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return encode::hex::buff2hex( this->get() );
+        return buff2hex( this->get() );
     }
 
     void force_close() const noexcept {
@@ -249,9 +264,9 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_EncryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size() );
-        if ( obj->len > 0 ) if ( onData.empty() )
-             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
+        if ( obj->len > 0 ) { if ( onData.empty() )
+               obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
     }
 
     string_t get() const noexcept { 
@@ -259,16 +274,16 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return encode::hex::buff2hex( this->get() );
+        return buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_EncryptFinal( obj->ctx, &obj->bff, &obj->len );
         EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) if ( onData.empty() )
-             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
+        if ( obj->len > 0 ) { if ( onData.empty() )
+               obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -369,9 +384,9 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size());
-        if ( obj->len > 0 ) if ( onData.empty() )
-             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
+        if ( obj->len > 0 ) { if ( onData.empty() )
+               obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
     }
 
     string_t get() const noexcept { 
@@ -379,16 +394,16 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return encode::hex::buff2hex( this->get() );
+        return buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_DecryptFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) if ( onData.empty() )
-             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
+        if ( obj->len > 0 ) { if ( onData.empty() )
+               obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -480,9 +495,9 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_EncodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        if ( obj->len > 0 ) if ( onData.empty() )
-             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); 
+        if ( obj->len > 0 ) { if ( onData.empty() )
+               obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); 
     }
 
     string_t get() const noexcept { 
@@ -490,16 +505,16 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return encode::hex::buff2hex( this->get() );
+        return buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_EncodeFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) if ( onData.empty() )
-             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
+        if ( obj->len > 0 ) { if ( onData.empty() )
+               obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -558,7 +573,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return encode::hex::buff2hex( this->get() );
+        return buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -634,9 +649,9 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_DecodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        if ( obj->len > 0 ) if ( onData.empty() )
-             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
+        if ( obj->len > 0 ) { if ( onData.empty() )
+               obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
     }
 
     string_t get() const noexcept { 
@@ -644,16 +659,16 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return encode::hex::buff2hex( this->get() );
+        return buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_DecodeFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) if ( onData.empty() )
-             obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
+        if ( obj->len > 0 ) { if ( onData.empty() )
+               obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
+        } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -706,9 +721,9 @@ public:
 
         ptr_t<uchar> out ( BN_num_bytes(obj->bn) );
         BN_bn2bin( obj->bn, out.data() );
-        if ( onData.empty() )
-             obj->buff += (string_t){ (char*) &out, out.size() };
-        else onData.emit( (string_t){ (char*) &out, out.size() } );
+        if ( onData.empty() ) {
+               obj->buff += (string_t){ (char*) &out, out.size() };
+        } else onData.emit( (string_t){ (char*) &out, out.size() } );
     }
 
     string_t get() const noexcept { 
@@ -716,7 +731,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return encode::hex::buff2hex( this->get() );
+        return buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -811,7 +826,7 @@ public:
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return encode::hex::buff2hex( this->get_public_key() );
+        return buff2hex( this->get_public_key() );
     }
 
     string_t get_private_key() const noexcept { 
@@ -822,7 +837,7 @@ public:
 
     string_t get_private_key_hex() const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return encode::hex::buff2hex( this->get_private_key() );
+        return buff2hex( this->get_private_key() );
     }
 
     void force_close() const noexcept { 
@@ -925,12 +940,12 @@ public:
 
     string_t get_public_key( uint x = 0 ) const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return encode::hex::hex2buff( get_public_key_hex(x) );
+        return hex2buff( get_public_key_hex(x) );
     }
 
     string_t get_private_key() const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return encode::hex::hex2buff( get_private_key_hex() );
+        return hex2buff( get_private_key_hex() );
     }
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept { 
@@ -1019,7 +1034,7 @@ public:
     }
 
     string_t get_key( uint x = 0 ) const noexcept {
-        return encode::hex::hex2buff( this->get_key_hex() );
+        return hex2buff( this->get_key_hex() );
     }
 
     string_t get_key_hex( uint x = 0 ) const noexcept { 
@@ -1053,7 +1068,7 @@ protected:
     struct _str_ {
         DH* dh;
         BIGNUM* g;
-        BIGNUM* p;
+        BIGNUM* k;
         int state;
     };  ptr_t<_str_> obj;
 
