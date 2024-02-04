@@ -1,10 +1,8 @@
 #include <nodepp/nodepp.h>
-#include <nodepp/cluster.h>
 #include <nodepp/timer.h>
 #include <nodepp/http.h>
 #include <nodepp/path.h>
 #include <nodepp/date.h>
-#include <nodepp/zlib.h>
 #include <nodepp/ws.h>
 #include <nodepp/fs.h>
 
@@ -37,12 +35,11 @@ void _main_() {
             cli.write_headers( 200, {{
                 { "Content-Length", string::to_string(str.size()) },
               //{ "Cache-Control", "public, max-age=3600" },
-                { "Content-Type",   path::mimetype(dir) },
-                { "Content-Encoding", "deflate" }
+                { "Content-Type",   path::mimetype(dir) }
             }});
 
             if(!regex::test(path::mimetype(dir),"audio|video","i") ) 
-                zlib::deflate::pipe( str, cli );
+                stream::pipe( str, cli );
 
         } elif ( !cli.headers["Range"].empty() ) {
 
