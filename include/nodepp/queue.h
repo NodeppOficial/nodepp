@@ -251,9 +251,6 @@ public: queue_t() noexcept {}
                 auto prev = *queue; queue = new self( value );
                 queue->nxt= new self( prev ); 
                 queue->nxt->prv = first();
-            } elif ( index == last() ) {
-                index->nxt = new self( value );
-                index->nxt->prv = index;
             } else {
                 index->nxt = new self( value ); 
                 index->nxt->prv = index;
