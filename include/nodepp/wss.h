@@ -88,7 +88,7 @@ namespace nodepp { namespace wss {
         }) ; });
 
         process::task::add([=](){
-            cli.resume(); cli.onOpen.emit(); return 1;
+            cli.resume(); cli.onOpen.emit(); return -1;
         }); cli.onDrain.once([=](){ cli.free(); });
 
         return cli; 
