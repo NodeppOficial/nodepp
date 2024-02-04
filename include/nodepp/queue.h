@@ -245,14 +245,15 @@ public: queue_t() noexcept {}
     }
 
     void insert( self* index, const V& value ) noexcept {
-        if( empty() ){ queue = new self( value ); } else {
-            if( index == last() ) {
-                index->nxt = new self( value );
-                index->nxt->prv = index;
-            } elif ( index == first() ) {
+        if( empty() ){ queue = new self( value ); } 
+        if( index != nullptr ){
+            if ( index == first() ) {
                 auto prev = *queue; queue = new self( value );
                 queue->nxt= new self( prev ); 
                 queue->nxt->prv = first();
+            } elif ( index == last() ) {
+                index->nxt = new self( value );
+                index->nxt->prv = index;
             } else {
                 index->nxt = new self( value ); 
                 index->nxt->prv = index;
@@ -275,13 +276,11 @@ public: queue_t() noexcept {}
     }
 
     void erase( self* x ) noexcept {
+        if ( x == nullptr ){ return; }
         if ( x == act ){ act = next(); }
         if ( x == first() ){
             if ( x->nxt != nullptr ) x->nxt->prv = nullptr;
                  queue   = x->nxt; x = nullptr;
-        } elif ( x == last() ){
-            if ( x->prv != nullptr ) x->prv->nxt = nullptr;
-                 delete x; x = nullptr;
         } else {
             if ( x->prv != nullptr ) x->prv->nxt = x->nxt;
             if ( x->nxt != nullptr ) x->nxt->prv = x->prv; 

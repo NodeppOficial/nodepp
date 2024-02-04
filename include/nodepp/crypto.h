@@ -720,8 +720,7 @@ public:
         }
 
         ptr_t<uchar> out ( BN_num_bytes(obj->bn) );
-        BN_bn2bin( obj->bn, out.data() );
-        if ( onData.empty() ) {
+        BN_bn2bin( obj->bn, out.data() ); if ( onData.empty() ) {
                obj->buff += (string_t){ (char*) &out, out.size() };
         } else onData.emit( (string_t){ (char*) &out, out.size() } );
     }
