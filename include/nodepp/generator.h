@@ -502,6 +502,7 @@ namespace nodepp {
     /*─······································································─*/
 
     template< class T > ssocket_t WSClient( const T& fetch, const string_t& key ) {
+        
         auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) _Error( tuple::get<2>(res).what() );
         if( tuple::get<0>(res) == 1 ){ _Error("Cant start ws client"); }
         auto cli = tuple::get<1>(res);
@@ -545,8 +546,10 @@ namespace nodepp {
     };
 
     ulong write_ws_frame( char* bf, const ulong& sx ){
+        static ulong len;
 
-        if( bf == nullptr ){ return  0; }
+        if( bf    == nullptr    ){ return   0; }
+        if( bf[0] == (char)0x81 ){ return len; }
 
         string_t y = string_t( bf, sx ); uint idx = 0; 
 
@@ -569,9 +572,9 @@ namespace nodepp {
 
         for( ulong x=0; x<y.size(); x++ ){
              bf[idx] = y[x]; idx++;
-        }
-
-        return idx; 
+        }    
+        
+        len = idx; return idx; 
     }
 
     ulong read_ws_frame( char* bf, const ulong& sx ){

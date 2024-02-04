@@ -8,7 +8,7 @@
 
 #include "crypto.h"
 #include "https.h"
-#include "encode.h"
+#include "encoder.h"
 #include "generator.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -21,7 +21,6 @@ public:
 
     /*─······································································─*/
     
-/*
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         int    x = ssocket_t::_read( bf, sx );
         return x<=0 ? x : read_ws_frame( bf, x );
@@ -31,7 +30,6 @@ public:
         int    x = write_ws_frame( bf, sx );
         return x<=0 ? x : ssocket_t::_write( bf, x );
     }
-*/
 
 }; }
 
@@ -90,7 +88,7 @@ namespace nodepp { namespace wss {
         }) ; });
 
         process::task::add([=](){
-            cli.resume(); cli.onOpen.emit(); return -1;
+            cli.resume(); cli.onOpen.emit(); return 1;
         }); cli.onDrain.once([=](){ cli.free(); });
 
         return cli; 

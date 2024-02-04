@@ -111,11 +111,11 @@ public: queue_t() noexcept {}
     
     /*─······································································─*/
 
-    bool empty() const noexcept { return first() == nullptr || size() <= 0; }
+    bool empty() const noexcept { return queue == nullptr || size() <= 0; }
 
     ulong size() const noexcept { 
-           if( first() == nullptr ){ return 0; } self* n = first(); ulong i = 1; 
-        while( n->nxt  != nullptr ){ n = n->nxt; i++; } return i;
+           if( queue  == nullptr ){ return 0; } self* n = first(); ulong i = 1; 
+        while( n->nxt != nullptr ){ n = n->nxt; i++; } return i;
     }
     
     /*─······································································─*/
@@ -247,7 +247,7 @@ public: queue_t() noexcept {}
     void insert( self* index, const V& value ) noexcept {
         if( empty() ){ queue = new self( value ); } 
         if( index != nullptr ){
-            if ( index == first() ) {
+            if( index == first() ) {
                 auto prev = *queue; queue = new self( value );
                 queue->nxt= new self( prev ); 
                 queue->nxt->prv = first();
@@ -268,20 +268,20 @@ public: queue_t() noexcept {}
 
     void erase( ulong begin ) noexcept { 
         auto r = get_slice_range( begin, size() );
-         if( r == nullptr ){ return; }
+           if( r == nullptr ){ return; }
         erase( get( r[0] ) ); 
     }
 
     void erase( self* x ) noexcept {
-        if ( x == nullptr ){ return; }
-        if ( x == act ){ act = next(); }
-        if ( x == first() ){
+        if( x == nullptr ){ return; }
+        if( x == act ){ act = x->nxt; }
+        if( x == first() ) {
             if ( x->nxt != nullptr ) x->nxt->prv = nullptr;
-                 queue   = x->nxt; x = nullptr;
+                 queue   = x->nxt;
         } else {
             if ( x->prv != nullptr ) x->prv->nxt = x->nxt;
             if ( x->nxt != nullptr ) x->nxt->prv = x->prv; 
-                 delete x; x = nullptr;
+                 delete x;
         }
     }
 
@@ -299,8 +299,8 @@ public: queue_t() noexcept {}
     self* first() const noexcept { return &queue; }
 
     self* last() const noexcept {
-          if( empty() ){ return nullptr; } self* n=first(); 
-       while( n->nxt != nullptr ){ n = n->nxt; } return n;
+        if( empty() ){ return nullptr; } self* n=first(); 
+        while( n->nxt != nullptr ){ n = n->nxt; } return n;
     }
     
     /*─······································································─*/

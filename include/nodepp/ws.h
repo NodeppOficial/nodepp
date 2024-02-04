@@ -8,7 +8,7 @@
 
 #include "crypto.h"
 #include "http.h"
-#include "encode.h"
+#include "encoder.h"
 #include "generator.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -21,7 +21,6 @@ public:
 
     /*─······································································─*/
 
-/*
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         int    x = socket_t::_read( bf, sx );
         return x<=0 ? x : read_ws_frame( bf, x );
@@ -31,7 +30,6 @@ public:
         int    x = write_ws_frame( bf, sx );
         return x<=0 ? x : socket_t::_write( bf, x );
     } 
-*/
 
 }; }
 

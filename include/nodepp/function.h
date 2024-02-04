@@ -18,8 +18,16 @@ public:
     function_t( F f ) : func_ptr( new func_impl<F>(f) ) {}
     
     /*─······································································─*/
+
+    ulong count() const noexcept { return func_ptr.count(); }
+
+    bool empty() const noexcept { return func_ptr.null(); }
+    
+    /*─······································································─*/
     
     V operator()( const T&... arg ) const { return func_ptr->invoke(arg...); }
+
+    explicit operator bool(void) const noexcept { return func_ptr.null(); }
     
 private:
 
