@@ -121,7 +121,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_client() == -1 )
           { _EError(onError,"Error Initializing SSL context"); close(); return; }
         if( dns::lookup(host).empty() ){ _EError(onError,"dns couldn't get ip"); close(); return; }
-            ptr_t<tls_t> self = new tls_t( *this );
+            auto self = type::bind( this );
 
         ssocket_t sk = ssocket_t(); 
                   sk.PROT = IPPROTO_TCP;

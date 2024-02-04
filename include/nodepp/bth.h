@@ -113,7 +113,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
 
     void connect( const string_t& host, int port, decltype(obj->func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1;
-            ptr_t<bth_t> self = new bth_t( *this );
+            auto self = type::bind( this );
 
         bsocket_t sk = bsocket_t(); 
                   sk.AF  = AF_BTH; 

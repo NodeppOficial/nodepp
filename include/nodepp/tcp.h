@@ -114,7 +114,7 @@ public: tcp_t() noexcept : obj( new _str_() ) {}
     void connect( const string_t& host, int port, decltype(obj->func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1;
         if( dns::lookup(host).empty() ){ _EError(onError,"dns couldn't get ip"); close(); return; }
-            ptr_t<tcp_t> self = new tcp_t( *this );
+            auto self = type::bind( this );
 
         socket_t sk = socket_t(); 
                  sk.PROT = IPPROTO_TCP;
