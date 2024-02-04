@@ -264,7 +264,7 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_EncryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size() );
-        if ( obj->len > 0 ) { if ( onData.empty() )
+        if ( obj->len > 0 ) if ( onData.empty() ) {
                obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
     }
@@ -281,7 +281,7 @@ public:
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_EncryptFinal( obj->ctx, &obj->bff, &obj->len );
         EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) { if ( onData.empty() )
+        if ( obj->len > 0 ) if ( onData.empty() ) {
                obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
@@ -384,7 +384,7 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size());
-        if ( obj->len > 0 ) { if ( onData.empty() )
+        if ( obj->len > 0 ) if ( onData.empty() ) {
                obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
     }
@@ -401,7 +401,7 @@ public:
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_DecryptFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) { if ( onData.empty() )
+        if ( obj->len > 0 ) if ( onData.empty() ) {
                obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
@@ -495,7 +495,7 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_EncodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        if ( obj->len > 0 ) { if ( onData.empty() )
+        if ( obj->len > 0 ) if ( onData.empty() ) {
                obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); 
     }
@@ -512,7 +512,7 @@ public:
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_EncodeFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) { if ( onData.empty() )
+        if ( obj->len > 0 ) if ( onData.empty() ) {
                obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
@@ -649,7 +649,7 @@ public:
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_DecodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
-        if ( obj->len > 0 ) { if ( onData.empty() )
+        if ( obj->len > 0 ) if ( onData.empty() ) {
                obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } );
     }
@@ -666,7 +666,7 @@ public:
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_DecodeFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) { if ( onData.empty() )
+        if ( obj->len > 0 ) if ( onData.empty() ) {
                obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
         } else onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); onClose.emit();
     }
