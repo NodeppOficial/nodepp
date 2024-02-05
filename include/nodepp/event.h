@@ -30,7 +30,7 @@ public: event_t() noexcept : obj( new ev ) {}
     void emit( const A&... args ) const noexcept {
         auto x = obj->first(); while( x != nullptr ){
              x->data.cb( args... ); if ( !x->data.on )
-               { obj->erase(x); } x = x->nxt; 
+               { obj->erase(x); } x = x->next(); 
         }
     }
     
@@ -39,7 +39,7 @@ public: event_t() noexcept : obj( new ev ) {}
     void off( void* id ) const noexcept {
         auto x = obj->first(); while( x != nullptr ){
             if ( (void*) &x->data == id )
-               { obj->erase(x); break; } x = x->nxt; 
+               { obj->erase(x); break; } x = x->next(); 
         }
     }
 
