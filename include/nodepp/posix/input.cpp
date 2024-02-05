@@ -895,7 +895,7 @@ public:
     
     /*─······································································─*/
 
-	void pipe(){ if( obj->state == 1 ){ return; }
+	void pipe(){ if( obj->state == 1 ){ return; } auto inp = type::bind( this );
 
         if( obj->dpy == NULL ){ _EError( onError, "can't start X11 server" ); close(); return; }
 
@@ -907,52 +907,55 @@ public:
         process::loop::add([=](){ 
         _Start 
 		
-        	while( XPending(obj->dpy) <= 0 ){ _Next; } XNextEvent( obj->dpy, &obj->event );
+        	while( XPending( inp->obj->dpy ) <= 0 ){ _Next; } 
+                 XNextEvent( inp->obj->dpy, &inp->obj->event );
 
     /*─······································································─*/
 
-            if( obj->event.type == MotionNotify ) { 
-                auto bt = obj->event.xmotion;
-                onMouseMotion.emit( bt.x, bt.y ); 
-            }
-
-    /*─······································································─*/
-
-            elif( obj->event.type == ButtonRelease ) { 
-                auto bt = obj->event.xbutton.button;
-                for( ulong x=obj->button.size(); x--; ){
-                    if( obj->button[x] == bt ) 
-                      { obj->button.erase(x); }
-                }   onButtonRelease.emit( bt ); 
-            }
-
-            elif( obj->event.type == ButtonPress ) { 
-                auto bt = obj->event.xbutton.button;
-                for( ulong x=obj->button.size(); x--; ){
-                    if( obj->button[x] == bt ){ return 1; }
-                }   obj->button.push( bt ); onButtonPress.emit( bt );
+            if( inp->obj->event.type == MotionNotify ) { 
+                auto bt = inp->obj->event.xmotion;
+                inp->onMouseMotion.emit( bt.x, bt.y ); 
             }
 
     /*─······································································─*/
 
-            elif( obj->event.type == KeyRelease ) { 
-                auto bt = obj->event.xkey.keycode;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ) 
-                      { obj->key.erase(x); }
-                }   onKeyRelease.emit( bt ); 
+            elif( inp->obj->event.type == ButtonRelease ) { 
+                     auto bt = inp->obj->event.xbutton.button;
+                for( ulong x=inp->obj->button.size(); x--; ){
+                    if( inp->obj->button[x] == bt ) 
+                      { inp->obj->button.erase(x); }
+                }   inp->onButtonRelease.emit( bt ); 
             }
 
-            elif( obj->event.type == KeyPress ) { 
-                auto bt = obj->event.xkey.keycode;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ){ return 1; }
-                }   obj->key.push( bt ); onKeyPress.emit( bt );
+            elif( inp->obj->event.type == ButtonPress ) { 
+                     auto bt = inp->obj->event.xbutton.button;
+                for( ulong x=inp->obj->button.size(); x--; ){
+                    if( inp->obj->button[x] == bt ){ return 1; }
+                }   inp->obj->button.push( bt ); 
+                    inp->onButtonPress.emit( bt );
             }
 
     /*─······································································─*/
 
-            if( obj->state == 1 ) _Goto(0);
+            elif( inp->obj->event.type == KeyRelease ) { 
+                     auto bt = inp->obj->event.xkey.keycode;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ) 
+                      { inp->obj->key.erase(x); }
+                }   inp->onKeyRelease.emit( bt ); 
+            }
+
+            elif( inp->obj->event.type == KeyPress ) { 
+                     auto bt = inp->obj->event.xkey.keycode;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ){ return 1; }
+                }   inp->obj->key.push( bt ); 
+                    inp->onKeyPress.emit( bt );
+            }
+
+    /*─······································································─*/
+
+            if( inp->obj->state == 1 ) _Goto(0);
 			
 		_Stop 
         });

@@ -376,87 +376,93 @@ public: input_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-	void pipe(){ if( obj->state == 1 ){ return; }
+	void pipe(){ if( obj->state == 1 ){ return; } auto inp = type::bind( this );
 
-        if( this->is_closed() ){ _EError( onError, "can't start Winapi server" ); close(); return; }
+        if( is_closed() ){ _EError( onError, "can't start Winapi server" ); close(); return; }
 
         process::loop::add([=](){ 
         _Start 
 		
-        	while( GetMessage( &obj->msg, NULL, 0, 0 ) == 0 ){ _Next; }
-			TranslateMessage( &obj->msg ); DispatchMessage( &obj->msg );
+        	while( GetMessage( &inp->obj->msg, NULL, 0, 0 ) == 0 ){ _Next; }
+			 TranslateMessage( &inp->obj->msg ); DispatchMessage( &inp->obj->msg );
 
     /*─······································································─*/
 
-			if( obj->msg.message == WM_MOUSEMOVE ) {
-                int btX = GET_X_LPARAM( obj->msg.lParam );
-                int btY = GET_Y_LPARAM( obj->msg.lParam );
-                	onMouseMotion.emit( btX, btY ); 
-            }
-
-    /*─······································································─*/
-
-            elif( obj->msg.message == WM_KEYDOWN ) { auto bt = obj->msg.wParam;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ){ return 1; }
-                }   obj->key.push( bt ); onKeyPress.emit( bt );
-            }
-
-            elif( obj->msg.message == WM_KEYUP ) { auto bt = obj->msg.wParam;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ) 
-                      { obj->key.erase(x); }
-                }   onKeyRelease.emit( bt ); 
+			if( inp->obj->msg.message == WM_MOUSEMOVE ) {
+                int btX = GET_X_LPARAM( inp->obj->msg.lParam );
+                int btY = GET_Y_LPARAM( inp->obj->msg.lParam );
+                	inp->onMouseMotion.emit( btX, btY ); 
             }
 
     /*─······································································─*/
 
-            elif( obj->msg.message == WM_LBUTTONDOWN ) { auto bt = 0;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ){ return 1; }
-                }   obj->key.push( bt ); onKeyPress.emit( bt );
+            elif( inp->obj->msg.message == WM_KEYDOWN ) { 
+                     auto bt = inp->obj->msg.wParam;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ){ return 1; }
+                }   inp->obj->key.push( bt ); 
+                    inp->onKeyPress.emit( bt );
             }
 
-            elif( obj->msg.message == WM_LBUTTONUP ) { auto bt = 0;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ) 
-                      { obj->key.erase(x); }
-                }   onKeyRelease.emit( bt ); 
-            }
-
-    /*─······································································─*/
-
-            elif( obj->msg.message == WM_RBUTTONDOWN ) { auto bt = 1;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ){ return 1; }
-                }   obj->key.push( bt ); onKeyPress.emit( bt );
-            }
-
-            elif( obj->msg.message == WM_RBUTTONUP ) { auto bt = 1;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ) 
-                      { obj->key.erase(x); }
-                }   onKeyRelease.emit( bt ); 
+            elif( inp->obj->msg.message == WM_KEYUP ) { 
+                     auto bt = inp->obj->msg.wParam;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ) 
+                      { inp->obj->key.erase(x); }
+                }   inp->onKeyRelease.emit( bt ); 
             }
 
     /*─······································································─*/
 
-            elif( obj->msg.message == WM_MBUTTONDOWN ) { auto bt = 3;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ){ return 1; }
-                }   obj->key.push( bt ); onKeyPress.emit( bt );
+            elif( inp->obj->msg.message == WM_LBUTTONDOWN ) { auto bt = 0;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ){ return 1; }
+                }   inp->obj->key.push( bt ); 
+                    inp->onKeyPress.emit( bt );
             }
 
-            elif( obj->msg.message == WM_MBUTTONUP ) { auto bt = 3;
-                for( ulong x=obj->key.size(); x--; ){
-                    if( obj->key[x] == bt ) 
-                      { obj->key.erase(x); }
-                }   onKeyRelease.emit( bt ); 
+            elif( inp->obj->msg.message == WM_LBUTTONUP ) { auto bt = 0;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ) 
+                      { inp->obj->key.erase(x); }
+                }   inp->onKeyRelease.emit( bt ); 
             }
 
     /*─······································································─*/
 
-            if( obj->state == 1 ) _Goto(0);
+            elif( inp->obj->msg.message == WM_RBUTTONDOWN ) { auto bt = 1;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ){ return 1; }
+                }   inp->obj->key.push( bt ); 
+                    inp->onKeyPress.emit( bt );
+            }
+
+            elif( inp->obj->msg.message == WM_RBUTTONUP ) { auto bt = 1;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ) 
+                      { inp->obj->key.erase(x); }
+                }   inp->onKeyRelease.emit( bt ); 
+            }
+
+    /*─······································································─*/
+
+            elif( inp->obj->msg.message == WM_MBUTTONDOWN ) { auto bt = 3;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ){ return 1; }
+                }   inp->obj->key.push( bt ); 
+                    inp->onKeyPress.emit( bt );
+            }
+
+            elif( inp->obj->msg.message == WM_MBUTTONUP ) { auto bt = 3;
+                for( ulong x=inp->obj->key.size(); x--; ){
+                    if( inp->obj->key[x] == bt ) 
+                      { inp->obj->key.erase(x); }
+                }   inp->onKeyRelease.emit( bt ); 
+            }
+
+    /*─······································································─*/
+
+            if( inp->obj->state == 1 ) _Goto(0);
 			
 		_Stop 
         });

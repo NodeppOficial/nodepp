@@ -103,17 +103,17 @@ public:
 
     void pipe() const noexcept { 
         if( obj->state == 1 ){ return; } obj->state = 1; onOpen.emit();
-            ptr_t<cluster_t> _self = new cluster_t(*this);
             ptr_t<_file_::read> _read = new _file_::read;
+            auto inp = type::bind( this );
 
-        process::task::add([=]( cluster_t inp ){
-            if(!inp.is_available() ){ inp.close(); return -1; }
-            if((*_read)(&inp.readable())==1 )    { return  1; }
-            if(  _read->c <= 0  )                { return  1; }
-            inp.onData.emit(_read->y);             return  1;
-        }, *this );
+        process::task::add([=](){
+            if(!inp->is_available() ){ inp->close(); return -1; }
+            if((*_read)(&inp->readable())==1 )     { return  1; }
+            if(  _read->c <= 0  )                  { return  1; }
+            inp->onData.emit(_read->y);              return  1;
+        });
 
-        onExit([=](){ _self->free(); });
+        onExit([=](){ inp->free(); });
     }
     
     /*─······································································─*/
@@ -141,7 +141,7 @@ public:
     }
     
     /*─······································································─*/
-
+    
     file_t& writable() const noexcept { return obj->writable; }
 
     file_t& readable() const noexcept { return obj->readable; }
