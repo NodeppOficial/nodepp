@@ -40,7 +40,7 @@ public: event_t() noexcept : obj( new ev ) {}
     void off( void* id ) const noexcept {
         auto x = obj->first(); while( x != nullptr ){
             if ( (void*) &x->data == id )
-               { auto y = x->next(); obj->erase(x); x=y; continue; } 
+               { auto y = x->next(); obj->erase(x); x=y; break; } 
             else x = x->next(); 
         }
     }
