@@ -6,7 +6,7 @@
 namespace nodepp { class debug_t {     
 protected: 
 
-    string_t message; ulong ev;
+    string_t message; void* ev;
 
 public:
 
