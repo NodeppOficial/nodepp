@@ -114,17 +114,19 @@ public: queue_t() noexcept {}
     bool empty() const noexcept { return queue == nullptr || size() <= 0; }
 
     ulong size() const noexcept { 
-           if( queue  == nullptr ){ return 0; } self* n = first(); ulong i = 1; 
+           if( queue  == nullptr ){ return 0; } self* n = &queue; ulong i = 1; 
         while( n->nxt != nullptr ){ n = n->nxt; i++; } return i;
     }
     
     /*─······································································─*/
 
-    V* operator&( void ) const noexcept { return act==nullptr ? first() : act; }
-
     V& operator[]( ulong i ) const noexcept { auto n = first();
         while( n->nxt != nullptr && i-->0 ){ n = n->nxt; } 
         return n->data;
+    }
+
+    V* operator&( void ) const noexcept { 
+        return act==nullptr ? first() : act; 
     }
     
     /*─······································································─*/

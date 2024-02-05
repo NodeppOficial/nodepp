@@ -3,54 +3,54 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include "hash.h"
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 namespace nodepp { template< class... A > class event_t { 
 protected:
 
-    using ob = type::pair<ulong,function_t<void,A...>>;
-    using ev = queue_t<ob>;
+    struct _str_ {
+        function_t<void,A...> cb;
+        bool                  on;
+    };  using ev = queue_t<_str_>;
 
-    ptr_t<ev> once_queue, every_queue;
+        ptr_t<ev> obj;
 
-public: event_t() noexcept : once_queue(new ev), every_queue(new ev) {}
+public: event_t() noexcept : obj( new ev ) {}
+    
+    /*─······································································─*/
+
+    void* operator()( decltype(_str_::cb) func ) const noexcept { return on(func); }
+    
+    /*─······································································─*/
+
+    ulong empty() const noexcept { return obj->empty(); }
+    ulong  size() const noexcept { return obj->size(); }
+    void  clear() const noexcept { obj->clear(); }
     
     /*─······································································─*/
 
     void emit( const A&... args ) const noexcept {
-        every_queue->map([=]( ob arg ){ arg.second(args...); });
-         once_queue->map([=]( ob arg ){ arg.second(args...); });
-        if( !once_queue->empty() ) once_queue->clear();
+        auto x = obj->first(); while( x != nullptr ){
+             x->data.cb( args... ); if ( !x->data.on )
+               { obj->erase(x); } x = x->nxt; 
+        }
     }
     
     /*─······································································─*/
 
-    ulong empty() const noexcept { return ( every_queue->empty() && once_queue->empty() ); }
-    ulong operator()( function_t<void,A...> func ) const noexcept { return on(func); }
-    ulong  size() const noexcept { return once_queue->size() + every_queue->size(); }
-    void  clear() const noexcept { every_queue->clear(); once_queue->clear(); }
-    
-    /*─······································································─*/
-
-    void off( ulong _hash ) const noexcept {
-        ulong index_A = every_queue->index_of([=]( ob data ){ return data.first == _hash; });
-        ulong index_B =  once_queue->index_of([=]( ob data ){ return data.first == _hash; });
-        every_queue->erase( every_queue->get( index_A ) ); 
-         once_queue->erase( once_queue->get( index_B ) );
+    void off( void* id ) const noexcept {
+        auto x = obj->first(); while( x != nullptr ){
+            if ( (void*) &x->data == id )
+               { obj->erase(x); break; } x = x->nxt; 
+        }
     }
 
-    ulong once( function_t<void,A...> func ) const noexcept {
-        ulong _hash = nodepp::hash::hash();
-        once_queue->push({ _hash, func }); 
-        return _hash;
+    void* once( function_t<void,A...> func ) const noexcept {
+        obj->push({ func, 0 }); 
+        return (void*) obj->last();
     }
 
-    ulong on( function_t<void,A...> func ) const noexcept {
-        ulong _hash = nodepp::hash::hash();
-        every_queue->push({ _hash, func });
-        return _hash;
+    void* on( function_t<void,A...> func ) const noexcept {
+        obj->push({ func, 1 }); 
+        return (void*) obj->last();
     }
     
 };}

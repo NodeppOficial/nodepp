@@ -48,7 +48,7 @@ public:
         if( !is_available() )                              _End;
         base = read_line(); protocol = "HTTPS";
         if( !regex::test( base,"HTTP/\\d\\.\\d" ) )        _End; 
-        init = regex::match_all( base, "[^\\s\t\r\n ]+" );
+        init = regex::match_all( base, "[^\\s\t\r\n ]+" ); _Next;
         
         if( !regex::test( init[1], "^\\d+" ) ) {
             auto idx = init[1].index_of([]( char x ){ return x=='?'; });
@@ -65,12 +65,12 @@ public:
             url     = string::format( "https://%s%s%s", (char*)headers["Host"], (char*)path, (char*)search );
         } else {
             version = init[0]; status = string::to_int(init[1]);
-        }   //_Next;
+        }   _Next;
 
         do {  line = read_line(); idx = line.index_of([]( char x ){ return x==':'; });
             if( idx < 0 ){ break; } a = line.slice( 0,idx ).to_capital_case();
                                     b = line.slice( idx+2 ); 
-                                    headers[a] = b; //_Next;
+                                    headers[a] = b;
         } while ( true ); _Set(0); return 0;
 
     _GStop

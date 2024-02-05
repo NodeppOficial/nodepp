@@ -81,7 +81,7 @@ namespace nodepp { namespace _file_ {
 
         if( y.empty() ) do {
                  c =str->_read( str->get_buffer_data(),min(d,size) );
-             if( c==-2 ){ _Next; }
+             if( true /* c==-2 */ ){ _Next; }
         } while( c==-2 );
         
         if( c<=0 && y.empty() ){ str->close(); _End; } elif ( c>0 ){
@@ -106,7 +106,7 @@ namespace nodepp { namespace _file_ {
         if(  str->get_borrow().empty() ){ str->set_borrow( msg ); }
         
         do { do { c = str->_write(str->get_borrow_data()+y,str->get_borrow_size()-y);
-             if ( c==-2 /* true */ ){ _Next; }
+             if ( true /* c==-2 */ ){ _Next; }
         } while ( c==-2 ); if( c>0 ){ y += c; }
         } while ( c>=0 && y<str->get_borrow_size() ); str->del_borrow();
         
