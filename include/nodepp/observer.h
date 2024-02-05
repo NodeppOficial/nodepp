@@ -49,7 +49,7 @@ public:    observer_t() noexcept {}
     /*─······································································─*/
 
     template< class F >
-    ulong once( const U& name, F func ) const noexcept {
+    void* once( const U& name, F func ) const noexcept {
         for( ulong x=0; x<node.size(); x++ ){
             if( node[x].first == name )
                 return node[x].third.once( func );
@@ -57,14 +57,14 @@ public:    observer_t() noexcept {}
     }
 
     template< class F >
-    ulong on( const U& name, F func ) const noexcept {
+    void* on( const U& name, F func ) const noexcept {
         for( ulong x=0; x<node.size(); x++ ){
             if( node[x].first == name )
                 return node[x].third.on( func );
         }       return 0;
     }
 
-    void off( const U& name, ulong id ) const noexcept {
+    void off( const U& name, void* id ) const noexcept {
         for( ulong x=0; x<node.size(); x++ ){
             if( node[x].first == name )
                 node[x].third.off( id );
