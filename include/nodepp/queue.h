@@ -254,8 +254,7 @@ public: queue_t() noexcept {}
 
     void insert( self* index, const V& value ) noexcept {
         if( empty() ){ queue = new self( value ); } 
-        if( index != nullptr ){
-            if( index == last() ) {
+        if( index != nullptr ){ if( index == last() ) {
                 index->next() = new self( value );
                 index->next()->next() = nullptr;
                 index->next()->prev() = index;
