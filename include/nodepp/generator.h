@@ -1,4 +1,6 @@
-#if !defined(GENERATOR_TIMER) && defined(NODEPP_TIMER)
+#define NODEPP_GENERATOR
+
+#if !defined(GENERATOR_TIMER) && defined(NODEPP_TIMER) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_TIMER
 namespace nodepp { namespace _timer_ {
 
@@ -52,12 +54,13 @@ namespace nodepp { namespace _timer_ {
 
     };
 
-}}
+}}  
+#undef NODEPP_GENERATOR
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if !defined(GENERATOR_FILE) && defined(NODEPP_FILE)
+#if !defined(GENERATOR_FILE) && defined(NODEPP_FILE) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_FILE
 namespace nodepp { namespace _file_ {
 
@@ -139,11 +142,12 @@ namespace nodepp { namespace _file_ {
     }};
 
 }}
+#undef NODEPP_GENERATOR
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if !defined(GENERATOR_STREAM) && defined(NODEPP_STREAM)
+#if !defined(GENERATOR_STREAM) && defined(NODEPP_STREAM) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_STREAM 
 namespace nodepp { namespace _stream_ {
 
@@ -206,11 +210,12 @@ namespace nodepp { namespace _stream_ {
     };
     
 }}
+#undef NODEPP_GENERATOR
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if !defined(GENERATOR_ZLIB) && defined(NODEPP_ZLIB)
+#if !defined(GENERATOR_ZLIB) && defined(NODEPP_ZLIB) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_ZLIB 
 namespace nodepp { namespace _zlib_ {
 
@@ -403,11 +408,12 @@ namespace nodepp { namespace _zlib_ {
     };
 
 }}
+#undef NODEPP_GENERATOR
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if !defined(GENERATOR_WS) && defined(NODEPP_WS)
+#if !defined(GENERATOR_WS) && defined(NODEPP_WS) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_WS
 namespace nodepp { 
 
@@ -465,11 +471,12 @@ namespace nodepp {
     }
 
 }
+#undef NODEPP_GENERATOR
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#if !defined(GENERATOR_WSS) && defined(NODEPP_WSS)
+#if !defined(GENERATOR_WSS) && defined(NODEPP_WSS) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_WSS
 namespace nodepp {
     
@@ -528,6 +535,7 @@ namespace nodepp {
     }
 
 }
+#undef NODEPP_GENERATOR
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/

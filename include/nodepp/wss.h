@@ -6,8 +6,8 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include "https.h"
 #include "crypto.h"
+#include "https.h"
 #include "encoder.h"
 #include "generator.h"
 

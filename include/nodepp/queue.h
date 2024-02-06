@@ -120,7 +120,7 @@ public: queue_t() noexcept {}
     bool empty() const noexcept { return queue == nullptr || size() <= 0; }
 
     ulong size() const noexcept { 
-           if( queue  == nullptr ){ return 0; } self* n = &queue; ulong i = 1; 
+           if( queue     == nullptr ){ return 0; } self* n = &queue; ulong i = 1; 
         while( n->next() != nullptr ){ n = n->next(); i++; } return i;
     }
     
@@ -255,10 +255,14 @@ public: queue_t() noexcept {}
     void insert( self* index, const V& value ) noexcept {
         if( empty() ){ queue = new self( value ); } 
         if( index != nullptr ){
-            if( index == first() ) {
+            if( index == last() ) {
+                index->next() = new self( value );
+                index->next()->next() = nullptr;
+                index->next()->prev() = index;
+            } else if( index == first() ) {
                 auto prev = *queue; queue = new self( value );
                 queue->next()= new self( prev ); 
-                queue->next()->prev() = first();
+                queue->next()->prev() = index;
             } else {
                 index->next() = new self( value ); 
                 index->next()->prev() = index;
@@ -285,30 +289,26 @@ public: queue_t() noexcept {}
         if( x == act ){ act = x->next(); }
         if( x == first() ) {
             if ( x->next() != nullptr ) x->next()->prev() = nullptr;
-                 queue   = x->next();
+                 queue = x->next();
         } else {
             if ( x->prev() != nullptr ) x->prev()->next() = x->next();
-            if ( x->next() != nullptr ) x->next()->prev() = x->prev(); 
-                 delete x;
+            if ( x->next() != nullptr ) x->next()->prev() = x->prev(); delete x;
         }
     }
 
     /*─······································································─*/
 
     self* get( long i=-1 ) noexcept { 
-        if( empty() ){ return nullptr; } if( i == -1 ){ 
-            return act == nullptr ? next() : act; 
-        }   auto n = first(); i = ( i<0L ) ? 0L : i;
-        while( n->next() != nullptr && i-->0 ){ n = n->next(); } return n;
+        if( empty() ){ return nullptr; } if ( i==-1 ){ 
+            if( act == nullptr )
+              { act  = next(); } return act; 
+        }   auto n = first(); auto x = (ulong) i;
+        while( n->next() != nullptr && x-->0 ){ n = n->next(); } return n;
     }
 
-    void set( ulong x ) noexcept {
-         if ( empty() ){ return; } act = get( x );
-    }
+    void set( self* x ) noexcept { if ( is_item(x) ) act = x; }
 
-    void set( self* x ) noexcept {
-         if ( is_item(x) ) act = x;
-    }
+    void set( ulong x ) noexcept { act = get( x ); }
     
     /*─······································································─*/
 
