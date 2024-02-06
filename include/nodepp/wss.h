@@ -38,8 +38,8 @@ public:
 namespace nodepp { namespace wss {
 
     tls_t server( const tls_t& server ){ server.onSocket([=]( socket_t cli ){
-        ptr_t<_file_::read> _read = new _file_::read;
         if ( !nodepp::WSServer( (https_t) cli ) ){ return; }
+        ptr_t<_file_::read> _read = new _file_::read;
 
         server.onConnect.once([=]( wss_t cli ){ process::poll::add([=](){ 
             if(!cli.is_available() ) { cli.close(); return -1; }

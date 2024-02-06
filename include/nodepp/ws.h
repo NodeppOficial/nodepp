@@ -38,8 +38,8 @@ public:
 namespace nodepp { namespace ws {
 
     tcp_t server( const tcp_t& server ){ server.onSocket([=]( socket_t cli ){
-        ptr_t<_file_::read> _read = new _file_::read;
         if ( !nodepp::WSServer( (http_t) cli ) ){ return; }
+        ptr_t<_file_::read> _read = new _file_::read;
 
         server.onConnect.once([=]( ws_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }

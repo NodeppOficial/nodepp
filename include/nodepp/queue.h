@@ -226,9 +226,9 @@ public: queue_t() noexcept {}
     
     /*─······································································─*/
 
-    void clear() noexcept { while( !empty() ){ shift(); } }
-    void erase() noexcept { while( !empty() ){ shift(); } }
-    void  free() noexcept { while( !empty() ){ shift(); } }
+    void clear() noexcept { while( !empty() ){ pop(); } }
+    void erase() noexcept { while( !empty() ){ pop(); } }
+    void  free() noexcept { while( !empty() ){ pop(); } }
     
     /*─······································································─*/
 
@@ -273,22 +273,21 @@ public: queue_t() noexcept {}
     /*─······································································─*/
 
     void erase( ulong begin, ulong end ) noexcept {
-        auto r = get_slice_range( begin, end );
+          auto r = get_slice_range( begin, end );
            if( r == nullptr ){ return; }
         while( r[2]-->0 ) { erase( r[0] ); }
     }
 
     void erase( ulong begin ) noexcept { 
-        auto r = get_slice_range( begin, size() );
+          auto r = get_slice_range( begin, size() );
            if( r == nullptr ){ return; }
         erase( get( r[0] ) ); 
     }
 
     void erase( self* x ) noexcept {
-        if( x == nullptr ){ return; }
-        if( x == act ){ act = x->next(); }
-        if( x == first() ) {
-            if ( x->next() != nullptr ) x->next()->prev() = nullptr;
+        if( x == nullptr || empty() ){ return; }
+        if( x == act ){ act = x->next(); } if( x == first() ) {
+            if ( x->next() != nullptr ) x->next()->prev() = nullptr; 
                  queue = x->next();
         } else {
             if ( x->prev() != nullptr ) x->prev()->next() = x->next();
@@ -302,13 +301,11 @@ public: queue_t() noexcept {}
         if( empty() ){ return nullptr; } if ( i==-1 ){ 
             if( act == nullptr )
               { act  = next(); } return act; 
-        }   auto n = first(); auto x = (ulong) i;
+        }    auto n  = first(); auto x = (ulong) i;
         while( n->next() != nullptr && x-->0 ){ n = n->next(); } return n;
     }
 
     void set( self* x ) noexcept { if ( is_item(x) ) act = x; }
-
-    void set( ulong x ) noexcept { act = get( x ); }
     
     /*─······································································─*/
 
@@ -322,13 +319,13 @@ public: queue_t() noexcept {}
     /*─······································································─*/
     
     self* prev() noexcept { 
-        if( empty() ){ return nullptr; }
+        if( empty() ){ act = nullptr; return nullptr; }
         if( act == nullptr ){ act = last(); return act; }
         act = act->prev() == nullptr ? last() : act->prev(); return act;
     }
     
     self* next() noexcept { 
-        if( empty() ){ return nullptr; }
+        if( empty() ){ act = nullptr; return nullptr; }
         if( act == nullptr ){ act = first(); return act; }
         act = act->next() == nullptr ? first() : act->next(); return act;
     }

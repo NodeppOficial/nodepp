@@ -158,6 +158,7 @@ namespace tls {
     
     tls_t server( const tls_t& server ){ server.onSocket([=]( ssocket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
+        cli.onDrain.once([=](){ cli.free(); });
 
         server.onConnect.once([=]( ssocket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
@@ -168,7 +169,7 @@ namespace tls {
 
         process::task::add([=](){
             server.onConnect.emit(cli); return -1;
-        }); cli.onDrain.once([=](){ cli.free(); });
+        });
 
     }); server.poll( false ); return server; }
 
@@ -183,13 +184,14 @@ namespace tls {
 
     tls_t client( const tls_t& client ){ client.onOpen.once([=]( ssocket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
+        cli.onDrain.once([=](){ cli.free(); });
 
         process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; } 
             if(  _read->c  <=  0 )   { return 1; }
             cli.onData.emit(_read->y); return 1;
-        }); cli.onDrain.once([=](){ cli.free(); });
+        });
 
     }); return client; }
 
