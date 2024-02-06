@@ -29,7 +29,7 @@ public:
 
     poll_t() : obj( new _str_() ) {
         obj->pd = epoll_create1(0); if( obj->pd == -1 )
-                 _Error("Can't open an epoll fd");
+                  process::error("Can't open an epoll fd");
         obj->ev.resize( MAX_SOCKET );
     }
 
@@ -48,17 +48,17 @@ public:
 
     int emit () noexcept { 
         static int c; static EPOLLFD x;
-    _GStart
+    gnStart
 
-        if((c=epoll_wait( obj->pd, &obj->ev, obj->ev.size(), 0 ))<=0 ) { _End; }
+        if((c=epoll_wait( obj->pd, &obj->ev, obj->ev.size(), 0 ))<=0 ) { coEnd; }
 
         while( c-->0 ){ x = obj->ev[c]; 
-              if( x.events & EPOLLERR ){ onError.emit(x.data.fd); obj->ls={{-1, x.data.fd }}; _Next; }
-            elif( x.events & EPOLLIN  ){  onRead.emit(x.data.fd); obj->ls={{ 0, x.data.fd }}; _Next; }
-            elif( x.events & EPOLLOUT ){ onWrite.emit(x.data.fd); obj->ls={{ 1, x.data.fd }}; _Next; }
+              if( x.events & EPOLLERR ){ onError.emit(x.data.fd); obj->ls={{-1, x.data.fd }}; coNext; }
+            elif( x.events & EPOLLIN  ){  onRead.emit(x.data.fd); obj->ls={{ 0, x.data.fd }}; coNext; }
+            elif( x.events & EPOLLOUT ){ onWrite.emit(x.data.fd); obj->ls={{ 1, x.data.fd }}; coNext; }
         }
 
-    _GStop
+    gnStop
     };
 
     /*─······································································─*/

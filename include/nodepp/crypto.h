@@ -1,9 +1,6 @@
 #ifndef NODEPP_CRYPTO
 #define NODEPP_CRYPTO
-
-#ifndef OPENSSL_API_COMPAT
 #define OPENSSL_API_COMPAT 0x10100000L
-#endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -73,7 +70,7 @@ public:
         obj->ctx   = EVP_MD_CTX_new();
         obj->state = 1;
         if ( !obj->ctx || !EVP_DigestInit_ex( obj->ctx, type, NULL ) )
-           { _Error("cant initializate hash_t"); }
+           { process::error("cant initializate hash_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { 
@@ -127,7 +124,7 @@ public:
         obj->ctx   = HMAC_CTX_new(); 
         obj->state = 1;
         if ( !obj->ctx || !HMAC_Init_ex( obj->ctx, key.c_str(), key.size(), type, nullptr ) )
-           { _Error("cant initializate hmac_t"); }
+           { process::error("cant initializate hmac_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { 
@@ -184,7 +181,7 @@ public:
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1; 
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
-           { _Error("cant initializate encrypt_t"); }
+           { process::error("cant initializate encrypt_t"); }
     }
 
     template< class T >
@@ -193,7 +190,7 @@ public:
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1; 
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), NULL ) )
-           { _Error("cant initializate encrypt_t"); }
+           { process::error("cant initializate encrypt_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
@@ -256,7 +253,7 @@ public:
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1;
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
-           { _Error("cant initializate decrypt_t"); }
+           { process::error("cant initializate decrypt_t"); }
     }
 
     template< class T >
@@ -265,7 +262,7 @@ public:
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1;
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), NULL ) )
-           { _Error("cant initializate decrypt_t"); }
+           { process::error("cant initializate decrypt_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
@@ -327,7 +324,7 @@ public:
         obj->ctx   = EVP_ENCODE_CTX_new();
         obj->state = 1;
         if ( !obj->ctx )
-           { _Error("cant initializate base64 encoder"); }
+           { process::error("cant initializate base64 encoder"); }
         EVP_EncodeInit( obj->ctx );
     }
 
@@ -386,7 +383,7 @@ public:
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
-           { _Error("cant initializate encoder"); }
+           { process::error("cant initializate encoder"); }
     }
 
     void update( const string_t& msg ) const noexcept { 
@@ -453,9 +450,9 @@ public:
     dec_base64_t() : obj( new _str_() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,0);
         obj->ctx   = EVP_ENCODE_CTX_new();
-        obj->state = 1;
+        obj->state = 1; 
         if ( !obj->ctx )
-           { _Error("cant initializate base64 decoder"); }
+           { process::error("cant initializate base64 decoder"); }
         EVP_DecodeInit( obj->ctx );
     }
 
@@ -517,7 +514,7 @@ public:
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
-           { _Error("cant initializate decoder"); }
+           { process::error("cant initializate decoder"); }
     }
 
     void update( const string_t& msg ) const { 
@@ -525,8 +522,7 @@ public:
 
         for( const auto& c : msg ) {
              const char* pos = strchr( obj->chr.data(), c );
-             if( pos == nullptr ) _Error("Invalid BaseX character");
-
+             if( pos == nullptr ) process::error("Invalid BaseX character");
              BN_mul_word( obj->bn, obj->chr.size() );
              BN_add_word( obj->bn, pos - obj->chr.data() );
         }
@@ -752,7 +748,7 @@ public:
         obj->prv   = RSA_new();
         obj->state = 1;
         if ( !obj->prv || !obj->pbl )
-           { _Error("creating rsa object"); }
+           { process::error("creating rsa object"); }
     }
 
     void set_private_key( const string_t& path ) const noexcept {
@@ -775,7 +771,7 @@ public:
         string_t     bff; 
         do { c=RSA_private_decrypt( msg.size()+y, (uchar*)msg.c_str()-y, &out, obj->prv, padding );
              if( c>0 ){ y+=c; } process::next(); 
-        } while( c < msg.size() ); return bff;
+        } while( (ulong)c < msg.size() ); return bff;
     }
 
     string_t decrypt( const string_t& msg, int padding=0 ) const noexcept {
@@ -786,7 +782,7 @@ public:
         string_t     bff; 
         do { c=RSA_public_encrypt( msg.size()+y, (uchar*)msg.c_str()-y, &out, obj->pbl, padding );
              if( c>0 ){ y+=c; } process::next(); 
-        } while( c < msg.size() ); return bff;
+        } while( (ulong)c < msg.size() ); return bff;
         return bff;
     }
 
@@ -829,11 +825,11 @@ public:
         obj->k     = BN_new();
         obj->state = 1;
         if( !obj->dh || !obj->g )
-          { _Error( "creating new dh_t" ); }
+          { process::error( "creating new dh_t" ); }
         if( !DH_check( obj->dh, nullptr ) )
-          { _Error( "while checking dh" ); }
+          { process::error( "while checking dh" ); }
         if( !DH_generate_key( obj->dh ) )
-          { _Error( "while generating dh params" ); }
+          { process::error( "while generating dh params" ); }
     }
 
     int set_public_key( const string_t& key ) const noexcept {
@@ -895,18 +891,18 @@ public:
     dsa_t( uint size ) : obj( new _str_() ) {
         obj->state = 1; obj->len = size; obj->dsa = DSA_new(); 
         if(!DSA_generate_parameters_ex( obj->dsa, obj->len, NULL, 0, NULL, NULL, NULL ) )
-          { _Error("while generating DSA parameters"); }
+          { process::error("while generating DSA parameters"); }
         if(!DSA_generate_key( obj->dsa ) )
-          { _Error("while generating DSA key"); }
+          { process::error("while generating DSA key"); }
 
     }
 
     template< class T >
     dsa_t( const string_t& path, uint size ) : obj( new _str_() ) { obj->state = 1;
         obj->len = size; obj->dsa = DSA_new(); FILE* fp = fopen(path.c_str(),"r");
-        if ( fp == nullptr ) _Error("such file or directory does not exist");
+        if ( fp == nullptr ) process::error("such file or directory does not exist");
         obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, nullptr, nullptr );
-        fclose( fp ); if( obj->dsa==nullptr ) _Error("while creating DSA");
+        fclose( fp ); if( obj->dsa==nullptr ) process::error("while creating DSA");
     }
 
     string_t sign( const string_t& msg ) const noexcept {
@@ -921,16 +917,16 @@ public:
 
     void save_private_key( const string_t& path ) const {
         if( obj->state != 1 ){ return; } FILE* fp = fopen( path.c_str(), "w" );
-        if ( fp == nullptr ) { _Error("while creating file"); }
+        if ( fp == nullptr ) { process::error("while creating file"); }
         if (!PEM_write_DSA_PUBKEY( fp, obj->dsa ) ) 
-           { fclose( fp ); _Error("while writting the private key"); } fclose( fp );
+           { fclose( fp ); process::error("while writting the private key"); } fclose( fp );
     }
 
     void save_public_key( const string_t& path ) const {
         if( obj->state != 1 ){ return; } FILE* fp = fopen( path.c_str(), "w" );
-        if ( fp == nullptr ) { _Error("while creating file"); }
+        if ( fp == nullptr ) { process::error("while creating file"); }
         if (!PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, nullptr, nullptr ) )
-           { fclose( fp ); _Error("while writting the public key"); } fclose( fp );
+           { fclose( fp ); process::error("while writting the public key"); } fclose( fp );
     }
 
     void force_close() const noexcept { 

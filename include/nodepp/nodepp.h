@@ -45,18 +45,25 @@ namespace nodepp { namespace process {
 
     int next(){ 
         static int x = 0;
-    _Start
+    coStart
 
-        x = process::task::size(); while( x-->0 ){ process::task::next(); _Next; }
-        x = process::loop::size(); while( x-->0 ){ process::loop::next(); _Next; }
-        x = process::poll::size(); while( x-->0 ){ process::poll::next(); _Next; }
+        x = process::task::size(); while( x-->0 ){ process::task::next(); coNext; }
+        x = process::loop::size(); while( x-->0 ){ process::loop::next(); coNext; }
+        x = process::poll::size(); while( x-->0 ){ process::poll::next(); coNext; }
 
         #if _KERNEL != NODEPP_KERNEL_ARDUINO
             process::delay( TIMEOUT );
         #endif
 
-    _Stop
+    coStop
     }
+
+    /*─······································································─*/
+
+    template< class T >
+    void error( T& ev, const string_t& msg ){ EERROR( ev, msg ); }
+
+    void error( const string_t& msg ){ ERROR( msg ); }
 
     /*─······································································─*/
 

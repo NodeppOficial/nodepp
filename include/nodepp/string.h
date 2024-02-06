@@ -475,7 +475,7 @@ namespace string {
 
     template< class... T >
     string_t format( const string_t& str, const T&... args ){
-        char buffer[1024]; sprintf( buffer, (char*)str, args... ); 
+        char   buffer[UNBFF_SIZE]; sprintf( buffer, (char*)str, args... ); 
         return buffer;
     }
 

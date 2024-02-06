@@ -31,7 +31,7 @@ public:
 
     poll_t() : obj( new _str_() ) {
         obj->pd = kqueue(); if( obj->pd == -1 )
-                 _Error("Can't open an epoll fd");
+        process::error("Can't open an epoll fd");
         obj->ev.resize( MAX_SOCKET );
     }
 
@@ -50,17 +50,17 @@ public:
 
     int emit () noexcept { 
         static int c; static KPOLLFD x;
-    _GStart
+    gnStart
 
-        if((c=kevent( obj->pd, NULL, 0, &obj->ev, obj->ev.size(), 0 ))<=0 ) { _End; }
+        if((c=kevent( obj->pd, NULL, 0, &obj->ev, obj->ev.size(), 0 ))<=0 ) { coEnd; }
 
         while( c-->0 ){ x = obj->ev[c]; 
-              if( x.flags & EV_ERROR     ){ onError.emit(x.ident); obj->ls={{-1, x.ident }}; _Next; }
-            elif( x.flags & EVFILT_READ  ){  onRead.emit(x.ident); obj->ls={{ 0, x.ident }}; _Next; }
-            elif( x.flags & EVFILT_WRITE ){ onWrite.emit(x.ident); obj->ls={{ 1, x.ident }}; _Next; }
+              if( x.flags & EV_ERROR     ){ onError.emit(x.ident); obj->ls={{-1, x.ident }}; coNext; }
+            elif( x.flags & EVFILT_READ  ){  onRead.emit(x.ident); obj->ls={{ 0, x.ident }}; coNext; }
+            elif( x.flags & EVFILT_WRITE ){ onWrite.emit(x.ident); obj->ls={{ 1, x.ident }}; coNext; }
         }
 
-    _GStop
+    gnStop
     };
 
     /*─······································································─*/

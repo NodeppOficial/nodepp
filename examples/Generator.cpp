@@ -11,11 +11,11 @@ _Generator( process_1 ) {
     ptr_t<int> counter = new int(10);
 
     _Emit(){ 
-    _GStart;
+    gnStart;
         while( (*counter)-->0 ){
-            console::done(" :>",*counter); _Next;
+            console::done(" :>",*counter); coNext;
         }
-    _GStop;
+    gnStop;
     }
 
 };

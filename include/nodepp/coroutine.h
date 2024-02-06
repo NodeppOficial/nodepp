@@ -11,10 +11,10 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define _EError( Ev, message ) if ( Ev.empty() ){ console::error(message); /*exit(1);*/ } \
-                               else Ev.emit( except_t( message ) );
+#define EERROR( Ev, message ) if ( Ev.empty() ){ console::error(message); } \
+                              else Ev.emit( except_t( message ) );
 
-#define _Error( MESSAGE ) throw except_t ( MESSAGE );
+#define ERROR( MESSAGE ) throw except_t ( MESSAGE );
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -25,41 +25,35 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define _Return(VALUE) do { _state_ = _LINE; _Enable; return VALUE; case _LINE:; } while (0)
-#define _Next          do { _state_ = _LINE; _Enable; return 1;     case _LINE:; } while (0)
-#define _Again         do { _state_ = _LINE; _Enable; return 0;     case _LINE:; } while (0)
-#define _Goto(VALUE)   do { _state_ = VALUE; _Enable; return 1;                  } while (0)
-#define _Yield(VALUE)  do { _state_ = VALUE; _Enable; return 1;     case VALUE:; } while (0)
+#define coReturn(VALUE) do { _state_ = _LINE_; return VALUE; case _LINE_:; } while (0)
+#define coNext          do { _state_ = _LINE_; return 1;     case _LINE_:; } while (0)
+#define coAgain         do { _state_ = _LINE_; return 0;     case _LINE_:; } while (0)
+#define coGoto(VALUE)   do { _state_ = VALUE ; return 1;                   } while (0)
+#define coYield(VALUE)  do { _state_ = VALUE ; return 1;     case VALUE:;  } while (0)
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define _GStart if ( !_available_ ){ return 1; } _Disable; { switch(_state_) { case 0:;
-#define _GStop     }  _state_ = 0; _Enable; return -1; }
+#define coStart static int _state_ = 0; { switch(_state_) { case 0:;
+#define coEnd     do { _state_ = 0; return -1; } while (0)
+#define coStop       } _state_ = 0; return -1; }
+#define coSet(VALUE)   _state_ = VALUE
+#define coGet          _state_
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define _Start static int _state_ = 0; _Available { switch(_state_) { case 0:;
-#define _End   do { _state_ = 0; _Enable; return -1; } while (0)
-#define _Stop     } _state_ = 0; _Enable; return -1; }
-#define _Emit  int operator()
+#define GENERATOR(NAME) struct NAME : public NODEPP_GENERATOR_BASE
+#define gnStart    { switch(_state_) { case 0:;
+#define gnStop     } _state_ = 0;  return -1; }
+#define gnEmit       int operator()
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define _Available static bool _available_ = 1; if( !_available_ ){ return 1; } _Disable;
-#define _Generator(NAME) struct NAME : public NODEPP_GENERATOR_BASE
-#define _Disable         _available_ = 1 // 0
-#define _Enable          _available_ = 1
-#define _Set(VALUE)      _state_ = VALUE
-#define _Get             _state_
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-#define _FUNC  __PRETTY_FUNCTION__
-#define _NAME  __FUNCTION__
-#define _DATE  __DATE__
-#define _FILE  __FILE__
-#define _LINE  __LINE__
-#define _TIME  __TIME__
+#define _FUNC_  __PRETTY_FUNCTION__
+#define _NAME_  __FUNCTION__
+#define _DATE_  __DATE__
+#define _FILE_  __FILE__
+#define _LINE_  __LINE__
+#define _TIME_  __TIME__
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -82,8 +76,7 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 #define typeof(DATA) (string_t){ typeid( DATA ).name() }
 
 struct NODEPP_GENERATOR_BASE { protected:
-   bool _available_ = 1;
-   int  _state_     = 0;
+   int  _state_ = 0;
 };
 
 #define ullong  unsigned long long int

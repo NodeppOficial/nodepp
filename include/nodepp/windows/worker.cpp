@@ -32,7 +32,7 @@ public:
 
     mutex_t() : mutex( new HANDLE ) {
         if((*mutex=CreateMutex(NULL,0,NULL) ) == NULL )
-          { _Error("Cant Init Mutex"); }
+          { process::error("Cant Init Mutex"); }
     }
 
     virtual ~mutex_t() noexcept {

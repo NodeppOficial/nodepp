@@ -63,7 +63,7 @@
 
 ## Features
 
-- C++11 | C++14 | C++17 Compatible
+- C++11 | C++14 | C++17 | c++20 | c++23 Compatible
 - Open source project, meaning anyone can contribute and improve it
 - Allows writing **C++** code as if writing in **NodeJS** or **Javascript**
 - Includes a **RegExp** engine for processing and manipulating text strings
@@ -228,20 +228,20 @@ void _main_() {
 
     process::add([=](){ 
         static int x = 3;
-    _Start
+    coStart
         while( x --> 0 ){
-            console::log("A: x =",x); _Next;
+            console::log("A: x =",x); coNext;
         }
-    _Stop
+    coStop
     });
 
     process::add([=](){ 
         static int x = 3;
-    _Start
+    coStart
         while( x --> 0 ){
-            console::log("B: x =",x); _Next;
+            console::log("B: x =",x); coNext;
         }
-    _Stop
+    coStop
     });
 
 }
@@ -261,17 +261,17 @@ B: x = 0
 
 using namespace nodepp;
 
-_Generator( gen ) {
+GENERATOR( gen ) {
     
     int x = 3;
 
-    _Emit(){ 
-    _GStart;
+    gnEmit(){ 
+    gnStart;
         while( x-->0 ){
             console::log("x:>",x); 
-            _Next;
+            coNext;
         }
-    _GStop;
+    gnStop;
     }
 
 };
@@ -298,11 +298,11 @@ void _main_() {
 
     worker::add([](){
         static int x = 3;
-    _Start
+    coStart
         while( x --> 0 ){
-            console::log("x: x =",x); _Next;
+            console::log("x: x =",x); coNext;
         }
-    _Stop
+    coStop
     });
 
 }
@@ -847,7 +847,13 @@ using namespace nodepp;
 void _main_() {
 
     fetch_t args;
-            args.url = "http://www.google.com/";
+            args.method = "GET";
+            args.url = "https://www.google.com/";
+            args.headers = {{
+                { "Host", url::host(args.url) }
+            }};
+        //  args.file = file_t("PATH","r");
+        //  args.body = "MYBODY";
 
     http::fetch( args )
 
@@ -909,7 +915,13 @@ void _main_() {
     ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
 
     fetch_t args;
-            args.url = "http://www.google.com/";
+            args.method = "GET";
+            args.url = "https://www.google.com/";
+            args.headers = {{
+                { "Host", url::host(args.url) }
+            }};
+        //  args.file = file_t("PATH","r");
+        //  args.body = "MYBODY";
 
     https::fetch( args, &ssl )
 

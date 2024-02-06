@@ -43,12 +43,12 @@ public:
         static array_t<string_t> init; 
         string_t base, line, a, b;
         int idx;
-    _GStart
+    gnStart
 
-        if( !is_available() )                              _End;
+        if( !is_available() )                              coEnd;
         base = read_line(); protocol = "HTTPS";
-        if( !regex::test( base,"HTTP/\\d\\.\\d" ) )        _End; 
-        init = regex::match_all( base, "[^\\s\t\r\n ]+" ); _Next;
+        if( !regex::test( base,"HTTP/\\d\\.\\d" ) )        coEnd; 
+        init = regex::match_all( base, "[^\\s\t\r\n ]+" ); coNext;
         
         if( !regex::test( init[1], "^\\d+" ) ) {
             auto idx = init[1].index_of([]( char x ){ return x=='?'; });
@@ -65,15 +65,15 @@ public:
             url     = string::format( "https://%s%s%s", (char*)headers["Host"], (char*)path, (char*)search );
         } else {
             version = init[0]; status = string::to_int(init[1]);
-        }   _Next;
+        }   coNext;
 
         do {  line = read_line(); idx = line.index_of([]( char x ){ return x==':'; });
             if( idx < 0 ){ break; } a = line.slice( 0,idx ).to_capital_case();
                                     b = line.slice( idx+2 ); 
                                     headers[a] = b;
-        } while ( true ); _Set(0); return 0;
+        } while ( true ); coSet(0); return 0;
 
-    _GStop
+    gnStop
     }
     
     /*─······································································─*/
@@ -123,7 +123,7 @@ namespace nodepp { namespace https {
     
     promise_t<https_t,except_t> fetch ( const fetch_t& cfg, ssl_t* ctx, agent_t* opt=nullptr ) { 
            ptr_t<fetch_t> _cfg = new fetch_t( cfg );
-        if( ctx == nullptr ) _Error( "Invalid SSL Contenx" );
+        if( ctx == nullptr ) process::error( "Invalid SSL Contenx" );
            ptr_t<agent_t> agn = new agent_t( opt==nullptr?agent_t():*opt ); 
            ptr_t<ssl_t>   ssl = new ssl_t  ( *ctx );
     return promise_t<https_t,except_t>([=]( function_t<void,https_t> res, function_t<void,except_t> rej ){

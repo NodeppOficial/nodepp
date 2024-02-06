@@ -28,7 +28,7 @@ public:
 
     mutex_t() : mutex( new pthread_mutex_t() ) {
         if( pthread_mutex_init(&mutex,NULL) != 0 )
-          { _Error("Cant Init Mutex"); }
+          { process::error("Cant Init Mutex"); }
     }
 
     virtual ~mutex_t() noexcept {

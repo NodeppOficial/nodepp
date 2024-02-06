@@ -24,7 +24,7 @@ namespace nodepp { namespace fs {
         WIN32_FILE_ATTRIBUTE_DATA fileData; ULARGE_INTEGER uli;
 
         if (!GetFileAttributesExA(path.c_str(),GetFileExInfoStandard,&fileData) ) 
-           { _Error("Failed to get file last modification time properties"); }
+           { process::error("Failed to get file last modification time properties"); }
 
         FILETIME ftModified = fileData.ftLastWriteTime;
         uli.LowPart         = ftModified.dwLowDateTime;
@@ -37,7 +37,7 @@ namespace nodepp { namespace fs {
         WIN32_FILE_ATTRIBUTE_DATA fileData; ULARGE_INTEGER uli;
 
         if (!GetFileAttributesExA(path.c_str(),GetFileExInfoStandard,&fileData) ) 
-           { _Error("Failed to get file last access time properties"); }
+           { process::error("Failed to get file last access time properties"); }
 
         FILETIME ftAccess = fileData.ftLastAccessTime;
         uli.HighPart      = ftAccess.dwHighDateTime;
@@ -50,7 +50,7 @@ namespace nodepp { namespace fs {
         WIN32_FILE_ATTRIBUTE_DATA fileData; ULARGE_INTEGER uli;
 
         if (!GetFileAttributesExA(path.c_str(),GetFileExInfoStandard,&fileData) ) 
-           { _Error("Failed to get file creation time properties"); }
+           { process::error("Failed to get file creation time properties"); }
 
         FILETIME ftCreated = fileData.ftCreationTime;
         uli.LowPart        = ftCreated.dwLowDateTime;

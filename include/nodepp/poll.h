@@ -65,15 +65,15 @@ public: poll_t() noexcept : obj( new _str_() ) {}
 
     int emit () noexcept { 
         static ulong s = 0; static POLLFD x;
-    _GStart
+    gnStart
 
         while ( s-->0 ) { x = obj->ev[s];
-            if( x.md == 1 ){ obj->ev.erase(s); onWrite.emit(x.fd); obj->ls={{ 1, x.fd }}; _Next; }
-          elif( x.md == 0 ){ obj->ev.erase(s);  onRead.emit(x.fd); obj->ls={{ 0, x.fd }}; _Next; }
-          else             { obj->ev.erase(s); onError.emit(x.fd); obj->ls={{-1, x.fd }}; _Next; }
+            if( x.md == 1 ){ obj->ev.erase(s); onWrite.emit(x.fd); obj->ls={{ 1, x.fd }}; coNext; }
+          elif( x.md == 0 ){ obj->ev.erase(s);  onRead.emit(x.fd); obj->ls={{ 0, x.fd }}; coNext; }
+          else             { obj->ev.erase(s); onError.emit(x.fd); obj->ls={{-1, x.fd }}; coNext; }
         } s = obj->ev.size();
 
-    _GStop
+    gnStop
     };
 
     /*─······································································─*/

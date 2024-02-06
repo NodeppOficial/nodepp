@@ -70,11 +70,11 @@ protected:
         for( ulong i=0; i<_reg.size(); i++ ){ char x = _reg[i];
 
             if( x == ']' || x == '}' || x == ')' ){
-                _Error(string::format( "regex at character: %d", i ));
+                ERROR(string::format( "regex at character: %d", i ));
             }
             
             if( x == '?' || x == '*' || x == '+' ){ 
-                if( prv == nullptr ){ _Error(string::format( "regex at character: %d", i )); }
+                if( prv == nullptr ){ ERROR(string::format( "regex at character: %d", i )); }
                 _str_* nw = new _str_; switch(x){
                     case '?': nw->r = 1; nw->rep[0] = 0; nw->rep[1] = 1; break;
                     case '*': nw->r = 1; nw->rep[0] = 1; nw->rep[1] =-1; break;
@@ -102,13 +102,13 @@ protected:
     /*─······································································─*/
 
             if( x == '{' ){ i++; string_t s; ulong j=0; int k=0; _str_* nw = new _str_;
-                if( prv == nullptr ){ _Error(string::format( "regex at character: %d", i )); }
+                if( prv == nullptr ){ ERROR(string::format( "regex at character: %d", i )); }
 
                 while( i<_reg.size() ){ char y = _reg[i];
                     if( y == ',' ){ nw->rep[j] = string::to_ulong(s); s.clear(); i++; j++; continue; }
                     if( y == '}' ){ if( !s.empty() ){ nw->rep[j] = string::to_ulong(s); s.clear(); } k--; break; } 
-                    if( !string::is_digit(y) ){ _Error(string::format( "regex at character: %d", i )); } s.push(y); i++;
-                }   if( k!=-1 ){ _Error(string::format( "regex at character: %d", i )); }
+                    if( !string::is_digit(y) ){ ERROR(string::format( "regex at character: %d", i )); } s.push(y); i++;
+                }   if( k!=-1 ){ ERROR(string::format( "regex at character: %d", i )); }
 
                     nw->alt = new _str_; nw->alt->nxt.push(act);
                     prv->nxt[ prv->nxt.size()-1 ] = nw; 
@@ -123,7 +123,7 @@ protected:
                 while( i<_reg.size() ){ char y = _reg[i];
                     if( j == 0 && y == '^' ){ n = true; i++; j++; continue; }
                     if( y == ']' ){ k--; break; } s.push(y); i++; j++;
-                }   if( k!=-1 ){ _Error(string::format( "regex at character: %d", i )); }
+                }   if( k!=-1 ){ ERROR(string::format( "regex at character: %d", i )); }
                 
                 act->alt = new _str_; for( ulong i=0; i<s.size(); i++ ){ 
                     if( s[i+1] == '-' && (i+2)<s.size() ){
@@ -147,7 +147,7 @@ protected:
                     if( y == '(' ){ j++; } else if( y == ')' ){ j--; }
                     if( j<0 && y == ')' ){ break; } s.push(y); i++; 
                 } if( j!=-1 ) { 
-                    _Error(string::format( "regex at character: %d", i )); }
+                    ERROR(string::format( "regex at character: %d", i )); }
                 if( !s.empty() ){ act->alt = compile(s); } continue;
             }
     

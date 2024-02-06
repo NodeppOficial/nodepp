@@ -71,13 +71,15 @@ public: file_t() noexcept {}
 
     file_t( const string_t& path, const string_t& mode, const ulong& _size=CHUNK_SIZE ){
             obj->fd = open( path.data(), get_fd_flag( mode ), 0644 );
-        if( obj->fd < 0 ) _Error("such file or directory does not exist");
-            set_nonbloking_mode(); set_buffer_size( _size ); 
+        if( obj->fd < 0 ){
+            process::error("such file or directory does not exist");
+        }   set_nonbloking_mode(); set_buffer_size( _size ); 
     }
 
     file_t( const int& fd, const ulong& _size=CHUNK_SIZE ){
-        if( fd < 0 ) _Error("such file or directory does not exist");
-            obj->fd = fd; set_nonbloking_mode(); set_buffer_size( _size ); 
+        if( fd < 0 ){
+            process::error("such file or directory does not exist");
+        }   obj->fd = fd; set_nonbloking_mode(); set_buffer_size( _size ); 
     }
 
     /*─······································································─*/

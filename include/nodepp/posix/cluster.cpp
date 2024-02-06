@@ -50,7 +50,7 @@ public:
             auto cm = process::args[0];::close(fdb[0]);::close(fda[1]);
             auto ch = string::format( "?CHILD=%d|%d", fda[0], fdb[0] );
             ::execl( cm.data(), cm.data(), args..., ch.data( ), NULL );
-            console::error("while running new process"); process::exit(1);
+            process::error("while running new process"); process::exit(1);
         } elif ( obj->fd > 0 ) { // Parent process
             obj->writable = { fda[1] }; ::close( fda[0] );
             obj->readable = { fdb[0] }; ::close( fdb[1] );

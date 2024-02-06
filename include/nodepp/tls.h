@@ -51,7 +51,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
 
     tls_t( decltype(_str_::func) _func, ssl_t* xtc, agent_t* opt=nullptr )
     : obj( new _str_() ){ 
-    if( xtc == nullptr ) _Error("Invalid SSL Contenx");
+    if( xtc == nullptr ) process::error("Invalid SSL Contenx");
         obj->agent = opt==nullptr ? agent_t():*opt; 
         obj->func = _func; obj->ctx = *xtc; 
     }
@@ -69,33 +69,33 @@ public: tls_t() noexcept : obj( new _str_() ) {}
 
     void listen( const string_t& host, int port, decltype(_str_::func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_server() == -1 )
-          { _EError(onError,"Error Initializing SSL context"); close(); return; }
-        if( dns::lookup(host).empty() ){ _EError(onError,"dns couldn't get ip"); close(); return; }
+          { process::error(onError,"Error Initializing SSL context"); close(); return; }
+        if( dns::lookup(host).empty() ){ process::error(onError,"dns couldn't get ip"); close(); return; }
             auto inp = type::bind( this );
         
         ssocket_t *sk = new ssocket_t; 
                    sk->PROT = IPPROTO_TCP;
                    sk->socket( dns::lookup(host), port );
         
-        if( sk->bind()    < 0 ){ _EError(onError,"Error while binding TLS"); close(); delete sk; return; }
-        if( sk->listen()  < 0 ){ _EError(onError,"Error while listening TLS"); close(); delete sk; return; }
+        if( sk->bind()    < 0 ){ process::error(onError,"Error while binding TLS");   close(); delete sk; return; }
+        if( sk->listen()  < 0 ){ process::error(onError,"Error while listening TLS"); close(); delete sk; return; }
         if( obj->chck == true ){ init_poll_loop( inp ); }
 
         onOpen.emit(*sk); if( cb != nullptr ){ (*cb)(*sk); } 
         
         process::task::add([=](){
             static int _accept = 0; 
-        _Start
+        coStart
 
             while( sk != nullptr ){ _accept = sk->_accept();
                 if( inp->is_closed() || !sk->is_available() )
                   { break; } elif ( _accept != -2 )
-                  { break; } _Yield(1);
+                  { break; } coYield(1);
             }
             
-            if( _accept == -1 ){ _EError(onError,"Error while accepting TLS"); _Goto(2); }
-            elif ( !sk->is_available() || inp->is_closed() ){ _Goto(2); }
-            elif ( inp->obj->chck == true ){ inp->obj->poll.push_read(_accept); _Goto(0); }
+            if( _accept == -1 ){ process::error(inp->onError,"Error while accepting TLS"); coGoto(2); }
+            elif ( !sk->is_available() || inp->is_closed() ){ coGoto(2); }
+            elif ( inp->obj->chck == true ){ inp->obj->poll.push_read(_accept); coGoto(0); }
             else { ssocket_t cli( inp->obj->ctx, _accept ); if( cli.is_available() ){ 
                    process::poll::add([=]( ssocket_t cli ){
                         cli.set_sockopt( inp->obj->agent ); 
@@ -103,11 +103,11 @@ public: tls_t() noexcept : obj( new _str_() ) {}
                         inp->obj->func( cli ); 
                         return -1;
                    }, cli );
-            } _Goto(0); } 
+            } coGoto(0); } 
 
-            _Yield(2); inp->close(); delete sk; 
+            coYield(2); inp->close(); delete sk; 
             
-        _Stop
+        coStop
         });
 
     }
@@ -120,8 +120,9 @@ public: tls_t() noexcept : obj( new _str_() ) {}
 
     void connect( const string_t& host, int port, decltype(_str_::func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_client() == -1 )
-          { _EError(onError,"Error Initializing SSL context"); close(); return; }
-        if( dns::lookup(host).empty() ){ _EError(onError,"dns couldn't get ip"); close(); return; }
+          { process::error(onError,"Error Initializing SSL context"); close(); return; }
+        if( dns::lookup(host).empty() )
+           { process::error(onError,"dns couldn't get ip"); close(); return; }
             auto inp = type::bind( this );
 
         ssocket_t sk = ssocket_t(); 
@@ -130,7 +131,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
                   sk.set_sockopt( obj->agent );
 
         if( sk.connect() < 0 ){ 
-            _EError(onError,"Error while connecting TLS"); 
+            process::error(onError,"Error while connecting TLS"); 
             close(); return; 
         }
 
@@ -138,7 +139,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
         sk.ssl->set_hostname( host );
 
         if( sk.ssl->connect() <= 0 ){ 
-            _EError(onError,"Error while handshaking TLS");
+            process::error(onError,"Error while handshaking TLS");
             close(); return; 
         }
 

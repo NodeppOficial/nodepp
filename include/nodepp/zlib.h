@@ -25,7 +25,7 @@ string_t _inflate_( const string_t& input, const T& onData ){ z_stream stream;
     stream.next_in   = (Bytef*)input.c_str();
 
     if( onData( &stream ) != Z_OK )
-        _Error("Failed to initialize zlib for decompression."); 
+        process::error("Failed to initialize zlib for decompression."); 
     
     do {
 
@@ -38,7 +38,7 @@ string_t _inflate_( const string_t& input, const T& onData ){ z_stream stream;
         }
 
         if( x == Z_STREAM_END ){ break; } else if( x < 0 ) {
-            _Error( string::format("Compression failed: %s",stream.msg) ); 
+            process::error( string::format("Compression failed: %s",stream.msg) ); 
         }
     
     } while ( stream.avail_in == 0 ); inflateEnd(&stream); return output;
@@ -57,7 +57,7 @@ string_t _deflate_( const string_t& input, const T& onData ){ z_stream stream;
     stream.next_in   = (Bytef*)input.c_str();
 
     if( onData( &stream ) != Z_OK )
-        _Error("Failed to initialize zlib for compression."); 
+        process::error("Failed to initialize zlib for compression."); 
     
     do {
 
@@ -70,7 +70,7 @@ string_t _deflate_( const string_t& input, const T& onData ){ z_stream stream;
         }
 
         if( x == Z_STREAM_END ){ break; } else if( x < 0 ) {
-            _Error( string::format("Compression failed: %s",stream.msg) ); 
+            process::error( string::format("Compression failed: %s",stream.msg) ); 
         }
 
     } while ( stream.avail_in == 0 ); deflateEnd(&stream); return output;

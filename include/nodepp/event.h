@@ -6,12 +6,14 @@
 namespace nodepp { template< class... A > class event_t { 
 protected:
 
-    using ob = function_t<void,A...>;
-    using ev = queue_t<ob>;
+    struct _str_ {
+        function_t<void,A...> cb;
+        bool                  on;
+    };  using ev = queue_t<_str_>;
 
-    ptr_t<ev> once_queue, every_queue;
+        ptr_t<ev> obj;
 
-public: event_t() noexcept : once_queue(new ev), every_queue(new ev) {}
+public: event_t() noexcept : obj( new ev ) {}
     
     /*─······································································─*/
 
@@ -19,35 +21,37 @@ public: event_t() noexcept : once_queue(new ev), every_queue(new ev) {}
     
     /*─······································································─*/
 
-    ulong empty() const noexcept { return ( every_queue->empty() && once_queue->empty() ); }
-    ulong  size() const noexcept { return once_queue->size() + every_queue->size(); }
-    void  clear() const noexcept { every_queue->clear(); once_queue->clear(); }
+    ulong empty() const noexcept { return obj->empty(); }
+    ulong  size() const noexcept { return obj->size(); }
+    void  clear() const noexcept { obj->clear(); }
     
     /*─······································································─*/
 
     void emit( const A&... args ) const noexcept {
-        every_queue->map([=]( ob arg ){ arg(args...); });
-         once_queue->map([=]( ob arg ){ arg(args...); });
-        if( !once_queue->empty() ) once_queue->clear();
+        auto x = obj->first(); while( x != nullptr ){
+             x->data.cb( args... ); if( !x->data.on )
+            { auto y=x->next(); obj->erase(x); x=y; } 
+             else x = x->next(); 
+        }
     }
     
     /*─······································································─*/
 
-    void off( void* id ) const noexcept {
-        ulong index_A = every_queue->index_of([=]( ob di ){ return &di == id; });
-        ulong index_B =  once_queue->index_of([=]( ob di ){ return &di == id; });
-        every_queue->erase( every_queue->get( index_A ) ); 
-         once_queue->erase(  once_queue->get( index_B ) );
+    void off( void*& id ) const noexcept { auto x = obj->first(); 
+        while( id != nullptr && x != nullptr ){
+            if ( x == id ){ obj->erase(x); break; } 
+            else x = x->next(); 
+        }   id = nullptr;
     }
 
     void* once( function_t<void,A...> func ) const noexcept {
-                       once_queue->push( func ); 
-        return (void*) once_queue->last();
+                       obj->push({ func, 0 }); 
+        return (void*) obj->last();
     }
 
     void* on( function_t<void,A...> func ) const noexcept {
-                       every_queue->push( func );
-        return (void*) every_queue->last();
+                       obj->push({ func, 1 }); 
+        return (void*) obj->last();
     }
     
 };}

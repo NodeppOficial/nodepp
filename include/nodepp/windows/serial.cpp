@@ -14,7 +14,8 @@ public: serial_t() noexcept : file_t() {}
 
 	serial_t( const string_t& path, uint baud=9600, const string_t& mode="r+", const ulong& _size=CHUNK_SIZE ){ 
 		set_baud_rate( path, baud ); obj->fd = open( (char*) path, get_fd_flag(flag) );
-		if( obj->fd < 0 ) _Error("such device does not exist"); set_buffer_size(_size);
+		if( obj->fd < 0 ) 
+		  { process::error("such device does not exist"); } set_buffer_size(_size);
 	}
 
 };}

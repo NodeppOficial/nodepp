@@ -36,7 +36,7 @@ public:
     wifi_t() : obj( new _str_() ) {
         DWORD dwMaxClient = 2; DWORD dwCurVersion;
         DWORD dwResult = WlanOpenHandle(dwMaxClient, nullptr, &dwCurVersion, &obj->hClient);
-        if( dwResult != ERROR_SUCCESS ){ _Error("Failed to open Wi-Fi adapter"); }
+        if( dwResult != ERROR_SUCCESS ){ process::error("Failed to open Wi-Fi adapter"); }
     }
 
     int turn_on() const noexcept {

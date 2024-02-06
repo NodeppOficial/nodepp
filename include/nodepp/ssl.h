@@ -1,5 +1,6 @@
 #ifndef NODEPP_SSL
 #define NODEPP_SSL
+#define OPENSSL_API_COMPAT 0x10100000L
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -117,7 +118,7 @@ public: ssl_t() noexcept : obj( new _str_() ) {}
 
     ssl_t( const string_t& _key, const string_t& _cert, onSNI* _func=nullptr ) : obj( new _str_() ) {
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) )
-            _Error("such key or cert does not exist");
+            process::error("such key or cert does not exist");
         if( _func != nullptr ) obj->func = new onSNI(*_func); 
              obj->key = _key;  obj->cert = _cert; 
     }
@@ -129,7 +130,7 @@ public: ssl_t() noexcept : obj( new _str_() ) {}
     /*─······································································─*/
 
     ssl_t( ssl_t xtc, int df ) : obj( new _str_() ) {
-        if( xtc.get_ctx() == nullptr ) _Error("ctx has no context");
+        if( xtc.get_ctx() == nullptr ) process::error("ctx has no context");
             obj->ctx = xtc.get_ctx(); obj->ssl = SSL_new(obj->ctx); 
             obj->srv = xtc.is_server(); set_nonbloking_mode(); 
             set_fd( df );

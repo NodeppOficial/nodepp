@@ -9,19 +9,19 @@ using namespace nodepp;
 void _main_() {
 
     process::add([=](){ static int itr = 10;
-    _Start
+    coStart
         while( itr --> 0 ){
-            console::done(" Coroutine 1:",itr); _Next;
+            console::done(" Coroutine 1:",itr); coNext;
         }
-    _Stop
+    coStop
     });
 
     process::add([=](){ static int itr = 10;
-    _Start
+    coStart
         while( itr --> 0 ){
-            console::error("Coroutine 2:",itr); _Next;
+            console::error("Coroutine 2:",itr); coNext;
         }
-    _Stop
+    coStop
     });
 
 }

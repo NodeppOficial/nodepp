@@ -378,12 +378,13 @@ public: input_t() noexcept : obj( new _str_() ) {}
 
 	void pipe(){ if( obj->state == 1 ){ return; } auto inp = type::bind( this );
 
-        if( is_closed() ){ _EError( onError, "can't start Winapi server" ); close(); return; }
+        if( is_closed() )
+          { process::error( onError, "can't start Winapi server" ); close(); return; }
 
         process::loop::add([=](){ 
-        _Start 
+        co_start 
 		
-        	while( GetMessage( &inp->obj->msg, NULL, 0, 0 ) == 0 ){ _Next; }
+        	while( GetMessage( &inp->obj->msg, NULL, 0, 0 ) == 0 ){ co_next; }
 			 TranslateMessage( &inp->obj->msg ); DispatchMessage( &inp->obj->msg );
 
     /*─······································································─*/
@@ -462,9 +463,9 @@ public: input_t() noexcept : obj( new _str_() ) {}
 
     /*─······································································─*/
 
-            if( inp->obj->state == 1 ) _Goto(0);
+            if( inp->obj->state == 1 ) co_goto(0);
 			
-		_Stop 
+		co_stop 
         });
 
     }

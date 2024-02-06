@@ -56,7 +56,7 @@ namespace nodepp { namespace encoder { namespace bin {
     T set( const ptr_t<bool>& num ){ T res = 0;
          if ( num.empty() ){ return res; }
          if ( sizeof(res)*8 < num.size() )
-            { _Error("Binary Does Not Fit In"); }
+            { process::error("Binary Does Not Fit In"); }
         for ( auto x : num ){
               res = res << 1 | x & 1 ;
         }     return res;

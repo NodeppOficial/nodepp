@@ -29,11 +29,13 @@ public: bsocket_t() noexcept : socket_t() {}
     /*─······································································─*/
 
     virtual int socket( const string_t& host, uint8_t port ) noexcept { 
-        if( host.empty() ){ _EError(onError,"host is empty"); return -1; }
+        if( host.empty() )
+          { process::error(onError,"host is empty"); return -1; }
+          
         skt->addrlen = sizeof( skt->server_addr ); socket::start_device();
 
         if((obj->fd=::socket( AF, SOCK, PROT )) <= 0 )
-          { _EError(onError,"can't initializate socket fd"); return -1; } 
+          { process::error(onError,"can't initializate socket fd"); return -1; } 
           
         set_buffer_size( CHUNK_SIZE );
         set_nonbloking_mode();
@@ -74,7 +76,7 @@ public:
 
     bluetooth_t() : obj( new _str_() ) {
         obj->id = hci_get_route(nullptr); if( obj->id < 0 ) 
-        _Error("Failed to open Bluetooth adapter");
+        process::error("Failed to open Bluetooth adapter");
     }
 
     int turn_on() const noexcept { 

@@ -31,7 +31,7 @@ public:
 
     wifi_t() : obj( new _str_() ) { 
         obj->sockfd = iw_sockets_open(); if( obj->sockfd<0 )
-            _Error("Failed to open Wi-Fi adapter");
+             process::error("Failed to open Wi-Fi adapter");
     }
 
     int turn_on( const string_t& device ) const noexcept {

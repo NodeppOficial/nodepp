@@ -897,7 +897,8 @@ public:
 
 	void pipe(){ if( obj->state == 1 ){ return; } auto inp = type::bind( this );
 
-        if( obj->dpy == NULL ){ _EError( onError, "can't start X11 server" ); close(); return; }
+        if( obj->dpy == NULL )
+          { process::error( onError, "can't start X11 server" ); close(); return; }
 
         auto events = ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
                       KeyReleaseMask  | KeyPressMask      ;

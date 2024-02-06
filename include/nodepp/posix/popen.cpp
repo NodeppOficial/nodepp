@@ -42,7 +42,7 @@ public:
             ::dup2( fdb[1], STDOUT_FILENO ); ::close( fdb[0] );
             ::dup2( fda[0], STDIN_FILENO  ); ::close( fda[1] );
             ::execl( "/bin/bash", "bash", "-c", cmd.data(), args..., NULL );
-            console::error("while spawning new process"); process::exit(1);
+            process::error("while spawning new process"); process::exit(1);
         } elif ( obj->fd > 0 ) { // Parent process
             obj->writable = { fda[1] }; ::close( fda[0] );
             obj->readable = { fdb[0] }; ::close( fdb[1] );

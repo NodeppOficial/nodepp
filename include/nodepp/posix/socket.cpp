@@ -265,7 +265,7 @@ public: socket_t() noexcept { socket::start_device(); }
     /*─······································································─*/
 
     socket_t( int fd, ulong _size=CHUNK_SIZE ){ socket::start_device();
-        if( fd < 0 ) _Error("Such Socket has an Invalid fd");
+        if( fd < 0 )  process::error("Such Socket has an Invalid fd");
         obj->fd = fd; set_nonbloking_mode(); set_buffer_size(_size); 
     }
 
@@ -281,11 +281,11 @@ public: socket_t() noexcept { socket::start_device(); }
     /*─······································································─*/
 
     virtual int socket( const string_t& host, int port ) noexcept { 
-        if( host.empty() ){ _EError(onError,"dns coudn't found ip"); return -1; }
+        if( host.empty() ){ process::error(onError,"dns coudn't found ip"); return -1; }
         skt->addrlen = sizeof( skt->server_addr ); socket::start_device();
 
         if((obj->fd=::socket( AF, SOCK, PROT )) <= 0 )
-          { _EError(onError,"can't initializate socket fd"); return -1; } 
+          { process::error(onError,"can't initializate socket fd"); return -1; } 
           
         set_buffer_size( CHUNK_SIZE );
         set_nonbloking_mode();

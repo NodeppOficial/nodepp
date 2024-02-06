@@ -6,7 +6,7 @@
 namespace nodepp { class debug_t {     
 protected: 
 
-    string_t message; void* ev;
+    string_t message; void* ev = nullptr;
 
 public:
 
@@ -18,12 +18,14 @@ public:
     /*─······································································─*/
 
     debug_t( const string_t& msg ) noexcept {
-        ev = process::onSIGERR([=](){ error(); });
+        auto inp = type::bind( this );
+        ev = process::onSIGERR([=](){ inp->error(); });
 	    console::log( msg, "open" ); message = msg; 
     }
     
     debug_t() noexcept: message("something went wrong") {
-        ev = process::onSIGERR([=](){ error(); });
+        auto inp = type::bind( this );
+        ev = process::onSIGERR.once([=](){ inp->error(); });
     }
     
     /*─······································································─*/

@@ -37,7 +37,7 @@ public:
 
 namespace nodepp { namespace wss {
 
-    tls_t server( const tls_t& server ){ server.onSocket([=]( socket_t cli ){
+    tls_t server( const tls_t& server ){ server.onSocket([=]( ssocket_t cli ){
         if ( !nodepp::WSServer( (https_t) cli ) ){ return; }
         ptr_t<_file_::read> _read = new _file_::read;
 

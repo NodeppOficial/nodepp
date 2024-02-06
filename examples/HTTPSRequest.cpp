@@ -12,7 +12,13 @@ void _main_() {
     ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
 
     fetch_t args;
+            args.method = "GET";
             args.url = "https://www.google.com/";
+            args.headers = {{
+                { "Host", url::host(args.url) }
+            }};
+        //  args.file = file_t("PATH","r");
+        //  args.body = "MYBODY";
 
     https::fetch( args, &ssl )
 

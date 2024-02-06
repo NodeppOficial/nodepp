@@ -70,25 +70,25 @@ public: bth_t() noexcept : obj( new _str_() ) {}
                   sk->PROT= IPPROTO_BTH;
                   sk->socket( host, port ); 
         
-        if(   sk->bind()  < 0 ){ _EError(onError,"Error while binding Bluetooth"); close(); delete sk; return; }
-        if( sk->listen()  < 0 ){ _EError(onError,"Error while listening Bluetooth"); close(); delete sk; return; }
+        if(   sk->bind()  < 0 ){ process::error(onError,"Error while binding Bluetooth");   close(); delete sk; return; }
+        if( sk->listen()  < 0 ){ process::error(onError,"Error while listening Bluetooth"); close(); delete sk; return; }
         if( obj->chck == true ){ init_poll_loop( inp ); }
 
         onOpen.emit(*sk); if( cb != nullptr ){ (*cb)(*sk); } 
         
         process::task::add([=](){
             static int _accept = 0; 
-        _Start
+        coStart
 
             while( sk != nullptr ){ _accept = sk->_accept();
                 if( inp->is_closed() || !sk->is_available() )
                   { break; } elif ( _accept != -2 )
-                  { break; } _Yield(1);
+                  { break; } coYield(1);
             }
 
-            if( _accept == -1 ){ _EError(inp->onError,"Error while accepting Bluetooth"); _Goto(2); }
-            elif ( !sk->is_available() || inp->is_closed() ){ _Goto(2); }
-            elif ( inp->obj->chck == true ){ inp->obj->poll.push_read(_accept); _Goto(0); }
+            if( _accept == -1 ){ process::error(inp->onError,"Error while accepting Bluetooth"); coGoto(2); }
+            elif ( !sk->is_available() || inp->is_closed() ){ coGoto(2); }
+            elif ( inp->obj->chck == true ){ inp->obj->poll.push_read(_accept); coGoto(0); }
             else { bsocket_t cli( _accept ); if( cli.is_available() ){ 
                    process::poll::add([]( bsocket_t cli ){
                         cli.set_sockopt( inp->obj->agent ); 
@@ -96,11 +96,11 @@ public: bth_t() noexcept : obj( new _str_() ) {}
                         inp->obj->func( cli ); 
                         return -1;
                    }, cli );
-            } _Goto(0); }
+            } coGoto(0); }
 
-            _Yield(2); inp->close(); delete sk; 
+            coYield(2); inp->close(); delete sk; 
         
-        _Stop
+        coStop
         });
 
     }
@@ -120,7 +120,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
                   sk.socket( host, port ); 
                   sk.set_sockopt( obj->agent );
 
-        if( sk.connect() < 0 ){ _EError(onError,"Error while connecting Bluetooth"); close(); return; }
+        if( sk.connect() < 0 ){ process::error(onError,"Error while connecting Bluetooth"); close(); return; }
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ inp->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }

@@ -10,7 +10,13 @@ using namespace nodepp;
 void _main_() {
 
     fetch_t args;
+            args.method = "GET";
             args.url = "http://www.google.com/";
+            args.headers = {{
+                { "Host", url::host(args.url) }
+            }};
+        //  args.file = file_t("PATH","r");
+        //  args.body = "MYBODY";
 
     http::fetch( args )
 
