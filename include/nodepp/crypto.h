@@ -34,11 +34,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp {
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace crypto {
+namespace nodepp { namespace crypto {
 
     string_t buff2hex( const string_t& inp ){
         string_t out; for( auto x : inp ){
@@ -53,9 +49,11 @@ namespace crypto {
             out.push( ch );
         }   return out;
     }
-}
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp {
 
 class hash_t {
 protected:
@@ -108,38 +106,6 @@ public:
             force_close();
     }
 };
-
-namespace crypto { namespace hash {
-
-    class MD4 : public hash_t { public:
-          MD4() : hash_t( EVP_md4(), MD4_DIGEST_LENGTH ) {}
-    };
-
-    class MD5 : public hash_t { public:
-          MD5() : hash_t( EVP_md5(), MD5_DIGEST_LENGTH ) {}
-    };
-
-    class SHA1 : public hash_t { public:
-          SHA1() : hash_t( EVP_sha1(), SHA_DIGEST_LENGTH ) {}
-    };
-
-    class SHA256 : public hash_t { public:
-          SHA256() : hash_t( EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
-    };
-
-    class SHA384 : public hash_t { public:
-          SHA384() : hash_t( EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
-    };
-
-    class SHA512 : public hash_t { public:
-          SHA512() : hash_t( EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
-    };
-
-    class RIPEMD160 : public hash_t { public:
-          RIPEMD160() : hash_t( EVP_ripemd160(), RIPEMD160_DIGEST_LENGTH ) {}
-    }; 
-
-}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -194,38 +160,6 @@ public:
             force_close();
     }
 };
-
-namespace crypto { namespace hmac {
-
-    class MD4 : public hmac_t { public:
-          MD4 ( const string_t& key ) : hmac_t( key, EVP_md4(), MD4_DIGEST_LENGTH ) {}
-    };
-
-    class MD5 : public hmac_t { public:
-          MD5 ( const string_t& key ) : hmac_t( key, EVP_md5(), MD5_DIGEST_LENGTH ) {}
-    };
-
-    class SHA1 : public hmac_t { public:
-          SHA1 ( const string_t& key ) : hmac_t( key, EVP_sha1(), SHA_DIGEST_LENGTH ) {}
-    };
-
-    class SHA256 : public hmac_t { public:
-          SHA256 ( const string_t& key ) : hmac_t( key, EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
-    };
-
-    class SHA384 : public hmac_t { public:
-          SHA384 ( const string_t& key ) : hmac_t( key, EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
-    };
-
-    class SHA512 : public hmac_t { public:
-          SHA512 ( const string_t& key ) : hmac_t( key, EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
-    };
-
-    class RIPEMD160 : public hmac_t { public:
-          RIPEMD160( const string_t& key ) : hmac_t( key, EVP_ripemd160(), RIPEMD160_DIGEST_LENGTH ) {}
-    }; 
-
-}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -301,54 +235,6 @@ public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace crypto { namespace enc {
-    
-    class AES_128_CBC : public encrypt_t { public: template< class... T >
-          AES_128_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_128_cbc() ) {}
-    };
-    
-    class AES_192_CBC : public encrypt_t { public: template< class... T >
-          AES_192_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_192_cbc() ) {}
-    };
-    
-    class AES_256_CBC : public encrypt_t { public: template< class... T >
-          AES_256_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_256_cbc() ) {}
-    };
-
-    /*─······································································─*/
-    
-    class AES_128_ECB : public encrypt_t { public: template< class... T >
-          AES_128_ECB( const T&... args ) : encrypt_t( args..., EVP_aes_128_ecb() ) {}
-    };
-    
-    class AES_192_ECB : public encrypt_t { public: template< class... T >
-          AES_192_ECB( const T&... args ) : encrypt_t( args..., EVP_aes_192_ecb() ) {}
-    };
-    
-    class AES_256_ECB : public encrypt_t { public: template< class... T >
-          AES_256_ECB( const T&... args ) : encrypt_t( args..., EVP_aes_256_ecb() ) {}
-    };
-
-    /*─······································································─*/
-    
-    class DES_CBC : public encrypt_t { public: template< class... T >
-          DES_CBC ( const T&... args ) : encrypt_t( args..., EVP_des_cbc() ) {}
-    };
-    
-    class DES_ECB : public encrypt_t { public: template< class... T >
-          DES_ECB ( const T&... args ) : encrypt_t( args..., EVP_des_ecb() ) {}
-    };
-
-    /*─······································································─*/
-    
-    class RC4 : public encrypt_t { public: template< class... T >
-          RC4 ( const T&... args ) : encrypt_t( args..., EVP_rc4() ) {}
-    };
-
-}   }
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 class decrypt_t {
 protected:
 
@@ -418,54 +304,6 @@ public:
     }
 
 };
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace crypto { namespace dec {
-    
-    class AES_128_CBC : public decrypt_t { public: template< class... T >
-          AES_128_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_128_cbc() ) {}
-    };
-    
-    class AES_192_CBC : public decrypt_t { public: template< class... T >
-          AES_192_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_192_cbc() ) {}
-    };
-    
-    class AES_256_CBC : public decrypt_t { public: template< class... T >
-          AES_256_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_256_cbc() ) {}
-    };
-
-    /*─······································································─*/
-    
-    class AES_128_ECB : public decrypt_t { public: template< class... T >
-          AES_128_ECB( const T&... args ) : decrypt_t( args..., EVP_aes_128_ecb() ) {}
-    };
-    
-    class AES_192_ECB : public decrypt_t { public: template< class... T >
-          AES_192_ECB( const T&... args ) : decrypt_t( args..., EVP_aes_192_ecb() ) {}
-    };
-    
-    class AES_256_ECB : public decrypt_t { public: template< class... T >
-          AES_256_ECB( const T&... args ) : decrypt_t( args..., EVP_aes_256_ecb() ) {}
-    };
-
-    /*─······································································─*/
-    
-    class DES_CBC : public decrypt_t { public: template< class... T >
-          DES_CBC ( const T&... args ) : decrypt_t( args..., EVP_des_cbc() ) {}
-    };
-    
-    class DES_ECB : public decrypt_t { public: template< class... T >
-          DES_ECB ( const T&... args ) : decrypt_t( args..., EVP_des_ecb() ) {}
-    };
-
-    /*─······································································─*/
-    
-    class RC4 : public decrypt_t { public: template< class... T >
-          RC4 ( const T&... args ) : decrypt_t( args..., EVP_rc4() ) {}
-    };
-
-}   }
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -544,7 +382,7 @@ protected:
 
 public:
 
-    encoder_t( string_t chr ) : obj( new _str_() ) {
+    encoder_t( const string_t& chr ) : obj( new _str_() ) {
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
@@ -594,32 +432,6 @@ public:
     }
 
 };
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace crypto { namespace enc { 
-
-    class BASE58 : public encoder_t { public:
-          BASE58 () : encoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
-    };
-
-    class BASE16 : public encoder_t { public: 
-          BASE16 () : encoder_t( "123456789ABCDEF" ){}
-    };
-
-    class BASE8 : public encoder_t { public: 
-          BASE8 () : encoder_t( "1234567" ){}
-    };
-
-    class BASE4 : public encoder_t { public: 
-          BASE4 () : encoder_t( "123" ){}
-    };
-
-    class BASE64 : public enc_base64_t { public:
-          BASE64 () : enc_base64_t() {}
-    };
-
-}   }
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -701,7 +513,7 @@ public:
     event_t<string_t> onData;
     event_t<>         onClose;
 
-    decoder_t( string_t chr ) : obj( new _str_() ) {
+    decoder_t( const string_t& chr ) : obj( new _str_() ) {
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
@@ -750,32 +562,6 @@ public:
     }
 
 };
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace crypto { namespace dec { 
-
-    class BASE58 : public decoder_t { public:
-          BASE58 () : decoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
-    };
-
-    class BASE16 : public decoder_t { public: 
-          BASE16 () : decoder_t( "123456789ABCDEF" ){}
-    };
-
-    class BASE8 : public decoder_t { public: 
-          BASE8 () : decoder_t( "1234567" ){}
-    };
-
-    class BASE4 : public decoder_t { public: 
-          BASE4 () : decoder_t( "123" ){}
-    };
-
-    class BASE64 : public dec_base64_t { public:
-          BASE64 () : dec_base64_t() {}
-    };
-
-}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -858,38 +644,6 @@ public:
     }
 
 };
-
-namespace crypto { namespace ecdh { //openssl ecparam -list_curves
-    
-    class SECP128R1 : public ecdh_t { public: template< class... T >
-          SECP128R1( const T&... args ) noexcept : ecdh_t( args..., NID_secp128r1 ) {}
-    };
-    
-    class SECP128R2 : public ecdh_t { public: template< class... T >
-          SECP128R2( const T&... args ) noexcept : ecdh_t( args..., NID_secp128r2 ) {}
-    };
-
-    /*─······································································─*/
-    
-    class SECP160R1 : public ecdh_t { public: template< class... T >
-          SECP160R1( const T&... args ) noexcept : ecdh_t( args..., NID_secp160r1 ) {}
-    };
-    
-    class SECP160R2 : public ecdh_t { public: template< class... T >
-          SECP160R2( const T&... args ) noexcept : ecdh_t( args..., NID_secp160r2 ) {}
-    };
-    
-    class SECP160K1 : public ecdh_t { public: template< class... T >
-          SECP160K1( const T&... args ) noexcept : ecdh_t( args..., NID_secp160k1 ) {}
-    };
-
-    /*─······································································─*/
-    
-    class SECP256K1 : public ecdh_t { public: template< class... T >
-          SECP256K1( const T&... args ) noexcept : ecdh_t( args..., NID_secp256k1 ) {}
-    };
-
-}   }
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -979,6 +733,493 @@ public:
 
 };
 
+/*────────────────────────────────────────────────────────────────────────────*/
+
+class rsa_t {
+protected:
+
+    struct _str_ {
+        RSA*  pbl = nullptr;
+        RSA*  prv = nullptr;
+        int   state;
+    };  ptr_t<_str_> obj;
+    
+public:
+
+    template< class T >
+    rsa_t() : obj( new _str_() ) {
+        obj->pbl   = RSA_new();
+        obj->prv   = RSA_new();
+        obj->state = 1;
+        if ( !obj->prv || !obj->pbl )
+           { _Error("creating rsa object"); }
+    }
+
+    void set_private_key( const string_t& path ) const noexcept {
+        FILE* fp = fopen( path.c_str(), "r" );
+        PEM_read_RSAPrivateKey( fp, &obj->prv, NULL, NULL );
+        fclose( fp );
+    }
+
+    void set_public_key( const string_t& path ) const noexcept {
+        FILE* fp = fopen( path.c_str(), "r" );
+        PEM_read_RSA_PUBKEY( fp, &obj->pbl, NULL, NULL );
+        fclose( fp );
+    }
+
+    string_t encrypt( const string_t& msg, int padding=0 ) const noexcept {
+        if( msg.empty() || padding < 0 || obj->state == 0 ){ return ""; }
+        int          len = RSA_size( obj->prv );
+        ptr_t<uchar> out = new uchar[len];
+        ulong y = 0; int c = 0;
+        string_t     bff; 
+        do { c=RSA_private_decrypt( msg.size()+y, (uchar*)msg.c_str()-y, &out, obj->prv, padding );
+             if( c>0 ){ y+=c; } process::next(); 
+        } while( c < msg.size() ); return bff;
+    }
+
+    string_t decrypt( const string_t& msg, int padding=0 ) const noexcept {
+        if( msg.empty() || padding < 0 || obj->state == 0 ){ return ""; }
+        int          len = RSA_size( obj->pbl );
+        ptr_t<uchar> out = new uchar[len];
+        ulong y = 0; int c = 0;
+        string_t     bff; 
+        do { c=RSA_public_encrypt( msg.size()+y, (uchar*)msg.c_str()-y, &out, obj->pbl, padding );
+             if( c>0 ){ y+=c; } process::next(); 
+        } while( c < msg.size() ); return bff;
+        return bff;
+    }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
+
+    void close() const noexcept { force_close(); } 
+
+    void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        if( obj->prv != nullptr ) RSA_free( obj->prv );
+        if( obj->pbl != nullptr ) RSA_free( obj->pbl );
+    }
+    
+    virtual ~rsa_t() noexcept { 
+        if( obj.count()>1 ){ return; } 
+            force_close();
+    }
+
+};
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+class dh_t {
+protected:
+
+    struct _str_ {
+        DH* dh;
+        BIGNUM* g;
+        BIGNUM* k;
+        int state;
+    };  ptr_t<_str_> obj;
+
+public:
+
+    dh_t( int primeLength, int generator ) { obj->state = 1;
+        obj->dh    = DH_new(); 
+        obj->g     = BN_new();
+        obj->k     = BN_new();
+        obj->state = 1;
+        if( !obj->dh || !obj->g )
+          { _Error( "creating new dh_t" ); }
+        if( !DH_check( obj->dh, nullptr ) )
+          { _Error( "while checking dh" ); }
+        if( !DH_generate_key( obj->dh ) )
+          { _Error( "while generating dh params" ); }
+    }
+
+    int set_public_key( const string_t& key ) const noexcept {
+        if( obj->state != 1 ){ return 0; }
+               BN_hex2bn( &obj->k, key.c_str() );
+        return DH_set0_key( obj->dh, nullptr, obj->k );
+    }
+
+    int set_private_key( const string_t& key ) const noexcept {
+        if( obj->state != 1 ){ return 0; }
+               BN_hex2bn( &obj->k, key.c_str() );
+        return DH_set0_key( obj->dh, obj->k, nullptr );
+    }
+
+    string_t get_private_key() const noexcept {
+        if( obj->state != 1 ){ return ""; } 
+        return BN_bn2hex( DH_get0_priv_key( obj->dh ) );
+    }
+
+    string_t get_public_key() const noexcept {
+        if( obj->state != 1 ){ return ""; } 
+        return BN_bn2hex( DH_get0_pub_key( obj->dh ) );
+    }
+
+    int check() const noexcept {
+        if( obj->state != 1 ){ return 0; } 
+        return DH_check( obj->dh, NULL );
+    }
+
+    string_t compute_key( const string_t& key ) const noexcept {
+        if( obj->state != 1 ){ return ""; } 
+        ptr_t<uchar> shared ( DH_size( obj->dh ) );
+                  BN_hex2bn( &obj->k, key.c_str() );
+        int len = DH_compute_key( &shared, obj->k, obj->dh );
+        return (string_t){ (char*) &shared, (ulong) len };
+    }
+
+    void force_close() const noexcept {
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        DH_free( obj->dh ); BN_free( obj->k ); BN_free( obj->g );
+    }
+
+};
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+class dsa_t {
+protected:
+
+    struct _str_ {
+        DSA    *dsa = nullptr;
+        uint    len = 512;
+        int     state;
+    };  ptr_t<_str_> obj;
+    
+public:
+
+    template< class T >
+    dsa_t( uint size ) : obj( new _str_() ) {
+        obj->state = 1; obj->len = size; obj->dsa = DSA_new(); 
+        if(!DSA_generate_parameters_ex( obj->dsa, obj->len, NULL, 0, NULL, NULL, NULL ) )
+          { _Error("while generating DSA parameters"); }
+        if(!DSA_generate_key( obj->dsa ) )
+          { _Error("while generating DSA key"); }
+
+    }
+
+    template< class T >
+    dsa_t( const string_t& path, uint size ) : obj( new _str_() ) { obj->state = 1;
+        obj->len = size; obj->dsa = DSA_new(); FILE* fp = fopen(path.c_str(),"r");
+        if ( fp == nullptr ) _Error("such file or directory does not exist");
+        obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, nullptr, nullptr );
+        fclose( fp ); if( obj->dsa==nullptr ) _Error("while creating DSA");
+    }
+
+    string_t sign( const string_t& msg ) const noexcept {
+        if( obj->state != 1 ){ return ""; } uchar sgn[DSA_size(obj->dsa)]; uint len;
+        DSA_sign( 0, (uchar*)msg.c_str(), msg.size(), sgn, &len, obj->dsa );
+        return { (char*) sgn, (ulong) len };
+    }
+
+    int verify( const string_t& msg, const string_t& sgn ) const noexcept {
+        return DSA_verify( 0, (uchar*)msg.data(), msg.size(), (uchar*)sgn.data(), sgn.size(), obj->dsa );
+    }
+
+    void save_private_key( const string_t& path ) const {
+        if( obj->state != 1 ){ return; } FILE* fp = fopen( path.c_str(), "w" );
+        if ( fp == nullptr ) { _Error("while creating file"); }
+        if (!PEM_write_DSA_PUBKEY( fp, obj->dsa ) ) 
+           { fclose( fp ); _Error("while writting the private key"); } fclose( fp );
+    }
+
+    void save_public_key( const string_t& path ) const {
+        if( obj->state != 1 ){ return; } FILE* fp = fopen( path.c_str(), "w" );
+        if ( fp == nullptr ) { _Error("while creating file"); }
+        if (!PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, nullptr, nullptr ) )
+           { fclose( fp ); _Error("while writting the public key"); } fclose( fp );
+    }
+
+    void force_close() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        if( obj->dsa != nullptr ) DSA_free( obj->dsa );
+    }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
+
+    void close() const noexcept { force_close(); } 
+    
+    virtual ~dsa_t() noexcept { 
+        if( obj.count()>1 ){ return; } 
+            force_close();
+    }
+
+};}
+
+#endif
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+#if !defined(GENERATOR_CRYPTO) && defined(NODEPP_CRYPTO)
+    #define  GENERATOR_CRYPTO
+namespace nodepp {
+namespace crypto { namespace hash {
+
+    class MD4 : public hash_t { public:
+          MD4() : hash_t( EVP_md4(), MD4_DIGEST_LENGTH ) {}
+    };
+
+    class MD5 : public hash_t { public:
+          MD5() : hash_t( EVP_md5(), MD5_DIGEST_LENGTH ) {}
+    };
+
+    class SHA1 : public hash_t { public:
+          SHA1() : hash_t( EVP_sha1(), SHA_DIGEST_LENGTH ) {}
+    };
+
+    class SHA256 : public hash_t { public:
+          SHA256() : hash_t( EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
+    };
+
+    class SHA384 : public hash_t { public:
+          SHA384() : hash_t( EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
+    };
+
+    class SHA512 : public hash_t { public:
+          SHA512() : hash_t( EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
+    };
+
+    class RIPEMD160 : public hash_t { public:
+          RIPEMD160() : hash_t( EVP_ripemd160(), RIPEMD160_DIGEST_LENGTH ) {}
+    }; 
+
+}}
+    
+    /*─······································································─*/
+
+namespace crypto { namespace hmac {
+
+    class MD4 : public hmac_t { public:
+          MD4 ( const string_t& key ) : hmac_t( key, EVP_md4(), MD4_DIGEST_LENGTH ) {}
+    };
+
+    class MD5 : public hmac_t { public:
+          MD5 ( const string_t& key ) : hmac_t( key, EVP_md5(), MD5_DIGEST_LENGTH ) {}
+    };
+
+    class SHA1 : public hmac_t { public:
+          SHA1 ( const string_t& key ) : hmac_t( key, EVP_sha1(), SHA_DIGEST_LENGTH ) {}
+    };
+
+    class SHA256 : public hmac_t { public:
+          SHA256 ( const string_t& key ) : hmac_t( key, EVP_sha256(), SHA256_DIGEST_LENGTH ) {}
+    };
+
+    class SHA384 : public hmac_t { public:
+          SHA384 ( const string_t& key ) : hmac_t( key, EVP_sha384(), SHA384_DIGEST_LENGTH ) {}
+    };
+
+    class SHA512 : public hmac_t { public:
+          SHA512 ( const string_t& key ) : hmac_t( key, EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
+    };
+
+    class RIPEMD160 : public hmac_t { public:
+          RIPEMD160( const string_t& key ) : hmac_t( key, EVP_ripemd160(), RIPEMD160_DIGEST_LENGTH ) {}
+    }; 
+
+}}
+    
+    /*─······································································─*/
+
+namespace crypto { namespace enc {
+    
+    class AES_128_CBC : public encrypt_t { public: template< class... T >
+          AES_128_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_128_cbc() ) {}
+    };
+    
+    class AES_192_CBC : public encrypt_t { public: template< class... T >
+          AES_192_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_192_cbc() ) {}
+    };
+    
+    class AES_256_CBC : public encrypt_t { public: template< class... T >
+          AES_256_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_256_cbc() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class AES_128_ECB : public encrypt_t { public: template< class... T >
+          AES_128_ECB( const T&... args ) : encrypt_t( args..., EVP_aes_128_ecb() ) {}
+    };
+    
+    class AES_192_ECB : public encrypt_t { public: template< class... T >
+          AES_192_ECB( const T&... args ) : encrypt_t( args..., EVP_aes_192_ecb() ) {}
+    };
+    
+    class AES_256_ECB : public encrypt_t { public: template< class... T >
+          AES_256_ECB( const T&... args ) : encrypt_t( args..., EVP_aes_256_ecb() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class DES_CBC : public encrypt_t { public: template< class... T >
+          DES_CBC ( const T&... args ) : encrypt_t( args..., EVP_des_cbc() ) {}
+    };
+    
+    class DES_ECB : public encrypt_t { public: template< class... T >
+          DES_ECB ( const T&... args ) : encrypt_t( args..., EVP_des_ecb() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class RC4 : public encrypt_t { public: template< class... T >
+          RC4 ( const T&... args ) : encrypt_t( args..., EVP_rc4() ) {}
+    };
+
+    /*─······································································─*/
+
+    class RSA : public rsa_t { public: template< class... T > 
+          RSA ( const T&... args ) : rsa_t( args... ) {}
+    };
+
+}}
+    
+    /*─······································································─*/
+
+namespace crypto { namespace dec {
+    
+    class AES_128_CBC : public decrypt_t { public: template< class... T >
+          AES_128_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_128_cbc() ) {}
+    };
+    
+    class AES_192_CBC : public decrypt_t { public: template< class... T >
+          AES_192_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_192_cbc() ) {}
+    };
+    
+    class AES_256_CBC : public decrypt_t { public: template< class... T >
+          AES_256_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_256_cbc() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class AES_128_ECB : public decrypt_t { public: template< class... T >
+          AES_128_ECB( const T&... args ) : decrypt_t( args..., EVP_aes_128_ecb() ) {}
+    };
+    
+    class AES_192_ECB : public decrypt_t { public: template< class... T >
+          AES_192_ECB( const T&... args ) : decrypt_t( args..., EVP_aes_192_ecb() ) {}
+    };
+    
+    class AES_256_ECB : public decrypt_t { public: template< class... T >
+          AES_256_ECB( const T&... args ) : decrypt_t( args..., EVP_aes_256_ecb() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class DES_CBC : public decrypt_t { public: template< class... T >
+          DES_CBC ( const T&... args ) : decrypt_t( args..., EVP_des_cbc() ) {}
+    };
+    
+    class DES_ECB : public decrypt_t { public: template< class... T >
+          DES_ECB ( const T&... args ) : decrypt_t( args..., EVP_des_ecb() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class RC4 : public decrypt_t { public: template< class... T >
+          RC4 ( const T&... args ) : decrypt_t( args..., EVP_rc4() ) {}
+    };
+
+    /*─······································································─*/
+
+    class RSA : public rsa_t { public: template< class... T > 
+          RSA ( const T&... args ) : rsa_t( args... ) {}
+    };
+
+}}
+    
+    /*─······································································─*/
+
+namespace crypto { namespace enc {
+
+    class BASE58 : public encoder_t { public:
+          BASE58 () : encoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
+    };
+
+    class BASE16 : public encoder_t { public: 
+          BASE16 () : encoder_t( "123456789ABCDEF" ){}
+    };
+
+    class BASE8 : public encoder_t { public: 
+          BASE8 () : encoder_t( "1234567" ){}
+    };
+
+    class BASE4 : public encoder_t { public: 
+          BASE4 () : encoder_t( "123" ){}
+    };
+
+    class BASE64 : public enc_base64_t { public:
+          BASE64 () : enc_base64_t() {}
+    };
+
+}}
+    
+    /*─······································································─*/
+
+namespace crypto { namespace dec {
+
+    class BASE58 : public decoder_t { public:
+          BASE58 () : decoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
+    };
+
+    class BASE16 : public decoder_t { public: 
+          BASE16 () : decoder_t( "123456789ABCDEF" ){}
+    };
+
+    class BASE8 : public decoder_t { public: 
+          BASE8 () : decoder_t( "1234567" ){}
+    };
+
+    class BASE4 : public decoder_t { public: 
+          BASE4 () : decoder_t( "123" ){}
+    };
+
+    class BASE64 : public dec_base64_t { public:
+          BASE64 () : dec_base64_t() {}
+    };
+
+}}
+    
+    /*─······································································─*/
+
+namespace crypto { namespace ecdh { //openssl ecparam -list_curves
+    
+    class SECP128R1 : public ecdh_t { public: template< class... T >
+          SECP128R1( const T&... args ) noexcept : ecdh_t( args..., NID_secp128r1 ) {}
+    };
+    
+    class SECP128R2 : public ecdh_t { public: template< class... T >
+          SECP128R2( const T&... args ) noexcept : ecdh_t( args..., NID_secp128r2 ) {}
+    };
+
+    /*─······································································─*/
+    
+    class SECP160R1 : public ecdh_t { public: template< class... T >
+          SECP160R1( const T&... args ) noexcept : ecdh_t( args..., NID_secp160r1 ) {}
+    };
+    
+    class SECP160R2 : public ecdh_t { public: template< class... T >
+          SECP160R2( const T&... args ) noexcept : ecdh_t( args..., NID_secp160r2 ) {}
+    };
+    
+    class SECP160K1 : public ecdh_t { public: template< class... T >
+          SECP160K1( const T&... args ) noexcept : ecdh_t( args..., NID_secp160k1 ) {}
+    };
+
+    /*─······································································─*/
+    
+    class SECP256K1 : public ecdh_t { public: template< class... T >
+          SECP256K1( const T&... args ) noexcept : ecdh_t( args..., NID_secp256k1 ) {}
+    };
+
+}}
+    
+    /*─······································································─*/
+
 namespace crypto { namespace ecdsa { //openssl ecparam -list_curves
     
     class SECP128R1 : public ecdsa_t { public: template< class... T >
@@ -1009,121 +1250,9 @@ namespace crypto { namespace ecdsa { //openssl ecparam -list_curves
           SECP256K1( const T&... args ) noexcept : ecdsa_t( args..., NID_secp256k1 ) {}
     };
 
-}   }
-
-/*────────────────────────────────────────────────────────────────────────────*/
-/* rsa falta OK
-class rsa_t {
-protected:
-
-    struct _str_ {
-        RSA    *rsa = nullptr;
-        BIGNUM *key = nullptr;
-        uint    len = 512;
-    };  ptr_t<_str_> obj;
+}}
     
-public:
-
-    template< class T >
-    rsa_t( uint size ) noexcept : obj( new _str_() ) {
-        obj->len = size;
-        obj->key = BN_new();
-        obj->rsa = RSA_new();
-        BN_set_word( obj->key, RSA_F4 );
-    }
-
-    string_t get_key( uint x = 0 ) const noexcept {
-        return crypto::hex2buff( this->get_key_hex() );
-    }
-
-    string_t get_key_hex( uint x = 0 ) const noexcept { 
-        if (!RSA_generate_key_ex( obj->rsa, obj->len, obj->key, NULL ) ) 
-           { return ""; } BN_bn2hex( obj->key ); return obj->key;
-    }
-
-    void force_close() const noexcept { 
-        if( obj->rsa != nullptr ) RSA_free( obj->rsa );
-        if( obj->key != nullptr ) BN_free( obj->key );
-    }
-
-    bool is_available() const noexcept { return obj->state == 1; }
-
-    bool is_closed() const noexcept { return obj->state == 0; }
-
-    void close() const noexcept { force_close(); } 
-    
-    virtual ~rsa_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            force_close();
-    }
-
-};
-*/
-/*────────────────────────────────────────────────────────────────────────────*/
-
-class dh_t {
-protected:
-
-    struct _str_ {
-        DH* dh;
-        BIGNUM* g;
-        BIGNUM* k;
-        int state;
-    };  ptr_t<_str_> obj;
-
-public:
-
-    dh_t( int primeLength, int generator ) { obj->state = 1;
-        obj->dh    = DH_new(); 
-        obj->g     = BN_new();
-        obj->k     = BN_new();
-        obj->state = 1;
-        if( !obj->dh || !obj->g )
-          { _Error( "creating new dh_t" ); }
-        if( !DH_check( obj->dh, nullptr ) )
-          { _Error( "while checking dh" ); }
-        if( !DH_generate_key( obj->dh ) )
-          { _Error( "while generating dh params" ); }
-    }
-
-    int set_public_key( string_t key ) const noexcept {
-        if( obj->state != 1 ){ return 0; }
-               BN_hex2bn( &obj->k, key.c_str() );
-        return DH_set0_key( obj->dh, nullptr, obj->k );
-    }
-
-    int set_private_key( string_t key ) const noexcept {
-        if( obj->state != 1 ){ return 0; }
-               BN_hex2bn( &obj->k, key.c_str() );
-        return DH_set0_key( obj->dh, obj->k, nullptr );
-    }
-
-    string_t get_private_key() const noexcept {
-        if( obj->state != 1 ){ return ""; } 
-        return BN_bn2hex( DH_get0_priv_key( obj->dh ) );
-    }
-
-    string_t get_public_key() const noexcept {
-        if( obj->state != 1 ){ return ""; } 
-        return BN_bn2hex( DH_get0_pub_key( obj->dh ) );
-    }
-
-    string_t compute_key( string_t key ) const noexcept {
-        if( obj->state != 1 ){ return ""; } 
-        ptr_t<uchar> shared ( DH_size( obj->dh ) );
-                  BN_hex2bn( &obj->k, key.c_str() );
-        int len = DH_compute_key( &shared, obj->k, obj->dh );
-        return (string_t){ (char*) &shared, (ulong) len };
-    }
-
-    void force_close() const noexcept {
-        if( obj->state == 0 ){ return; } obj->state = 0;
-        DH_free( obj->dh ); BN_free( obj->k ); BN_free( obj->g );
-    }
-
-};
-
-/*────────────────────────────────────────────────────────────────────────────*/
+    /*─······································································─*/
 
 namespace crypto { namespace DH {
     
@@ -1131,81 +1260,9 @@ namespace crypto { namespace DH {
           DH ( const T&... args ) : dh_t( args... ) {}
     };
 
-} }
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-class dsa_t {
-protected:
-
-    struct _str_ {
-        DSA    *dsa = nullptr;
-        uint    len = 512;
-        int     state;
-    };  ptr_t<_str_> obj;
+}}
     
-public:
-
-    template< class T >
-    dsa_t( uint size ) : obj( new _str_() ) {
-        obj->state = 1; obj->len = size; obj->dsa = DSA_new(); 
-        if(!DSA_generate_parameters_ex( obj->dsa, obj->len, NULL, 0, NULL, NULL, NULL ) )
-          { _Error("while generating DSA parameters"); }
-        if(!DSA_generate_key( obj->dsa ) )
-          { _Error("while generating DSA key"); }
-
-    }
-
-    template< class T >
-    dsa_t( string_t path, uint size ) : obj( new _str_() ) { obj->state = 1;
-        obj->len = size; obj->dsa = DSA_new(); FILE* fp = fopen(path.c_str(),"r");
-        if ( fp == nullptr ) _Error("such file or directory does not exist");
-        obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, nullptr, nullptr );
-        fclose( fp ); if( obj->dsa==nullptr ) _Error("while creating DSA");
-    }
-
-    string_t sign( string_t hash, uint hash_digest ) const noexcept {
-        if( obj->state != 1 ){ return ""; }
-        uchar signature[DSA_size(obj->dsa)]; uint len;
-        DSA_sign( 0, (uchar*)hash.c_str(), hash_digest, signature, &len, obj->dsa );
-        return { (char*)signature, (ulong) len };
-    }
-
-    void save_private_key( string_t path ) const {
-        if( obj->state != 1 ){ return; }
-        FILE* fp = fopen( path.c_str(), "w" );
-        if ( fp == nullptr ) { _Error("while creating file"); }
-        if (!PEM_write_DSA_PUBKEY( fp, obj->dsa ) ) 
-           { fclose( fp ); _Error("while writting the private key"); } fclose( fp );
-    }
-
-    void save_public_key( string_t path ) const {
-        if( obj->state != 1 ){ return; }
-        FILE* fp = fopen( path.c_str(), "w" );
-        if ( fp == nullptr ) { _Error("while creating file"); }
-        if (!PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, nullptr, nullptr ) )
-           { fclose( fp ); _Error("while writting the public key"); } fclose( fp );
-    }
-
-    void force_close() const noexcept { 
-        if( obj->state == 0 ){ return; } obj->state = 0;
-        if( obj->dsa != nullptr ) DSA_free( obj->dsa );
-    }
-
-    bool is_available() const noexcept { return obj->state == 1; }
-
-    bool is_closed() const noexcept { return obj->state == 0; }
-
-    void close() const noexcept { force_close(); } 
-    
-    virtual ~dsa_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            force_close();
-    }
-
-};
-
-/*────────────────────────────────────────────────────────────────────────────*/
+    /*─······································································─*/
 
 namespace crypto { namespace sign {
     
@@ -1213,10 +1270,7 @@ namespace crypto { namespace sign {
           DSA ( const T&... args ) : dsa_t( args... ) {}
     };
 
-} }
-
-/*────────────────────────────────────────────────────────────────────────────*/
+}}
 
 }
-
 #endif

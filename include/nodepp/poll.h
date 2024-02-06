@@ -1,8 +1,6 @@
 #ifndef NODEPP_POLL
 #define NODEPP_POLL
 
-/*────────────────────────────────────────────────────────────────────────────*/
-
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
         #include "event.h"
         #include "windows/poll.cpp"
@@ -20,8 +18,6 @@
 #else
     #define NODEPP_NO_POLL
 #endif
-
-/*────────────────────────────────────────────────────────────────────────────*/
 
 #endif
 

@@ -471,7 +471,7 @@ namespace nodepp {
 
 #if !defined(GENERATOR_WSS) && defined(NODEPP_WSS)
     #define  GENERATOR_WSS
-namespace nodepp { 
+namespace nodepp {
     
     bool WSServer( https_t cli ) {
         auto data = cli.read(); cli.set_borrow( data ); int c=0;
