@@ -226,9 +226,9 @@ public: queue_t() noexcept {}
     
     /*─······································································─*/
 
-    void clear() noexcept { while( !empty() ){ pop(); } }
-    void erase() noexcept { while( !empty() ){ pop(); } }
-    void  free() noexcept { while( !empty() ){ pop(); } }
+    void clear() noexcept { while( !empty() ){ shift(); } }
+    void erase() noexcept { while( !empty() ){ shift(); } }
+    void  free() noexcept { while( !empty() ){ shift(); } }
     
     /*─······································································─*/
 
