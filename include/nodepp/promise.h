@@ -73,13 +73,13 @@ protected:
 
 public:
 
-    promise_t& then( const decltype(obj->res_func)& cb ) noexcept { obj->state=2; obj->res_func = cb; return (*this); }
+    promise_t& then( const decltype(_str_::res_func)& cb ) noexcept { obj->state=2; obj->res_func = cb; return (*this); }
     
-    promise_t& fail( const decltype(obj->rej_func)& cb ) noexcept { obj->state=2; obj->rej_func = cb; return (*this); }
+    promise_t& fail( const decltype(_str_::rej_func)& cb ) noexcept { obj->state=2; obj->rej_func = cb; return (*this); }
 
     /*─······································································─*/
 
-    promise_t( const decltype(obj->main_func)& cb ) noexcept { obj->main_func = cb; obj->state = 1; }
+    promise_t( const decltype(_str_::main_func)& cb ) noexcept { obj->main_func = cb; obj->state = 1; }
 
     virtual ~promise_t() noexcept { if( obj.count()>1 ){ return; } resolve(); }
 

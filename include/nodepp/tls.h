@@ -49,7 +49,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    tls_t( decltype(obj->func) _func, ssl_t* xtc, agent_t* opt=nullptr )
+    tls_t( decltype(_str_::func) _func, ssl_t* xtc, agent_t* opt=nullptr )
     : obj( new _str_() ){ 
     if( xtc == nullptr ) _Error("Invalid SSL Contenx");
         obj->agent = opt==nullptr ? agent_t():*opt; 
@@ -67,7 +67,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    void listen( const string_t& host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
+    void listen( const string_t& host, int port, decltype(_str_::func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_server() == -1 )
           { _EError(onError,"Error Initializing SSL context"); close(); return; }
         if( dns::lookup(host).empty() ){ _EError(onError,"dns couldn't get ip"); close(); return; }
@@ -112,13 +112,13 @@ public: tls_t() noexcept : obj( new _str_() ) {}
 
     }
 
-    void listen( const string_t& host, int port, decltype(obj->func) cb ) const noexcept { 
+    void listen( const string_t& host, int port, decltype(_str_::func) cb ) const noexcept { 
          listen( host, port, &cb ); 
     }
     
     /*─······································································─*/
 
-    void connect( const string_t& host, int port, decltype(obj->func)* cb=nullptr  ) const noexcept {
+    void connect( const string_t& host, int port, decltype(_str_::func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_client() == -1 )
           { _EError(onError,"Error Initializing SSL context"); close(); return; }
         if( dns::lookup(host).empty() ){ _EError(onError,"dns couldn't get ip"); close(); return; }
@@ -146,7 +146,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk); 
     }
 
-    void connect( const string_t& host, int port, decltype(obj->func) cb ) const noexcept { 
+    void connect( const string_t& host, int port, decltype(_str_::func) cb ) const noexcept { 
          connect( host, port, &cb ); 
     }
 
