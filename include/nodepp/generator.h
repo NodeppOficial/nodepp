@@ -259,7 +259,7 @@ namespace nodepp { namespace _zlib_ {
                     while( _write(&out,dout)==1 ){ coNext; } continue;
                 }
                 
-                if( x==Z_STREAMcoEnd ) { break; } elif( x < 0 ){ 
+                if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
                     process::error( inp.onError, message );
                     process::error( out.onError, message ); break;
@@ -300,7 +300,7 @@ namespace nodepp { namespace _zlib_ {
                     inp.onData.emit(dout); continue;
                 }
 
-                if( x==Z_STREAMcoEnd ) { break; } elif( x < 0 ){ 
+                if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
                     process::error( inp.onError, message ); inp.close(); break;
                 } 
@@ -354,7 +354,7 @@ namespace nodepp { namespace _zlib_ {
                     while( _write(&out,dout)==1 ){ coNext; } continue;
                 }
 
-                if( x==Z_STREAMcoEnd ) { break; } elif( x < 0 ){ 
+                if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
                     process::error( inp.onError, message );
                     process::error( out.onError, message ); break;
@@ -395,7 +395,7 @@ namespace nodepp { namespace _zlib_ {
                     inp.onData.emit(dout); continue;
                 }
                 
-                if( x==Z_STREAMcoEnd ) { break; } elif( x < 0 ){ 
+                if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
                     process::error( inp.onError, message ); inp.close(); break;
                 } 
