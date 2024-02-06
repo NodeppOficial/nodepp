@@ -37,11 +37,11 @@ public: event_t() noexcept : obj( new ev ) {}
     
     /*─······································································─*/
 
-    void off( void*& id ) const noexcept { auto x = obj->first(); 
+    void off( void* id ) const noexcept { auto x = obj->first(); 
         while( id != nullptr && x != nullptr ){
             if ( x == id ){ obj->erase(x); break; } 
             else x = x->next(); 
-        }   id = nullptr;
+        }
     }
 
     void* once( function_t<void,A...> func ) const noexcept {

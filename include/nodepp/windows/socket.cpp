@@ -332,7 +332,7 @@ public: socket_t() noexcept { socket::start_device(); }
     /*─······································································─*/
 
     socket_t( SOCKET fd, ulong _size=CHUNK_SIZE ){ socket::start_device();
-        if( fd < 0 ) ERROR("Such Socket has an Invalid fd");
+        if( fd < 0 ) process::error("Such Socket has an Invalid fd");
             obj->fd = fd; set_nonbloking_mode(); set_buffer_size(_size);
     }
 

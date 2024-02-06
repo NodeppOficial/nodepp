@@ -11,10 +11,10 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define EERROR( Ev, message ) if ( Ev.empty() ){ console::error(message); } \
-                              else Ev.emit( except_t( message ) );
+#define _EERROR( Ev, message ) if ( Ev.empty() ){ console::error(message); } \
+                               else Ev.emit( except_t( message ) );
 
-#define ERROR( MESSAGE ) throw except_t ( MESSAGE );
+#define _ERROR( MESSAGE ) throw except_t ( MESSAGE );
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
