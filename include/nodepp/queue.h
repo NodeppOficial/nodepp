@@ -115,7 +115,7 @@ public: queue_t() noexcept {}
     
     /*─······································································─*/
 
-    bool empty() const noexcept { return queue == nullptr || size() <= 0; }
+    bool empty() const noexcept { return queue == nullptr ? 1 : size() <= 0; }
 
     ulong size() const noexcept { 
            if( queue  == nullptr ){ return 0; } self* n = &queue; ulong i = 1; 

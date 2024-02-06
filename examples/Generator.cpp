@@ -6,11 +6,11 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-_Generator( process_1 ) {
+GENERATOR( process_1 ) {
     
     ptr_t<int> counter = new int(10);
 
-    _Emit(){ 
+    gnEmit(){ 
     gnStart;
         while( (*counter)-->0 ){
             console::done(" :>",*counter); coNext;
