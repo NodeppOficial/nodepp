@@ -266,12 +266,12 @@ GENERATOR( gen ) {
     int x = 3;
 
     gnEmit(){ 
-    gnStart;
+    gnStart
         while( x-->0 ){
             console::log("x:>",x); 
             coNext;
         }
-    gnStop;
+    gnStop
     }
 
 };

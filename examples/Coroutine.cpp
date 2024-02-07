@@ -1,4 +1,5 @@
 #include <nodepp/nodepp.h>
+#include <nodepp/fs.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -8,19 +9,28 @@ using namespace nodepp;
 
 void _main_() {
 
-    process::add([=](){ static int itr = 10;
+    auto f = fs::readable( "LICENSE" );
+    auto x = type::bind( f );
+
+    process::add([=](){
     coStart
-        while( itr --> 0 ){
-            console::done(" Coroutine 1:",itr); coNext;
+
+        while( x->is_available() ){
+            console::log( ":>", x->read_line().slice(0,-1) );
+            coNext;
         }
+
     coStop
     });
 
-    process::add([=](){ static int itr = 10;
+    process::add([=](){
     coStart
-        while( itr --> 0 ){
-            console::error("Coroutine 2:",itr); coNext;
+
+        while( x->is_available() ){
+            console::done("Hello World");
+            coNext;
         }
+
     coStop
     });
 

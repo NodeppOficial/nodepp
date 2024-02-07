@@ -8,14 +8,17 @@ using namespace nodepp;
 
 GENERATOR( process_1 ) {
     
-    ptr_t<int> counter = new int(10);
+    int counter = 10;
 
     gnEmit(){ 
-    gnStart;
-        while( (*counter)-->0 ){
-            console::done(" :>",*counter); coNext;
+    gnStart
+    
+        while( counter-->0 ){
+            console::done( ":>", counter ); 
+            coNext;
         }
-    gnStop;
+
+    gnStop
     }
 
 };
@@ -23,8 +26,7 @@ GENERATOR( process_1 ) {
 /*────────────────────────────────────────────────────────────────────────────*/
 
 void _main_() { 
-    process_1 A; 
-    process::add(A); 
+    process_1 A; process::add(A); 
 }
 
 /*────────────────────────────────────────────────────────────────────────────*/

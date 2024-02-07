@@ -167,12 +167,9 @@ protected:
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace type {
-    template< class T > 
-    ptr_t<T> bind ( T* self ){
-        return new T( *self );
-    }
-
-} }
+    template<class T> ptr_t<T> bind( T* self ){ return new T( *self ); }
+    template<class T> ptr_t<T> bind( T  self ){ return new T(  self ); }
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
