@@ -19,8 +19,12 @@ void _main_() {
     console::log( (int)  ppt["var1"] );
     console::log( (bool) ppt["var2"] ? "true" : "false" );
 
+    ppt["var5"] = "hello World";
+
     console::log( (string_t)     ppt["var3"]["var1"] );
     console::log(((array_t<int>) ppt["var4"]).join() );
+
+    console::log( (string_t) ppt["var5"] );
 
 }
 
