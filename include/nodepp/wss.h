@@ -57,7 +57,7 @@ namespace nodepp { namespace wss {
     /*─······································································─*/
 
     tls_t server( ssl_t* ctx, agent_t* opt=nullptr ){
-        auto server = https::server( [=]( ... ){}, ctx, opt );
+        auto server = https::server( [=]( https_t /*unused*/ ){}, ctx, opt );
                         wss::server( server ); return server;     
     }
 

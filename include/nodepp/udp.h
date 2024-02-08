@@ -97,6 +97,8 @@ namespace udp {
 
     udp_t server( const udp_t& server ){ server.onSocket([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
+        cli.onDrain.once([=](){ cli.free(); });
+        cli.busy();
 
         server.onConnect.once([=]( socket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
@@ -107,14 +109,14 @@ namespace udp {
 
         process::task::add([=](){
             server.onConnect.emit(cli); return -1;
-        }); cli.onDrain.once([=](){ cli.free(); });
+        });
 
     }); return server; }
 
     /*─······································································─*/
 
     udp_t server( agent_t* opt=nullptr ){
-        auto server = udp_t( [=]( socket_t cli ){}, opt );
+        auto server = udp_t( [=]( socket_t /*unused*/ ){}, opt );
         udp::server( server ); return server; 
     }
 
@@ -122,20 +124,22 @@ namespace udp {
 
     udp_t client( const udp_t& client ){ client.onOpen.once([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
+        cli.onDrain.once([=](){ cli.free(); });
+        cli.busy();
 
         process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
             if(  _read->c  <=  0 )   { return 1; }
             cli.onData.emit(_read->y); return 1;
-        }); cli.onDrain.once([=](){ cli.free(); });
+        });
 
     }); return client; }
 
     /*─······································································─*/
 
     udp_t client( agent_t* opt=nullptr ){
-        auto client = udp_t( [=]( socket_t cli ){}, opt );
+        auto client = udp_t( [=]( socket_t /*unused*/ ){}, opt );
         udp::client( client ); return client; 
     }
 

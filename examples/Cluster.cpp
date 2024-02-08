@@ -5,7 +5,7 @@ using namespace nodepp;
 
 void _main_() {
 
-    auto p = cluster::add({ "A", "B", "C" });
+    auto p = cluster::add({ "hello ", "world ", "dude " });
 
     if( process::is_parent() ){
 
@@ -24,9 +24,9 @@ void _main_() {
         });
 
     } else {
-        for( auto x : process::args )
+        for( auto x : process::args ){
              p.write( x );
-             p.werror("nice");
+        }    p.werror("nice");
     }
 
 }

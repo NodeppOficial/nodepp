@@ -14,13 +14,14 @@ void server() {
 
         console::log( cli.path, cli.get_fd() );
 
-        for( auto x : cli.query )
+        for( auto x : cli.query ){
              console::log( "->",x.first, ":", x.second );
+        }
 
         if( cli.method == "POST" ){
-            for( auto x : cli.headers )
+            for( auto x : cli.headers ){
                  console::log( x.first, ":", x.second );
-                 console::log( "cli:", cli.read() );
+            }    console::log( "cli:", cli.read() );
             cli.write_headers( 200, {{
                 { "content-type", "text/html" }
             }}); cli.write("recived");
@@ -57,7 +58,7 @@ void server() {
 
     });
 
-    server.listen( "localhost", 8000, [=]( socket_t server ){
+    server.listen( "localhost", 8000, [=]( socket_t /*unused*/ ){
         console::log("server started at http://localhost:8000");
     });
 

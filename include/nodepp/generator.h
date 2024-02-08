@@ -162,7 +162,8 @@ namespace nodepp { namespace _stream_ {
             while( _read(&inp)==1 ){ coNext; } 
                if( _read.c <= 0 )  { break; }
                     inp.onData.emit( _read.y );
-            }       inp.close();
+            }
+            if(!inp.is_busy() ) inp.close(); 
         gnStop
         }
 
@@ -173,7 +174,9 @@ namespace nodepp { namespace _stream_ {
                if( _read.c <= 0 )           { break; }
             while( _write(&out,_read.y)==1 ){ coNext; }
                     inp.onData.emit( _read.y );
-            }       inp.close(); out.close();
+            }
+            if(!inp.is_busy() ) inp.close(); 
+            if(!out.is_busy() ) out.close();
         gnStop
         }
 
@@ -192,7 +195,8 @@ namespace nodepp { namespace _stream_ {
             while( _read(&inp)==1 ){ coNext; } 
                if( _read.c <= 0 )  { break; }
                    inp.onData.emit( _read.y );
-            }      inp.close();
+            }      
+            if(!inp.is_busy() ) inp.close(); 
         gnStop
         }
 
@@ -203,7 +207,9 @@ namespace nodepp { namespace _stream_ {
                if( _read.c <= 0 )           { break; }
             while( _write(&out,_read.y)==1 ){ coNext; }
                     inp.onData.emit( _read.y );
-            }       inp.close(); out.close();
+            }       
+            if(!inp.is_busy() ) inp.close(); 
+            if(!out.is_busy() ) out.close();
         gnStop
         }
 
@@ -265,7 +271,10 @@ namespace nodepp { namespace _zlib_ {
                     process::error( out.onError, message ); break;
                 }
             
-            }   inflateEnd( &str ); out.close(); inp.close(); 
+            }   inflateEnd( &str ); 
+            
+            if( out.is_busy() ) out.close(); 
+            if( inp.is_busy() ) inp.close(); 
         
         gnStop
         }
@@ -302,10 +311,12 @@ namespace nodepp { namespace _zlib_ {
 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
-                    process::error( inp.onError, message ); inp.close(); break;
+                    process::error( inp.onError, message ); break;
                 } 
 
-            }   inflateEnd( &str ); inp.close(); 
+            }   inflateEnd( &str );
+            
+            if( inp.is_busy() ) inp.close(); 
             
         gnStop
         }
@@ -360,7 +371,10 @@ namespace nodepp { namespace _zlib_ {
                     process::error( out.onError, message ); break;
                 }
             
-            }   deflateEnd( &str ); out.close(); inp.close(); 
+            }   deflateEnd( &str ); 
+            
+            if( out.is_busy() ) out.close(); 
+            if( inp.is_busy() ) inp.close(); 
             
         gnStop
         }
@@ -397,10 +411,12 @@ namespace nodepp { namespace _zlib_ {
                 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
-                    process::error( inp.onError, message ); inp.close(); break;
+                    process::error( inp.onError, message ); break;
                 } 
 
-            }   deflateEnd( &str ); inp.close(); 
+            }   deflateEnd( &str ); 
+            
+            if( inp.is_busy() ) inp.close(); 
             
         gnStop
         }
@@ -585,7 +601,7 @@ namespace nodepp {
         len = idx; return idx; 
     }
 
-    ulong read_ws_frame( char* bf, const ulong& sx ){
+    ulong read_ws_frame( char* bf, const ulong& /*unused*/ ){
 
         if( bf == nullptr ){ return  0; }
 

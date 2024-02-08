@@ -59,7 +59,7 @@ void _main_() {
 
     });
 
-    server.listen( "localhost", 8000, [=]( socket_t server ){
+    server.listen( "localhost", 8000, [=]( socket_t /*unused*/ ){
         console::log("server started at http://localhost:8000");
     });
 

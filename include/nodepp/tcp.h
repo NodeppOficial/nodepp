@@ -138,6 +138,8 @@ namespace tcp {
 
     tcp_t server( const tcp_t& server ){ server.onSocket([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
+        cli.onDrain.once([=](){ cli.free(); });
+        cli.busy();
 
         server.onConnect.once([=]( socket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
@@ -148,14 +150,14 @@ namespace tcp {
 
         process::task::add([=](){
             server.onConnect.emit(cli); return -1;
-        }); cli.onDrain.once([=](){ cli.free(); });
+        });
 
     }); server.poll( false ); return server; }
 
     /*─······································································─*/
 
     tcp_t server( agent_t* opt=nullptr ){
-        auto server = tcp_t( [=]( socket_t cli ){}, opt );
+        auto server = tcp_t( [=]( socket_t /*unused*/ ){}, opt );
         tcp::server( server ); return server; 
     }
 
@@ -164,6 +166,7 @@ namespace tcp {
     tcp_t client( const tcp_t& client ){ client.onOpen.once([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
         cli.onDrain.once([=](){ cli.free(); });
+        cli.busy();
 
         process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
@@ -177,7 +180,7 @@ namespace tcp {
     /*─······································································─*/
 
     tcp_t client( agent_t* opt=nullptr ){
-        auto client = tcp_t( [=]( socket_t cli ){}, opt );
+        auto client = tcp_t( [=]( socket_t /*unused*/ ){}, opt );
         tcp::client( client ); return client; 
     }
 

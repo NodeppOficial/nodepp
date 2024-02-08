@@ -606,13 +606,13 @@ public:
         obj->priv_key = EC_KEY_get0_private_key( obj->key_pair );
     }
 
-    string_t get_public_key( uint x = 0 ) const noexcept { 
+    string_t get_public_key() const noexcept { 
         if( obj->state != 1 ){ return ""; } uchar *key = NULL;
         int len = i2o_ECPublicKey( obj->key_pair , &key );
         return { (char*) &key, (ulong) len };
     }
 
-    string_t get_public_key_hex( uint x = 0 ) const noexcept {
+    string_t get_public_key_hex() const noexcept {
         if( obj->state != 1 ){ return ""; }
         return crypto::buff2hex( this->get_public_key() );
     }
@@ -826,7 +826,7 @@ protected:
 
 public:
 
-    dh_t( int primeLength, int generator ) { obj->state = 1;
+    dh_t() { obj->state = 1;
         obj->dh    = DH_new(); 
         obj->g     = BN_new();
         obj->k     = BN_new();

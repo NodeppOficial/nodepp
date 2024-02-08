@@ -160,6 +160,7 @@ namespace tls {
     tls_t server( const tls_t& server ){ server.onSocket([=]( ssocket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
         cli.onDrain.once([=](){ cli.free(); });
+        cli.busy();
 
         server.onConnect.once([=]( ssocket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
@@ -177,7 +178,7 @@ namespace tls {
     /*─······································································─*/
 
     tls_t server( ssl_t* ctx, agent_t* opt=nullptr ){
-        auto server = tls_t( [=]( ssocket_t cli ){}, ctx, opt );
+        auto server = tls_t( [=]( ssocket_t /*unused*/ ){}, ctx, opt );
         tls::server( server ); return server; 
     }
 
@@ -186,6 +187,7 @@ namespace tls {
     tls_t client( const tls_t& client ){ client.onOpen.once([=]( ssocket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
         cli.onDrain.once([=](){ cli.free(); });
+        cli.busy();
 
         process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
@@ -199,7 +201,7 @@ namespace tls {
     /*─······································································─*/
 
     tls_t client( ssl_t* ctx, agent_t* opt=nullptr ){
-        auto client = tls_t( [=]( ssocket_t cli ){}, ctx, opt );
+        auto client = tls_t( [=]( ssocket_t /*unused*/ ){}, ctx, opt );
         tls::client( client ); return client; 
     }
 

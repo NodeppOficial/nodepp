@@ -60,15 +60,15 @@ namespace nodepp { namespace process {
 
     /*─······································································─*/
 
+    template< class... T >
+    void add( const T&... args ){ process::loop::add( args... ); }
+
+    /*─······································································─*/
+
     template< class T >
     void error( T& ev, const string_t& msg ){ _EERROR( ev, msg ); }
 
     void error( const string_t& msg ){ _ERROR( msg ); }
-
-    /*─······································································─*/
-
-    template< class... T >
-    void add( const T&... args ){ process::loop::add( args... ); }
 
     /*─······································································─*/
 

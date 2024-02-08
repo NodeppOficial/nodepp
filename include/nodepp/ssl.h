@@ -54,7 +54,7 @@ protected:
     
     /*─······································································─*/
 
-    static int servername_handler( SSL* ssl, int* ao, void* arg ) {
+    static int servername_handler( SSL* ssl, int* /*unused*/, void* arg ) {
         const char* servername = SSL_get_servername( ssl, TLSEXT_NAMETYPE_host_name );
         onSNI func = *((onSNI*)arg); if( servername ){ ssl_t* xtc = func(servername); 
             if( xtc != nullptr ){ xtc->create_server();

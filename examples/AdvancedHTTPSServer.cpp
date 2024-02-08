@@ -61,7 +61,7 @@ void _main_() {
 
     }, &ssl );
 
-    server.listen( "localhost", 8000, [=]( ssocket_t server ){
+    server.listen( "localhost", 8000, [=]( ssocket_t /*unused*/ ){
         console::log("server started at https://localhost:8000");
     });
 

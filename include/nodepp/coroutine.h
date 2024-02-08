@@ -92,9 +92,7 @@ struct NODEPP_GENERATOR_BASE { protected:
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #define forEach( ITEM, CB ) for( auto& x : ITEM ){ CB( x ); }
-
 #define forEver() for (;;)
-
 #define elif else if
 
 /*────────────────────────────────────────────────────────────────────────────*/

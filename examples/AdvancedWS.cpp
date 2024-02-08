@@ -72,7 +72,7 @@ void client() {
 /*────────────────────────────────────────────────────────────────────────────*/
 
 void _main_() {
-    cin = fs::cin();
+    cin = fs::stdin();
 
     if( process::env::get("mode") == "client" )
         client(); else server();

@@ -60,12 +60,6 @@ namespace nodepp { namespace type {
     
     /*─······································································─*/
 
-    struct nothrow_t {};
-    extern const nothrow_t nothrow;
-           const nothrow_t nothrow {};
-    
-    /*─······································································─*/
-
     template <typename T> struct is_character : false_type {};
 
     template <> struct is_character<char> : true_type {};
@@ -253,12 +247,6 @@ namespace nodepp { namespace type {
     };
 
     /*─······································································─*/
-/*
-    template< typename T, typename V > struct is_inheritance {
-        static constexpr bool value = __is_inheritance(T,V);
-    };
-*/
-    /*─······································································─*/
 
     template<typename T> struct is_virtually_constructible {
         static constexpr bool value = __has_trivial_constructor(T);
@@ -274,6 +262,10 @@ namespace nodepp { namespace type {
 
     template<typename T> struct is_trivially_copiable {
         static constexpr bool value = __is_trivially_copyable(T);
+    };
+
+    template<typename T> struct is_trivially_assignable {
+        static constexpr bool value = __has_trivial_assign(T);
     };
 
     /*─······································································─*/

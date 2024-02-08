@@ -60,15 +60,15 @@ namespace nodepp { namespace string {
     /*─······································································─*/
 
     template< class T, class... V >
-    string_t join( const string_t& c, const T& argc, const V&... args ){
-	array_t<string_t> list; string_t result; 
-        map([&]( string_t argc ){ list.push( argc ); }, argc, args... );
-            for( ulong x=0; x<list.size(); x++ ){
-            result += to_string(list[x]) + ((x==list.last()) ? "" : c);
-        }   return result;
-    }
+        string_t join( const string_t& c, const T& argc, const V&... args ){
+        array_t<string_t> list; string_t result; 
+            map([&]( string_t argc ){ list.push( argc ); }, argc, args... );
+                for( ulong x=0; x<list.size(); x++ ){
+                result += to_string(list[x]) + ((x==list.last()) ? "" : c);
+            }   return result;
+        }
 
-}}
+    }}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
