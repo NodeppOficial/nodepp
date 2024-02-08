@@ -15,7 +15,6 @@
     - [Coroutines](#coroutines)
     - [Generators](#generators)
     - [Workers](#workers)
-    - [Clusters](#clusters)
     - [Asynchronous Timers](#asynchronous-timers)
         - [Timer Interval](#timer-interval)
         - [Timer Timeout](#timer-timeout)
@@ -290,51 +289,41 @@ x:> 0
 ```cpp
 #include <nodepp/nodepp.h>
 #include <nodepp/worker.h>
-#include <nodepp/timer.h>
 
 using namespace nodepp;
 
 void _main_() {
 
-    worker::add([](){
-        static int x = 3;
+    ptr_t<int> x = new int(100);
+    mutex_t mut;
+
+    worker::add([=](){
     coStart
-        while( x --> 0 ){
-            console::log("x: x =",x); coNext;
+
+        while( *x > 0 ){
+            mut.lock(); *x-=1;
+            console::info("Hello World",*x);
+            worker::delay( 100 );
+            mut.unlock(); coNext;
         }
+
+    coStop
+    });
+
+    worker::add([=](){
+    coStart
+
+        while( *x > 0 ){
+            mut.lock(); *x-=1;
+            console::done("Hello World",*x);
+            worker::delay( 100 );
+            mut.unlock(); coNext;
+        }
+
     coStop
     });
 
 }
-```
-```
-x:> 2
-x:> 1
-x:> 0
-```
-
-## Clusters
-```cpp
-#include <nodepp/nodepp.h>
-#include <nodepp/cluster.h>
-
-using namespace nodepp;
-
-void _main_() {
-
-    auto x = cluster::add();
-
-    if( cluster::is_child() ){
-        console::log("child");
-    } else {
-        console::log("parent");
-    }
-
-}
-```
-```
-parent
-child
 ```
 
 ## Asynchronous Timers

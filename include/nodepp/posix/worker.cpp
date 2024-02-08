@@ -24,11 +24,11 @@ public:
 
     int unlock() const noexcept { return pthread_mutex_unlock(&mutex); }
 
-    int lock() const noexcept { return pthread_mutex_lock(&mutex); }
+    int lock()   const noexcept { return pthread_mutex_lock(&mutex); }
 
     mutex_t() : mutex( new pthread_mutex_t() ) {
         if( pthread_mutex_init(&mutex,NULL) != 0 )
-          { process::error("Cant Init Mutex"); }
+          { process::error("Cant Start Mutex"); }
     }
 
     virtual ~mutex_t() noexcept {
@@ -71,8 +71,9 @@ protected:
     struct _str_ {
         function_t<int>* cb;
         ptr_t<int> out;
-        int state = 0;
+        int state =0;
         pthread_t id;
+        int mode  =0;
     };  ptr_t<_str_> obj;
 
 public: worker_t() noexcept : obj( new _str_ ) {}
@@ -80,7 +81,7 @@ public: worker_t() noexcept : obj( new _str_ ) {}
     virtual ~worker_t() noexcept {
         if( obj.count() > 1 ){ return; } 
         if( obj->state == 0 ){ return; } 
-    //  force_close();
+    //      force_close();
     }
     
     /*─······································································─*/
@@ -105,18 +106,18 @@ public: worker_t() noexcept : obj( new _str_ ) {}
     /*─······································································─*/
 
     int detach() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
-        auto pth = pthread_create( &obj->id, NULL, &dfunc, (void*)obj->cb );
+        auto  pth = pthread_create( &obj->id, NULL, &dfunc, (void*)obj->cb );
         pthread_detach( obj->id ); return pth != 0 ? -1 : 0;
     }
 
     int join() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
-        auto pth = pthread_create( &obj->id, NULL, &jfunc, (void*)obj->cb );
-        return pthread_join( obj->id, NULL ); return pth != 0 ? -1 : 0;
+        auto  pth = pthread_create( &obj->id, NULL, &jfunc, (void*)obj->cb );
+        pthread_join( obj->id, NULL ); return pth != 0 ? -1 : 0;
     }
 
     int add() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
         auto pth = pthread_create( &obj->id, NULL, &sfunc, (void*)obj->cb );
-         if( pthread_detach( obj->id ) == 0 ) { process::threads++; }
+        if( !pth ) { process::threads++; } pthread_detach( obj->id );
         return pth != 0 ? -1 : 0;
     }
 

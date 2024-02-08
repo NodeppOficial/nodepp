@@ -10,15 +10,34 @@ using namespace nodepp;
 
 void _main_() {
 
-    worker::add([](){
-        console::log("Hello World");
-        worker::delay( 100 ); 
-        return 1;
+    ptr_t<int> x = new int(100);
+    mutex_t mut;
+
+    worker::add([=](){
+    coStart
+
+        while( *x > 0 ){
+            mut.lock(); *x-=1;
+            console::info("Hello World",*x);
+            worker::delay( 100 );
+            mut.unlock(); coNext;
+        }
+
+    coStop
     });
 
-    timer::interval([=](){
-        console::done("interval");
-    },1000);
+    worker::add([=](){
+    coStart
+
+        while( *x > 0 ){
+            mut.lock(); *x-=1;
+            console::done("Hello World",*x);
+            worker::delay( 100 );
+            mut.unlock(); coNext;
+        }
+
+    coStop
+    });
 
 }
 

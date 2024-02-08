@@ -32,7 +32,7 @@ public:
 
     mutex_t() : mutex( new HANDLE ) {
         if((*mutex=CreateMutex(NULL,0,NULL) ) == NULL )
-          { process::error("Cant Init Mutex"); }
+          { process::error("Cant Start Mutex"); }
     }
 
     virtual ~mutex_t() noexcept {
@@ -116,13 +116,13 @@ public: worker_t() noexcept : obj( new _str_ ) {}
 
     int join() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
         obj->thread = CreateThread( NULL, 0, &jfunc, (void*)obj->cb, 0, &obj->id );
-        WaitForSingleObject( obj->thread, INFINITE ); return obj->thread == NULL ?-1:0;
+        WaitForSingleObject( obj->thread, INFINITE ); return obj->thread == NULL ? -1 : 0;
     }
 
     int add() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
         obj->thread = CreateThread( NULL, 0, &sfunc, (void*)obj->cb, 0, &obj->id );
-        WaitForSingleObject( obj->thread, 0 ); if( obj->thread != NULL ) 
-            { process::threads++; } return obj->thread == NULL ? -1 : 0;
+        if( obj->thread != NULL ){ process::threads++; }
+        WaitForSingleObject( obj->thread, 0 ); return obj->thread == NULL ? -1 : 0;
     }
 
 };}
