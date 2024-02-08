@@ -27,6 +27,18 @@ namespace nodepp { namespace stream {
     
     /*─······································································─*/
     
+    file_t line( const string_t& path, const string_t& mode ){
+        auto inp = file_t( path, mode ); _stream_::line arg;
+        process::poll::add( arg, inp );  return inp;
+    }
+    
+    template< class... T >
+    void line( const T&... inp ){ _stream_::line arg;
+        process::poll::add( arg, inp... );
+    }
+    
+    /*─······································································─*/
+    
     file_t async( const string_t& path, const string_t& mode ){ return file_t( path, mode ); }
     
     /*─······································································─*/
