@@ -22,7 +22,7 @@ void _main_() {
 
     https::fetch( args, &ssl )
 
-    .then([]( http_t cli ){
+    .then([]( https_t cli ){
         cli.onData([]( string_t chunk ){
             console::log( chunk.size(), ":>", chunk );
         }); stream::pipe( cli );

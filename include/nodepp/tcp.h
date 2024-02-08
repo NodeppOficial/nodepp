@@ -155,7 +155,7 @@ namespace tcp {
     /*─······································································─*/
 
     tcp_t server( agent_t* opt=nullptr ){
-        auto server = (tcp_t){ [=]( socket_t cli ){}, opt };
+        auto server = tcp_t( [=]( socket_t cli ){}, opt );
         tcp::server( server ); return server; 
     }
 
@@ -177,7 +177,7 @@ namespace tcp {
     /*─······································································─*/
 
     tcp_t client( agent_t* opt=nullptr ){
-        auto client = (tcp_t){ [=]( socket_t cli ){}, opt };
+        auto client = tcp_t( [=]( socket_t cli ){}, opt );
         tcp::client( client ); return client; 
     }
 

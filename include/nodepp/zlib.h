@@ -34,7 +34,7 @@ string_t _inflate_( const string_t& input, const T& onData ){ z_stream stream;
         int x = ::inflate( &stream, Z_FINISH );
 
         if(( size=UNBFF_SIZE-stream.avail_out )==0 ){
-            output += (string_t){ buffer, size };
+            output += string_t({ buffer, size });
         }
 
         if( x == Z_STREAM_END ){ break; } else if( x < 0 ) {
@@ -66,7 +66,7 @@ string_t _deflate_( const string_t& input, const T& onData ){ z_stream stream;
         int x = ::deflate( &stream, Z_FINISH );
 
         if(( size=UNBFF_SIZE-stream.avail_out )==0 ){
-            output += (string_t){ buffer, size };
+            output += string_t({ buffer, size });
         }
 
         if( x == Z_STREAM_END ){ break; } else if( x < 0 ) {

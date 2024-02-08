@@ -18,7 +18,7 @@ protected:
     uint   type = 0;
     any_t  memory;
 
-public: 
+public: object_t() noexcept {}
 
     template< ulong N > 
     object_t( const T (&arr) [N] ) noexcept { 
@@ -28,8 +28,6 @@ public:
 
     template< class U > 
     object_t( const U& any ) noexcept { memory = any; }
-
-    object_t() noexcept { memory = (ARRAY){0,0}; }
 
     /*─······································································─*/
 

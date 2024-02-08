@@ -91,11 +91,13 @@ public: worker_t() noexcept : obj( new _str_ ) {}
     /*─······································································─*/
 
     template< class T, class... V >
-    worker_t( T cb, V&... args ) noexcept : obj( new _str_() ){
-        ptr_t<int> out = new int(1);
-        ptr_t<T> pcb = new T(cb);
+    worker_t( T cb, V&... arg ) noexcept : obj( new _str_() ){
+        ptr_t<type::pair<bool,T>> pb = new type::pair<bool,T>({ 0, cb });
+        ptr_t<int>               out = new int(1);
         obj->cb = new function_t<int>([=](){ 
-            return *out!=1 ? -1 : (*pcb)( args... ); 
+            if( pb->first ){ return 1; }     pb->first = 1;
+            int rs = ( pb->second )(arg...); pb->first = 0;
+            return *out!=1 ? -1 : rs;
         }); obj->out = out;
     }
     

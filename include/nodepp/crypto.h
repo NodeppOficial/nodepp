@@ -203,8 +203,8 @@ public:
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_EncryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size() );
         if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        } else { onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); }}
+                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
     }
 
     string_t get() const noexcept { 
@@ -220,8 +220,8 @@ public:
         EVP_EncryptFinal( obj->ctx, &obj->bff, &obj->len );
         EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
         if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        } else { onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); } onClose.emit(); }
+                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); } onClose.emit(); }
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -275,8 +275,8 @@ public:
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size());
         if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        } else { onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); }}
+                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
     }
 
     string_t get() const noexcept { 
@@ -292,8 +292,8 @@ public:
         EVP_DecryptFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
         if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        } else { onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); } onClose.emit(); }
+                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); } onClose.emit(); }
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -338,8 +338,8 @@ public:
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_EncodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
         if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        } else { onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); }}
+                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
     }
 
     string_t get() const noexcept { 
@@ -355,8 +355,8 @@ public:
         EVP_EncodeFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
         if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        } else { onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); } onClose.emit(); }
+                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); } onClose.emit(); }
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -466,8 +466,8 @@ public:
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_DecodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
         if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        } else { onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); }}
+                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
     }
 
     string_t get() const noexcept { 
@@ -483,8 +483,8 @@ public:
         EVP_DecodeFinal( obj->ctx, &obj->bff, &obj->len ); 
         EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
         if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += (string_t){ (char*)&obj->bff, (ulong) obj->len };
-        } else { onData.emit( (string_t){ (char*)&obj->bff, (ulong) obj->len } ); } onClose.emit(); }
+                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); } onClose.emit(); }
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -536,8 +536,8 @@ public:
 
         ptr_t<uchar> out ( BN_num_bytes(obj->bn) );
         BN_bn2bin( obj->bn, out.data() ); if ( onData.empty() ) {
-                 obj->buff += (string_t){ (char*) &out, out.size() };
-        } else { onData.emit( (string_t){ (char*) &out, out.size() } ); }
+                 obj->buff += string_t( (char*) &out, out.size() );
+        } else { onData.emit( string_t( (char*) &out, out.size() ) ); }
     }
 
     string_t get() const noexcept { 
@@ -871,7 +871,7 @@ public:
         ptr_t<uchar> shared ( DH_size( obj->dh ) );
                   BN_hex2bn( &obj->k, key.c_str() );
         int len = DH_compute_key( &shared, obj->k, obj->dh );
-        return (string_t){ (char*) &shared, (ulong) len };
+        return string_t( (char*) &shared, (ulong) len );
     }
 
     void force_close() const noexcept {
@@ -913,9 +913,9 @@ public:
     }
 
     string_t sign( const string_t& msg ) const noexcept {
-        if( obj->state != 1 ){ return ""; } uchar sgn[DSA_size(obj->dsa)]; uint len;
-        DSA_sign( 0, (uchar*)msg.c_str(), msg.size(), sgn, &len, obj->dsa );
-        return { (char*) sgn, (ulong) len };
+        if( obj->state != 1 ){ return ""; } ptr_t<uchar> sgn( DSA_size(obj->dsa) ); uint len;
+        DSA_sign( 0, (uchar*)msg.c_str(), msg.size(), &sgn, &len, obj->dsa );
+        return { (char*) &sgn, (ulong) len };
     }
 
     int verify( const string_t& msg, const string_t& sgn ) const noexcept {

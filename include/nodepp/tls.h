@@ -177,7 +177,7 @@ namespace tls {
     /*─······································································─*/
 
     tls_t server( ssl_t* ctx, agent_t* opt=nullptr ){
-        auto server = (tls_t){ [=]( ssocket_t cli ){}, ctx, opt };
+        auto server = tls_t( [=]( ssocket_t cli ){}, ctx, opt );
         tls::server( server ); return server; 
     }
 
@@ -199,7 +199,7 @@ namespace tls {
     /*─······································································─*/
 
     tls_t client( ssl_t* ctx, agent_t* opt=nullptr ){
-        auto client = (tls_t){ [=]( ssocket_t cli ){}, ctx, opt };
+        auto client = tls_t( [=]( ssocket_t cli ){}, ctx, opt );
         tls::client( client ); return client; 
     }
 

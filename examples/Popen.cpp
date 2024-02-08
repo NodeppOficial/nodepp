@@ -1,12 +1,14 @@
 #include <nodepp/nodepp.h>
 #include <nodepp/popen.h>
-#include <nodepp/stream.h>
 
 using namespace nodepp;
 
 void _main_() {
 
-    auto p = popen::async( "curl", { "curl", "http://www.google.com/" } );
+    array_t<string_t> cmd ({ "curl", "http://www.google.com/", "-Ls" });
+    auto p = popen::async( cmd[0], cmd );
+
+//  auto p = popen::async( "curl", { "curl", "http://www.google.com/", "-Ls" } );
 
     p.onDout([]( string_t chunk ){
         conio::done("stdout: ");
@@ -19,7 +21,7 @@ void _main_() {
     });
 
     p.onData([]( string_t chunk ){
-        console::log(":>", chunk );
+        console::log( ":>", chunk );
     });
 
 }

@@ -95,6 +95,7 @@ namespace _path_ { map_t<string_t,string_t> mimetype ({
 
 namespace path {
 
+namespace {
 #if _KERNEL == NODEPP_KERNEL_WINDOWS
     string_t sep  = "\\\\";
     string_t root = "c:\\\\";
@@ -112,6 +113,7 @@ namespace path {
     string_t none = "[/]+";
     string_t  one = "[^/]+";
 #endif
+}
     
     /*─······································································─*/
 
@@ -208,10 +210,11 @@ namespace path {
     string_t relative( const string_t& path_a, string_t path_b ){
         regex_t _a(sep+"+"), _b(init,"i");
         auto vec_a = _a.split( path_a );
-        for( auto x:vec_a ){
-            if( x.empty() )                continue;
-            if( _b.test( x ) )             continue;
-            if(!regex::test( path_b, x ) ) break;
+        for( auto x: vec_a ){
+            console::log( regex::test( path_b, x ) );
+            if( x.empty() )               continue;
+            if( _b.test(x) )              continue;
+            if(!regex::test( path_b, x )) break;
             path_b = regex::replace( path_b, x, ".." );
         }   return path_b;
     }  
@@ -220,12 +223,12 @@ namespace path {
 
     string_t normalize( string_t path="" ){ 
 
-        regex_t _d("[.]{3}(/|\\\\\\\\)[^./\\\\]+(/|\\\\\\\\)");
-        regex_t _a("[.]{3}(/|\\\\\\\\)[^./\\\\]+");
-        regex_t _c("[.]{3}(/|\\\\\\\\)");
+        regex_t _d("[.]{2}(/|\\\\\\\\)[^./\\\\]+(/|\\\\\\\\)");
+        regex_t _a("[.]{2}(/|\\\\\\\\)[^./\\\\]+");
+        regex_t _c("[.]{2}(/|\\\\\\\\)");
         regex_t _b( sep + "+" );
         
-        string_t null("."); if( path.empty() ) return null;
+        if( path.empty() ) return ".";
         path = _b.replace_all( path, sep );
         
         while( _a.test( path ) ){ path = _d.replace_all( path, "" ); }

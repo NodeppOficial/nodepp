@@ -109,7 +109,7 @@ public:    observer_t() noexcept {}
         for( ulong x=0; x<node.size(); x++ ){
             if( node[x].first == name )
                 return node[x].second;
-        }       return ( const V ){0};
+        }       return (const V)(0);
     }
 
     /*─······································································─*/
@@ -123,7 +123,7 @@ public:    observer_t() noexcept {}
         for( ulong x=0; x<node.size(); x++ ){
             if( node[x].first == name )
             return node[x].second;
-        }   return ( const V ){ 0 };
+        }   return (const V)(0);
     }
 
 };}

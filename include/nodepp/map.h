@@ -45,7 +45,7 @@ public: map_t() noexcept {}
             return this->buffer[x].second;
         }
         
-        auto item = (T){name,0}; this->push(item);
+        auto item = T({ name, 0 }); this->push(item);
         return this->buffer[this->last()].second;
     }
     

@@ -13,7 +13,7 @@ void _main_() {
     auto list = serial::get_devices();
 
     if( list.empty() ){ 
-        _Error("Not Serial Device Found"); 
+        process::error("Not Serial Device Found"); 
     } else {
         console::log( list[0] );
     }

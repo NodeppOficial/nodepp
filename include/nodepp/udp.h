@@ -114,7 +114,7 @@ namespace udp {
     /*─······································································─*/
 
     udp_t server( agent_t* opt=nullptr ){
-        auto server = (udp_t){ [=]( socket_t cli ){}, opt };
+        auto server = udp_t( [=]( socket_t cli ){}, opt );
         udp::server( server ); return server; 
     }
 
@@ -135,7 +135,7 @@ namespace udp {
     /*─······································································─*/
 
     udp_t client( agent_t* opt=nullptr ){
-        auto client = (udp_t){ [=]( socket_t cli ){}, opt };
+        auto client = udp_t( [=]( socket_t cli ){}, opt );
         udp::client( client ); return client; 
     }
 

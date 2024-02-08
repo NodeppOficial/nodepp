@@ -324,7 +324,7 @@ public:
         auto r = get_slice_range( start, size() );
          if( r == nullptr ){ return ""; }
 
-        auto n_buffer = (string_t){ buffer.data()+r[0], r[2] };
+        auto n_buffer = string_t( buffer.data()+r[0], r[2] );
         return n_buffer;
     }
     
@@ -335,7 +335,7 @@ public:
         auto r = get_slice_range( start, end );
          if( r == nullptr ){ return ""; }
 
-        auto n_buffer = (string_t){ buffer.data()+r[0], r[2] };
+        auto n_buffer = string_t( buffer.data()+r[0], r[2] );
         return n_buffer;
     }
     
@@ -346,7 +346,7 @@ public:
         auto r = get_splice_range( start, end );
          if( r == nullptr ){ return ""; }
 
-        auto n_buffer = (string_t){ buffer.data()+r[0], r[2] };
+        auto n_buffer = string_t( buffer.data()+r[0], r[2] );
         erase( r[0], r[0]+end ); return n_buffer;
     }
 
@@ -356,7 +356,7 @@ public:
         auto r = get_splice_range( start, end );
          if( r == nullptr ){ return ""; }
 
-        auto n_buffer = (string_t){ buffer.data()+r[0], r[2] };
+        auto n_buffer = string_t( buffer.data()+r[0], r[2] );
         erase( r[0], r[0]+end ); insert( r[0], value ); return n_buffer;
     }
     

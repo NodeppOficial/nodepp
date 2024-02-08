@@ -1,7 +1,5 @@
 #include <nodepp/nodepp.h>
 #include <nodepp/cluster.h>
-#include <nodepp/popen.h>
-#include <nodepp/stream.h>
 
 using namespace nodepp;
 

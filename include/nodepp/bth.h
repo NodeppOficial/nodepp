@@ -154,7 +154,7 @@ namespace bth {
     /*─······································································─*/
 
     bth_t server( agent_t* opt=nullptr ){
-        auto server = (bth_t){ [=]( bsocket_t cli ){}, opt };
+        auto server = bth_t( [=]( bsocket_t cli ){}, opt );
         bth::server( server ); return server; 
     }
 
@@ -175,7 +175,7 @@ namespace bth {
     /*─······································································─*/
 
     bth_t client( agent_t* opt=nullptr ){
-        auto client = (bth_t){ [=]( bsocket_t cli ){}, opt };
+        auto client = bth_t( [=]( bsocket_t cli ){}, opt );
         bth::client( client ); return client; 
     }
     

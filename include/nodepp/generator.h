@@ -88,7 +88,7 @@ namespace nodepp { namespace _file_ {
         } while( c==-2 );
         
         if( c<=0 && y.empty() ){ str->close(); coEnd; } elif ( c>0 ){
-            y = (string_t){ str->get_buffer_data(), (ulong) c };
+            y = string_t( str->get_buffer_data(), (ulong) c );
         }   c = y.size();
         
     gnStop
@@ -254,7 +254,7 @@ namespace nodepp { namespace _zlib_ {
                             x = ::inflate( &str, Z_FINISH );
 
                 if(( size=inp.get_buffer_size()-str->avail_out )>0){
-                    dout = (string_t){ inp.get_buffer_data(), size };
+                    dout = string_t( inp.get_buffer_data(), size );
                     inp.onData.emit(dout); 
                     while( _write(&out,dout)==1 ){ coNext; } continue;
                 }
@@ -296,7 +296,7 @@ namespace nodepp { namespace _zlib_ {
                             x = ::inflate( &str, Z_PARTIAL_FLUSH );
 
                 if(( size=inp.get_buffer_size()-str->avail_out )>0){
-                    dout = (string_t){ inp.get_buffer_data(), size };
+                    dout = string_t( inp.get_buffer_data(), size );
                     inp.onData.emit(dout); continue;
                 }
 
@@ -349,7 +349,7 @@ namespace nodepp { namespace _zlib_ {
                             x = ::deflate( &str, Z_PARTIAL_FLUSH );
 
                 if(( size=inp.get_buffer_size()-str->avail_out )>0){
-                    dout = (string_t){ inp.get_buffer_data(), size };
+                    dout = string_t( inp.get_buffer_data(), size );
                     inp.onData.emit(dout); 
                     while( _write(&out,dout)==1 ){ coNext; } continue;
                 }
@@ -391,7 +391,7 @@ namespace nodepp { namespace _zlib_ {
                             x = ::deflate( &str, Z_PARTIAL_FLUSH );
 
                 if(( size=inp.get_buffer_size()-str->avail_out )>0){
-                    dout = (string_t){ inp.get_buffer_data(), size };
+                    dout = string_t( inp.get_buffer_data(), size );
                     inp.onData.emit(dout); continue;
                 }
                 
@@ -561,8 +561,8 @@ namespace nodepp {
 
         string_t y = string_t( bf, sx ); uint idx = 0; 
 
-        bf[idx] = 0b10000001; idx++;
-        bf[idx] = 0b00000000; // 0b10000000 MASKED
+        bf[idx] = (char) 0b10000001; idx++;
+        bf[idx] = (char) 0b00000000; // 0b10000000 MASKED
 
         if ( y.size() < 126 ){ 
             bf[idx]|= (uchar) y.size(); idx++;
