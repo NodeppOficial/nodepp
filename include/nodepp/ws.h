@@ -65,7 +65,7 @@ namespace nodepp { namespace ws {
 
     ws_t client( const string_t& url, agent_t* opt=nullptr ){
 
-        string_t hsh = encoder::hash("abcdefghiABCDEFGHI0123456789",22);
+        string_t hsh = crypto::genkey("abcdefghiABCDEFGHI0123456789",22);
         string_t key = string::format("%s==",hsh.data());
         ptr_t<_file_::read> _read = new _file_::read;
 

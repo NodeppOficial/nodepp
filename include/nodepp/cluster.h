@@ -4,29 +4,36 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
-#include "stream.h"
+#include "file.h"
+#include "initializer.h"
 #include "windows/cluster.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
-#include "stream.h"
+#include "file.h"
+#include "initializer.h"
 #include "posix/cluster.cpp"
 #else
-#error "This OS Does not support cluster.h"
+#error "This OS does not support cluster.h"
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace cluster {
 
+    cluster_t add( const initializer_t<string_t>& args ){ cluster_t pid ( args ); 
+        if( process::is_parent() ){ pid.pipe(); } return pid;
+    }
+
+    cluster_t add(){ cluster_t pid; 
+        if( process::is_parent() ){ pid.pipe(); } return pid;
+    }
+
+    /*─······································································─*/
+
     bool  is_child(){ return !process::env::get("CHILD").empty(); }
 
     bool is_parent(){ return  process::env::get("CHILD").empty(); }
 
-    template< class... T > 
-    cluster_t add( const T&... args ){ cluster_t pid ( args... ); 
-        if( process::is_parent() ){ pid.pipe(); } return pid;
-    }
-
-} }
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

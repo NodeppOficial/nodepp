@@ -64,14 +64,14 @@ public: array_t() noexcept {};
     array_t& operator=( const V (&value) [N] ) noexcept {
         ulong s = 0; buffer = ptr_t<T>( N ); 
         for( auto x=begin(); x!=end(); x++ )
-           { (*x) = value[s]; s++; } return *this;
+           { (*x) = (T)value[s]; s++; } return *this;
     }
 
     template < class V, ulong N > 
     array_t( const V (&value)[N] ) noexcept { 
         ulong s = 0; buffer = ptr_t<T>( N ); 
         for( auto x=begin(); x!=end(); x++ )
-           { (*x) = value[s]; s++; } 
+           { (*x) = (T)value[s]; s++; } 
     }
     
     /*─······································································─*/

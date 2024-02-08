@@ -90,20 +90,23 @@ public:
     
     /*─······································································─*/
 
-    void resize( ulong n, const T& c ) noexcept { reset();
+    void resize( ulong n, const T& c ) noexcept { 
+        reset(); if( n == 0 ){ return; }
         length_= new ulong( n ); 
         count_ = new ulong( 1 );
         value_ = new T[n];
         while( n-->0 ) value_[n] = c;
     }
 
-    void resize( T* c, ulong n ) noexcept { reset();
+    void resize( T* c, ulong n ) noexcept { 
+        reset(); if( n == 0 ){ return; }
         length_= new ulong( n ); 
         count_ = new ulong( 1 );
 	    value_ = c;
     }
     
-    void resize( ulong n ) noexcept { reset();
+    void resize( ulong n ) noexcept { 
+        reset(); if( n == 0 ){ return; }
 	    if( n <= 0 ) return;
         length_= new ulong( n ); 
         count_ = new ulong( 1 );
@@ -163,13 +166,6 @@ protected:
     }
 
 };}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace nodepp { namespace type {
-    template<class T> ptr_t<T> bind( T* self ){ return new T( *self ); }
-    template<class T> ptr_t<T> bind( T  self ){ return new T(  self ); }
-}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

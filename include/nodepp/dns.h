@@ -9,6 +9,7 @@
 #include "windows/dns.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
 #include "url.h"
+#include "socket.h"
 #include "posix/dns.cpp"
 #else
 #error "This OS Does not support dns.h"

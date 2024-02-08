@@ -9,13 +9,9 @@
 namespace nodepp { namespace fs {
 
     file_t  readable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "r", _size ); }
-
     file_t  writable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
-
     file_t  cout( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_OUTPUT_HANDLE), _size ); }
-
     file_t   cin( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_INPUT_HANDLE), _size ); }
-    
     file_t  cerr( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_ERROR_HANDLE), _size ); }
     
     /*─······································································─*/

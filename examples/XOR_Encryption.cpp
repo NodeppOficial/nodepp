@@ -53,6 +53,7 @@ void decrypt( const string_t& path ){
 /*────────────────────────────────────────────────────────────────────────────*/
 
 void _main_() {
+     
      if ( process::env::get("mode") == "A" )
           encrypt( "LICENSE", "ENC" );
      else decrypt( "ENC" );

@@ -46,6 +46,13 @@ namespace nodepp { namespace crypto {
             out.push( ch );
         }   return out;
     }
+
+    string_t genkey( const string_t& alph, int x=32 ) { 
+        string_t data ( (ulong)x, '\0' ); while( x --> 0 ){
+            data[x] = alph[ rand() % ( alph.size() - 1 ) ];
+        }   return data;
+    }
+
 }}
 
 /*────────────────────────────────────────────────────────────────────────────*/

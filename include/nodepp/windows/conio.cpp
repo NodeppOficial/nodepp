@@ -14,43 +14,24 @@
 
 namespace nodepp { namespace conio { WORD attr = 0, dflt = 7;
 
-    int background( int color ){
-        if( color & 0x10 ){ attr |= BACKGROUND_INTENSITY; color &= 0x0f; }
-        switch( color ) {
-            case C_BLACK:   attr |= 0; return 1; break;
-            case C_WHITE:   attr |= BACKGROUND_BLUE | BACKGROUND_GREEN| BACKGROUND_RED; return 1; break;
-            case C_CYAN:    attr |= BACKGROUND_GREEN| BACKGROUND_BLUE; return 1; break;
-            case C_YELLOW:  attr |= BACKGROUND_GREEN| BACKGROUND_RED;  break;
-            case C_MAGENTA: attr |= BACKGROUND_BLUE | BACKGROUND_RED;  break;
-            case C_GREEN:   attr |= BACKGROUND_GREEN; return 1; break;
-            case C_RED:     attr |= BACKGROUND_RED;   return 1; break;
-            case C_BLUE:    attr |= BACKGROUND_BLUE;  return 1; break;
-        }   return -1;
-    }
+    /*─······································································─*/
 
-    int foreground( int color ){
-        if( color & 0x10 ){ attr |= FOREGROUND_INTENSITY; color &= 0x0f; }
-        switch( color ) {
-            case C_BLACK:   attr |= 0; return 1; break;
-            case C_WHITE:   attr |= FOREGROUND_BLUE | FOREGROUND_GREEN| FOREGROUND_RED; return 1; break;
-            case C_CYAN:    attr |= FOREGROUND_GREEN| FOREGROUND_BLUE; return 1; break;
-            case C_YELLOW:  attr |= FOREGROUND_GREEN| FOREGROUND_RED;  break;
-            case C_MAGENTA: attr |= FOREGROUND_BLUE | FOREGROUND_RED;  break;
-            case C_GREEN:   attr |= FOREGROUND_GREEN; return 1; break;
-            case C_RED:     attr |= FOREGROUND_RED;   return 1; break;
-            case C_BLUE:    attr |= FOREGROUND_BLUE;  return 1; break;
-        }   return -1;
-    }
+    int perr( const string_t& args ){ return fprintf( stderr, "%s", args.c_str() ); }
+    int pout( const string_t& args ){ return fprintf( stdout, "%s", args.c_str() ); }
 
     /*─······································································─*/
 
     template< class... T >
-    int print( const T&... args ){ 
-        if( attr != 0 ){
-        SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), attr );
-        } auto result = printf( args... ); attr = 0;
-        SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), dflt );
-        return result;
+    int log( const T&... args ){ if( attr != 0 )
+        SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), attr ); 
+
+        int last = sizeof...( args ), size = 0;
+        string::map([&]( string_t arg ){ 
+            size += pout( arg + ( --last<1 ? "" : " " ) ); 
+        },  args... );
+        
+        SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), dflt ); 
+        attr = 0; return size;
     }
     
     /*─······································································─*/
@@ -80,20 +61,46 @@ namespace nodepp { namespace conio { WORD attr = 0, dflt = 7;
     /*─······································································─*/
 
     int inverse(){ attr |= COMMON_LVB_REVERSE_VIDEO; return 1; }
-
     int underscore(){ attr |= COMMON_LVB_UNDERSCORE; return 1; }
-
     int gotoxy( int x, int y ){ return set_position( x, y ); }
-
     int clear(){ return system("cls"); }
-
     int reset(){ attr = 0; return 1; }
     
     /*─······································································─*/
 
-    int error( const char* msg ){ foreground( C_RED    | C_BOLD ); return print( "%s", msg ); }
-    int  info( const char* msg ){ foreground( C_CYAN   | C_BOLD ); return print( "%s", msg ); }
-    int  done( const char* msg ){ foreground( C_GREEN  | C_BOLD ); return print( "%s", msg ); }
-    int  warn( const char* msg ){ foreground( C_YELLOW | C_BOLD ); return print( "%s", msg ); }
+    int background( int color ){
+        if( color & 0x10 ){ attr |= BACKGROUND_INTENSITY; color &= 0x0f; }
+        switch( color ) {
+            case C_BLACK:   attr |= 0; return 1; break;
+            case C_WHITE:   attr |= BACKGROUND_BLUE | BACKGROUND_GREEN| BACKGROUND_RED; return 1; break;
+            case C_CYAN:    attr |= BACKGROUND_GREEN| BACKGROUND_BLUE; return 1; break;
+            case C_YELLOW:  attr |= BACKGROUND_GREEN| BACKGROUND_RED;  break;
+            case C_MAGENTA: attr |= BACKGROUND_BLUE | BACKGROUND_RED;  break;
+            case C_GREEN:   attr |= BACKGROUND_GREEN; return 1; break;
+            case C_RED:     attr |= BACKGROUND_RED;   return 1; break;
+            case C_BLUE:    attr |= BACKGROUND_BLUE;  return 1; break;
+        }   return -1;
+    }
+
+    int foreground( int color ){
+        if( color & 0x10 ){ attr |= FOREGROUND_INTENSITY; color &= 0x0f; }
+        switch( color ) {
+            case C_BLACK:   attr |= 0; return 1; break;
+            case C_WHITE:   attr |= FOREGROUND_BLUE | FOREGROUND_GREEN| FOREGROUND_RED; return 1; break;
+            case C_CYAN:    attr |= FOREGROUND_GREEN| FOREGROUND_BLUE; return 1; break;
+            case C_YELLOW:  attr |= FOREGROUND_GREEN| FOREGROUND_RED;  break;
+            case C_MAGENTA: attr |= FOREGROUND_BLUE | FOREGROUND_RED;  break;
+            case C_GREEN:   attr |= FOREGROUND_GREEN; return 1; break;
+            case C_RED:     attr |= FOREGROUND_RED;   return 1; break;
+            case C_BLUE:    attr |= FOREGROUND_BLUE;  return 1; break;
+        }   return -1;
+    }
+    
+    /*─······································································─*/
+
+    int error( const char* msg ){ foreground( C_RED    | C_BOLD ); return log( msg ); }
+    int  info( const char* msg ){ foreground( C_CYAN   | C_BOLD ); return log( msg ); }
+    int  done( const char* msg ){ foreground( C_GREEN  | C_BOLD ); return log( msg ); }
+    int  warn( const char* msg ){ foreground( C_YELLOW | C_BOLD ); return log( msg ); }
 
 }}

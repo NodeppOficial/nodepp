@@ -17,7 +17,7 @@ protected:
         ulong rep[2] = { 0, 0 };
 
         virtual ~_str_(){ for( auto x:nxt ){ 
-            if(   x!=nullptr ){ delete x; x = nullptr; }
+            if(   x!=nullptr ){ delete x;     x = nullptr; }
         }   if( alt!=nullptr ){ delete alt; alt = nullptr; } }
 
         void pipe( function_t<_str_*,_str_*> cb ){
@@ -40,13 +40,13 @@ protected:
     int can_repeat( _str_* NODE ) const noexcept { 
         if( !NODE->r ){ return -1; } NODE->idx++; 
 
-             if( (long)NODE->rep[1] == 0 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 :-1; } 
-        else if( (long)NODE->rep[1] ==-1 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 : 1; } 
+          if ( (long)NODE->rep[1] == 0 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 :-1; } 
+        elif ( (long)NODE->rep[1] ==-1 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 : 1; } 
         
         else {
-            if( NODE->idx>=NODE->rep[0] && NODE->idx<=(NODE->rep[1]+1) ){ return  1; }
-            else if( NODE->idx>=(NODE->rep[1]+1) )                      { return -1; }
-            else                                                        { return  0; }
+              if ( NODE->idx>=NODE->rep[0] && NODE->idx<=(NODE->rep[1]+1) ){ return  1; }
+            elif ( NODE->idx>=(NODE->rep[1]+1) )                           { return -1; }
+            else                                                           { return  0; }
         }
         
     }
@@ -144,7 +144,7 @@ protected:
 
             if( x == '(' ){ i++; string_t s; add_new( act, prv, 0 ); long j=0;
                 while( i<_reg.size() ){ char y = _reg[i]; 
-                    if( y == '(' ){ j++; } else if( y == ')' ){ j--; }
+                    if( y == '(' ){ j++; } elif ( y == ')' ){ j--; }
                     if( j<0 && y == ')' ){ break; } s.push(y); i++; 
                 } if( j!=-1 ) { 
                     _ERROR(string::format( "regex at character: %d", i )); }
@@ -226,15 +226,15 @@ protected:
                 switch( NODE->data ){
 
                     case 'b': if( data == 1 || i == 0 ){ return NODE->nxt[0]; } return end(0); break;
-                    case '.': if( data == 0 || data == 1 ) { return end(0); }   break;
-                    case 'B': if( data == 1 || i == 0 )    { return end(0); }   break;
-                    case 's': if( !string::is_space(data) ){ return end(0); }   break;
-                    case 'S': if(  string::is_space(data) ){ return end(0); }   break;
-                    case 'w': if( !string::is_alnum(data) ){ return end(0); }   break;
-                    case 'W': if(  string::is_alnum(data) ){ return end(0); }   break;
-                    case 'd': if( !string::is_digit(data) ){ return end(0); }   break;
-                    case 'D': if(  string::is_digit(data) ){ return end(0); }   break;
-                    default:                                 return end(0);     break;
+                    case '.': if( data == 0 || data == 1 ){ return end(0); }    break;
+                    case 'B': if( data == 1 || i == 0 )   { return end(0); }    break;
+                    case 's': if(!string::is_space(data) ){ return end(0); }    break;
+                    case 'S': if( string::is_space(data) ){ return end(0); }    break;
+                    case 'w': if(!string::is_alnum(data) ){ return end(0); }    break;
+                    case 'W': if( string::is_alnum(data) ){ return end(0); }    break;
+                    case 'd': if(!string::is_digit(data) ){ return end(0); }    break;
+                    case 'D': if( string::is_digit(data) ){ return end(0); }    break;
+                    default:                                return end(0);      break;
                     
                 }   return end(1);
             }
@@ -250,8 +250,8 @@ public: regex_t() noexcept {}
     regex_t( const string_t& _reg, const string_t& _flags="" ) noexcept {
         for( auto x:_flags ){ switch(x){
             case 'i': icase = true; break;
-            case 'm': multi = true; break; //not available
-            case 's': dotl  = true; break; //not available
+            case 'm': multi = true; break; //not implemented
+            case 's': dotl  = true; break; //not implemented
         }}  root = compile( _reg );
     }
     
@@ -381,9 +381,9 @@ namespace regex {
     array_t<string_t> split( const string_t& _str, int ch ){ return string::split( _str, ch ); }
 
     array_t<string_t> split( const string_t& _str, const string_t& _reg ){ 
-        if( _reg.size() == 1 ){  return string::split( _str, _reg[0] ); }
-        else if( _reg.empty() ){ return string::split( _str, 1 ); }
-        regex_t reg(_reg);       return reg.split( _str ); 
+          if ( _reg.size() == 1 ){  return string::split( _str, _reg[0] ); }
+        elif ( _reg.empty() ){ return string::split( _str, 1 ); }
+        regex_t reg(_reg);     return reg.split( _str ); 
     }
 
     /*─······································································─*/

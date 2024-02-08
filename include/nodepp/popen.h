@@ -4,10 +4,12 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
-#include "stream.h"
+#include "file.h"
+#include "initializer.h"
 #include "windows/popen.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
-#include "stream.h"
+#include "file.h"
+#include "initializer.h"
 #include "posix/popen.cpp"
 #else
 #error "This OS Does not support popen.h"
@@ -15,20 +17,31 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace exec {
-    
+namespace nodepp { namespace popen {
+
     template< class... T >
-    popen_t async( const T&... args ){ return popen_t( args... ); }
+    popen_t async( const string_t& path, const initializer_t<string_t>& args ){ 
+        popen_t pid ( path, args ); 
+        if( process::is_parent() ){ pid.pipe(); } return pid;
+    }
+
+    popen_t async( const string_t& path ){
+     return async( path, { path } );
+    }
     
     /*─······································································─*/
     
     template< class... T >
-    string_t sync( const T&... args ){
-        auto fp = popen_t( args... ); string_t result;
-        while ( fp.is_available() ){
-                auto data = fp.readable().read();
-            if(!data.empty() ){ result += data; }
-        }   return result;
+    string_t await( const string_t& path, const initializer_t<string_t>& args ){
+        string_t result; auto fp = popen_t( path, args ); 
+        while ( fp.stdout().is_available() ){ 
+           auto data = fp.stdout().read();
+           if (!data.empty() ){ result += data; }
+        }       return result;
+    }
+
+    string_t await( const string_t& path ){
+      return await( path, { path } );
     }
 
 }}

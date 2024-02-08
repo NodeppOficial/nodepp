@@ -30,19 +30,20 @@ namespace nodepp { namespace serial {
 
 		client.onConnect.once([=]( serial_t cli ){
 			ptr_t<_file_::read> _read = new _file_::read;
+			cli.onDrain.once([=](){ cli.free(); });
 
 			process::task::add([=](){
 				if(!cli.is_available() ) { cli.close(); return -1; }
 				if((*_read)(&cli)==1 )   { return 1; }
 				if(  _read->c <= 0  )    { return 1; }
 				cli.onData.emit(_read->y); return 1;
-			}); cli.onDrain.once([=](){ cli.free(); });
+			});
 
 		}); 
 
         process::task::add([=](){
             client.onConnect.emit( client ); return -1;
-        }); client.onDrain.once([=](){ client.free(); });
+        });
 		
 		return client; 
 	}

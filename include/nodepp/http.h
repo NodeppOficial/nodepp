@@ -191,11 +191,11 @@ public:
     
     /*─······································································─*/
 
-    void write_filestream( const string_t& body, const file_t& file ){
-        if ( !body.empty() ){ write( body ); return; } 
-        while( file.is_available() ){ 
-            string_t s = file.read();
-            if( s.empty() ){ break; } write( s ); 
+    void write_filestream( const string_t& method, const string_t& body, const file_t& file ){
+        if ( method != "POST" ){ return; }
+        if ( body.empty() || !file.is_available() ){ write("\r\n"); return; }
+        if (!body.empty() ){ write( body ); return; } while( file.is_available() ){ 
+            string_t s = file.read(); if( s.empty() ){ break; } write( s ); 
         }
     }
 
@@ -217,19 +217,19 @@ namespace nodepp { namespace http {
     /*─······································································─*/
 
     promise_t<http_t,except_t> fetch ( const fetch_t& cfg, agent_t* opt=nullptr ) { 
-           ptr_t<agent_t>  agn = new agent_t( opt==nullptr?agent_t():*opt );
-           ptr_t<fetch_t> _cfg = new fetch_t( cfg ); 
+           auto agn = type::bind( opt==nullptr?agent_t():*opt );
+           auto gfc = type::bind( cfg ); 
     return promise_t<http_t,except_t>([=]( function_t<void,http_t> res, function_t<void,except_t> rej ){
 
-        if( !url::is_valid( _cfg->url ) ){ rej(except_t("invalid URL")); return; }
+        if( !url::is_valid( gfc->url ) ){ rej(except_t("invalid URL")); return; }
         
-        url_t    uri = url::parse( _cfg->url );
+        url_t    uri = url::parse( gfc->url );
         string_t dip = uri.hostname ;
         string_t dir = uri.pathname + uri.search + uri.hash;
        
         auto client = tcp_t ([=]( http_t cli ){ int c = 0;
-            cli.write_headers( _cfg->method, dir, _cfg->version, _cfg->headers );
-            cli.write_filestream( _cfg->body, _cfg->file );
+            cli.write_headers( gfc->method, dir, gfc->version, gfc->headers );
+            cli.write_filestream( gfc->method, gfc->body, gfc->file );
             while(( c=cli.read_header() )>0 ){ process::next(); }
             if( c==0 ){ res( cli ); return; } else { 
                 rej(except_t("couldn't connect to the server"));

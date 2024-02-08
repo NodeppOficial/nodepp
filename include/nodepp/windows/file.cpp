@@ -145,7 +145,7 @@ public: file_t() noexcept {}
     char read_char() const noexcept { return read(1)[0]; }
 
     string_t read_line() const noexcept {
-        static auto gen = nodepp::_file_::line();
+        auto gen = nodepp::_file_::line();
         while( gen( this ) == 1 )
              { process::next(); }
         return gen.y;
@@ -154,14 +154,14 @@ public: file_t() noexcept {}
     /*─······································································─*/
 
     string_t read( ulong size=CHUNK_SIZE ) const noexcept {
-        static auto gen = nodepp::_file_::read();
+        auto gen = nodepp::_file_::read();
         while( gen( this, size ) == 1 )
              { process::next(); }
         return gen.y;
     }
 
     ulong write( const string_t& msg ) const noexcept {
-        static auto gen = nodepp::_file_::write();
+        auto gen = nodepp::_file_::write();
         while( gen( this, msg ) == 1 )
              { process::next(); }
         return gen.y;

@@ -29,7 +29,7 @@ public:
 
     poll_t() : obj( new _str_() ) {
         obj->pd = epoll_create1(0); if( obj->pd == -1 )
-                  process::error("Can't open an epoll fd");
+        process::error("Can't open an epoll fd");
         obj->ev.resize( MAX_SOCKET );
     }
 

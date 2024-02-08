@@ -12,9 +12,44 @@ protected:
     struct _str_ {
         int          fd;
         int    state =0;
-        file_t writable;
-        file_t readable;
+        file_t    input;
+        file_t   output;
+        file_t    error;
     };  ptr_t<_str_> obj;
+
+    template< class T >
+    void _init_( T& arg, T& env ) {
+
+        if( process::is_child() ){ 
+            int fd[2] = { 0, 0 }; string_t ch = process::env::get("CHILD");
+            string::parse( ch.data(), "%d|%d", &fd[0], &fd[1] );
+            obj->error  = { STDERR_FILENO };
+            obj->output = { fd[0] };
+            obj->input  = { fd[1] }; return; 
+        }
+
+        int fda[2]; ::pipe( fda ); 
+        int fdb[2]; ::pipe( fdb ); 
+        int fdc[2]; ::pipe( fdc ); obj->fd = ::fork();
+
+        if( obj->fd == 0 ){
+            auto chl = string::format( "CHILD=%d|%d", fda[0], fdb[1] ); env.push( chl.c_str() );
+            arg.unshift( process::args[0].c_str() ); ::close( fda[1] ); arg.push( nullptr );
+                                                     ::close( fdb[0] ); env.push( nullptr );
+            ::dup2( fdc[1], STDERR_FILENO  );        ::close( fdc[0] );
+            ::execvpe( arg[0], (char*const*) arg.data(), (char*const*) env.data() );
+            process::error("while spawning new cluster"); process::exit(1);
+        } elif ( obj->fd > 0 ) { // Parent process
+            obj->input  = { fda[1] }; ::close( fda[0] );
+            obj->output = { fdb[0] }; ::close( fdb[1] );
+            obj->error  = { fdc[0] }; ::close( fdc[1] );
+        } else {
+            ::close( fda[0] ); ::close( fda[1] );
+            ::close( fdb[0] ); ::close( fdb[1] );
+            ::close( fdc[0] ); ::close( fdc[1] );
+        }
+
+    }
 
 public:
 
@@ -24,7 +59,10 @@ public:
     event_t<>          onStop;
     event_t<>          onExit;
     event_t<>          onOpen;
+
     event_t<string_t>  onData;
+    event_t<string_t>  onDout;
+    event_t<string_t>  onDerr;
     
     virtual ~cluster_t() noexcept { 
         if( obj.count() > 1 ){ return; } 
@@ -32,61 +70,37 @@ public:
         //  force_close();
     }
 
-    template< class... T >
-    cluster_t( const T&... args ) : obj( new _str_() ) {
+    cluster_t( const initializer_t<string_t>& args ) : obj( new _str_() ) {
+        array_t<const char*> arg; array_t<const char*> env; bool y=0;
 
-        if( process::is_child() ){ 
-            int fd[2] = { 0, 0 };
-            string_t ch = process::env::get("CHILD");
-            string::parse( ch.data(), "%d|%d", &fd[0], &fd[1] );
-            obj->writable = { fd[0] }; obj->readable = { fd[1] };
-            return;
+        for ( auto x : args ) {
+           if ( x != nullptr && !y ) arg.push( x.c_str() );
+         elif ( x != nullptr &&  y ) env.push( x.c_str() );
+         else   y =! y;
         }
+        
+        _init_( arg, env );
+    }
 
-        int fda[2]; ::pipe( fda ); 
-        int fdb[2]; ::pipe( fdb ); obj->fd = ::fork();
-
-        if( obj->fd == 0 ){ // Child process
-            auto cm = process::args[0];::close(fdb[0]);::close(fda[1]);
-            auto ch = string::format( "?CHILD=%d|%d", fda[0], fdb[0] );
-            ::execl( cm.data(), cm.data(), args..., ch.data( ), NULL );
-            process::error("while running new process"); process::exit(1);
-        } elif ( obj->fd > 0 ) { // Parent process
-            obj->writable = { fda[1] }; ::close( fda[0] );
-            obj->readable = { fdb[0] }; ::close( fdb[1] );
-        } else {
-            ::close( fda[0] ); ::close( fda[1] );
-            ::close( fdb[0] ); ::close( fdb[1] );
-        }
-
+    cluster_t() : obj( new _str_() ){ 
+        array_t<const char*> arg; array_t<const char*> env;
+        _init_( arg, env ); 
     }
     
     /*─······································································─*/
 
-    bool is_available() const noexcept {
-        return obj->readable.is_available() &&
-               obj->writable.is_available()  ;
-    }
+    bool is_alive() const noexcept { return ::kill( obj->fd, 0 ) == 0; }
 
-    bool is_closed() const noexcept {
-        return obj->readable.is_closed() ||
-               obj->writable.is_closed()  ;
-    }
-
-    bool is_alive() const noexcept {
-        return ::kill( obj->fd, 0 ) == 0;
-    }
-
-    int get_fd() const noexcept {
-        return obj->fd;
-    }
+    int get_fd()    const noexcept { return obj->fd; }
 
     /*─······································································─*/
 
     virtual void force_close() const noexcept {
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
         if( obj->state == -2 ){ return; } obj->state = -2;
-        obj->readable.close(); obj->writable.close();
+        obj->input .close(); 
+        obj->output.close();
+        obj->error .close();
         close(); kill(); onClose.emit();
     }
 
@@ -103,53 +117,60 @@ public:
 
     void pipe() const noexcept { 
         if( obj->state == 1 ){ return; } obj->state = 1; onOpen.emit();
-            ptr_t<_file_::read> _read = new _file_::read;
+            ptr_t<_file_::read> _read1 = new _file_::read;
+            ptr_t<_file_::read> _read2 = new _file_::read;
             auto inp = type::bind( this );
+            onExit([=](){ inp->free(); });
 
         process::task::add([=](){
-            if(!inp->is_available() ){ inp->close(); return -1; }
-            if((*_read)(&inp->readable())==1 )     { return  1; }
-            if(  _read->c <= 0  )                  { return  1; }
-            inp->onData.emit(_read->y);              return  1;
+            if(!inp->readable().is_available() ){ inp->close(); return -1; }
+            if((*_read1)(&inp->readable())==1 ) { return  1; }
+            if(  _read1->c <= 0  )              { return  1; }
+            inp->onData.emit(_read1->y);    
+            inp->onDout.emit(_read1->y);          return  1;
         });
 
-        onExit([=](){ inp->free(); });
+        process::task::add([=](){
+            if(!inp->stderr().is_available() ){ inp->close(); return -1; }
+            if((*_read2)(&inp->stderr())==1 ) { return  1; }
+            if(  _read2->c <= 0  )            { return  1; }
+            inp->onData.emit(_read2->y);   
+            inp->onDerr.emit(_read2->y);        return  1;
+        });
+
     }
     
     /*─······································································─*/
 
     template< class... T >
-    string_t read( const T&... args ) const noexcept { 
-        return obj->readable.read( args... ); 
-    }
+    int write( const T&... args )     const noexcept { return writable().write( args... ); }
 
     template< class... T >
-    int write( const T&... args ) const noexcept { 
-        return obj->writable.write( args... ); 
-    }
+    string_t read( const T&... args ) const noexcept { return readable().read( args... ); }
+
+    template< class... T >
+    int werror( const T&... args )    const noexcept { return stderr().write( args... ); }
     
     /*─······································································─*/
 
     template< class... T >
-    string_t _read( const T&... args ) const noexcept { 
-        return obj->readable._read( args... ); 
-    }
+    int _write( const T&... args ) const noexcept { return writable()._write( args... ); }
 
     template< class... T >
-    int _write( const T&... args ) const noexcept { 
-        return obj->writable._write( args... ); 
-    }
+    int _werror( const T&... args ) const noexcept { return stderr()._write( args... ); }
+
+    template< class... T >
+    int _read( const T&... args )  const noexcept { return readable()._read( args... ); }
     
     /*─······································································─*/
     
-    file_t& writable() const noexcept { return obj->writable; }
-
-    file_t& readable() const noexcept { return obj->readable; }
+    file_t& readable() const noexcept { return obj->output; }
+    file_t& writable() const noexcept { return obj->input;  }
+    file_t&   stderr() const noexcept { return obj->error;  }
 
     /*─······································································─*/
 
     bool  is_child() const noexcept { return !process::env::get("CHILD").empty(); }
-
     bool is_parent() const noexcept { return  process::env::get("CHILD").empty(); }
 
 };}

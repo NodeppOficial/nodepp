@@ -1,22 +1,34 @@
 #include <nodepp/nodepp.h>
 #include <nodepp/cluster.h>
-
-/*────────────────────────────────────────────────────────────────────────────*/
+#include <nodepp/popen.h>
+#include <nodepp/stream.h>
 
 using namespace nodepp;
 
-/*────────────────────────────────────────────────────────────────────────────*/
-
 void _main_() {
 
-    auto x = cluster::add();
+    auto p = cluster::add({ "A", "B", "C" });
 
-    if( cluster::is_child() ){
-        console::log("child");
+    if( process::is_parent() ){
+
+        p.onDout([]( string_t chunk ){
+            conio::done("stdout: ");
+            console::log( chunk );
+        });
+
+        p.onDerr([]( string_t chunk ){
+            conio::error("stderr: ");
+            console::log( chunk );
+        });
+
+        p.onData([]( string_t chunk ){
+            console::log(":>", chunk );
+        });
+
     } else {
-        console::log("parent");
+        for( auto x : process::args )
+             p.write( x );
+             p.werror("nice");
     }
 
 }
-
-/*────────────────────────────────────────────────────────────────────────────*/

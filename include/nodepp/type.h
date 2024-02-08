@@ -344,4 +344,15 @@ namespace nodepp { namespace type {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#include "ptr.h"
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp { namespace type {
+    template<class T> ptr_t<T> bind( T* object ){ return new T( *object ); }
+    template<class T> ptr_t<T> bind( T  object ){ return new T(  object ); }
+}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #endif

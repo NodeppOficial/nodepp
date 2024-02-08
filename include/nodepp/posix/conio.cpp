@@ -15,16 +15,26 @@
 
 namespace nodepp { namespace conio {
 
-    template< class... T >
-    int print( const T&... args ){ printf( args... ); return printf("\033[0m"); }
+    /*─······································································─*/
 
-    namespace { template< class... T > 
-    int pout( const T&... args ){ return printf( args... ); }
+    int perr( const string_t& args ){ return fprintf( stderr, "%s", args.c_str() ); }
+    int pout( const string_t& args ){ return fprintf( stdout, "%s", args.c_str() ); }
+
+    /*─······································································─*/
+
+    template< class... T >
+    int log( const T&... args ){
+        int last = sizeof...( args ), size = 0;
+        string::map([&]( string_t arg ){ 
+            size += pout( arg + ( --last<1 ? "" : " " ) ); 
+        },  args... ); 
+            size += pout("\033[0m"); 
+        return size;
     }
 
     /*─······································································─*/
     
-    int set_position( int x, int y ){ return print("\033[%d;%dH",x,y); }
+    int set_position( int x, int y ){ return pout(string::format("\033[%d;%dH",x,y)); }
 
     ptr_t<int> get_size(){ struct winsize csbi;
         ioctl( STDIN_FILENO, TIOCGWINSZ, &csbi );
@@ -34,13 +44,9 @@ namespace nodepp { namespace conio {
     /*─······································································─*/
 
     int gotoxy( int x, int y ){ return set_position( x, y ); }
-
     int undescore(){ return pout("\033[4m"); }
-
     int inverse(){ return pout("\033[7m"); }
-
     int reset(){ return pout("\033[0m"); }
-    
     int clear(){ return pout("\033c"); }
 
     /*─······································································─*/
@@ -75,9 +81,9 @@ namespace nodepp { namespace conio {
 
     /*─······································································─*/
 
-    int error( const char* msg ){ foreground( C_RED    | C_BOLD ); return print( "%s", msg ); }
-    int  info( const char* msg ){ foreground( C_CYAN   | C_BOLD ); return print( "%s", msg ); }
-    int  done( const char* msg ){ foreground( C_GREEN  | C_BOLD ); return print( "%s", msg ); }
-    int  warn( const char* msg ){ foreground( C_YELLOW | C_BOLD ); return print( "%s", msg ); }
+    int error( const char* msg ){ foreground( C_RED    | C_BOLD ); return log( msg ); }
+    int  info( const char* msg ){ foreground( C_CYAN   | C_BOLD ); return log( msg ); }
+    int  done( const char* msg ){ foreground( C_GREEN  | C_BOLD ); return log( msg ); }
+    int  warn( const char* msg ){ foreground( C_YELLOW | C_BOLD ); return log( msg ); }
 
 }}
