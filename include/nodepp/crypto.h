@@ -742,8 +742,8 @@ class rsa_t {
 protected:
 
     struct _str_ {
-        RSA*  pbl = nullptr;
-        RSA*  prv = nullptr;
+        RSA*    rsa = nullptr;
+        BIGNUM* num = nullptr;
         int   state;
     };  ptr_t<_str_> obj;
     
@@ -751,43 +751,58 @@ public:
 
     template< class T >
     rsa_t() : obj( new _str_() ) {
-        obj->pbl   = RSA_new();
-        obj->prv   = RSA_new();
+        obj->rsa   = RSA_new();
+        obj->num   =  BN_new();
         obj->state = 1;
-        if ( !obj->prv || !obj->pbl )
+        if ( !obj->num || !obj->rsa )
            { process::error("creating rsa object"); }
+    }
+
+    int generate_key( int keyLen ) const noexcept {
+                BN_set_word( obj->num, RSA_F4 ); int res = 0;
+        return RSA_generate_key_ex( obj->rsa, keyLen, obj->num, NULL );
+    }
+
+    int write_private_key( const string_t& path ) const noexcept {
+        FILE* fp = fopen( path.c_str() , "wb"); int res = 0;
+        res = PEM_write_RSAPrivateKey( fp, obj->rsa, NULL, NULL, 0, NULL, NULL);
+        fclose( fp ); return res;
+    }
+
+    int write_public_key( const string_t& path ) const noexcept {
+        FILE* fp = fopen( path.c_str() , "wb"); int res = 0;
+        res = PEM_write_RSAPublicKey( fp, obj->rsa );
+        fclose( fp ); return res;
     }
 
     void set_private_key( const string_t& path ) const noexcept {
         FILE* fp = fopen( path.c_str(), "r" );
-        PEM_read_RSAPrivateKey( fp, &obj->prv, NULL, NULL );
-        fclose( fp );
+        PEM_read_RSAPrivateKey( fp, &obj->rsa, NULL, NULL ); fclose( fp );
     }
 
     void set_public_key( const string_t& path ) const noexcept {
         FILE* fp = fopen( path.c_str(), "r" );
-        PEM_read_RSA_PUBKEY( fp, &obj->pbl, NULL, NULL );
-        fclose( fp );
+        PEM_read_RSA_PUBKEY( fp, &obj->rsa, NULL, NULL ); fclose( fp );
     }
 
     string_t encrypt( const string_t& msg, int padding=0 ) const noexcept {
         if( msg.empty() || padding < 0 || obj->state == 0 ){ return ""; }
-        int          len = RSA_size( obj->prv );
+        int          len = RSA_size( obj->rsa );
         ptr_t<uchar> out = new uchar[len];
         ulong y = 0; int c = 0;
         string_t     bff; 
-        do { c=RSA_private_decrypt( msg.size()+y, (uchar*)msg.c_str()-y, &out, obj->prv, padding );
+        do { c=RSA_private_decrypt( msg.size()+y, (uchar*)msg.c_str()-y, &out, obj->rsa, padding );
              if( c>0 ){ y+=c; } process::next(); 
         } while( (ulong)c < msg.size() ); return bff;
     }
 
     string_t decrypt( const string_t& msg, int padding=0 ) const noexcept {
         if( msg.empty() || padding < 0 || obj->state == 0 ){ return ""; }
-        int          len = RSA_size( obj->pbl );
+        int          len = RSA_size( obj->rsa );
         ptr_t<uchar> out = new uchar[len];
         ulong y = 0; int c = 0;
         string_t     bff; 
-        do { c=RSA_public_encrypt( msg.size()+y, (uchar*)msg.c_str()-y, &out, obj->pbl, padding );
+        do { c=RSA_public_encrypt( msg.size()+y, (uchar*)msg.c_str()-y, &out, obj->rsa, padding );
              if( c>0 ){ y+=c; } process::next(); 
         } while( (ulong)c < msg.size() ); return bff;
         return bff;
@@ -801,8 +816,8 @@ public:
 
     void force_close() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
-        if( obj->prv != nullptr ) RSA_free( obj->prv );
-        if( obj->pbl != nullptr ) RSA_free( obj->pbl );
+        if( obj->rsa != nullptr ) RSA_free( obj->rsa );
+        if( obj->num != nullptr )  BN_free( obj->num );
     }
     
     virtual ~rsa_t() noexcept { 
