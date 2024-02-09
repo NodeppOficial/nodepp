@@ -3,7 +3,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include "tuple.h"
+#include "expected.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -42,13 +42,13 @@ namespace nodepp { namespace promise {
 
     /*─······································································─*/
 
-    template< class T, class V > tuple_t<int,T,V> await ( 
+    template< class T, class V > expected_t<T,V> await ( 
         function_t<void,function_t<void,T>,function_t<void,V>> func 
     ){  T res; V rej; int st=-1; ptr_t<int> done = new int(0); 
         promise::resolve<T,V>( func, 
             [&]( T _data ){ if( *done != 0 ){ return; } res = _data; st=0; *done = 1; }, 
             [&]( V _data ){ if( *done != 0 ){ return; } rej = _data; st=1; *done = 1; }
-        );  while( *done == 0 ){ process::next(); } return tuple_t<int,T,V> (st,res,rej);
+        );  while( *done == 0 ){ process::next(); } if( st == 0 ){ return res; } return rej;
     }
     
     /*─······································································─*/
@@ -91,8 +91,8 @@ public:
 
     /*─······································································─*/
 
-    tuple_t<int,T,V> await() const noexcept { T res; V rej;
-        if( obj->state == 0 ){ return tuple_t<int,T,V>( 1, res, rej ); }
+    expected_t<T,V> await() const noexcept {
+        if( obj->state == 0 ){ return V(); }
             obj->state  = 0;   return promise::await<T,V>( obj->main_func );
     }
 

@@ -35,14 +35,6 @@ public:
 
     void error() const noexcept { console::error( message ); }
     
-    /*─······································································─*/
-
-    debug_t( const debug_t& o) noexcept = delete;
-    debug_t& operator=( const debug_t& o ) noexcept = delete;
-
-    debug_t( const debug_t&& o) noexcept = delete;
-    debug_t& operator=( debug_t&& o ) noexcept = delete;
-
 };}
 
 /*────────────────────────────────────────────────────────────────────────────*/

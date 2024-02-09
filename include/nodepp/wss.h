@@ -40,8 +40,10 @@ namespace nodepp { namespace wss {
     tls_t server( const tls_t& server ){ server.onSocket([=]( ssocket_t cli ){
         if ( !nodepp::WSServer( (https_t) cli ) ){ return; }
         ptr_t<_file_::read> _read = new _file_::read;
+        cli.onDrain.once([=](){ cli.free(); });
 
-        server.onConnect.once([=]( wss_t cli ){ process::poll::add([=](){ 
+        server.onConnect.once([=]( wss_t cli ){ cli.busy();
+        process::poll::add([=](){ 
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
             if(  _read->c  <=  0 )   { return 1; }
@@ -50,7 +52,7 @@ namespace nodepp { namespace wss {
 
         process::task::add([=](){
             cli.resume(); server.onConnect.emit(cli); return -1;
-        }); cli.onDrain.once([=](){ cli.free(); }); 
+        });
 
     }); return server; }
 
@@ -79,8 +81,10 @@ namespace nodepp { namespace wss {
         }};
 
         wss_t cli = nodepp::WSClient( https::fetch( args, ctx, opt ), key );
+              cli.onDrain.once([=](){ cli.free(); });
 
-        cli.onOpen.once([=](){ process::poll::add([=](){
+        cli.onOpen.once([=](){ cli.busy();
+        process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
             if(  _read->c  <=  0 )   { return 1; }
@@ -89,7 +93,7 @@ namespace nodepp { namespace wss {
 
         process::task::add([=](){
             cli.resume(); cli.onOpen.emit(); return -1;
-        }); cli.onDrain.once([=](){ cli.free(); });
+        });
 
         return cli; 
     }

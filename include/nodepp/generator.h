@@ -462,9 +462,8 @@ namespace nodepp {
     /*─······································································─*/
 
     template< class T > socket_t WSClient( const T& fetch, const string_t& key ) {
-        auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) process::error( tuple::get<2>(res).what() );
-        if( tuple::get<0>(res) == 1 ){ process::error("Cant start ws client"); }
-        auto cli = tuple::get<1>(res);
+        auto res = fetch.await(); if( !res.hasValue ) process::error( res.error.what() );
+        auto cli = res.value;
 
         if( cli.status != 101 ){ 
             process::error(cli.onError,string::format("Can't connect to WS Server -> status %d",cli.status)); 
@@ -526,9 +525,8 @@ namespace nodepp {
 
     template< class T > ssocket_t WSClient( const T& fetch, const string_t& key ) {
         
-        auto res = fetch.await(); if( tuple::get<0>(res) == 1 ) process::error( tuple::get<2>(res).what() );
-        if( tuple::get<0>(res) == 1 ){ process::error("Cant start ws client"); }
-        auto cli = tuple::get<1>(res);
+        auto res = fetch.await(); if( !res.hasValue ) process::error( res.error.what() );
+        auto cli = res.value;
 
         if( cli.status != 101 ){ 
             process::error(cli.onError,string::format("Can't connect to WS Server -> status %d",cli.status)); 

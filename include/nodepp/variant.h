@@ -18,6 +18,7 @@ public:
     
     template< class T >
     int get_type_id() const noexcept { return get_index<T,Types...>::value; }
+    
     int get_type_id() const noexcept { return idx == nullptr ? -1 : *idx; }
     
     /*─······································································─*/
