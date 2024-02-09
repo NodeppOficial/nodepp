@@ -28,7 +28,7 @@ protected:
             ::dup2( fda[0], STDIN_FILENO  ); ::close( fda[1] );
             ::dup2( fdb[1], STDOUT_FILENO ); ::close( fdb[0] ); arg.push( nullptr );
             ::dup2( fdc[1], STDERR_FILENO ); ::close( fdc[0] ); env.push( nullptr );
-            ::execvpe( path.c_str(), (char*const*) arg.data(), (char*const*) env.data() );
+            ::execvpe( path.c_str(), (char**) arg.data(), (char**) env.data() );
             process::error("while spawning new popen"); process::exit(1);
         } elif ( obj->fd > 0 ) { // Parent process
             obj->stdin  = { fda[1] }; ::close( fda[0] );
@@ -40,6 +40,12 @@ protected:
             ::close( fdc[0] ); ::close( fdc[1] );
         }
 
+    }
+
+    void _busy() const noexcept {
+        obj->stdin .busy();
+        obj->stderr.busy();
+        obj->stdout.busy();
     }
 
 public:
@@ -107,7 +113,19 @@ public:
             ptr_t<_file_::read> _read1 = new _file_::read;
             ptr_t<_file_::read> _read2 = new _file_::read;
             auto inp = type::bind( this );
-            onExit([=](){ inp->free(); });
+            onExit([=](){ inp->free(); }); _busy();
+
+        if( process::is_child() ){
+
+        process::task::add([=](){
+            if(!inp->stdin().is_available() ){ inp->close(); return -1; }
+            if((*_read1)(&inp->stdin())==1 ) { return  1; }
+            if(  _read1->c <= 0  )           { return  1; }
+            inp->onData.emit(_read1->y);    
+            inp->onDout.emit(_read1->y);       return  1;
+        });
+
+        } else {
 
         process::task::add([=](){
             if(!inp->stdout().is_available() ){ inp->close(); return -1; }
@@ -124,6 +142,8 @@ public:
             inp->onData.emit(_read2->y);   
             inp->onDerr.emit(_read2->y);        return  1;
         });
+
+        }
 
     }
     

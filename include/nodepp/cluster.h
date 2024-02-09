@@ -19,8 +19,8 @@
 
 namespace nodepp { namespace cluster {
 
-    cluster_t add( const initializer_t<string_t>& args ){ cluster_t pid ( args ); 
-        if( process::is_parent() ){ pid.pipe(); } return pid;
+    cluster_t add( const initializer_t<string_t>& args ){ 
+    cluster_t pid( args ); pid.pipe(); return pid;
     }
 
     cluster_t add(){ cluster_t pid; 

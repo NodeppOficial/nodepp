@@ -34,10 +34,10 @@ protected:
 
         if( obj->fd == 0 ){
             auto chl = string::format( "CHILD=%d|%d", fda[0], fdb[1] ); env.push( chl.c_str() );
-            arg.unshift( process::args[0].c_str() ); ::close( fda[1] ); arg.push( nullptr );
-                                                     ::close( fdb[0] ); env.push( nullptr );
+            arg.unshift( process::args[0].c_str() ); ::close( fda[1] ); arg.push( NULL );
+                                                     ::close( fdb[0] ); env.push( NULL );
             ::dup2( fdc[1], STDERR_FILENO  );        ::close( fdc[0] );
-            ::execvpe( arg[0], (char*const*) arg.data(), (char*const*) env.data() );
+            ::execvpe( arg[0], (char**) arg.data(), (char**)env.data() );
             process::error("while spawning new cluster"); process::exit(1);
         } elif ( obj->fd > 0 ) { // Parent process
             obj->input  = { fda[1] }; ::close( fda[0] );
@@ -49,6 +49,12 @@ protected:
             ::close( fdc[0] ); ::close( fdc[1] );
         }
 
+    }
+
+    void _busy() const noexcept {
+        obj->input .busy();
+        obj->output.busy();
+        obj->error .busy();
     }
 
 public:
@@ -120,7 +126,7 @@ public:
             ptr_t<_file_::read> _read1 = new _file_::read;
             ptr_t<_file_::read> _read2 = new _file_::read;
             auto inp = type::bind( this );
-            onExit([=](){ inp->free(); });
+            onExit([=](){ inp->free(); }); _busy();
 
         process::task::add([=](){
             if(!inp->readable().is_available() ){ inp->close(); return -1; }
@@ -129,6 +135,8 @@ public:
             inp->onData.emit(_read1->y);    
             inp->onDout.emit(_read1->y);          return  1;
         });
+
+        if( process::is_child() ){ return; }
 
         process::task::add([=](){
             if(!inp->stderr().is_available() ){ inp->close(); return -1; }
