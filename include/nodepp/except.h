@@ -1,5 +1,5 @@
-#ifndef NODEPP_ERROR
-#define NODEPP_ERROR
+#ifndef NODEPP_EXCEPT
+#define NODEPP_EXCEPT
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
