@@ -71,7 +71,7 @@ void client() {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-int main() {
+void _main_() {
     cin = fs::stdin();
 
     if( process::env::get("mode") == "client" )

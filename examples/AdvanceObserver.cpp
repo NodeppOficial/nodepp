@@ -14,7 +14,7 @@ observer_t obj ({
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-int main() {
+void _main_() {
 
     obj.on( "string", []( any_t A, any_t B ){
         console::log( (string_t) A, "|", (string_t) B );

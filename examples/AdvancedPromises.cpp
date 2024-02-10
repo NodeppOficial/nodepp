@@ -8,7 +8,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-int main() {
+void _main_() {
 
     auto t = timer::add([](){
         static int i=0; i++;

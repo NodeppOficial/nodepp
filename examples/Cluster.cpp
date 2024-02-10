@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-int main() {
+void _main_() {
 
     auto p = cluster::add({ "hello ", "world ", "dude " });
 

@@ -11,7 +11,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-int main() {
+void _main_() {
 
     auto server = http::server([=]( http_t cli ){ 
 
