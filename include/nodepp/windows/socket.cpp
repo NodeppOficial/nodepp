@@ -59,9 +59,9 @@ protected:
         int addrlen; bool srv=0; int len;
         int _retry=10, retry=10;
 
+        SOCKET       fd = INVALID_SOCKET;
         ulong        range[2] = { 0, 0 };
         int          state = 0;
-        SOCKET       fd    =-1;
         ptr_t<char>  buffer;
         string_t     borrow;
 
@@ -248,9 +248,9 @@ public: socket_t() noexcept { socket::start_device(); }
 
     /*─······································································─*/
 
+            bool is_available() const noexcept { return obj->state >= 0 && obj->fd != INVALID_SOCKET; }
             bool    is_closed() const noexcept { return obj->state <  0 || is_feof() || !is_available(); }
             bool      is_busy() const noexcept { return obj->state == 1 && is_available(); }
-            bool is_available() const noexcept { return obj->state >= 0 && obj->fd != -1; }
     virtual bool      is_feof() const noexcept { return get_error()!= 0; }
             bool    is_server() const noexcept { return obj->srv; }
 
@@ -266,9 +266,9 @@ public: socket_t() noexcept { socket::start_device(); }
     
     /*─······································································─*/
 
-    ulong* get_range() const noexcept { return obj == nullptr ? nullptr : obj->range; }
-    int    get_state() const noexcept { return obj == nullptr ?      -1 : obj->state; }
-    SOCKET    get_fd() const noexcept { return obj == nullptr ?      -1 : obj->fd;    }
+    SOCKET    get_fd() const noexcept { return obj == nullptr ? INVALID_SOCKET : obj->fd;    }
+    ulong* get_range() const noexcept { return obj == nullptr ?        nullptr : obj->range; }
+    int    get_state() const noexcept { return obj == nullptr ?             -1 : obj->state; }
     
     /*─······································································─*/
 
@@ -286,7 +286,7 @@ public: socket_t() noexcept { socket::start_device(); }
     
     /*─······································································─*/
     
-    ulong pos( ulong _pos ) const noexcept { return 0; }
+    ulong pos( ulong /*unused*/ ) const noexcept { return 0; }
 
     ulong size() const noexcept { return 0; }
 
@@ -325,14 +325,14 @@ public: socket_t() noexcept { socket::start_device(); }
     /*─······································································─*/
     
     virtual ~socket_t() noexcept {
-        if( obj.count() > 1 || obj->fd < 3 ){ return; } 
-        if( obj->state == -2 ){ return; } force_close();
+        if( obj.count() > 1 ){ return; } 
+        if( obj->state ==-2 ){ return; } force_close();
     }
     
     /*─······································································─*/
 
     socket_t( SOCKET fd, ulong _size=CHUNK_SIZE ){ socket::start_device();
-        if( fd < 0 ) process::error("Such Socket has an Invalid fd");
+        if( fd == INVALID_SOCKET ) process::error("Such Socket has an Invalid fd");
             obj->fd = fd; set_nonbloking_mode(); set_buffer_size(_size);
     }
 
@@ -353,7 +353,7 @@ public: socket_t() noexcept { socket::start_device(); }
         
         obj->addrlen = sizeof( obj->server_addr ); socket::start_device(); 
 
-        if((obj->fd=::socket( AF, SOCK, PROT )) <= 0 )
+        if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )
           { process::error(onError,"can't initializate socket fd"); return -1; } 
           
         set_buffer_size( CHUNK_SIZE );

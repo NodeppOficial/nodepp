@@ -16,7 +16,7 @@ namespace nodepp { namespace {
 
     string_t GET( const string_t& name ){ ptr_t<char> buffer ( UNBFF_SIZE );
         auto x = GetEnvironmentVariableA( name.c_str(), &buffer, buffer.size() );
-        return (string_t){ &buffer, (ulong) x };
+        return string_t( &buffer, (ulong) x );
     } 
     
     int SET( const string_t& name, const string_t& value ){ 

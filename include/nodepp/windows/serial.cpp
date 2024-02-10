@@ -12,10 +12,11 @@ protected:
 public: serial_t() noexcept : file_t() {}
     event_t<serial_t> onConnect;
 
-	serial_t( const string_t& path, uint baud=9600, const string_t& mode="r+", const ulong& _size=CHUNK_SIZE ){ 
-		set_baud_rate( path, baud ); obj->fd = open( (char*) path, get_fd_flag(flag) );
-		if( obj->fd < 0 ) 
-		  { process::error("such device does not exist"); } set_buffer_size(_size);
+	serial_t( const string_t& path, uint baud=9600, const string_t& mode="r+", const ulong& _size=CHUNK_SIZE ){
+		set_baud_rate( path, baud ); auto fg = get_fd_flag( mode ); 
+		obj->fd = CreateFileA( path.c_str(), fg[0], fg[1], NULL, fg[2], fg[3], NULL ); 
+        if( obj->fd == INVALID_HANDLE_VALUE ) process::error("such file or directory does not exist");
+            set_buffer_size( _size ); 
 	}
 
 };}

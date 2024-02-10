@@ -11,7 +11,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+int main() {
 
     ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
 

@@ -87,7 +87,7 @@ void client() {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_(){
+int main(){
 
     if( process::env::get("mode") == "client" )
         client(); else server();

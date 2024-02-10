@@ -8,11 +8,11 @@
 
 namespace nodepp { namespace fs {
 
-    file_t  readable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "r", _size ); }
-    file_t  writable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
-    file_t  stdout( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_OUTPUT_HANDLE), _size ); }
-    file_t  stdin ( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_INPUT_HANDLE) , _size ); }
-    file_t  stderr( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_ERROR_HANDLE) , _size ); }
+    file_t readable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "r", _size ); }
+    file_t writable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
+    file_t dout( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_OUTPUT_HANDLE), _size ); }
+    file_t din ( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_INPUT_HANDLE) , _size ); }
+    file_t derr( const ulong& _size=CHUNK_SIZE ){ return file_t( GetStdHandle(STD_ERROR_HANDLE) , _size ); }
     
     /*─······································································─*/
 
@@ -142,7 +142,7 @@ namespace nodepp { namespace fs {
     
     /*─······································································─*/
 
-    int create_folder( const string_t& path, uint permission /*unused*/ ){
+    int create_folder( const string_t& path, uint /*unused*/ ){
         if( path.empty() ){ return -1; } 
         return CreateDirectoryA( path.c_str(), NULL )!=0 ? -1 : 0;
     }

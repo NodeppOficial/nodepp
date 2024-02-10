@@ -2,6 +2,7 @@
 
 //https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 
+/*
 #define K_LBUTTON  0x01
 #define K_RBUTTON  0x02
 #define K_CANCEL   0x03
@@ -164,6 +165,7 @@
 #define K_MPREV    0xB1
 #define K_MSTOP    0xB2
 #define K_MPLAY    0xB3
+*/
 
 /*
 VK_LAUNCH_MAIL	0xB4	Start Mail key
@@ -219,9 +221,10 @@ protected:
         INPUT input; int state=0;
     };  ptr_t<_str_> obj;
 
-	function_t<float,float> screen_ref[2] = {
-		[=]( float value ){ return value * get_screen_size()[0] / 100; },
-		[=]( float value ){ return value * get_screen_size()[1] / 100; }
+    ptr_t<float> screen_ref( const float& x, const float& y ) const noexcept{
+        auto size = get_screen_size(); return {{
+            x * size[0] / 100, y * size[1] / 100
+        }};
 	};
 
 public: input_t() noexcept : obj( new _str_() ) {}
@@ -308,8 +311,10 @@ public: input_t() noexcept : obj( new _str_() ) {}
 
 	void set_mouse_position( float x, float y ) const noexcept {
 		auto fg = MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE;
-		auto dx = screen_ref[0](x) * ( 65535.0f / get_screen_size()[0] );
-		auto dy = screen_ref[1](y) * ( 65535.0f / get_screen_size()[1] );
+        auto sr = screen_ref( x, y );
+        auto sz = get_screen_size( );
+		auto dx = sr[0] * ( 65535.0f / sz[0] );
+		auto dy = sr[1] * ( 65535.0f / sz[1] );
 		mouse_event( fg, dx, dy, 0, 0 );
 	}
 
@@ -382,9 +387,9 @@ public: input_t() noexcept : obj( new _str_() ) {}
           { process::error( onError, "can't start Winapi server" ); close(); return; }
 
         process::loop::add([=](){ 
-        co_start 
+        coStart 
 		
-        	while( GetMessage( &inp->obj->msg, NULL, 0, 0 ) == 0 ){ co_next; }
+        	while( GetMessage( &inp->obj->msg, NULL, 0, 0 ) == 0 ){ coNext; }
 			 TranslateMessage( &inp->obj->msg ); DispatchMessage( &inp->obj->msg );
 
     /*─······································································─*/
@@ -415,14 +420,14 @@ public: input_t() noexcept : obj( new _str_() ) {}
 
     /*─······································································─*/
 
-            elif( inp->obj->msg.message == WM_LBUTTONDOWN ) { auto bt = 0;
+            elif( inp->obj->msg.message == WM_LBUTTONDOWN ) { uint bt = 0;
                 for( ulong x=inp->obj->key.size(); x--; ){
                     if( inp->obj->key[x] == bt ){ return 1; }
                 }   inp->obj->key.push( bt ); 
                     inp->onKeyPress.emit( bt );
             }
 
-            elif( inp->obj->msg.message == WM_LBUTTONUP ) { auto bt = 0;
+            elif( inp->obj->msg.message == WM_LBUTTONUP ) { uint bt = 0;
                 for( ulong x=inp->obj->key.size(); x--; ){
                     if( inp->obj->key[x] == bt ) 
                       { inp->obj->key.erase(x); }
@@ -431,14 +436,14 @@ public: input_t() noexcept : obj( new _str_() ) {}
 
     /*─······································································─*/
 
-            elif( inp->obj->msg.message == WM_RBUTTONDOWN ) { auto bt = 1;
+            elif( inp->obj->msg.message == WM_RBUTTONDOWN ) { uint bt = 1;
                 for( ulong x=inp->obj->key.size(); x--; ){
                     if( inp->obj->key[x] == bt ){ return 1; }
                 }   inp->obj->key.push( bt ); 
                     inp->onKeyPress.emit( bt );
             }
 
-            elif( inp->obj->msg.message == WM_RBUTTONUP ) { auto bt = 1;
+            elif( inp->obj->msg.message == WM_RBUTTONUP ) { uint bt = 1;
                 for( ulong x=inp->obj->key.size(); x--; ){
                     if( inp->obj->key[x] == bt ) 
                       { inp->obj->key.erase(x); }
@@ -447,14 +452,14 @@ public: input_t() noexcept : obj( new _str_() ) {}
 
     /*─······································································─*/
 
-            elif( inp->obj->msg.message == WM_MBUTTONDOWN ) { auto bt = 3;
+            elif( inp->obj->msg.message == WM_MBUTTONDOWN ) { uint bt = 3;
                 for( ulong x=inp->obj->key.size(); x--; ){
                     if( inp->obj->key[x] == bt ){ return 1; }
                 }   inp->obj->key.push( bt ); 
                     inp->onKeyPress.emit( bt );
             }
 
-            elif( inp->obj->msg.message == WM_MBUTTONUP ) { auto bt = 3;
+            elif( inp->obj->msg.message == WM_MBUTTONUP ) { uint bt = 3;
                 for( ulong x=inp->obj->key.size(); x--; ){
                     if( inp->obj->key[x] == bt ) 
                       { inp->obj->key.erase(x); }
@@ -463,9 +468,9 @@ public: input_t() noexcept : obj( new _str_() ) {}
 
     /*─······································································─*/
 
-            if( inp->obj->state == 1 ) co_goto(0);
+            if( inp->obj->state == 1 ) coGoto(0);
 			
-		co_stop 
+		coStop 
         });
 
     }

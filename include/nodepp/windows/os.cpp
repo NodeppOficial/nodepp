@@ -10,21 +10,21 @@ namespace nodepp { namespace os {
     
     string_t hostname(){
         char buffer[UNBFF_SIZE]; DWORD bufferSize = UNBFF_SIZE;
-        GetComputerNameA(buffer,&bufferSize); return (string_t){ buffer, bufferSize };
+        GetComputerNameA(buffer,&bufferSize); return string_t( buffer, bufferSize );
     }
     
     /*─······································································─*/
 
     string_t user(){ 
         char buffer[UNBFF_SIZE]; DWORD bufferSize = UNBFF_SIZE;
-        GetUserNameA(buffer, &bufferSize); return (string_t){ buffer, bufferSize };
+        GetUserNameA(buffer, &bufferSize); return string_t( buffer, bufferSize );
     }
     
     /*─······································································─*/
 
     string_t cwd(){ char buffer[ UNBFF_SIZE ];
         DWORD length = GetCurrentDirectory( UNBFF_SIZE, buffer );
-        return (string_t){ buffer, length };
+        return string_t( buffer, length );
     }
     
     /*─······································································─*/

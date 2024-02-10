@@ -1,7 +1,7 @@
 #pragma once
 
 //https://manpages.ubuntu.com/manpages/focal/man7/virkeycode-linux.7.html
-
+/*
 #define K_ESCAPE  0x01
 #define K_MINUS   0x0C
 #define K_EQUAL   0x0D
@@ -73,9 +73,9 @@
 
 #define K_ENTER   0x1C
 #define K_LCTRL   0x1D
+*/
 
 /*
-
 26 (0x1a) Key name KEY_LEFTBRACE
 27 (0x1b) Key name KEY_RIGHTBRACE
 39 (0x27) Key name KEY_SEMICOLON
@@ -726,9 +726,10 @@ protected:
         int      id;
     };  ptr_t<_str_>  obj;
 
-	function_t<float,float> screen_ref[2] = {
-		[=]( float value ){ return value * get_screen_size()[0] / 100; },
-		[=]( float value ){ return value * get_screen_size()[1] / 100; }
+    ptr_t<float> screen_ref( const float& x, const float& y ) const noexcept{
+        auto size = get_screen_size(); return {{
+            x * size[0] / 100, y * size[1] / 100
+        }};
 	};
 
 public: 
@@ -747,25 +748,25 @@ public:
     /*─······································································─*/
 
     input_t() noexcept : obj( new _str_() ) {
-        obj->dpy = XOpenDisplay(NULL);
-        obj->id  = DefaultScreen(dpy);
-        obj->win = XRootWindow(dpy,id);
-        obj->scr = DefaultScreenOfDisplay(dpy);
+        obj->dpy = XOpenDisplay( NULL );
+        obj->id  = DefaultScreen( obj->dpy );
+        obj->win = XRootWindow( obj->dpy, obj->id );
+        obj->scr = DefaultScreenOfDisplay( obj->dpy );
     }
 	
     /*─······································································─*/
 
-    XEvent&  get_XEvent(){ return obj->event; }
-    void     set_XEvent( XEvent ev ){ obj->event = ev; }
-
     Display* get_Display(){ return obj->dpy; }
-    void     set_Display( Display* dpy ){ obj->dpy = ev; }
-
-    Window&  get_Window(){ return obj->win; }
-    void     set_window( Window win ){ obj->win = win; }
+    void     set_Display( Display* dpy ){ obj->dpy = dpy; }
 
     Screen*  get_Screen(){ return obj->scr; }
     void     set_Screen( Screen* scr ){ obj->scr = scr; }
+
+    XEvent&  get_XEvent(){ return obj->event; }
+    void     set_XEvent( XEvent ev ){ obj->event = ev; }
+
+    Window&  get_Window(){ return obj->win; }
+    void     set_window( Window win ){ obj->win = win; }
 
     int&     get_ID(){ return obj->id; }
     void     set_ID( int id ){ obj->id = id; }
@@ -797,15 +798,14 @@ public:
         XGetWindowProperty( obj->dpy, obj->win, clipboard, 0, 0, 0, AnyPropertyType, &type, &format, &length, &length, &data );
 
         if ( type == utf8String && format == 8 ) {
-            string_t result = { (char*) data, length }
+            string_t result = { (char*) data, length };
             XFree( data ); return result;
         } else { return ""; }
     }
 
     int set_clipboard( string_t msg ) const noexcept {
-        Atom utf8String = XInternAtom( obj->dpy, "UTF8_STRING", 0 );
-        Atom clipboard  = XInternAtom( obj->dpy, "CLIPBOARD"  , 0 );
-        XChangeProperty( obj->dpy, obj->win, clipboard, utf8String, 8, PropModeReplace, (uchar*)(msg.c_str()), msg.size() );
+        Atom utf8String = XInternAtom( obj->dpy, "UTF8_STRING", 0 ); Atom clipboard  = XInternAtom( obj->dpy, "CLIPBOARD"  , 0 );
+        return XChangeProperty( obj->dpy, obj->win, clipboard, utf8String, 8, PropModeReplace, (uchar*)(msg.c_str()), msg.size() );
     }
 
     /*─······································································─*/
@@ -822,7 +822,7 @@ public:
     }
 
 	void set_mouse_position( float x, float y ) const noexcept {
-		ptr_t<float> r ({ screen_ref[0](x), screen_ref[1](y) });
+        auto sr = screen_ref( x, y ); ptr_t<float> r ({ sr[0], sr[1] });
 		XTestFakeMotionEvent(obj->dpy,obj->id,r[0],r[1],CurrentTime);
 		XFlush( obj->dpy );
 	}
@@ -906,9 +906,9 @@ public:
         XSelectInput( obj->dpy, obj->win, events ); obj->state = 1;
 
         process::loop::add([=](){ 
-        _Start 
+        coStart 
 		
-        	while( XPending( inp->obj->dpy ) <= 0 ){ _Next; } 
+        	while( XPending( inp->obj->dpy ) <= 0 ){ coNext; } 
                  XNextEvent( inp->obj->dpy, &inp->obj->event );
 
     /*─······································································─*/
@@ -956,9 +956,9 @@ public:
 
     /*─······································································─*/
 
-            if( inp->obj->state == 1 ) _Goto(0);
+            if( inp->obj->state == 1 ) coGoto(0);
 			
-		_Stop 
+		coStop 
         });
 
     }

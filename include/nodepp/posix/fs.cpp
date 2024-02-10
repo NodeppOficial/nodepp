@@ -10,11 +10,11 @@
 
 namespace nodepp { namespace fs {
 
-    file_t  readable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "r", _size ); }
-    file_t  writable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
-    file_t  stdoun( const ulong& _size=CHUNK_SIZE ){ return file_t( STDOUT_FILENO, _size ); }
-    file_t  stderr( const ulong& _size=CHUNK_SIZE ){ return file_t( STDERR_FILENO, _size ); }
-    file_t  stdin ( const ulong& _size=CHUNK_SIZE ){ return file_t( STDIN_FILENO , _size ); }
+    file_t readable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "r", _size ); }
+    file_t writable( const string_t& path, const ulong& _size=CHUNK_SIZE ){ return file_t( path, "w", _size ); }
+    file_t dout( const ulong& _size=CHUNK_SIZE ){ return file_t( STDOUT_FILENO, _size ); }
+    file_t din ( const ulong& _size=CHUNK_SIZE ){ return file_t( STDIN_FILENO , _size ); }
+    file_t derr( const ulong& _size=CHUNK_SIZE ){ return file_t( STDERR_FILENO, _size ); }
     
     /*─······································································─*/
 

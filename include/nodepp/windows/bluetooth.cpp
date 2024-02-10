@@ -37,7 +37,7 @@ public: bsocket_t() noexcept : socket_t() {}
     
     /*─······································································─*/
 
-    virtual int socket( const string_t& host, ulong port ) noexcept {
+    virtual int socket( const string_t& host, int port ) noexcept {
         if( host.empty() )
           { process::error(onError,"host is empty"); return -1; }
         
@@ -55,7 +55,7 @@ public: bsocket_t() noexcept : socket_t() {}
     #endif
         
         SOCKADDR_BTH server  , client;
-        server.port          = port;
+        server.port          = (ulong) port;
         server.addressFamily = AF;
 
         str2ba( host.c_str(), &server.btAddr );
@@ -99,7 +99,7 @@ public:
         return BluetoothEnableDiscovery( obj->hRadio, FALSE ) != ERROR_SUCCESS ? -1 : 0;
     }
 
-    array_t<string_t> get_devices() { array_t<string_t> list; DWORD num = 0;
+    array_t<string_t> get_devices() { array_t<string_t> list;
 
         BLUETOOTH_DEVICE_SEARCH_PARAMS searchParams = { sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS) };
         BLUETOOTH_DEVICE_INFO          deviceInfo   = { sizeof(BLUETOOTH_DEVICE_INFO) };
@@ -108,10 +108,9 @@ public:
         if( hFind == nullptr ) { BluetoothFindDeviceClose( hFind ); return list; }
 
         do { 
-            ulong length = wcslen( deviceInfo.szName ) + 1;
-            char  nName[length] = {0};
-            wcstombs( nName, deviceInfo.szName, length );
-            list.push({ nName, length });
+            ptr_t<char> name ( wcslen( deviceInfo.szName ) + 1, 0 );
+            wcstombs( &name, deviceInfo.szName, name.size() );
+            list.push({ &name, name.size() });
         } while ( BluetoothFindNextDevice( hFind, &deviceInfo ) );
 
         BluetoothFindDeviceClose( hFind ); return list;

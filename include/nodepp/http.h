@@ -193,7 +193,7 @@ public:
 
     void write_filestream( const string_t& method, const string_t& body, const file_t& file ){
         if ( method != "POST" ){ return; }
-        if ( body.empty() || !file.is_available() ){ write("\r\n"); return; }
+        if ( body.empty() && !file.is_available() ){ write("\r\n"); return; }
         if (!body.empty() ){ write( body ); return; } while( file.is_available() ){ 
             string_t s = file.read(); if( s.empty() ){ break; } write( s ); 
         }

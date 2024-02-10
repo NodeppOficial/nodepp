@@ -759,7 +759,7 @@ public:
     }
 
     int generate_key( int keyLen ) const noexcept {
-                BN_set_word( obj->num, RSA_F4 ); int res = 0;
+                BN_set_word( obj->num, RSA_F4 );
         return RSA_generate_key_ex( obj->rsa, keyLen, obj->num, NULL );
     }
 

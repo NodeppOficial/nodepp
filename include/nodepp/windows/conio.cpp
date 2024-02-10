@@ -22,8 +22,8 @@ namespace nodepp { namespace conio { WORD attr = 0, dflt = 7;
     /*─······································································─*/
 
     template< class... T >
-    int log( const T&... args ){ if( attr != 0 )
-        SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), attr ); 
+    int log( const T&... args ){ if( attr != 0 ){
+        SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), attr ); }
 
         int last = sizeof...( args ), size = 0;
         string::map([&]( string_t arg ){ 

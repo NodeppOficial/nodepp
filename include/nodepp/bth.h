@@ -25,7 +25,7 @@ protected:
     
     /*─······································································─*/
 
-    void init_poll_loop( ptr_t<const pth_t>& inp ) const noexcept { process::poll::add([=](){
+    void init_poll_loop( ptr_t<const bth_t>& inp ) const noexcept { process::poll::add([=](){
         if( inp->is_closed() ){ return -1; } if( inp->obj->poll.emit() != -1 ) { auto x = inp->obj->poll.get_last_poll();
                 if( x[0] == 0 ){ bsocket_t cli(x[1]); cli.set_sockopt(inp->obj->agent); inp->onSocket.emit(cli); inp->obj->func(cli); }
                 if( x[0] == 1 ){ bsocket_t cli(x[1]); cli.set_sockopt(inp->obj->agent); inp->onSocket.emit(cli); inp->obj->func(cli); }
@@ -90,7 +90,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
             elif ( !sk->is_available() || inp->is_closed() ){ coGoto(2); }
             elif ( inp->obj->chck == true ){ inp->obj->poll.push_read(_accept); coGoto(0); }
             else { bsocket_t cli( _accept ); if( cli.is_available() ){ 
-                   process::poll::add([]( bsocket_t cli ){
+                   process::poll::add([=]( bsocket_t cli ){
                         cli.set_sockopt( inp->obj->agent ); 
                         inp->onSocket.emit( cli ); 
                         inp->obj->func( cli ); 
@@ -116,7 +116,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
 
         bsocket_t sk = bsocket_t(); 
                   sk.AF  = AF_BTH; 
-                  sk.PROT= BTHPROTO_RFCOMM;
+                  sk.PROT= IPPROTO_BTH;
                   sk.socket( host, port ); 
                   sk.set_sockopt( obj->agent );
 

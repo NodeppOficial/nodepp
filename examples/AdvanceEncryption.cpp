@@ -32,7 +32,7 @@ void decrypt(){
 
 }
 
-void _main_() {
+int main() {
 
      if ( process::env::get("mode") == "A" )
           encrypt();

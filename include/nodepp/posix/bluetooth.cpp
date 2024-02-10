@@ -2,12 +2,12 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include <bluetooth/hci.h>
-#include <bluetooth/rfcomm.h>
-#include <bluetooth/hci_lib.h>
 #include <bluetooth/bluetooth.h>
+#include <bluetooth/rfcomm.h>
+#include <bluetooth/hci.h>
+#include <bluetooth/hci_lib.h>
 
-#define AF_BTH AF_BLUETOOTH
+#define AF_BTH      AF_BLUETOOTH
 #define IPPROTO_BTH BTPROTO_RFCOMM
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -28,7 +28,7 @@ public: bsocket_t() noexcept : socket_t() {}
     
     /*─······································································─*/
 
-    virtual int socket( const string_t& host, uint8_t port ) noexcept { 
+    virtual int socket( const string_t& host, int port ) noexcept { 
         if( host.empty() )
           { process::error(onError,"host is empty"); return -1; }
           
@@ -46,10 +46,10 @@ public: bsocket_t() noexcept : socket_t() {}
     #endif
         
         SOCKADDR_RC server, client;
-        server.rc_channel = port;
+        server.rc_channel = (uint8_t) port;
         server.rc_family  = AF;
 
-        str2ba( host.c_str(), &addr.rc_bdaddr );
+        str2ba( host.c_str(), &server.rc_bdaddr );
         skt->server_addr = *((SOCKADDR*) &server);
         skt->client_addr = *((SOCKADDR*) &client);
         skt->len = sizeof( server ); return 1;       

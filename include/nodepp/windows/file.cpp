@@ -39,6 +39,7 @@ protected:
     /*─······································································─*/
 
     virtual bool is_blocked( const bool& x, DWORD& c ) const noexcept {
+        if ( x ){ return 0; }
         if ( GetOverlappedResult( obj->fd, &obj->ov, &c, 0 ) )
            { obj->ov.Offset += c; }
         return os::error() == ERROR_HANDLE_EOF ? 0 : c<=0;
