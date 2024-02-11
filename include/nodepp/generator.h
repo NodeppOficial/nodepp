@@ -574,25 +574,26 @@ namespace nodepp {
         if( bf[0] == (char)0x81 ){ return len; }
 
         string_t y = string_t( bf, sx ); uint idx = 0; 
+        auto   byt = encoder::bytes::get( y.size() ); 
 
         bf[idx] = (char) 0b10000001; idx++;
         bf[idx] = (char) 0b00000000; // 0b10000000 MASKED
 
         if ( y.size() < 126 ){ 
             bf[idx]|= (uchar) y.size(); idx++;
-        } elif ( y.size() < (uint) -1 ){ 
+        } elif ( y.size() <= 65536 ){ 
             bf[idx]|= (uchar) 126; idx++;
-            bf[idx] = (uchar)(y.size() << ( 32 - 8  )); idx++;
-            bf[idx] = (uchar)(y.size() << ( 32 - 16 )); idx++;
-        } elif ( y.size() < (ulong) -1 ){
+            bf[idx] = (uchar)(byt[byt.size()-2]); idx++;
+            bf[idx] = (uchar)(byt[byt.size()-1]); idx++;
+        } elif ( y.size() <= 4294967296 ){
             bf[idx]|= (uchar) 127; idx++;
-            bf[idx] = (uchar)(y.size() << ( 32 - 8  )); idx++;
-            bf[idx] = (uchar)(y.size() << ( 32 - 16 )); idx++;
-            bf[idx] = (uchar)(y.size() << ( 32 - 24 )); idx++;
-            bf[idx] = (uchar)(y.size() << ( 32 - 32 )); idx++;
+            bf[idx] = (uchar)(byt[byt.size()-4]); idx++;
+            bf[idx] = (uchar)(byt[byt.size()-3]); idx++;
+            bf[idx] = (uchar)(byt[byt.size()-2]); idx++;
+            bf[idx] = (uchar)(byt[byt.size()-1]); idx++;
         }
 
-        for( ulong x=0; x<y.size(); x++ ){
+        for( ulong x = 0; x<y.size(); x++ ){
              bf[idx] = y[x]; idx++;
         }    
         

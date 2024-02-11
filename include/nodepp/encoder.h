@@ -33,6 +33,27 @@ namespace nodepp { namespace encoder {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+namespace nodepp { namespace encoder { namespace bytes {
+
+    template< class T >
+    ptr_t<uchar> get( T num ){
+        ptr_t<uchar> res ( sizeof(num), 0 );
+        for( ulong y=0; y<res.size(); y++ ){
+            res[y] = num >> ( 8*(res.size()-y-1) ); 
+        }   return res;
+    }
+
+    template< class T >
+    T set( const ptr_t<uchar>& num ){ T res;
+        for( ulong y=0; y<num.size(); y++ ){
+            res = res << 8 | num[y];
+        }   return res;
+    }
+
+}}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 namespace nodepp { namespace encoder { namespace bin {
 
     template< class T >
@@ -46,10 +67,8 @@ namespace nodepp { namespace encoder { namespace bin {
     template< class T >
     T set( const ptr_t<bool>& num ){ T res = 0;
          if ( num.empty() ){ return res; }
-         if ( sizeof(res)*8 < num.size() )
-            { process::error("Binary Does Not Fit In"); }
         for ( auto x : num ){
-              res = res << 1 | x & 1 ;
+              res = res << 1 | ( x & 1 );
         }     return res;
     }
 
@@ -58,32 +77,35 @@ namespace nodepp { namespace encoder { namespace bin {
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace encoder { namespace hex {
-
-    template< class T >
-    string_t get( T num ){ char bff [ 32 ];
-        auto x = sprintf( bff, "%x", num );
-        return { bff, (ulong) x };
-    }
-
-    template< class T >
-    T set( const string_t& num ){ T res = 0;
-        if ( num.empty() ){ return res; }
-        auto x = fscanf( num.data(), "%x", &res );
-        return res;
-    }
     
-    string_t buff2hex( const ptr_t<uchar>& inp ){
+    string_t get( const ptr_t<uchar>& inp ){
         if ( inp.empty() ){ return nullptr; }
         string_t out; for( auto x : inp ){
             out += string::format( "%02x", x );
         }   return out;
     }
 
-    ptr_t<uchar> hex2buff( string_t x ){
+    ptr_t<uchar> set( string_t x ){
         if ( x.empty() ){ return nullptr; }
         ulong size = x.size() / 2 + ( x.size()%2 ? 0 : 1 ); 
-        ptr_t<uchar> out ( size ); for ( auto& y : out ){
+        ptr_t<uchar> out ( size ); for ( auto &y : out ){
             string::parse( x.splice(0,2), "%02x", &y );
+        }   return out;
+    }
+
+    template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
+    string_t get( T num ){ ptr_t<char> out ( sizeof(num), 0 );
+        int x = sprintf( &out, "%x", num ); 
+        return { &out, (ulong)x };
+    }
+
+    template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
+    T set( string_t num ){ if ( num.empty() ){ return 0; } 
+        T out = 0; for ( auto c: num ){ out = out * 16;
+              if ( c >= '0' && c <= '9' ){ out += c - '0'     ; } 
+            elif ( c >= 'a' && c <= 'f' ){ out += c - 'a' + 10; } 
+            elif ( c >= 'A' && c <= 'F' ){ out += c - 'A' + 10; } 
+            else { return 0; }
         }   return out;
     }
 
@@ -121,12 +143,12 @@ namespace nodepp { namespace encoder { namespace utf16 {
         if ( ch <= 0x7F ) {
             res.push(type::cast<char>(ch));
         } elif ( ch <= 0x7FF ) {
-            res.push(type::cast<char>(0xC0 | ( ch >> 6)));
-            res.push(type::cast<char>(0x80 | ( ch & 0x3F)));
+            res.push(type::cast<char>(0xC0|( ch >> 6)));
+            res.push(type::cast<char>(0x80|( ch & 0x3F)));
         } else {
-            res.push(type::cast<char>(0xE0 | ( ch >> 12)));
-            res.push(type::cast<char>(0x80 | ((ch >> 6) & 0x3F)));
-            res.push(type::cast<char>(0x80 | ( ch & 0x3F)));
+            res.push(type::cast<char>(0xE0|( ch >> 12)));
+            res.push(type::cast<char>(0x80|((ch >> 6) & 0x3F)));
+            res.push(type::cast<char>(0x80|( ch & 0x3F)));
         }
         }   return res;
     }

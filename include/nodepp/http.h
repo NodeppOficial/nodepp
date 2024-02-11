@@ -232,7 +232,7 @@ namespace nodepp { namespace http {
             cli.write_filestream( gfc->method, gfc->body, gfc->file );
             while(( c=cli.read_header() )>0 ){ process::next(); }
             if( c==0 ){ res( cli ); return; } else { 
-                rej(except_t("couldn't connect to the server"));
+                rej(except_t("Could not connect to server"));
                 cli.close(); return; 
             }
         }, &agn );
