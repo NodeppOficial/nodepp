@@ -5,19 +5,19 @@
 
 namespace nodepp { template< class V, class... T > class function_t {
 public:
+    
+    template< class F >
+    function_t( F f ) : func_ptr( new func_impl<F>(f) ) {}
    
     function_t() noexcept : func_ptr(nullptr) {}
     
     virtual ~function_t() noexcept = default;
     
-    template< class F >
-    function_t( F f ) : func_ptr( new func_impl<F>(f) ) {}
-    
     /*─······································································─*/
 
     ulong count() const noexcept { return func_ptr.count(); }
 
-    bool empty() const noexcept { return func_ptr.null(); }
+    bool empty()  const noexcept { return func_ptr.null(); }
     
     /*─······································································─*/
     

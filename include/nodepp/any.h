@@ -6,9 +6,18 @@
 namespace nodepp { class any_t {
 public: any_t() noexcept {};
     
-    template< class T > any_t( const T& f ) noexcept : any_ptr( new any_impl<T>(f) ) {}
-    
     any_t( const char* f ) noexcept : any_ptr( new any_impl<string_t>(string::to_string(f)) ) {}
+    
+    template< class T > 
+    any_t( const T& f ) noexcept : any_ptr( new any_impl<T>(f) ) {}
+
+    virtual ~any_t() noexcept = default;
+    
+    /*─······································································─*/
+
+    ulong count() const noexcept { return any_ptr.count(); }
+
+    bool empty()  const noexcept { return any_ptr.null(); }
     
     /*─······································································─*/
 
