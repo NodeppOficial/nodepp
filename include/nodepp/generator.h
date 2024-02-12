@@ -431,6 +431,7 @@ namespace nodepp { namespace _zlib_ {
 
 #if !defined(GENERATOR_WS) && defined(NODEPP_WS) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_WS
+    #include "crypto.h"
 namespace nodepp { 
 
     bool WSServer( http_t cli ) {
@@ -462,8 +463,8 @@ namespace nodepp {
     /*─······································································─*/
 
     template< class T > socket_t WSClient( const T& fetch, const string_t& key ) {
-        auto res = fetch.await(); if( !res.hasValue ) process::error( res.error.what() );
-        auto cli = res.value;
+        auto res = fetch.await(); if( !res.has_value() ) process::error( res.error().what() );
+        auto cli = res.value();
 
         if( cli.status != 101 ){ 
             process::error(cli.onError,string::format("Can't connect to WS Server -> status %d",cli.status)); 
@@ -493,6 +494,7 @@ namespace nodepp {
 
 #if !defined(GENERATOR_WSS) && defined(NODEPP_WSS) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_WSS
+    #include "crypto.h"
 namespace nodepp {
     
     bool WSServer( https_t cli ) {
@@ -525,8 +527,8 @@ namespace nodepp {
 
     template< class T > ssocket_t WSClient( const T& fetch, const string_t& key ) {
         
-        auto res = fetch.await(); if( !res.hasValue ) process::error( res.error.what() );
-        auto cli = res.value;
+        auto res = fetch.await(); if( !res.has_value() ) process::error( res.error().what() );
+        auto cli = res.value();
 
         if( cli.status != 101 ){ 
             process::error(cli.onError,string::format("Can't connect to WS Server -> status %d",cli.status)); 
@@ -556,6 +558,7 @@ namespace nodepp {
 
 #if !defined(GENERATOR_SWS) && ( defined(NODEPP_WS) || defined(NODEPP_WSS) )
     #define  GENERATOR_SWS
+    #include "encoder.h"
 namespace nodepp {
 
     struct ws_frame_t {
