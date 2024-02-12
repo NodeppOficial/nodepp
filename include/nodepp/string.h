@@ -68,7 +68,7 @@ protected:
 
         if( x < 0 ){ x = last() + x; } if( (ulong)x > last() ){ return nullptr; }
         if( y < 0 ){ y = last() + y; } if( (ulong)y > last() ){ y = last(); } 
-                                       if( y < x )        { return nullptr; }
+                                       if( y < x )            { return nullptr; }
 
         ulong a = clamp( first() + y, 0UL, last() );
         ulong b = clamp( first() + x, 0UL, a ); 
