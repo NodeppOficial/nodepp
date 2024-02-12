@@ -251,6 +251,8 @@ namespace nodepp { namespace type {
     template< typename... Ts > struct get_size {
         static constexpr ulong value = sizeof...(Ts);
     };
+
+    /*─······································································─*/
     
     template< int V, typename... Ts > struct is_greater_than {
         static constexpr bool value = sizeof...(Ts) > V;
