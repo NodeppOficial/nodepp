@@ -247,6 +247,24 @@ namespace nodepp { namespace type {
     };
 
     /*─······································································─*/
+    
+    template< typename... Ts > struct get_size {
+        static constexpr ulong value = sizeof...(Ts);
+    };
+    
+    template< int V, typename... Ts > struct is_greater_than {
+        static constexpr bool value = sizeof...(Ts) > V;
+    };
+    
+    template< int V, typename... Ts > struct is_lower_than {
+        static constexpr bool value = sizeof...(Ts) < V;
+    };
+    
+    template< int V, typename... Ts > struct is_equal_to {
+        static constexpr bool value = sizeof...(Ts) == V;
+    };
+
+    /*─······································································─*/
 
     template<typename T> struct is_virtually_constructible {
         static constexpr bool value = __has_trivial_constructor(T);
