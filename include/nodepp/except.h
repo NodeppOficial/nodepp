@@ -6,48 +6,51 @@
 namespace nodepp { class except_t { 
 protected: 
 
-    string_t message; void* ev = nullptr;
+    struct _str_ { 
+        void * ev = nullptr;
+        string_t msg;
+    };  ptr_t<_str_> obj;
 
 public:
 
+    virtual ~except_t() noexcept { 
+        if ( obj.count() > 1 ){ return; }
+	    console::log( obj->msg, "closed" );  
+   	    process::onSIGERR.off(obj->ev);
+    }
+
+    /*─······································································─*/
+
     template< class T, class = typename type::enable_if<type::is_class<T>::value,T>::type >
-    except_t( const T& except_type ) noexcept : message( except_type.what() ) {
+    except_t( const T& except_type ) noexcept : obj(new _str_()) {
+        obj->msg = except_type.what();
         auto inp = type::bind( this ); 
-        ev = process::onSIGERR.once([=]( ... ){ inp->print(); });
+        obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
     }
 
     /*─······································································─*/
 
-    except_t() noexcept : message("Something Went Wrong") {
+    except_t() noexcept : obj(new _str_()) {
         auto inp = type::bind( this ); 
-        ev = process::onSIGERR.once([=]( ... ){ inp->print(); });
+        obj->msg = "something went wrong";
+        obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
     }
 
     /*─······································································─*/
 
-    except_t( const string_t& msg ) noexcept : message(msg) {
+    except_t( const string_t& msg ) noexcept : obj(new _str_()) {
+        obj->msg = msg;
         auto inp = type::bind( this ); 
-        ev = process::onSIGERR.once([=]( ... ){ inp->print(); });
+        obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
     }
 
     /*─······································································─*/
 
-    except_t( const char* msg ) noexcept : message(msg) {
-        auto inp = type::bind( this ); 
-        ev = process::onSIGERR.once([=]( ... ){ inp->print(); });
-    }
-
-    /*─······································································─*/
-
-    const char* what() const noexcept { return message.c_str(); }
+    const char* what() const noexcept { return obj->msg.c_str(); }
 
     operator char*() const noexcept { return (char*)what(); }
     
-    void print() const noexcept { console::error(message); } 
-    
-    /*─······································································─*/
-
-    virtual ~except_t() noexcept { process::onSIGERR.off(ev); }
+    void print() const noexcept { console::error(obj->msg); } 
 
 };}
 

@@ -117,6 +117,28 @@ namespace {
     
     /*─······································································─*/
 
+    string_t normalize( string_t path ){ 
+        auto sec = regex::split( path, "/+|\\\\+" );
+        array_t<string_t> nsec; ulong y=0;
+
+        for ( ulong x=0; x<sec.size(); x++ ){
+         if ( sec[x] == ".." ){ 
+              nsec.push( sec[x] );
+              y++; continue; 
+            } break;
+        }
+
+        for ( ulong x=y; x<sec.size(); x++ ){
+         if ( sec[x] == ".." && !nsec.empty() ){
+              nsec.pop(); continue; 
+            } nsec.push( sec[x] );
+        }
+
+        return nsec.join( sep );
+    }
+    
+    /*─······································································─*/
+
     bool is_absolute( const string_t& path ){
         regex_t reg("^"+beg); return reg.test( path );
     }
@@ -131,18 +153,18 @@ namespace {
     
     /*─······································································─*/
 
-    string_t mimetype( const path_t& path ){
-         if( path.ext.empty() ) { return path.ext; } 
-        for( auto x: _path_::mimetype ){
-            if( regex::test( path.ext, x.first ) ){ return x.second; }
-        }   return string::format("aplication/%s",path.ext.c_str());
-    }
-
     string_t mimetype( const string_t& path ){
         string_t ext = extname( path ); if( ext.empty() ) 
         { return ext; } for( auto x: _path_::mimetype ){
             if( regex::test( ext, x.first ) ){ return x.second; }
         }   return string::format("aplication/%s",ext.c_str());
+    }
+
+    string_t mimetype( const path_t& path ){
+         if( path.ext.empty() ) { return path.ext; } 
+        for( auto x: _path_::mimetype ){
+            if( regex::test( path.ext, x.first ) ){ return x.second; }
+        }   return string::format("aplication/%s",path.ext.c_str());
     }
 
     /*─······································································─*/
@@ -172,7 +194,7 @@ namespace {
 
     string_t format( path_t* obj=nullptr ) { string_t _path;
 
-        if( obj == nullptr ){ return _path; }
+        if( obj == nullptr )    { return _path; }
         if( !obj->path.empty() ){ return obj->path; }
         
         if( !obj->root.empty() ){ _path += obj->root; }
@@ -207,40 +229,27 @@ namespace {
 
     /*─······································································─*/
 
-    string_t relative( const string_t& path_a, string_t path_b ){
-        regex_t _a(sep+"+"), _b(init,"i");
-        auto vec_a = _a.split( path_a );
-        for( auto x: vec_a ){
-            console::log( regex::test( path_b, x ) );
-            if( x.empty() )               continue;
-            if( _b.test(x) )              continue;
-            if(!regex::test( path_b, x )) break;
-            path_b = regex::replace( path_b, x, ".." );
-        }   return path_b;
-    }  
-    
-    /*─······································································─*/
+    string_t relative( const string_t& path_a, const string_t& path_b ){
 
-    string_t normalize( string_t path="" ){ 
+        auto secA = regex::split( path::normalize(path_a), "/+|\\\\+" );
+        auto secB = regex::split( path::normalize(path_b), "/+|\\\\+" );
+        auto sec  = array_t<string_t>(); ulong y=0;
 
-        regex_t _d("[.]{2}(/|\\\\\\\\)[^./\\\\]+(/|\\\\\\\\)");
-        regex_t _a("[.]{2}(/|\\\\\\\\)[^./\\\\]+");
-        regex_t _c("[.]{2}(/|\\\\\\\\)");
-        regex_t _b( sep + "+" );
-        
-        if( path.empty() ) return ".";
-        path = _b.replace_all( path, sep );
-        
-        while( _a.test( path ) ){ path = _d.replace_all( path, "" ); }
-        while( _c.test( path ) ){ path = _c.replace_all( path, "" ); }
-        return path;
+        for ( ulong x=0; x<secA.size() && x<secB.size(); x++ ){
+         if ( secA[x]==secB[x] ){ y++; continue; } break;
+        }
+
+        for ( ulong x=y; x<secA.size(); x++ ){ sec.push(    ".." ); }
+        for ( ulong x=y; x<secB.size(); x++ ){ sec.push( secB[x] ); }
+
+        return sec.join( sep );
     }
     
     /*─······································································─*/
 
     template< class T, class... V > 
     string_t join( const T& argc, const V&... args ){ 
-        return normalize( string::join( sep, argc, args... ) ); 
+      return normalize( string::join( sep, argc, args... ) ); 
     }
     
 }

@@ -11,9 +11,9 @@
 
 ## Features
 
-- C++11 | C++14 | C++17 | c++20 | c++23 Compatible
-- Open source project, meaning anyone can contribute and improve it
+- **C++11 | C++14 | C++17 | c++20 | c++23** Compatible
 - Allows writing **C++** code as if writing in **NodeJS** or **Javascript**
+- Open source project, meaning anyone can contribute and improve it
 - Includes a **RegExp** engine for processing and manipulating text strings
 - Adds a high-level abstraction layer to simplify **C++** application development
 - Compatible with several platforms like **Windows | Linux | macOS | freeBSD | Arduino**
@@ -23,7 +23,6 @@
 - Includes Support for **Poll | Epoll | Kqueue | WSAPoll** making it easy to handle multiple file descriptors
 
 ## Build & Run
-- ``gcc -o main main.cpp -lstdc++ -I ./include ; ./main``
 - ``g++ -o main main.cpp -I ./include ; ./main``
 
 ## Hello world

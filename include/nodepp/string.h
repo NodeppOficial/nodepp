@@ -240,7 +240,7 @@ public:
     void unshift( char value ) noexcept { insert( first(), value ); }
     void    push( char value ) noexcept { insert( size(), value ); }
     void               shift() noexcept { erase( first() ); }
-    void                 pop() noexcept { erase( size() ); }
+    void                 pop() noexcept { erase( last() ); }
     
     /*─······································································─*/
 

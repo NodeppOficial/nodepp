@@ -15,7 +15,7 @@ protected:
 
         if( x < 0 ){ x = last() + x; } if( (ulong)x > last() ){ return nullptr; }
         if( y < 0 ){ y = last() + y; } if( (ulong)y > last() ){ y = last(); } 
-                                       if( y < x )        { return nullptr; }
+                                       if( y < x )            { return nullptr; }
 
         ulong a = clamp( first() + y, 0UL, last() );
         ulong b = clamp( first() + x, 0UL, a ); 
@@ -221,7 +221,7 @@ public: array_t() noexcept {};
     void unshift( const T& value ) noexcept { insert( first(), value ); }
     void    push( const T& value ) noexcept { insert( size(), value ); }
     void                   shift() noexcept { erase( first() ); }
-    void                     pop() noexcept { erase( size() ); }
+    void                     pop() noexcept { erase( last() ); }
      
     /*─······································································─*/
 
