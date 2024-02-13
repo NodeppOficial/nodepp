@@ -17,12 +17,12 @@ protected:
 
     struct _str_ {
         int          tpy = SSL_FILETYPE_PEM;
+        string_t     key, crt, chn;
         SSL_CTX*     ctx = nullptr;
         SSL*         ssl = nullptr;
-        string_t     key, cert;
         bool         srv = 0;
         bool         cnn = 0;
-        ptr_t<onSNI> func;
+        ptr_t<onSNI> fnc;
     };  ptr_t<_str_> obj;
     
     /*─······································································─*/
@@ -47,10 +47,15 @@ protected:
     
     /*─······································································─*/
 
-    int configure_context( SSL_CTX* ctx, const string_t& key, const string_t& cert ) const noexcept { return (  
-        SSL_CTX_use_certificate_file( ctx, (char*)cert, obj->tpy ) != 1 ||
-        SSL_CTX_use_PrivateKey_file( ctx, (char*)key, obj->tpy )   != 1
-    ) ? -1 : 1; }
+    int configure_context( SSL_CTX* ctx, const string_t& key, const string_t& crt, const string_t& chn ) const noexcept { 
+        int x = 1; 
+
+        if( !chn.empty() && x==1 ) x=SSL_CTX_use_certificate_chain_file( ctx, (char*)chn );
+        if( !crt.empty() && x==1 ) x=SSL_CTX_use_certificate_file      ( ctx, (char*)crt, obj->tpy );
+        if( !key.empty() && x==1 ) x=SSL_CTX_use_PrivateKey_file       ( ctx, (char*)key, obj->tpy );
+        
+        return x==1 ? 1 : -1;
+    }
     
     /*─······································································─*/
 
@@ -116,11 +121,24 @@ public: ssl_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
+    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI* _func=nullptr ) : obj( new _str_() ) {
+        if( !fs::exists_file(_key) || !fs::exists_file(_cert) || !fs::exists_file(_chain) )
+            process::error("such key, cert or chain does not exist");
+        if( _func != nullptr ) obj->fnc = new onSNI(*_func); 
+             obj->key = _key;  obj->crt = _cert; obj->chn = _chain;
+    }
+
+    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI _func ) : obj( new _str_() ) {
+          *this = ssl_t( _key, _cert, _chain, &_func );
+    }
+    
+    /*─······································································─*/
+
     ssl_t( const string_t& _key, const string_t& _cert, onSNI* _func=nullptr ) : obj( new _str_() ) {
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) )
             process::error("such key or cert does not exist");
-        if( _func != nullptr ) obj->func = new onSNI(*_func); 
-             obj->key = _key;  obj->cert = _cert; 
+        if( _func != nullptr ) obj->fnc = new onSNI(*_func); 
+             obj->key = _key;  obj->crt = _cert; 
     }
 
     ssl_t( const string_t& _key, const string_t& _cert, onSNI _func ) : obj( new _str_() ) {
@@ -154,13 +172,13 @@ public: ssl_t() noexcept : obj( new _str_() ) {}
 
     int create_server() const noexcept {
         obj->ctx = create_server_context(); obj->srv = 1;
-        int  res = configure_context( obj->ctx, obj->key, obj->cert ); 
-        if( obj->func != nullptr ){ set_ctx_sni( obj->ctx, &obj->func ); } return res;
+        int  res = configure_context( obj->ctx, obj->key, obj->crt, obj->chn ); 
+        if( obj->fnc != nullptr ){ set_ctx_sni( obj->ctx, &obj->fnc ); } return res;
     }
     
     int create_client() const noexcept {
         obj->ctx = create_client_context(); obj->srv = 0; 
-        return configure_context( obj->ctx, obj->key, obj->cert );
+        return configure_context( obj->ctx, obj->key, obj->crt, obj->chn );
     }
     
     /*─······································································─*/

@@ -41,14 +41,14 @@ namespace nodepp { namespace process {
 
             while( !feof(v) ){ int c = fgetc( v );
 
-                if( c == 39 || c == 34 ){ pr=!pr; continue; }
+                if( c=='\'' || c=='"' ){ pr=!pr; continue; }
 
-                if( c == 32 && !pr ){ continue; }
-                if( c == 35 ){ nr = true; continue; }
-                if( c == 61 ){ env[0]=s; s.clear(); continue; } 
+                if( c == ' ' && !pr ){ continue; }
+                if( c == '#' )       { nr=1; continue; }
+                if( c == '=' )       { env[0]=s; s.clear(); continue; } 
 
-                elif( c == -1 ){ env[1]=s; s.clear(); lb(); nr=0; pr=0; break; }
-                elif((c == 10 || c == 59 ) && !pr ){ env[1]=s; s.clear(); lb(); nr=0; continue; }
+                elif( c < 0 )                         { env[1]=s; s.clear(); lb(); nr=0; pr=0; break; }
+                elif((c == '\n' || c == ';' ) && !pr ){ env[1]=s; s.clear(); lb(); nr=0; continue; }
 
                 if( !nr ) s.push(c);
             }   fclose(v); return  1;

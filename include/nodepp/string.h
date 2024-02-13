@@ -9,23 +9,21 @@ namespace nodepp {
 
 namespace string {
 
-    bool   is_hex( uchar c ){ return ((c>='0' && c<='9') ||(c>='A' && c<='F' ) || ( c>='a' && c<='f' ) ); }
-    bool is_space( uchar c ){ return ( c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\f' || c=='\v' ); }
-    bool is_alpha( uchar c ){ return ((c>='A' && c<='Z') ||(c>='a' && c<='z' ) ); }
-    bool is_graph( uchar c ){ return ( c>=33 && c<=126 && c!=' ' ); }
-    bool is_lower( uchar c ){ return ( c>='a' && c<='z' ); }
-    bool is_upper( uchar c ){ return ( c>='A' && c<='Z' ); }
-    bool is_digit( uchar c ){ return ( c>='0' && c<='9' ); }
-    bool is_print( uchar c ){ return ( c>=32  && c<=127 ); }
-    bool is_contr( uchar c ){ return ( c< 32  || c==127 ); }
-    bool  is_null( uchar c ){ return ( c=='\0' ); }
-    bool is_ascii( uchar c ){ return ( c<=127 ); }
+    inline bool   is_hex( uchar c ){ return ((c>='0' && c<='9') ||(c>='A' && c<='F' ) || ( c>='a' && c<='f' ) ); }
+    inline bool is_space( uchar c ){ return ( c==' ' || c=='\t' || c=='\n' || c=='\r' || c=='\f' || c=='\v' ); }
+    inline bool is_alpha( uchar c ){ return ((c>='A' && c<='Z') ||(c>='a' && c<='z' ) ); }
+    inline bool is_graph( uchar c ){ return ( c>=33 && c<=126 && c!=' ' ); }
+    inline bool is_lower( uchar c ){ return ( c>='a' && c<='z' ); }
+    inline bool is_upper( uchar c ){ return ( c>='A' && c<='Z' ); }
+    inline bool is_digit( uchar c ){ return ( c>='0' && c<='9' ); }
+    inline bool is_print( uchar c ){ return ( c>=32  && c<=127 ); }
+    inline bool is_contr( uchar c ){ return ( c< 32  || c==127 ); }
+    inline bool  is_null( uchar c ){ return ( c=='\0' ); }
+    inline bool is_ascii( uchar c ){ return ( c<=127 ); }
     
     /*─······································································─*/
 
-    ptr_t<char> buffer( ulong n ){ 
-        auto b = ptr_t<char>( n+1, '\0' ); return b; 
-    }
+    ptr_t<char> buffer( ulong n ){ auto b = ptr_t<char>( n+1, '\0' ); return b; }
 
     ptr_t<char> buffer( const char* c, ulong n ){
         auto b = ptr_t<char>( n+1, '\0' );
@@ -41,17 +39,17 @@ namespace string {
     
     /*─······································································─*/
 
-    char to_upper( uchar c ){ return is_lower(c) ? ( c - 'a' + 'A' ) : c; }
-    char to_lower( uchar c ){ return is_upper(c) ? ( c - 'A' + 'a' ) : c; }
+    inline int char_code( uchar c ){ return (int) c; }
     
     /*─······································································─*/
 
-    bool is_alnum( uchar c ){ return ( is_alpha(c) || is_digit(c) ); }
-    bool is_punct( uchar c ){ return ( is_print(c) && !is_space(c) && !is_alnum(c) ); }
+    inline char to_upper( uchar c ){ return is_lower(c) ? ( c - 'a' + 'A' ) : c; }
+    inline char to_lower( uchar c ){ return is_upper(c) ? ( c - 'A' + 'a' ) : c; }
     
     /*─······································································─*/
 
-    int char_code( uchar c ){ return (int) c; }
+    inline bool is_alnum( uchar c ){ return ( is_alpha(c) || is_digit(c) ); }
+    inline bool is_punct( uchar c ){ return ( is_print(c) && !is_space(c) && !is_alnum(c) ); }
 
 }
 
@@ -182,6 +180,24 @@ public:
 
     void map( function_t<void,char> func ) const noexcept { 
         for( auto x : *this ) func(x);
+    }
+    
+    /*─······································································─*/
+
+    ptr_t<int> find( const string_t& data, ulong offset=0 ) const noexcept {
+        ulong x=0; int n=0; ptr_t<int> pos ({ 0, 0 });
+        for( ulong i=offset; i<buffer.size(); i++ ){ 
+            if ( buffer[i] == data[x] ){
+                pos[n]=i; x++; n=1;
+            } elif ( x==data.size() ){ 
+                pos[n]=i; x++; n=1; break; 
+            } else { n=0; x=0; }
+        }
+        return !x ? nullptr : pos;
+    }
+
+    ptr_t<int> find( const char& data, ulong offset=0 ) const noexcept {
+        return find( string_t( 1UL, data ), offset );
     }
     
     /*─······································································─*/
@@ -391,8 +407,8 @@ public:
     /*─······································································─*/
 
     explicit operator char* (void) const noexcept { return empty() ? (char*)"" : &buffer; }
-          char*  data() const noexcept { return empty() ? (char*)"" : &buffer; }
-    const char* c_str() const noexcept { return empty() ? "" : &buffer; }
+          char*  data() const noexcept { return empty() ? (char*) "" : &buffer; }
+    const char* c_str() const noexcept { return empty() ?         "" : &buffer; }
     explicit operator bool(void) const noexcept { return empty(); }
     ptr_t<char>&  ptr() noexcept { return buffer; }
     
@@ -501,11 +517,11 @@ namespace string {
     
     /*─······································································─*/
     
-    string_t to_string( char* num ){ return num; }
+    inline string_t to_string( char* num ){ return num; }
 
-    string_t to_string( const char* num ){ return num; }
+    inline string_t to_string( const char* num ){ return num; }
 
-    string_t to_string( const string_t& num ){ return num; }
+    inline string_t to_string( const string_t& num ){ return num; }
 
     string_t to_string( char num ){
         char buffer[32]; auto x = sprintf( buffer, "%c", num );

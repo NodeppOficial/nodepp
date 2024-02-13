@@ -449,7 +449,7 @@ namespace nodepp {
                 auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
-            cli.write_headers( 101, {{
+            cli.write_header( 101, {{
                 { "Sec-Websocket-Accept", enc },
                 { "Connection", "Upgrade" },
                 { "Upgrade", "Websocket" }
@@ -512,7 +512,7 @@ namespace nodepp {
                 auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
-            cli.write_headers( 101, {{
+            cli.write_header( 101, {{
                 { "Sec-Websocket-Accept", enc },
                 { "Connection", "Upgrade" },
                 { "Upgrade", "Websocket" }

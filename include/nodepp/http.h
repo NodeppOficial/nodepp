@@ -173,7 +173,7 @@ public:
     
     /*─······································································─*/
 
-    void write_headers( uint status, const header_t& headers ) noexcept {
+    void write_header( uint status, const header_t& headers ) noexcept {
         if ( has_header == 1 ){ return; } has_header = 1;
         string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::_get_http_status(status));
         for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
@@ -182,7 +182,7 @@ public:
     
     /*─······································································─*/
 
-    void write_headers( const string_t& method, const string_t& path, const string_t& version, const header_t& headers ) noexcept { 
+    void write_header( const string_t& method, const string_t& path, const string_t& version, const header_t& headers ) noexcept { 
         if ( has_header == 1 ){ return; } has_header = 1;
         string_t res; res += string::format("%s %s %s\r\n",(char*)method,(char*)path,(char*)version);
         for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
@@ -228,7 +228,7 @@ namespace nodepp { namespace http {
         string_t dir = uri.pathname + uri.search + uri.hash;
        
         auto client = tcp_t ([=]( http_t cli ){ int c = 0;
-            cli.write_headers( gfc->method, dir, gfc->version, gfc->headers );
+            cli.write_header( gfc->method, dir, gfc->version, gfc->headers );
             cli.write_filestream( gfc->method, gfc->body, gfc->file );
             while(( c=cli.read_header() )>0 ){ process::next(); }
             if( c==0 ){ res( cli ); return; } else { 

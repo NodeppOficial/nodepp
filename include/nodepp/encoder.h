@@ -101,10 +101,10 @@ namespace nodepp { namespace encoder { namespace hex {
 
     template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
     T set( string_t num ){ if ( num.empty() ){ return 0; } 
-        T out = 0; for ( auto c: num ){ out = out * 16;
-              if ( c >= '0' && c <= '9' ){ out += c - '0'     ; } 
-            elif ( c >= 'a' && c <= 'f' ){ out += c - 'a' + 10; } 
-            elif ( c >= 'A' && c <= 'F' ){ out += c - 'A' + 10; } 
+        T out = 0; for ( auto c: num ){    out  = out << 4;
+              if ( c >= '0' && c <= '9' ){ out |= c - '0'     ; } 
+            elif ( c >= 'a' && c <= 'f' ){ out |= c - 'a' + 10; } 
+            elif ( c >= 'A' && c <= 'F' ){ out |= c - 'A' + 10; } 
             else { return 0; }
         }   return out;
     }
@@ -173,16 +173,16 @@ namespace nodepp { namespace encoder { namespace utf32 {
         if ( ch <= 0x7F ) {
             res.push(type::cast<char>(ch));
         } elif ( ch <= 0x7FF ) {
-            res.push(type::cast<char>(( ch >> 6) | 0xC0));
+            res.push(type::cast<char>(( ch >> 6)   | 0xC0));
             res.push(type::cast<char>(( ch & 0x3F) | 0x80));
         } elif( ch <= 0xFFFF ) {
-            res.push(type::cast<char>(( ch >> 12) | 0xE0));
-            res.push(type::cast<char>(((ch >> 6) & 0x3F) | 0x80));
+            res.push(type::cast<char>(( ch >>  12) | 0xE0));
+            res.push(type::cast<char>(((ch >>   6) & 0x3F) | 0x80));
             res.push(type::cast<char>(((ch & 0x3F) | 0x80)));
         } else {
-            res.push(type::cast<char>(( ch >> 18) | 0xF0));
-            res.push(type::cast<char>(((ch >> 12) & 0x3F) | 0x80));
-            res.push(type::cast<char>(((ch >>  6) & 0x3F) | 0x80));
+            res.push(type::cast<char>(( ch >>  18) | 0xF0));
+            res.push(type::cast<char>(((ch >>  12) & 0x3F) | 0x80));
+            res.push(type::cast<char>(((ch >>   6) & 0x3F) | 0x80));
             res.push(type::cast<char>(( ch & 0x3F) | 0x80));       
         }
         }   return res;
@@ -202,6 +202,47 @@ namespace nodepp { namespace encoder { namespace utf32 {
         }
 
         res[x] = 0; return res;
+    }
+
+}}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp { namespace encoder { namespace base64 {
+
+    const string_t base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+    string_t get( const string_t &in ) {
+
+        string_t out; int val = 0, valb = -6;
+
+        for ( uchar c: in ) {
+            val = ( val  << 8 ) + c; valb += 8;
+            while ( valb >= 0 ) {
+                out.push(base64[(val>>valb)&0x3F]);
+                valb -= 6;
+            }
+        }
+
+        if (valb>-6) out.push(base64[((val<<8)>>(valb+8))&0x3F]);
+        while (out.size()%4){ out.push('='); } return out;
+    }
+
+    string_t set( const string_t &in ) {
+
+        string_t out; int val=0, valb=-8;
+        array_t<int> T( 256, -1 );
+
+        for ( int i=0; i<64; i++ ) T[base64[i]] = i;
+        for ( uchar c: in ) { if ( T[c]==-1 ) break;
+            val = ( val << 6 ) + T[c]; valb += 6;
+            if (valb >= 0) {
+                out.push(char((val>>valb)&0xFF));
+                valb -= 8;
+            }
+        }
+
+        return out;
     }
 
 }}}

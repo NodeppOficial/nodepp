@@ -6,7 +6,7 @@
 namespace nodepp { namespace type {
 
     struct false_type { static constexpr bool value = false; using type = false_type; };
-    struct true_type { static constexpr bool value = true; using type = true_type; };
+    struct true_type  { static constexpr bool value = true;  using type = true_type;  };
     
     /*─······································································─*/
 
@@ -54,7 +54,7 @@ namespace nodepp { namespace type {
         using value_type = T;
         using type = integral_constant<T, v>;
 
-        constexpr operator value_type() const noexcept { return value; }
+        constexpr operator value_type()   const noexcept { return value; }
         constexpr value_type operator()() const noexcept { return value; }
     };
     
@@ -332,18 +332,18 @@ namespace nodepp { namespace type {
     template< typename T, ulong N > 
     struct list { T buffer[N];
 
-        const T operator[]( ulong i ) const { return buffer[i]; }
-        explicit operator bool() const { return (bool) buffer; }
+        const T  operator []( ulong i ) const noexcept { return       buffer[i]; }
+        explicit operator bool()        const noexcept { return (bool)buffer;    }
+        const T* operator &()           const noexcept { return       buffer;    }
 
         /*─······································································─*/
 
-        const T* operator&() const { return buffer; }
+        T* begin() const noexcept { return buffer + 0; }
+        T* end()   const noexcept { return buffer + N; }
 
         /*─······································································─*/
 
-        const T* begin() const { return buffer + 0; }
-        const T* end() const { return buffer + N; }
-        ulong size() const { return N; }
+        ulong size()   const noexcept { return N; }
 
     };
 

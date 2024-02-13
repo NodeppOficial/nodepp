@@ -22,7 +22,7 @@ void _main_() {
         console::log( cli.path, cli.get_fd() );
 
         if( !fs::exists_file(dir) ){
-            cli.write_headers( 404, {{ { "content-type", "text/plain" } }} );
+            cli.write_header( 404, {{ { "content-type", "text/plain" } }} );
             cli.write( string::format("404: Oops time: %s",date::fulltime().data()) ); 
             cli.close(); return;
         }
@@ -31,7 +31,7 @@ void _main_() {
 
         if( cli.headers["Range"].empty() ){
 
-            cli.write_headers( 200, {{
+            cli.write_header( 200, {{
                 { "Content-Length", string::to_string(str.size()) },
             //  { "Cache-Control", "public, max-age=3600" },
                 { "Content-Type",   path::mimetype(dir) }
@@ -46,7 +46,7 @@ void _main_() {
             ulong rang[2]; rang[0] = string::to_ulong( range[0] );
                   rang[1] = min( rang[0]+CHUNK_MB(10), str.size()-1 );
 
-            cli.write_headers( 206, {{
+            cli.write_header( 206, {{
                 { "Content-Range", string::format("bytes %lu-%lu/%lu",rang[0],rang[1],str.size()) },
                 { "Content-Type",  path::mimetype(dir) }, 
                 { "Accept-Range", "bytes" }

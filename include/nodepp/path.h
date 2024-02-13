@@ -194,18 +194,18 @@ namespace {
 
     string_t format( path_t* obj=nullptr ) { string_t _path;
 
-        if( obj == nullptr )    { return _path; }
-        if( !obj->path.empty() ){ return obj->path; }
+        if(  obj == nullptr )   { return _path;       }
+        if( !obj->path.empty() ){ return obj->path;   }
         
         if( !obj->root.empty() ){ _path += obj->root; }
-        else                    { _path += root; }
+        else                    { _path += root;      }
 
-        if( !obj->dir.empty()  ){ _path += obj->dir; }
+        if( !obj->dir .empty() ){ _path += obj->dir;  }
         if( !obj->base.empty() ){ _path += obj->base; }
 
         else {
             if( !obj->name.empty() ){ _path += obj->name + string::to_string("."); }
-            if( !obj->ext.empty() ) { _path += obj->ext; }
+            if( !obj->ext .empty() ){ _path += obj->ext; }
         }
         
         return _path;

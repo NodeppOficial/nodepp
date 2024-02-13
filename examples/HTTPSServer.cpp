@@ -16,7 +16,7 @@ void _main_() {
 
         console::log( cli.path, cli.get_fd() );
         
-        cli.write_headers( 200, {{
+        cli.write_header( 200, {{
             { "content-type", "text/html" }
         }});
         

@@ -148,6 +148,24 @@ public: array_t() noexcept {};
     void map( function_t<void,T> func ) const noexcept { 
         for( auto x : *this ){ func(x); }
     }
+    
+    /*─······································································─*/
+
+    ptr_t<int> find( const array_t& data, ulong offset=0 ) const noexcept {
+        ulong x=0; int n=0; ptr_t<int> pos ({ 0, 0 });
+        for( ulong i=offset; i<buffer.size(); i++ ){ 
+            if ( buffer[i] == data[x] ){
+                pos[n]=i; x++; n=1;
+            } elif ( x==data.size() ){ 
+                pos[n]=i; x++; n=1; break; 
+            } else { n=0; x=0; }
+        }
+        return !x ? nullptr : pos;
+    }
+
+    ptr_t<int> find( const T& data, ulong offset=0 ) const noexcept {
+        return find( array_t( 1UL, data ), offset );
+    }
 
     /*─······································································─*/
 #ifndef ARDUINO
