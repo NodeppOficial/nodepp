@@ -15,7 +15,6 @@ public:
 
     virtual ~except_t() noexcept { 
         if ( obj.count() > 1 ){ return; }
-	    console::log( obj->msg, "closed" );  
    	    process::onSIGERR.off(obj->ev);
     }
 
@@ -30,17 +29,17 @@ public:
 
     /*─······································································─*/
 
-    except_t() noexcept : obj(new _str_()) {
+    except_t( const string_t& msg ) noexcept : obj(new _str_()) {
+        obj->msg = msg;
         auto inp = type::bind( this ); 
-        obj->msg = "something went wrong";
         obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
     }
 
     /*─······································································─*/
 
-    except_t( const string_t& msg ) noexcept : obj(new _str_()) {
-        obj->msg = msg;
+    except_t() noexcept : obj(new _str_()) {
         auto inp = type::bind( this ); 
+        obj->msg = "something went wrong";
         obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
     }
 

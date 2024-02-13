@@ -155,14 +155,14 @@ namespace {
 
     string_t mimetype( const string_t& path ){
         string_t ext = extname( path ); if( ext.empty() ) 
-        { return ext; } for( auto x: _path_::mimetype ){
+        { return ext; } for( auto x: _path_::mimetype.data() ){
             if( regex::test( ext, x.first ) ){ return x.second; }
         }   return string::format("aplication/%s",ext.c_str());
     }
 
     string_t mimetype( const path_t& path ){
          if( path.ext.empty() ) { return path.ext; } 
-        for( auto x: _path_::mimetype ){
+        for( auto x: _path_::mimetype.data() ){
             if( regex::test( path.ext, x.first ) ){ return x.second; }
         }   return string::format("aplication/%s",path.ext.c_str());
     }

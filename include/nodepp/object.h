@@ -15,40 +15,44 @@ private:
 
 protected: 
 
-    uint   type = 0;
-    any_t  memory;
+    struct _str_ {
+        uint  type;
+        any_t  mem;
+    }; ptr_t<_str_> obj;
 
-public: object_t() noexcept {}
+public:
 
     template< ulong N > 
-    object_t( const T (&arr) [N] ) noexcept { 
+    object_t( const T (&arr) [N] ) noexcept : obj(new _str_()) { 
         ARRAY mem (N); for( ulong x=N; x--; )
-            { mem[x] = arr[x]; } memory = mem; 
+        { mem[x] = arr[x]; } obj->mem = mem; 
     }
 
     template< class U > 
-    object_t( const U& any ) noexcept { memory = any; }
-
-    /*─······································································─*/
-
-    object_t& operator[]( const string_t& name ){
-
-        auto mem = memory.get<ARRAY>();
-
-        for( ulong x=0; x<mem.size(); x++ ){
-            if( mem[x].first == string::to_string(name) )
-                return mem[x].second;
-        }   T item ({ name, 0 });
-
-        mem.push( item ); memory = mem; 
-        return mem[mem.last( )].second;
-    
+    object_t( const U& any ) noexcept : obj(new _str_()){ 
+        obj->mem = any; 
     }
+    
+    object_t() noexcept : obj(new _str_()) {}
 
     /*─······································································─*/
 
     template< class U >
-    explicit operator U() const noexcept { return memory.get<U>(); }
+    explicit operator U() const noexcept { return obj->mem.get<U>(); }
+
+    /*─······································································─*/
+
+    object_t& operator[]( const string_t& name ) const noexcept {
+        auto mem = obj->mem.get<ARRAY>();
+
+        for ( ulong x=0; x<mem.size(); x++ ) {
+            if( mem[x].first == string::to_string(name) )
+                return mem[x].second;
+        }   T item ({ name, 0 });
+
+        mem.push( item ); obj->mem = mem; 
+        return mem[mem.last()].second;
+    }
     
 };}
 

@@ -52,7 +52,7 @@ namespace search_params {
     /*─······································································─*/
     
     string_t format( const map_t<string_t,string_t>& data ){ 
-        array_t<string_t> result; for( auto x:data ) 
+        array_t<string_t> result; for( auto x:data.data() ) 
             result.push( x.first + "=" + x.second );
         return string::format("?%s",result.join("&").c_str());
     }

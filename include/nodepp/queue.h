@@ -12,7 +12,7 @@ protected:
         _str_( T value ){ data = value; } T data; 
         explicit operator T(){ return data; }
         void    set( T arg ){ data = arg; }
-        T       get() { return data; }
+        T&      get() { return data; }
         _str_*& next(){ return nxt; }
         _str_*& prev(){ return prv; }
     };  using self = _str_<V>;
@@ -120,6 +120,15 @@ public: queue_t() noexcept {}
     ulong size() const noexcept { 
            if( queue  == nullptr ){ return 0; } self* n = &queue; ulong i = 1; 
         while( n->nxt != nullptr ){ n = n->nxt; i++; } return i;
+    }
+    
+    /*─······································································─*/
+
+    ptr_t<V> data() const noexcept { 
+        if( empty() ){ return nullptr; } ptr_t<V> res ( size() );
+        ulong y=0; auto x = first(); while( x != nullptr ){ 
+            res[y] = x->get(); x = x->next(); y++;
+        }   return res;
     }
     
     /*─······································································─*/
