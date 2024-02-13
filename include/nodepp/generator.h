@@ -497,7 +497,7 @@ namespace nodepp {
     #include "crypto.h"
 namespace nodepp {
     
-    bool WSServer( https_t cli ) {
+    bool WSSServer( https_t cli ) {
         auto data = cli.read(); cli.set_borrow( data ); int c=0;
         
         while(( c=cli.read_header() )>0 ){ process::next(); }
@@ -525,7 +525,7 @@ namespace nodepp {
     
     /*─······································································─*/
 
-    template< class T > ssocket_t WSClient( const T& fetch, const string_t& key ) {
+    template< class T > ssocket_t WSSClient( const T& fetch, const string_t& key ) {
         
         auto res = fetch.await(); if( !res.has_value() ) process::error( res.error().what() );
         auto cli = res.value();

@@ -37,7 +37,7 @@ public:
 namespace nodepp { namespace wss {
 
     tls_t server( const tls_t& server ){ server.onSocket([=]( ssocket_t cli ){
-        if ( !nodepp::WSServer( (https_t) cli ) ){ return; }
+        if ( !nodepp::WSSServer( (https_t) cli ) ){ return; }
         ptr_t<_file_::read> _read = new _file_::read;
         cli.onDrain.once([=](){ cli.free(); });
 
@@ -79,7 +79,7 @@ namespace nodepp { namespace wss {
             { "Sec-Websocket-Version", "13" }
         }};
 
-        wss_t cli = nodepp::WSClient( https::fetch( args, ctx, opt ), key );
+        wss_t cli = nodepp::WSSClient( https::fetch( args, ctx, opt ), key );
               cli.onDrain.once([=](){ cli.free(); });
 
         cli.onOpen.once([=](){ cli.busy();
