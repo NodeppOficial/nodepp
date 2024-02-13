@@ -64,7 +64,7 @@ namespace nodepp { namespace process {
 
                   if( c=='=' && !pr && !nr ){ env[0]=s; s.clear(); continue; } 
                 elif( c==-1 )               { env[1]=s; s.clear(); lb(); nr=0; break; }
-                elif( c=='\n' && !pr )      { env[1]=s; s.clear(); lb(); nr=0; continue; }
+                elif( c=='\n'&& !pr )       { env[1]=s; s.clear(); lb(); nr=0; continue; }
 
                 if( !nr ) s.push(c);
             }   fclose(v); return  1;
