@@ -168,7 +168,7 @@ namespace nodepp { namespace _stream_ {
         }
 
         template< class T, class V > gnEmit( const T& inp, const V& out ){
-        gnStart inp.onPipe.emit();
+        gnStart inp.onPipe.emit(); out.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 )         { coNext; }
                if( _read.c <= 0 )           { break; }
@@ -201,7 +201,7 @@ namespace nodepp { namespace _stream_ {
         }
 
         template< class T, class V > gnEmit( const T& inp, const V& out ){
-        gnStart inp.onPipe.emit();
+        gnStart inp.onPipe.emit(); out.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 )         { coNext; } 
                if( _read.c <= 0 )           { break; }
@@ -235,7 +235,7 @@ namespace nodepp { namespace _zlib_ {
 
         template< class T, class V, class U >
         gnEmit( const T& inp, const V& out, U cb ){
-        gnStart inp.onPipe.emit();
+        gnStart inp.onPipe.emit(); out.onPipe.emit();
 
             str->zfree    = Z_NULL;
             str->zalloc   = Z_NULL;
@@ -335,7 +335,7 @@ namespace nodepp { namespace _zlib_ {
 
         template< class T, class V, class U >
         gnEmit( const T& inp, const V& out, U cb ){
-        gnStart inp.onPipe.emit();
+        gnStart inp.onPipe.emit(); out.onPipe.emit();
 
             str->zfree    = Z_NULL;
             str->zalloc   = Z_NULL;

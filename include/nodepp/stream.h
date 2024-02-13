@@ -11,7 +11,8 @@
 
 namespace nodepp { namespace stream {
 
-    template< class T > void unpipe( const T& input ){ input.stop(); }
+    template< class T > void unpipe( const T& input )
+        { input.stop(); input.onUnpipe.emit(); }
     
     /*─······································································─*/
     
