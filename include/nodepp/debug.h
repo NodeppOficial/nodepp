@@ -14,7 +14,7 @@ protected:
 public:
 
     virtual ~debug_t() noexcept { 
-        if ( obj.count() > 1 ){ return; }
+    //  if ( obj.count() > 2 ){ return; }
 	    console::log( obj->msg, "closed" );  
    	    process::onSIGERR.off(obj->ev);
     }
