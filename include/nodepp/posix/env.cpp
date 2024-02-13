@@ -36,19 +36,24 @@ namespace nodepp { namespace process {
             FILE* v = fopen( path.c_str(), "r" ); 
             string_t s; bool nr = 0; bool pr = 0;
             
-            array_t<string_t> env ( 2, "" ); 
-            function_t<void> lb([&](){ nodepp::SET( env[0], env[1] ); });
+            array_t<string_t> env ( 2 ); 
+            function_t<void> lb([&](){ 
+                if( env[0].empty() ){ return; }
+                if( env[1].empty() ){ return; }
+                nodepp::SET( env[0], env[1] ); 
+            });
 
             while( !feof(v) ){ int c = fgetc( v );
 
-                if( c=='\'' || c=='"' ){ pr=!pr; continue; }
+                if( c=='"' ){ pr=!pr; continue; }
 
-                if( c == ' ' && !pr ){ continue; }
-                if( c == '#' )       { nr=1; continue; }
-                if( c == '=' )       { env[0]=s; s.clear(); continue; } 
+                if( c==' ' && !pr ){ continue; }
+                if( c=='#' && !pr ){ nr=1; continue; }
+                if( c==';' && !pr ){ nr=1; continue; }
 
-                elif( c < 0 )                         { env[1]=s; s.clear(); lb(); nr=0; pr=0; break; }
-                elif((c == '\n' || c == ';' ) && !pr ){ env[1]=s; s.clear(); lb(); nr=0; continue; }
+                  if( c=='=' && !pr && !nr ){ env[0]=s; s.clear(); continue; } 
+                elif( c==-1 )               { env[1]=s; s.clear(); lb(); nr=0; break; }
+                elif( c=='\n' && !pr )      { env[1]=s; s.clear(); lb(); nr=0; continue; }
 
                 if( !nr ) s.push(c);
             }   fclose(v); return  1;
