@@ -378,30 +378,34 @@ public:
     
     /*─······································································─*/
 
-    string_t to_capital_case() const noexcept { if( empty() ){ return (*this); } bool b=1; 
-        for( auto x = this->begin(); x!=this->end(); x++ ){
-            if( string::is_alpha(*x) && b==1 ){ (*x) = string::to_upper(*x); b=0; continue; }
-            if(!string::is_alpha(*x) ){ b =1;}  (*x) = string::to_lower(*x);
-        }   return (*this);
+    string_t to_capital_case() const noexcept { 
+        if ( empty() ){ return nullptr; } bool b=1; ptr_t<char> res ( size() );
+        for( ulong x=0; x<res.size(); x++ ){ auto y = buffer[x];
+            if( string::is_alpha(y) && b==1 ){ res[x] = string::to_upper(y); b=0; continue; }
+            if(!string::is_alpha(y) ){ b =1;}  res[x] = string::to_lower(y);
+        }   return &res;
     }
 
-    string_t to_lower_case() const noexcept { if( empty() ){ return (*this); }
-        for( auto x = this->begin(); x!=this->end(); x++ ){
-            (*x) = string::to_lower( (int)(*x) );
-        }   return (*this);
+    string_t to_lower_case() const noexcept {
+        if ( empty() ){ return nullptr; } ptr_t<char> res ( size() );
+        for( ulong x=0; x<res.size(); x++ ){
+             res[x] = string::to_lower( buffer[x] );
+        }    return &res;
     }
 
-    string_t to_upper_case() const noexcept { if( empty() ){ return (*this); }
-        for( auto x = this->begin(); x!=this->end(); x++ ){
-            (*x) = string::to_upper( (int)(*x) );
-        }   return (*this);
+    string_t to_upper_case() const noexcept { 
+        if ( empty() ){ return nullptr; } ptr_t<char> res ( size() );
+        for( ulong x=0; x<res.size(); x++ ){
+             res[x] = string::to_upper( buffer[x] );
+        }    return &res;
     }
 
-    string_t to_slugify() noexcept { if( empty() ){ return (*this); }
-        for( auto x = this->size(); x--; ){ auto y = (*this)[x];
-              if ( !string::is_alnum(y) ){ this->erase(x); }
-            else { (*this)[x] = string::to_lower(y); }
-        }   return (*this);
+    string_t to_slugify() const noexcept { ulong z=0;
+        if ( empty() ){ return nullptr; } ptr_t<char> res ( size() );
+        for( ulong x=0; x<res.size(); x++ ){ auto y = buffer[x];
+              if ( !string::is_alnum(y) ){ continue; }
+            else { res[z] = string::to_lower(y); z++; }
+        }   return { &res, z };
     }
 
     /*─······································································─*/

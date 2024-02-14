@@ -56,7 +56,7 @@ public:
             if( idx > 0 ){
                 path   = init[1].slice( 0,idx );
                 search = init[1].slice(   idx );
-                query  = search_params::parse(search);
+                query  = query::parse (search);
             } else {
                 path   = init[1];
             }
