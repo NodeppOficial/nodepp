@@ -1,7 +1,7 @@
-<img src="https://github.com/NodeppOficial/nodepp/assets/109326461/cf2af4eb-404e-4af0-929a-ba8bf7163448" 
-     width="250px" align="left" style=" padding:10px; " >
-
 # Nodepp
+
+<img src="https://github.com/NodeppOficial/nodepp/assets/109326461/241da5f3-ae97-4d02-8fa0-87e90c6afcbf" 
+     width="180px" align="left" style=" padding:10px; border-radius:10%; " >
 
 **Nodepp** is an innovative open source project that aims to make it easier to create applications in **C++**. This project introduces a high-level abstraction layer that allows developers to write **C++** code in a way that is similar to how they would write code in **NodeJS**. With **Nodepp**, developers can leverage the advantages of the **C++** language while benefiting from the ease of use and flexibility that **NodeJS** offers. This unique combination of features makes **Nodepp** a powerful tool for creating high-performance and scalable applications. Additionally, since it is an open source project, anyone can contribute and improve **Nodepp** to fit their specific needs.
 
