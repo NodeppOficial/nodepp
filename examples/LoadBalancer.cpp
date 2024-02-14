@@ -31,7 +31,7 @@ void _main_() {
 
     if( process::is_child() ){ server( os::pid() ); } else {
         for( auto x = os::cpus(); x--; ){
-             auto y = cluster_t();
+             auto y = cluster::add();
         }
     }
 

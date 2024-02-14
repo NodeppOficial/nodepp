@@ -4,11 +4,11 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
-#include "file.h"
+#include "fs.h"
 #include "initializer.h"
 #include "windows/popen.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
-#include "file.h"
+#include "fs.h"
 #include "initializer.h"
 #include "posix/popen.cpp"
 #else
@@ -33,8 +33,8 @@ namespace nodepp { namespace popen {
     template< class... T >
     string_t await( const string_t& path, const initializer_t<string_t>& args ){
         string_t result; auto fp = popen_t( path, args ); 
-        while ( fp.stdout().is_available() ){ 
-           auto data = fp.stdout().read();
+        while ( fp.std_output().is_available() ){ 
+           auto data = fp.std_output().read();
            if (!data.empty() ){ result += data; }
         }       return result;
     }

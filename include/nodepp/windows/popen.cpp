@@ -10,6 +10,8 @@ namespace nodepp { class popen_t {
 protected:
 
     struct _str_ {
+        PROCESS_INFORMATION pi;
+        STARTUPINFO         si;
         int           fd;
         int     state =0;
         file_t  std_input;
@@ -20,32 +22,44 @@ protected:
     template< class T >
     void _init_( const string_t& path, T& arg, T& env ) {
 
-        int fda[2]; ::pipe( fda ); 
-        int fdb[2]; ::pipe( fdb );
-        int fdc[2]; ::pipe( fdc ); obj->fd = ::fork();
+        SECURITY_ATTRIBUTES sa;
+                            sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+                            sa.lpSecurityDescriptor = NULL;
+                            sa.bInheritHandle = 1;
 
-        if( obj->fd == 0 ){ // Child process
-            ::dup2( fda[0], STDIN_FILENO  ); ::close( fda[1] );
-            ::dup2( fdb[1], STDOUT_FILENO ); ::close( fdb[0] ); arg.push( nullptr );
-            ::dup2( fdc[1], STDERR_FILENO ); ::close( fdc[0] ); env.push( nullptr );
-            ::execvpe( path.c_str(), (char**) arg.data(), (char**) env.data() );
-            process::error("while spawning new popen"); process::exit(1);
-        } elif ( obj->fd > 0 ) { // Parent process
-            obj->std_input  = { fda[1] }; ::close( fda[0] );
-            obj->std_output = { fdb[0] }; ::close( fdb[1] );
-            obj->std_error  = { fdc[0] }; ::close( fdc[1] );
+        HANDLE fda[2]; ::CreatePipe(&fda[0], &fda[1], &sa, 0); 
+        HANDLE fdb[2]; ::CreatePipe(&fdb[0], &fdb[1], &sa, 0); 
+        HANDLE fdc[2]; ::CreatePipe(&fdc[0], &fdc[1], &sa, 0); 
+        
+        ZeroMemory(&obj->si, sizeof(obj->si));
+        ZeroMemory(&obj->pi, sizeof(obj->pi));
+                    obj->si.cb         = sizeof(STARTUPINFO);
+                    obj->si.hStdInput  = fda[0];
+                    obj->si.hStdError  = fdc[1];
+                    obj->si.hStdOutput = fdb[1];
+                    obj->si.dwFlags   |= STARTF_USESTDHANDLES;
+       
+        env.push( nullptr ); auto cmd = arg.join(" ");
+        obj->fd = ::CreateProcess( path.c_str(), cmd.data(), NULL, NULL, 1, 0, env.data(), NULL, &obj->si, &obj->pi );
+        WaitForSingleObject( obj->pi.hProcess, 0 ); WaitForSingleObject( obj->pi.hThread, 0 );
+
+        if ( obj->fd != 0 ) { // Parent process
+            obj->std_input  = { fda[1] }; ::CloseHandle( fda[0] );
+            obj->std_output = { fdb[0] }; ::CloseHandle( fdb[1] );
+            obj->std_error  = { fdc[0] }; ::CloseHandle( fdc[1] );
         } else {
-            ::close( fda[0] ); ::close( fda[1] );
-            ::close( fdb[0] ); ::close( fdb[1] );
-            ::close( fdc[0] ); ::close( fdc[1] );
+            ::CloseHandle( fda[0] ); ::CloseHandle( fda[1] );
+            ::CloseHandle( fdb[0] ); ::CloseHandle( fdb[1] );
+            ::CloseHandle( fdc[0] ); ::CloseHandle( fdc[1] );
+              force_close();
         }
 
     }
 
     void _busy() const noexcept {
         obj->std_input .busy();
-        obj->std_error .busy();
         obj->std_output.busy();
+        obj->std_error .busy();
     }
 
 public:
@@ -82,7 +96,11 @@ public:
 
     /*─······································································─*/
 
-    bool is_alive() const noexcept { return ::kill( obj->fd, 0 ) == 0; }
+    bool is_alive() { DWORD exitCode;
+        if ( GetExitCodeProcess(obj->pi.hProcess,&exitCode) ) {
+        if ( exitCode == STILL_ACTIVE ) { return true; }
+        }    return false;
+    }
 
     int get_fd()    const noexcept { return obj->fd; }
 
@@ -99,11 +117,11 @@ public:
 
     /*─······································································─*/
     
+    void   kill() const noexcept { ::CloseHandle( obj->pi.hProcess ); ::CloseHandle( obj->pi.hThread ); }
     void  flush() const noexcept { std_input().flush(); std_output().flush(); std_error().flush(); }
     void resume() const noexcept { if(obj->state== 0) { return; } obj->state= 0; onResume.emit(); }
     void  close() const noexcept { if(obj->state < 0) { return; } obj->state=-1; onExit.emit(); }
     void   stop() const noexcept { if(obj->state==-3) { return; } obj->state=-3; onStop.emit(); }
-    void   kill() const noexcept { ::kill( obj->fd, SIGKILL ); }
     void   free() const noexcept { force_close(); }
     
     /*─······································································─*/

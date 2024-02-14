@@ -4,11 +4,11 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
-#include "file.h"
+#include "fs.h"
 #include "initializer.h"
 #include "windows/cluster.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
-#include "file.h"
+#include "fs.h"
 #include "initializer.h"
 #include "posix/cluster.cpp"
 #else

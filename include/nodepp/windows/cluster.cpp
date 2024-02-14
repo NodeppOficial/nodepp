@@ -10,6 +10,8 @@ namespace nodepp { class cluster_t {
 protected:
 
     struct _str_ {
+        PROCESS_INFORMATION pi;
+        STARTUPINFO         si;
         int          fd;
         int    state =0;
         file_t    input;
@@ -21,32 +23,41 @@ protected:
     void _init_( T& arg, T& env ) {
 
         if( process::is_child() ){ 
-            int fd[2] = { 0, 0 }; string_t ch = process::env::get("CHILD");
-            string::parse( ch.data(), "%d|%d", &fd[0], &fd[1] );
-            obj->error  = { STDERR_FILENO };
-            obj->output = { fd[0] };
-            obj->input  = { fd[1] }; return; 
+            obj->output = fs::std_output();
+            obj->input  = fs::std_input();
+            obj->error  = fs::std_error(); return; 
         }
 
-        int fda[2]; ::pipe( fda ); 
-        int fdb[2]; ::pipe( fdb ); 
-        int fdc[2]; ::pipe( fdc ); obj->fd = ::fork();
+        SECURITY_ATTRIBUTES sa;
+                            sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+                            sa.lpSecurityDescriptor = NULL;
+                            sa.bInheritHandle = TRUE;
 
-        if( obj->fd == 0 ){
-            auto chl = string::format( "CHILD=%d|%d", fda[0], fdb[1] ); env.push( chl.c_str() );
-            arg.unshift( process::args[0].c_str() ); ::close( fda[1] ); arg.push( NULL );
-                                                     ::close( fdb[0] ); env.push( NULL );
-            ::dup2( fdc[1], STDERR_FILENO  );        ::close( fdc[0] );
-            ::execvpe( arg[0], (char**) arg.data(), (char**)env.data() );
-            process::error("while spawning new cluster"); process::exit(1);
-        } elif ( obj->fd > 0 ) { // Parent process
-            obj->input  = { fda[1] }; ::close( fda[0] );
-            obj->output = { fdb[0] }; ::close( fdb[1] );
-            obj->error  = { fdc[0] }; ::close( fdc[1] );
+        HANDLE fda[2]; ::CreatePipe(&fda[0], &fda[1], &sa, 0); 
+        HANDLE fdb[2]; ::CreatePipe(&fdb[0], &fdb[1], &sa, 0); 
+        HANDLE fdc[2]; ::CreatePipe(&fdc[0], &fdc[1], &sa, 0); 
+        
+        ZeroMemory(&obj->si, sizeof(obj->si));
+        ZeroMemory(&obj->pi, sizeof(obj->pi));
+                    obj->si.cb         = sizeof(STARTUPINFO);
+                    obj->si.hStdInput  = fda[0];
+                    obj->si.hStdError  = fdc[1];
+                    obj->si.hStdOutput = fdb[1];
+                    obj->si.dwFlags   |= STARTF_USESTDHANDLES;
+       
+        arg.unshift( process::args[0].c_str() ); env.push("CHILD=TRUE"); env.push( nullptr ); auto cmd = arg.join(" ");
+        obj->fd = ::CreateProcess( arg[0], cmd.data(), NULL, NULL, 1, 0, env.data(), NULL, &obj->si, &obj->pi );
+        WaitForSingleObject( obj->pi.hProcess, 0 ); WaitForSingleObject( obj->pi.hThread, 0 );
+
+        if ( obj->fd > 0 ) { // Parent process
+            obj->input  = { fda[1] }; ::CloseHandle( fda[0] );
+            obj->output = { fdb[0] }; ::CloseHandle( fdb[1] );
+            obj->error  = { fdc[0] }; ::CloseHandle( fdc[1] );
         } else {
-            ::close( fda[0] ); ::close( fda[1] );
-            ::close( fdb[0] ); ::close( fdb[1] );
-            ::close( fdc[0] ); ::close( fdc[1] );
+            ::CloseHandle( fda[0] ); ::CloseHandle( fda[1] );
+            ::CloseHandle( fdb[0] ); ::CloseHandle( fdb[1] );
+            ::CloseHandle( fdc[0] ); ::CloseHandle( fdc[1] );
+              force_close();
         }
 
     }
@@ -92,10 +103,14 @@ public:
         array_t<const char*> arg; array_t<const char*> env;
         _init_( arg, env ); 
     }
-    
+
     /*─······································································─*/
 
-    bool is_alive() const noexcept { return ::kill( obj->fd, 0 ) == 0; }
+    bool is_alive() { DWORD exitCode;
+        if ( GetExitCodeProcess(obj->pi.hProcess,&exitCode) ) {
+        if ( exitCode == STILL_ACTIVE ) { return true; }
+        }    return false;
+    }
 
     int get_fd()    const noexcept { return obj->fd; }
 
@@ -112,11 +127,11 @@ public:
 
     /*─······································································─*/
     
+    void   kill() const noexcept { ::CloseHandle( obj->pi.hProcess ); ::CloseHandle( obj->pi.hThread ); }
+    void  flush() const noexcept { readable().flush(); writable().flush(); std_error().flush(); }
     void resume() const noexcept { if(obj->state== 0) { return; } obj->state= 0; onResume.emit(); }
     void  close() const noexcept { if(obj->state < 0) { return; } obj->state=-1; onExit.emit(); }
     void   stop() const noexcept { if(obj->state==-3) { return; } obj->state=-3; onStop.emit(); }
-    void  flush() const noexcept { writable().flush(); readable().flush(); std_error().flush(); }
-    void   kill() const noexcept { ::kill( obj->fd, SIGKILL ); }
     void   free() const noexcept { force_close(); }
     
     /*─······································································─*/
@@ -172,8 +187,8 @@ public:
     
     /*─······································································─*/
     
-    file_t& readable()  const noexcept { return obj->output; }
-    file_t& writable()  const noexcept { return obj->input;  }
+    file_t& readable() const noexcept { return obj->output; }
+    file_t& writable() const noexcept { return obj->input;  }
     file_t& std_error() const noexcept { return obj->error;  }
 
     /*─······································································─*/
