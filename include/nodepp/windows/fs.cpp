@@ -168,9 +168,10 @@ namespace nodepp { namespace fs {
 
     array_t<string_t> read_folder( const string_t& path ){ 
         if( path.empty() ) return { 0, "" };
+        string_t npath = path::push( path, "*" );
 
         WIN32_FIND_DATAA findData; array_t<string_t> list;  
-        HANDLE hFind = FindFirstFileA( path.c_str(), &findData );
+        HANDLE hFind = FindFirstFileA( npath.c_str(), &findData );
 
         if( hFind == INVALID_HANDLE_VALUE ) return { 0, "" };
 

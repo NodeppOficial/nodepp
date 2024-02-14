@@ -247,6 +247,34 @@ namespace {
     
     /*─······································································─*/
 
+    string_t push( const string_t& path, const string_t& dir ){
+        auto sec = regex::split( path::normalize(path), "/+|\\\\+" );
+             sec.push( dir ); return sec.join( sep );
+    }
+
+    string_t unshift( const string_t& path, const string_t& dir ){
+        auto sec = regex::split( path::normalize(path), "/+|\\\\+" );
+             sec.unshift( dir ); return sec.join( sep );
+    }
+    
+    /*─······································································─*/
+
+    string_t pop( const string_t& path ){
+        auto sec = regex::split( path::normalize(path), "/+|\\\\+" );
+             sec.pop(); return sec.join( sep );
+    }
+
+    string_t shift( const string_t& path ){
+        auto sec = regex::split( path::normalize(path), "/+|\\\\+" );
+             sec.shift(); return sec.join( sep );
+    }
+    
+    /*─······································································─*/
+
+    array_t<string_t> split( const string_t& path ){ 
+      return regex::split( path::normalize(path), "/+|\\\\+" );
+    }
+
     template< class T, class... V > 
     string_t join( const T& argc, const V&... args ){ 
       return normalize( string::join( sep, argc, args... ) ); 
