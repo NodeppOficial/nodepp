@@ -273,11 +273,14 @@ public: queue_t() noexcept {}
                 index->next->prev = index;
             } elif ( index == first() ) {
                 auto  prev  = *queue; queue = new NODE( value );
-                queue->next = new NODE( prev ); 
+                queue->next = new NODE( prev );
                 queue->next->prev = index;
             } else {
+                auto prev = index->next;
                 index->next = new NODE( value ); 
                 index->next->prev = index;
+                prev->prev = indext->next;
+                index->next->next = prev;
             }
         }
     }
