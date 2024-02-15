@@ -1,44 +1,32 @@
-#include <nodepp/nodepp.h>
-#include <nodepp/worker.h>
-#include <nodepp/timer.h>
+#pragma once
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-using namespace nodepp;
+#include <pthread.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+namespace nodepp { class mutex_t {
+protected:
 
-    ptr_t<int> x = new int(100);
-    mutex_t mut;
+    ptr_t<pthread_mutex_t> mutex;
 
-    worker::add([=](){
-        if( !mut.lock() ){ return 1; }
-    coStart
+public:
 
-        while( *x > 0 ){ *x-=1;
-            console::info("Hello World",*x);
-            worker::delay( 100 ); 
-            mut.unlock(); coNext;
-        }
+    int unlock() const noexcept { return pthread_mutex_unlock(&mutex)==0; }
 
-    coStop
-    });
+    int lock()   const noexcept { return pthread_mutex_lock(&mutex)==0; }
 
-    worker::add([=](){ 
-        if( !mut.lock() ){ return 1; }
-    coStart
+    mutex_t() : mutex( new pthread_mutex_t() ) {
+        if( pthread_mutex_init(&mutex,NULL) != 0 )
+          { process::error("Cant Start Mutex"); }
+    }
 
-        while( *x > 0 ){ *x-=1;
-            console::done("Hello World",*x);
-            worker::delay( 100 ); 
-            mut.unlock(); coNext;
-        }
+    virtual ~mutex_t() noexcept { unlock();
+        if( mutex.count() > 1 ){ return; }
+            pthread_mutex_destroy(&mutex);
+    }
 
-    coStop
-    });
-
-}
+};}
 
 /*────────────────────────────────────────────────────────────────────────────*/

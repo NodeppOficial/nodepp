@@ -1,44 +1,36 @@
-#include <nodepp/nodepp.h>
-#include <nodepp/worker.h>
-#include <nodepp/timer.h>
+#pragma once
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-using namespace nodepp;
+#include <windows.h>
+#include <processthreadsapi.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+namespace nodepp { class mutex_t {
+protected:
 
-    ptr_t<int> x = new int(100);
-    mutex_t mut;
+    ptr_t<HANDLE> mutex;
 
-    worker::add([=](){
-        if( !mut.lock() ){ return 1; }
-    coStart
+public:
 
-        while( *x > 0 ){ *x-=1;
-            console::info("Hello World",*x);
-            worker::delay( 100 ); 
-            mut.unlock(); coNext;
-        }
+    int unlock() const noexcept { return ReleaseMutex( &mutex )!=0; }
 
-    coStop
-    });
+    int lock() const noexcept { 
+        auto   x  = WaitForSingleObject( &mutex, INFINITE );
+        return x == WAIT_OBJECT_0;
+    }
 
-    worker::add([=](){ 
-        if( !mut.lock() ){ return 1; }
-    coStart
+    mutex_t() : mutex( new HANDLE ) {
+        if((*mutex=CreateMutex(NULL,0,NULL) ) == NULL )
+          { process::error("Cant Start Mutex"); }
+    }
 
-        while( *x > 0 ){ *x-=1;
-            console::done("Hello World",*x);
-            worker::delay( 100 ); 
-            mut.unlock(); coNext;
-        }
+    virtual ~mutex_t() noexcept {
+        if( mutex.count() > 1 ){ return; }
+            CloseHandle(&mutex);
+    }
 
-    coStop
-    });
-
-}
+};}
 
 /*────────────────────────────────────────────────────────────────────────────*/

@@ -2,7 +2,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include <pthread.h>
+#include "mutex.cpp"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -12,31 +12,6 @@ namespace nodepp { namespace worker {
     void  exit(){ pthread_exit(NULL); }
     void yield(){ process::delay(0); }
 }}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace nodepp { class mutex_t {
-protected:
-
-    ptr_t<pthread_mutex_t> mutex;
-
-public:
-
-    int unlock() const noexcept { return pthread_mutex_unlock(&mutex); }
-
-    int lock()   const noexcept { return pthread_mutex_lock(&mutex); }
-
-    mutex_t() : mutex( new pthread_mutex_t() ) {
-        if( pthread_mutex_init(&mutex,NULL) != 0 )
-          { process::error("Cant Start Mutex"); }
-    }
-
-    virtual ~mutex_t() noexcept {
-        if( mutex.count() > 1 ){ return; }
-            pthread_mutex_destroy(&mutex);
-    }
-
-};}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
