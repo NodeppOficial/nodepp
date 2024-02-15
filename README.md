@@ -45,12 +45,6 @@ Hello World!
 ## FAQ
 - reddit : [/r/Cplusplus/](https://www.reddit.com/r/Cplusplus/comments/19e2kw3/write_asynchronous_code_with_c_nodepp/) 
 - reddit : [/r/cpp/](https://www.reddit.com/r/cpp/comments/19camli/write_asynchronously_code_with_c_nodepp/)
-
-## Links
-
-- **Nodepp:** compatible with Arduino [here](https://github.com/NodeppOficial/nodepp-arduino)
-- **Nodepp:** compatible with PC      [here](https://github.com/NodeppOficial/Nodepp)
-- **Nodepp:** compatible with ESPxxxx [here](https://github.com/NodeppOficial/Nodepp)
   
 ## Contribution
 
