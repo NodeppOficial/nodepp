@@ -62,17 +62,17 @@ namespace nodepp {
 class hash_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         ptr_t<uchar> buff;
         EVP_MD_CTX* ctx;
         uint length;
         int  state;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<NODE> obj = new NODE();
 
 public:
 
     template< class T >
-    hash_t( const T& type, ulong length ) : obj( new _str_() ) {
+    hash_t( const T& type, ulong length ) : obj( new NODE() ) {
         obj->buff  = ptr_t<uchar>( length );
         obj->ctx   = EVP_MD_CTX_new();
         obj->state = 1;
@@ -116,17 +116,17 @@ public:
 class hmac_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         ptr_t<uchar> buff;
         HMAC_CTX* ctx; 
         uint length;
         int  state;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
     template< class T >
-    hmac_t( const string_t& key, const T& type, ulong length ) : obj( new _str_() ) { 
+    hmac_t( const string_t& key, const T& type, ulong length ) : obj( new NODE() ) { 
         obj->buff  = ptr_t<uchar>( length ); 
         obj->ctx   = HMAC_CTX_new(); 
         obj->state = 1;
@@ -170,12 +170,12 @@ public:
 class encrypt_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         EVP_CIPHER_CTX* ctx;
         ptr_t<uchar> bff;
         string_t buff;
         int state, len;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
@@ -183,7 +183,7 @@ public:
     event_t<>         onClose;
 
     template< class T >
-    encrypt_t( const string_t& iv, const string_t& key, const T& type ) : obj( new _str_() ) {
+    encrypt_t( const string_t& iv, const string_t& key, const T& type ) : obj( new NODE() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1; 
@@ -192,7 +192,7 @@ public:
     }
 
     template< class T >
-    encrypt_t( const string_t& key, const T& type ) : obj( new _str_() ) {
+    encrypt_t( const string_t& key, const T& type ) : obj( new NODE() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1; 
@@ -242,12 +242,12 @@ public:
 class decrypt_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         EVP_CIPHER_CTX* ctx; 
         ptr_t<uchar> bff;
         int state, len;
         string_t buff;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
     
 public:
 
@@ -255,7 +255,7 @@ public:
     event_t<>         onClose;
 
     template< class T >
-    decrypt_t( const string_t& iv, const string_t& key, const T& type ) : obj( new _str_() ) {
+    decrypt_t( const string_t& iv, const string_t& key, const T& type ) : obj( new NODE() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1;
@@ -264,7 +264,7 @@ public:
     }
 
     template< class T >
-    decrypt_t( const string_t& key, const T& type ) : obj( new _str_() ) {
+    decrypt_t( const string_t& key, const T& type ) : obj( new NODE() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1;
@@ -314,19 +314,19 @@ public:
 class enc_base64_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         EVP_ENCODE_CTX* ctx; 
         ptr_t<uchar> bff;
         int state, len;
         string_t buff;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
     
 public:
 
     event_t<string_t> onData;
     event_t<>         onClose;
 
-    enc_base64_t() : obj( new _str_() ) {
+    enc_base64_t() : obj( new NODE() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,0);
         obj->ctx   = EVP_ENCODE_CTX_new();
         obj->state = 1;
@@ -377,16 +377,16 @@ public:
 class encoder_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         BIGNUM* bn;
         string_t chr;
         string_t buff;
         int      state;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
-    encoder_t( const string_t& chr ) : obj( new _str_() ) {
+    encoder_t( const string_t& chr ) : obj( new NODE() ) {
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
@@ -442,19 +442,19 @@ public:
 class dec_base64_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         EVP_ENCODE_CTX* ctx; 
         ptr_t<uchar> bff;
         int state, len;
         string_t buff;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
     event_t<string_t> onData;
     event_t<>         onClose;
 
-    dec_base64_t() : obj( new _str_() ) {
+    dec_base64_t() : obj( new NODE() ) {
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,0);
         obj->ctx   = EVP_ENCODE_CTX_new();
         obj->state = 1; 
@@ -505,19 +505,19 @@ public:
 class decoder_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         BIGNUM* bn;
         string_t chr;
         string_t buff;
         int      state;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
     event_t<string_t> onData;
     event_t<>         onClose;
 
-    decoder_t( const string_t& chr ) : obj( new _str_() ) {
+    decoder_t( const string_t& chr ) : obj( new NODE() ) {
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
@@ -571,17 +571,17 @@ public:
 class ecdh_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         EC_POINT *pub_key  = nullptr;
         BIGNUM   *priv_key = nullptr;
         EC_KEY   *key_pair = nullptr;
         int       state;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
     
 public:
 
     template< class T >
-    ecdh_t( const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
+    ecdh_t( const string_t& key, const T& type ) noexcept : obj( new NODE() ) {
         obj->state = 1;
 
         obj->key_pair = EC_KEY_new_by_curve_name(type);
@@ -596,7 +596,7 @@ public:
     }
 
     template< class T >
-    ecdh_t( const T& type ) noexcept : obj( new _str_() ) {
+    ecdh_t( const T& type ) noexcept : obj( new NODE() ) {
         obj->state = 1;
 
         obj->key_pair = EC_KEY_new_by_curve_name(type);
@@ -653,18 +653,18 @@ public:
 class ecdsa_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         EC_GROUP *key_group = nullptr;
         EC_POINT *pub_key   = nullptr;
         BIGNUM   *priv_key  = nullptr;
         EC_KEY   *key_pair  = nullptr;
         int       state;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
     
 public:
 
     template< class T >
-    ecdsa_t( const string_t& key, const T& type ) noexcept : obj( new _str_() ) {
+    ecdsa_t( const string_t& key, const T& type ) noexcept : obj( new NODE() ) {
         obj->state = 1;
 
         obj->key_pair  = EC_KEY_new_by_curve_name(type);
@@ -681,7 +681,7 @@ public:
     }
 
     template< class T >
-    ecdsa_t( const T& type ) noexcept : obj( new _str_() ) {
+    ecdsa_t( const T& type ) noexcept : obj( new NODE() ) {
         obj->state = 1;
 
         obj->key_pair  = EC_KEY_new();
@@ -741,16 +741,16 @@ public:
 class rsa_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         RSA*    rsa = nullptr;
         BIGNUM* num = nullptr;
         int   state;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
     
 public:
 
     template< class T >
-    rsa_t() : obj( new _str_() ) {
+    rsa_t() : obj( new NODE() ) {
         obj->rsa   = RSA_new();
         obj->num   =  BN_new();
         obj->state = 1;
@@ -832,12 +832,12 @@ public:
 class dh_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         DH* dh;
         BIGNUM* g;
         BIGNUM* k;
         int state;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
@@ -901,16 +901,16 @@ public:
 class dsa_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         DSA    *dsa = nullptr;
         uint    len = 512;
         int     state;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
     
 public:
 
     template< class T >
-    dsa_t( uint size ) : obj( new _str_() ) {
+    dsa_t( uint size ) : obj( new NODE() ) {
         obj->state = 1; obj->len = size; obj->dsa = DSA_new(); 
         if(!DSA_generate_parameters_ex( obj->dsa, obj->len, NULL, 0, NULL, NULL, NULL ) )
           { process::error("while generating DSA parameters"); }
@@ -920,7 +920,7 @@ public:
     }
 
     template< class T >
-    dsa_t( const string_t& path, uint size ) : obj( new _str_() ) { obj->state = 1;
+    dsa_t( const string_t& path, uint size ) : obj( new NODE() ) { obj->state = 1;
         obj->len = size; obj->dsa = DSA_new(); FILE* fp = fopen(path.c_str(),"r");
         if ( fp == nullptr ) process::error("such file or directory does not exist");
         obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, nullptr, nullptr );

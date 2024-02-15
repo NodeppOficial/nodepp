@@ -15,7 +15,7 @@ protected:
     
     using onSNI = function_t<ssl_t*,string_t>;
 
-    struct _str_ {
+    struct NODE {
         int          tpy = SSL_FILETYPE_PEM;
         string_t     key, crt, chn;
         SSL_CTX*     ctx = nullptr;
@@ -23,7 +23,7 @@ protected:
         bool         srv = 0;
         bool         cnn = 0;
         ptr_t<onSNI> fnc;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE>  obj;
     
     /*─······································································─*/
 
@@ -112,7 +112,7 @@ protected:
         );
     }
 
-public: ssl_t() noexcept : obj( new _str_() ) {}
+public: ssl_t() noexcept : obj( new NODE() ) {}
     
     virtual ~ssl_t() {
         if( obj.count() > 1 ) { return; }
@@ -121,33 +121,33 @@ public: ssl_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI* _func=nullptr ) : obj( new _str_() ) {
+    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI* _func=nullptr ) : obj( new NODE() ) {
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) || !fs::exists_file(_chain) )
             process::error("such key, cert or chain does not exist");
         if( _func != nullptr ) obj->fnc = new onSNI(*_func); 
              obj->key = _key;  obj->crt = _cert; obj->chn = _chain;
     }
 
-    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI _func ) : obj( new _str_() ) {
+    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI _func ) : obj( new NODE() ) {
           *this = ssl_t( _key, _cert, _chain, &_func );
     }
     
     /*─······································································─*/
 
-    ssl_t( const string_t& _key, const string_t& _cert, onSNI* _func=nullptr ) : obj( new _str_() ) {
+    ssl_t( const string_t& _key, const string_t& _cert, onSNI* _func=nullptr ) : obj( new NODE() ) {
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) )
             process::error("such key or cert does not exist");
         if( _func != nullptr ) obj->fnc = new onSNI(*_func); 
              obj->key = _key;  obj->crt = _cert; 
     }
 
-    ssl_t( const string_t& _key, const string_t& _cert, onSNI _func ) : obj( new _str_() ) {
+    ssl_t( const string_t& _key, const string_t& _cert, onSNI _func ) : obj( new NODE() ) {
           *this = ssl_t( _key, _cert, &_func );
     }
 
     /*─······································································─*/
 
-    ssl_t( ssl_t xtc, int df ) : obj( new _str_() ) {
+    ssl_t( ssl_t xtc, int df ) : obj( new NODE() ) {
         if( xtc.get_ctx() == nullptr ) process::error("ctx has no context");
             obj->ctx = xtc.get_ctx(); obj->ssl = SSL_new(obj->ctx); 
             obj->srv = xtc.is_server(); set_nonbloking_mode(); 

@@ -717,14 +717,14 @@
 namespace nodepp { class input_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         XEvent   event; int state = 0;
     	array_t<uint> button, key;
         Display* dpy = nullptr;
         Screen*  scr = nullptr;
         Window   win;
         int      id;
-    };  ptr_t<_str_>  obj;
+    };  ptr_t<NODE>  obj;
 
     ptr_t<float> screen_ref( const float& x, const float& y ) const noexcept{
         auto size = get_screen_size(); return {{
@@ -747,7 +747,7 @@ public:
 	
     /*─······································································─*/
 
-    input_t() noexcept : obj( new _str_() ) {
+    input_t() noexcept : obj( new NODE() ) {
         obj->dpy = XOpenDisplay( NULL );
         obj->id  = DefaultScreen( obj->dpy );
         obj->win = XRootWindow( obj->dpy, obj->id );

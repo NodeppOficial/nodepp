@@ -64,8 +64,8 @@ private:
     using INFO = inquiry_info;
 protected:
 
-    struct _str_ { int id, sk; };  
-    ptr_t<_str_> obj;
+    struct NODE { int id, sk; };  
+    ptr_t <NODE> obj;
 
 public:
 
@@ -74,7 +74,7 @@ public:
             close( obj->sk );
     }
 
-    bluetooth_t() : obj( new _str_() ) {
+    bluetooth_t() : obj( new NODE() ) {
         obj->id = hci_get_route(nullptr); if( obj->id < 0 ) 
         process::error("Failed to open Bluetooth adapter");
     }

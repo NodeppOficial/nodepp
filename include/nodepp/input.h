@@ -4,11 +4,11 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
-#include "windows/input.cpp"
+    #include "windows/input.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
-#include "posix/input.cpp"
+    #include "posix/input.cpp"
 #else
-#error "This OS Does not support input.h"
+    #error "This OS Does not support input.h"
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/

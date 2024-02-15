@@ -6,19 +6,16 @@
 namespace nodepp {
 template< class V > class queue_t {
 protected: 
-    template< class T > class _str_ { 
-    public:
-        _str_* nxt = nullptr; _str_* prv = nullptr;
-        _str_( T value ){ data = value; } T data; 
-        explicit operator T(){ return data; }
-        void    set( T arg ){ data = arg; }
-        T&      get() { return data; }
-        _str_*& next(){ return nxt; }
-        _str_*& prev(){ return prv; }
-    };  using self = _str_<V>;
 
-    self*       act = nullptr;
-    ptr_t<self> queue;
+    class NODE { public:
+        NODE* next = nullptr; 
+        NODE* prev = nullptr; V data; 
+        NODE( V value ){ data = value; } 
+        explicit operator V(){ return data; }
+    };
+
+    NODE*       act = nullptr;
+    ptr_t<NODE> queue;
 
     ptr_t<ulong> get_slice_range( long x, long y ) const noexcept {
         
@@ -50,7 +47,7 @@ protected:
     
 public: queue_t() noexcept {} 
 
-    ptr_t<self>& ptr() noexcept { return queue; }
+    ptr_t<NODE>& ptr() noexcept { return queue; }
 
     virtual ~queue_t() noexcept { 
         if( queue.count() > 1 )
@@ -61,26 +58,26 @@ public: queue_t() noexcept {}
 
     template< class T, ulong N >
     queue_t& operator=( const T (&value) [N] ) noexcept {
-        self* n = &queue; for( ulong i=0; i<N; i++ ){ 
+        NODE* n = &queue; for( ulong i=0; i<N; i++ ){ 
             if( n == nullptr ){ 
-                queue = new self( value[i] ); 
+                queue = new NODE( value[i] ); 
                     n = &queue; 
             } else {
-                n->nxt = new self( value[i] );
-                n->nxt->prv = n; n = n->nxt;
+                n->next = new NODE( value[i] );
+                n->next->prev = n; n = n->next;
             }
         }   return *this;
     }
 
     template < class T, ulong N >
     queue_t( const T (&value)[N] ) noexcept { 
-        self* n = &queue; for( ulong i=0; i<N; i++ ){ 
+        NODE* n = &queue; for( ulong i=0; i<N; i++ ){ 
             if( n == nullptr ){ 
-                queue = new self( value[i] ); 
+                queue = new NODE( value[i] ); 
                     n = &queue; 
             } else {
-                n->nxt = new self( value[i] );
-                n->nxt->prv = n; n = n->nxt;
+                n->next = new NODE( value[i] );
+                n->next->prev = n; n = n->next;
             }
         }
     }
@@ -89,26 +86,42 @@ public: queue_t() noexcept {}
 
     template< ulong N >
     queue_t& operator=( const V (&value) [N] ) noexcept {
-        self* n = &queue; for( ulong i=0; i<N; i++ ){ 
+        NODE* n = &queue; for( ulong i=0; i<N; i++ ){ 
             if( n == nullptr ){ 
-                queue = new self( value[i] ); 
+                queue = new NODE( value[i] ); 
                     n = &queue; 
             } else {
-                n->nxt = new self( value[i] );
-                n->nxt->prv = n; n = n->nxt;
+                n->next = new NODE( value[i] );
+                n->next->prev = n; n = n->next;
             }
         }   return *this;
     }
 
     template < ulong N >
     queue_t( const V (&value)[N] ) noexcept { 
-        self* n = &queue; for( ulong i=0; i<N; i++ ){ 
+        NODE* n = &queue; for( ulong i=0; i<N; i++ ){ 
             if( n == nullptr ){ 
-                queue = new self( value[i] ); 
+                queue = new NODE( value[i] ); 
                     n = &queue; 
             } else {
-                n->nxt = new self( value[i] );
-                n->nxt->prv = n; n = n->nxt;
+                n->next = new NODE( value[i] );
+                n->next->prev = n; n = n->next;
+            }
+        }
+    }
+    
+    /*─······································································─*/
+
+    template < class T >
+    queue_t( const T* value, ulong N ) noexcept { 
+        if( value == nullptr || N == 0 ){ return; }
+        NODE* n = &queue; for( ulong i=0; i<N; i++ ){ 
+            if( n == nullptr ){ 
+                queue = new NODE( value[i] ); 
+                    n = &queue; 
+            } else {
+                n->next = new NODE( value[i] );
+                n->next->prev = n; n = n->next;
             }
         }
     }
@@ -118,8 +131,8 @@ public: queue_t() noexcept {}
     bool empty() const noexcept { return queue == nullptr ? 1 : size() <= 0; }
 
     ulong size() const noexcept { 
-           if( queue  == nullptr ){ return 0; } self* n = &queue; ulong i = 1; 
-        while( n->nxt != nullptr ){ n = n->nxt; i++; } return i;
+           if( queue == nullptr ){ return 0; } NODE* n = &queue; ulong i = 1; 
+        while( n->next != nullptr ){ n = n->next; i++; } return i;
     }
     
     /*─······································································─*/
@@ -127,98 +140,94 @@ public: queue_t() noexcept {}
     ptr_t<V> data() const noexcept { 
         if( empty() ){ return nullptr; } ptr_t<V> res ( size() );
         ulong y=0; auto x = first(); while( x != nullptr ){ 
-            res[y] = x->get(); x = x->next(); y++;
+            res[y] = x->data; x = x->next; y++;
         }   return res;
     }
     
     /*─······································································─*/
 
-    template< class... T >
-    self* operator[]( T... args ) noexcept { 
-        return this->get( args... );
-    }
+    NODE* operator&( void ) const noexcept { return act==nullptr ? first() : act; }
 
-    self* operator&( void ) const noexcept { 
-        return act==nullptr ? first() : act; 
-    }
+    template< class... T >
+    NODE* operator[]( T... args ) noexcept { return this->get( args... ); }
     
     /*─······································································─*/
 
     long index_of( function_t<bool,V> func ) const noexcept {
-        long i=0; self* n = first(); if( empty() ){ return -1; } 
+        long i=0; NODE* n = first(); if( empty() ){ return -1; } 
         while( n!=nullptr ) { 
             if( func(n->data)== 1 ){ return i; }
-            if( n->nxt == nullptr ){ break; }
-            i++; n = n->nxt;
+            if( n->next == nullptr ){ break; }
+            i++; n = n->next;
         }   return -1;
     }
 
     ulong count( function_t<bool,V> func ) const noexcept { 
-        ulong i=0; self* n = first(); if( empty() ){ return 0; } 
+        ulong i=0; NODE* n = first(); if( empty() ){ return 0; } 
         while( n!=nullptr ) { 
             if( func(n->data)== 1 ){ i++; }
-            if( n->nxt == nullptr ){ break; }
-                n = n->nxt;
+            if( n->next == nullptr ){ break; }
+                n = n->next;
         }   return i;
     }
     
     /*─······································································─*/
 
     bool some( function_t<bool,V> func ) const noexcept {
-        if( empty() ){ return false; } self* n = first(); 
+        if( empty() ){ return false; } NODE* n = first(); 
         while( n!=nullptr ) { 
             if( func(n->data)== 1 ){ return 1; }
-            if( n->nxt == nullptr ){ break; }
-                n = n->nxt;
+            if( n->next == nullptr ){ break; }
+                n = n->next;
         }   return 0;
     }
 
     bool none( function_t<bool,V> func ) const noexcept {
         if( empty() ) return false;
-        self* n = first(); while( n!=nullptr ) { 
+        NODE* n = first(); while( n!=nullptr ) { 
             if( func(n->data)== 1 ){ return 0; }
-            if( n->nxt == nullptr ){ break; }
-                n = n->nxt;
+            if( n->next == nullptr ){ break; }
+                n = n->next;
         }   return 1;
     }
 
     bool every( function_t<bool,V> func ) const noexcept {
         if( empty() ) return false;
-        self* n = first(); while( n!=nullptr ) { 
+        NODE* n = first(); while( n!=nullptr ) { 
             if( func(n->data)== 0 ){ return 0; }
-            if( n->nxt == nullptr ){ break; }
-                n = n->nxt;
+            if( n->next == nullptr ){ break; }
+                n = n->next;
         }   return 1;
     }
 
     void map( function_t<void,V> func ) const noexcept {
-        if( empty() ){ return; } self* n = first(); 
-        while( n!=nullptr ){ func( n->data ); n = n->nxt; }
+        if( empty() ){ return; } NODE* n = first(); 
+        while( n!=nullptr ){ func( n->data ); n = n->next; }
     }
 
     /*─······································································─*/
 
 #ifndef ARDUINO
 
-    self* max() const noexcept { 
+    NODE* max() const noexcept { 
         if( empty() ){ return nullptr; } 
-        self* n = first(), p = first(); while( n!=nullptr ){ 
-            if( p->data < n->data ){ p = n; } n = n->nxt;
+        NODE* n = first(), p = first(); while( n!=nullptr ){ 
+            if( p->data < n->data ){ p = n; } n = n->next;
         }   return p;
     }
 
-    self* min() const noexcept { 
+    NODE* min() const noexcept { 
         if( empty() ){ return nullptr; } 
-        self* n = first(), p = first(); while( n!=nullptr ){ 
-            if( p->data > n->data ){ p = n; } n = n->nxt;
+        NODE* n = first(), p = first(); while( n!=nullptr ){ 
+            if( p->data > n->data ){ p = n; } n = n->next;
         }   return p;
     }
 
 #endif
     
-    bool is_item( self* item ) const noexcept {
+    bool is_item( NODE* item ) const noexcept {
         auto n = first(); while( n != nullptr && item != nullptr ){
-             if( n == item ){ return 1; } n = n->next();
+             if( n == item ){ return 1; } n = n->next;
         }    return 0;
     }
 
@@ -242,7 +251,7 @@ public: queue_t() noexcept {}
 	    insert( get(index), value ); 
     }
 
-    void insert( ulong index, ulong N, V* value ) noexcept {
+    void insert( ulong index, V* value, ulong N ) noexcept {
 	    index = clamp( index, 0UL, size() - 1 );
     	ulong i=index; for( ulong x=0; x<N; x++ ) {
 	        insert( x, value[x] );
@@ -257,19 +266,18 @@ public: queue_t() noexcept {}
         }
     }
 
-    void insert( self* index, const V& value ) noexcept {
-        if( empty() ){ queue = new self( value ); } 
-        if( index != nullptr ){ if( index == last() ) {
-                index->nxt = new self( value );
-                index->nxt->nxt = nullptr;
-                index->nxt->prv = index;
-            } else if( index == first() ) {
-                auto  prev = *queue; queue = new self( value );
-                queue->nxt = new self( prev ); 
-                queue->nxt->prv = index;
+    void insert( NODE* index, const V& value ) noexcept {
+        if( empty() ){ queue = new NODE( value ); } 
+        if( is_item(index) ){ if( index == last() ) {
+                index->next = new NODE( value );
+                index->next->prev = index;
+            } elif ( index == first() ) {
+                auto  prev  = *queue; queue = new NODE( value );
+                queue->next = new NODE( prev ); 
+                queue->next->prev = index;
             } else {
-                index->nxt = new self( value ); 
-                index->nxt->prv = index;
+                index->next = new NODE( value ); 
+                index->next->prev = index;
             }
         }
     }
@@ -288,50 +296,47 @@ public: queue_t() noexcept {}
         erase( get( r[0] ) ); 
     }
 
-    void erase( self* x ) noexcept {
+    void erase( NODE* x ) noexcept {
         if( x == nullptr || empty() ){ return; }
-        if( x == act ){ act = x->nxt; } if( x == first() ) {
-            if ( x->next() != nullptr ) x->next()->prev() = nullptr; 
-                 queue = x->next();
+        if( x == act ){ next(); } if ( x == first() ) {
+            if ( x->next != nullptr ){ x->next->prev = nullptr; }
+                 x->prev  = nullptr; queue = x->next;
         } else {
-            if ( x->prev() != nullptr ){ x->prev()->next() = x->next(); }
-            if ( x->next() != nullptr ){ x->next()->prev() = x->prev(); } delete x;
+            if ( x->prev != nullptr ){ x->prev->next = x->next; }
+            if ( x->next != nullptr ){ x->next->prev = x->prev; } delete x;
         }
     }
 
     /*─······································································─*/
 
-    self* get( long i=-2 ) noexcept { 
-        if( empty() ){ return nullptr; } if( i == -2 ){ 
-            if( act == nullptr )
-              { act  = next(); } return act; 
-        }   auto n = first(); i = ( i<0L ) ? 0L : i;
-        while( n->nxt != nullptr && i-->0 ){ n = n->nxt; } return n;
-    }
+    void set( NODE* x ) noexcept { if ( is_item(x) ) act = x; }
 
-    void set( self* x ) noexcept { if ( is_item(x) ) act = x; }
-    
-    /*─······································································─*/
+    NODE* get() noexcept { return act==nullptr ? first() : act; }
 
-    self* first() const noexcept { return &queue; }
-
-    self* last() const noexcept {
-        if( empty() ){ return nullptr; } self* n=first(); 
-        while( n->nxt != nullptr ){ n = n->nxt; } return n;
+    NODE* get( ulong x ) noexcept { 
+        if( empty() ){ return nullptr; } auto n = first();
+        while( n->next != nullptr && x-->0 ){ n = n->next; } return n;
     }
     
     /*─······································································─*/
-    
-    self* prev() noexcept { 
-        if( empty() ){ return nullptr; }
-        if( act == nullptr ){ act = last(); return act; }
-        act = act->prv == nullptr ? last() : act->prv; return act;
+
+    NODE* first() const noexcept { 
+        return queue.null() ? nullptr : &queue; 
+    }
+
+    NODE* last() const noexcept {
+        if( empty() ){ return nullptr; } NODE* n = &queue; 
+        while( n->next != nullptr ){ n = n->next; } return n;
     }
     
-    self* next() noexcept { 
-        if( empty() ){ return nullptr; }
-        if( act == nullptr ){ act = first(); return act; }
-        act = act->nxt == nullptr ? first() : act->nxt; return act;
+    /*─······································································─*/
+    
+    NODE* prev() noexcept { 
+        act = act != nullptr ? act->prev : last(); return act;
+    }
+    
+    NODE* next() noexcept { 
+        act = act != nullptr ? act->next : first(); return act;
     }
 
 };}

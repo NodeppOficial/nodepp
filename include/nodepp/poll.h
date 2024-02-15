@@ -3,11 +3,11 @@
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
         #include "event.h"
-        #include "windows/poll.cpp"
+        #include "windows/epoll.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
     #if   _POLL == NODEPP_POLL_EPOLL
         #include "event.h"
-        #include "posix/epoll.cpp"
+        #include "posix/poll.cpp"
     #elif _POLL == NODEPP_POLL_KPOLL
         #include "event.h"
         #include "posix/kpoll.cpp"
@@ -16,6 +16,7 @@
         #include "posix/poll.cpp"
     #endif
 #else
+    #include "event.h"
     #define NODEPP_NO_POLL
 #endif
 
@@ -26,21 +27,17 @@
 #ifdef NODEPP_NO_POLL
 
 namespace nodepp {
-
 namespace { using POLLFD = struct pollfd; }
 
 class poll_t : public NODEPP_GENERATOR_BASE {
 protected:
 
-    struct POLLFD {
-        int fd;
-        int md;
-    };
+    struct POLLFD { int fd; int md; };
 
-    struct _str_ {
-        array_t<POLLFD> ev;
+    struct NODE {
+        queue_t<POLLFD> ev;
         ptr_t<int>      ls;
-    };  ptr_t<_str_>    obj;
+    };  ptr_t<NODE>    obj;
 
 public:
 
@@ -48,11 +45,12 @@ public:
     event_t<int>    onError;
     event_t<int>    onRead;
 
-public: poll_t() noexcept : obj( new _str_() ) {}
+public: poll_t() noexcept : obj( new NODE() ) {}
 
     virtual ~poll_t() noexcept { 
         if ( obj.count() > 1 ){ return; }
-        for( auto x : obj->ev ) onError.emit( x.md ); 
+        for( auto x : obj->ev.data() ) 
+             onError.emit( x.md ); 
     }
 
     /*─······································································─*/
@@ -65,13 +63,15 @@ public: poll_t() noexcept : obj( new _str_() ) {}
 
     int emit () noexcept { 
         static ulong s = 0; static POLLFD x;
-    gnStart
+    gnStart 
+    
+        if( obj->ev.empty() ){ coEnd; }
 
-        while ( s-->0 ) { x = obj->ev[s];
-            if( x.md == 1 ){ obj->ev.erase(s); onWrite.emit(x.fd); obj->ls={{ 1, x.fd }}; coNext; }
-          elif( x.md == 0 ){ obj->ev.erase(s);  onRead.emit(x.fd); obj->ls={{ 0, x.fd }}; coNext; }
-          else             { obj->ev.erase(s); onError.emit(x.fd); obj->ls={{-1, x.fd }}; coNext; }
-        } s = obj->ev.size();
+        while ( obj->ev.next() ) { x=obj->ev.get()->data;
+            if( x.md == 1 ){ obj->ev.erase(obj->ev.get()); onWrite.emit(x.fd); obj->ls={{ 1, x.fd }}; coNext; }
+          elif( x.md == 0 ){ obj->ev.erase(obj->ev.get());  onRead.emit(x.fd); obj->ls={{ 0, x.fd }}; coNext; }
+          else             { obj->ev.erase(obj->ev.get()); onError.emit(x.fd); obj->ls={{-1, x.fd }}; coNext; }
+        }
 
     gnStop
     };
@@ -79,11 +79,11 @@ public: poll_t() noexcept : obj( new _str_() ) {}
     /*─······································································─*/
 
     void push_write( const int& fd ) noexcept { 
-	     obj->ev.unshift({ fd, 1 }); 
+	     obj->ev.push({ fd, 1 }); 
     }
 
     void push_read( const int& fd ) noexcept { 
-         obj->ev.unshift({ fd, 0 }); 
+         obj->ev.push({ fd, 0 }); 
     }
 
 };}

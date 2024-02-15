@@ -16,10 +16,10 @@ namespace { using POLLFD = WSAPOLLFD; }
 class poll_t : public NODEPP_GENERATOR_BASE {
 protected:
 
-    struct _str_ {
+    struct NODE {
         array_t<POLLFD> ev;
         ptr_t<int>      ls;
-    };  ptr_t<_str_>    obj;
+    };  ptr_t<NODE>    obj;
 
 
 public:
@@ -28,7 +28,7 @@ public:
     event_t<int>    onError;
     event_t<int>    onRead;
 
-public: poll_t() noexcept : obj( new _str_() ) {}
+public: poll_t() noexcept : obj( new NODE() ) {}
 
     virtual ~poll_t() noexcept { 
         if ( obj.count() > 1 ){ return; }

@@ -6,29 +6,30 @@
 namespace nodepp { class debug_t {     
 protected: 
 
-    struct _str_ { 
+    struct NODE { 
         void * ev = nullptr;
         string_t msg;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
     virtual ~debug_t() noexcept { 
-    //  if ( obj.count() > 2 ){ return; }
+        process::onSIGERR.off(obj->ev);
+        if ( obj.count() == 2 ){ 
 	    console::log( obj->msg, "closed" );  
-   	    process::onSIGERR.off(obj->ev);
+        }   
     }
     
     /*─······································································─*/
 
-    debug_t( const string_t& msg ) noexcept : obj(new _str_()) {
+    debug_t( const string_t& msg ) noexcept : obj(new NODE()) {
         obj->msg = msg; 
         auto inp = type::bind( this );
         obj->ev  = process::onSIGERR([=](){ inp->error(); });
 	               console::log( obj->msg, "open" );
     }
     
-    debug_t() noexcept : obj(new _str_()) {
+    debug_t() noexcept : obj(new NODE()) {
         auto inp = type::bind( this );
         obj->msg = "something went wrong";
         obj->ev  = process::onSIGERR([=](){ inp->error(); });

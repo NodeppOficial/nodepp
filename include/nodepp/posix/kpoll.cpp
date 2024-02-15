@@ -15,11 +15,11 @@ namespace { using KPOLLFD = struct kevent; }
 class poll_t : public NODEPP_GENERATOR_BASE {
 protected:
 
-    struct _str_ {
+    struct NODE {
         ptr_t<int>     ls;
         ptr_t<KPOLLFD> ev;
         int            pd;
-    };  ptr_t<_str_>   obj;
+    };  ptr_t<NODE>   obj;
 
 public:
 
@@ -29,7 +29,7 @@ public:
 
 public: 
 
-    poll_t() : obj( new _str_() ) {
+    poll_t() : obj( new NODE() ) {
         obj->pd = kqueue(); if( obj->pd == -1 )
         process::error("Can't open an epoll fd");
         obj->ev.resize( MAX_SOCKET );

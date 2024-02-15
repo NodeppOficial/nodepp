@@ -11,13 +11,13 @@
 namespace nodepp { class file_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         ulong        range[2] ={ 0, 0 };
         int          state    =  0;
         int          fd       = -1;
         ptr_t<char>  buffer;
         string_t     borrow;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<NODE> obj = new NODE();
     
     /*─······································································─*/
 

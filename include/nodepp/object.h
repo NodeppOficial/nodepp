@@ -15,25 +15,25 @@ private:
 
 protected: 
 
-    struct _str_ {
+    struct NODE {
         uint  type;
         any_t  mem;
-    }; ptr_t<_str_> obj;
+    }; ptr_t<NODE> obj;
 
 public:
 
     template< ulong N > 
-    object_t( const T (&arr) [N] ) noexcept : obj(new _str_()) { 
+    object_t( const T (&arr) [N] ) noexcept : obj(new NODE()) { 
         ARRAY mem (N); for( ulong x=N; x--; )
         { mem[x] = arr[x]; } obj->mem = mem; 
     }
 
     template< class U > 
-    object_t( const U& any ) noexcept : obj(new _str_()){ 
+    object_t( const U& any ) noexcept : obj(new NODE()){ 
         obj->mem = any; 
     }
     
-    object_t() noexcept : obj(new _str_()) {}
+    object_t() noexcept : obj(new NODE()) {}
 
     /*─······································································─*/
 

@@ -53,7 +53,7 @@ protected:
     using SOCKADDR    = struct sockaddr;
     using SOCKADDR_IN = struct sockaddr_in;
 
-    struct _str_ {
+    struct NODE {
 
         SOCKADDR server_addr, client_addr;
         int addrlen; bool srv=0; int len;
@@ -65,7 +65,7 @@ protected:
         ptr_t<char>  buffer;
         string_t     borrow;
 
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<NODE> obj = new NODE();
     
     /*─······································································─*/
 

@@ -22,9 +22,9 @@ private:
 
 protected:
 
-    struct _str_ {
+    struct NODE {
         HANDLE hClient;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
@@ -33,7 +33,7 @@ public:
         WlanCloseHandle( obj->hClient, NULL );
     }
 
-    wifi_t() : obj( new _str_() ) {
+    wifi_t() : obj( new NODE() ) {
         DWORD dwMaxClient = 2; DWORD dwCurVersion;
         DWORD dwResult = WlanOpenHandle(dwMaxClient, nullptr, &dwCurVersion, &obj->hClient);
         if( dwResult != ERROR_SUCCESS ){ process::error("Failed to open Wi-Fi adapter"); }

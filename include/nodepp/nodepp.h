@@ -36,9 +36,7 @@ namespace nodepp { namespace process {
                  process::env::set( y[0], y[1] ); 
             }} 
         }   while( i ++< argc - 1 );
-        #if _KERNEL != NODEPP_KERNEL_ARDUINO
             process::signal::start();
-        #endif
     }
     
     /*─······································································─*/
@@ -51,9 +49,7 @@ namespace nodepp { namespace process {
         x = process::loop::size(); while( x-->0 ){ process::loop::next(); coNext; }
         x = process::poll::size(); while( x-->0 ){ process::poll::next(); coNext; }
 
-        #if _KERNEL != NODEPP_KERNEL_ARDUINO
             process::delay( TIMEOUT );
-        #endif
 
     coStop
     }

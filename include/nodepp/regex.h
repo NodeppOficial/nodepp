@@ -10,34 +10,34 @@ namespace nodepp {
 class regex_t { 
 protected:
 
-    struct _str_ { public:
+    struct DONE { public:
 
         char data = 0; bool f=0, r=0, n=0; ulong idx = 0;
-        _str_* alt = nullptr; array_t<_str_*> nxt;
+        DONE* alt = nullptr; array_t<DONE*> nxt;
         ulong rep[2] = { 0, 0 };
 
-        virtual ~_str_(){ for( auto x:nxt ){ 
+        virtual ~DONE(){ for( auto x:nxt ){ 
             if(   x!=nullptr ){ delete x;     x = nullptr; }
         }   if( alt!=nullptr ){ delete alt; alt = nullptr; } }
 
-        void pipe( function_t<_str_*,_str_*> cb ){
-            _str_* n = this; while( n!=nullptr ){
+        void pipe( function_t<DONE*,DONE*> cb ){
+            DONE* n = this; while( n!=nullptr ){
                 idx = 0; n = cb( n );
             }
         }
 
-    };  ptr_t<_str_> root;
+    };  ptr_t<DONE> root;
 
     bool icase=false, multi=false, dotl=false;
 
-    _str_* null() const noexcept { _str_* nw = new _str_; nw->data = 1; return nw; }
+    DONE* null() const noexcept { DONE* nw = new DONE; nw->data = 1; return nw; }
 
-    void add_new( _str_*& act, _str_*& prv, char data ) const noexcept {
-        _str_* nw = new _str_; nw->data = data; 
+    void add_new( DONE*& act, DONE*& prv, char data ) const noexcept {
+        DONE* nw = new DONE; nw->data = data; 
         act->nxt.push( nw ); prv = act; act = nw;
     }
 
-    int can_repeat( _str_* NODE ) const noexcept { 
+    int can_repeat( DONE* NODE ) const noexcept { 
         if( !NODE->r ){ return -1; } NODE->idx++; 
 
           if ( (long)NODE->rep[1] == 0 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 :-1; } 
@@ -51,7 +51,7 @@ protected:
         
     }
 
-    void add_flag( const char& flag, _str_* act ) const noexcept {
+    void add_flag( const char& flag, DONE* act ) const noexcept {
         switch( string::to_lower(flag) ){
             case 'b': act->f = 1; act->data = flag; break;
             case 'w': act->f = 1; act->data = flag; break;
@@ -61,11 +61,11 @@ protected:
         }
     }
 
-    _str_* compile( const string_t& _reg ) const { 
+    DONE* compile( const string_t& _reg ) const { 
         
-        _str_* root = new _str_;
-        _str_* prv = nullptr;
-        _str_* act = root;
+        DONE* root = new DONE;
+        DONE* prv = nullptr;
+        DONE* act = root;
 
         for( ulong i=0; i<_reg.size(); i++ ){ char x = _reg[i];
 
@@ -75,11 +75,11 @@ protected:
             
             if( x == '?' || x == '*' || x == '+' ){ 
                 if( prv == nullptr ){ _ERROR(string::format( "regex at character: %d", i )); }
-                _str_* nw = new _str_; switch(x){
+                DONE* nw = new DONE; switch(x){
                     case '?': nw->r = 1; nw->rep[0] = 0; nw->rep[1] = 1; break;
                     case '*': nw->r = 1; nw->rep[0] = 1; nw->rep[1] =-1; break;
                     case '+': nw->r = 1; nw->rep[0] = 2; nw->rep[1] =-1; break;
-                }   nw->alt = new _str_; nw->alt->nxt.push(act);
+                }   nw->alt = new DONE; nw->alt->nxt.push(act);
                     prv->nxt[ prv->nxt.size()-1 ] = nw; 
                     act->nxt.push( null() ); act  = nw;
                 continue;
@@ -101,7 +101,7 @@ protected:
     
     /*─······································································─*/
 
-            if( x == '{' ){ i++; string_t s; ulong j=0; int k=0; _str_* nw = new _str_;
+            if( x == '{' ){ i++; string_t s; ulong j=0; int k=0; DONE* nw = new DONE;
                 if( prv == nullptr ){ _ERROR(string::format( "regex at character: %d", i )); }
 
                 while( i<_reg.size() ){ char y = _reg[i];
@@ -110,7 +110,7 @@ protected:
                     if( !string::is_digit(y) ){ _ERROR(string::format( "regex at character: %d", i )); } s.push(y); i++;
                 }   if( k!=-1 ){ _ERROR(string::format( "regex at character: %d", i )); }
 
-                    nw->alt = new _str_; nw->alt->nxt.push(act);
+                    nw->alt = new DONE; nw->alt->nxt.push(act);
                     prv->nxt[ prv->nxt.size()-1 ] = nw; 
                     act->nxt.push( null() ); act  = nw;
                     act->r = 1;
@@ -125,16 +125,16 @@ protected:
                     if( y == ']' ){ k--; break; } s.push(y); i++; j++;
                 }   if( k!=-1 ){ _ERROR(string::format( "regex at character: %d", i )); }
                 
-                act->alt = new _str_; for( ulong i=0; i<s.size(); i++ ){ 
+                act->alt = new DONE; for( ulong i=0; i<s.size(); i++ ){ 
                     if( s[i+1] == '-' && (i+2)<s.size() ){
                         auto a = min( s[i], s[i+2] ); 
                         auto b = max( s[i], s[i+2] );
                         for( auto j=a; j<=b; j++ ){
-                            _str_* nw = new _str_; nw->data = j; nw->n = n;
+                            DONE* nw = new DONE; nw->data = j; nw->n = n;
                             act->alt->nxt.push(nw); nw->nxt.push(null());
                         }   i+=2;
                     } else {
-                        _str_* nw = new _str_; nw->n = n;
+                        DONE* nw = new DONE; nw->n = n;
                         if( s[i] == '\\' ){ add_flag( s[i+1], nw ); i++; }
                         else              { nw->data = s[i]; }
                         act->alt->nxt.push(nw); nw->nxt.push(null());
@@ -154,7 +154,7 @@ protected:
     /*─······································································─*/
 
             if( x == '|' ){ add_new( act, prv, (char)1 ); 
-                root->nxt.push( new _str_ );
+                root->nxt.push( new DONE );
                 act = root->nxt[ root->nxt.size()-1 ];
                 continue; 
             }
@@ -164,17 +164,17 @@ protected:
 
     return root; }
 
-    ptr_t<ulong> match( const string_t& _str, ulong _off, _str_* NODE ) const noexcept {
+    ptr_t<ulong> match( const string_t& _str, ulong _off, DONE* NODE ) const noexcept {
         if( icase ){ _str.to_lower_case(); }
         
         ptr_t<ulong> _res ({ 0, 0 }); if( _str.empty() )return _res;
 
-        ulong i=_off; NODE->pipe([&]( _str_* NODE ){ 
+        ulong i=_off; NODE->pipe([&]( DONE* NODE ){ 
             
             char data = (i>=_str.size()) ? 1 : _str[i];
-            function_t<_str_*,bool> end ([&]( bool e ){ 
+            function_t<DONE*,bool> end ([&]( bool e ){ 
                 i++; if(e){ return NODE->nxt[0]; }
-                else { _off=i; return (_str_*) nullptr; }
+                else { _off=i; return (DONE*) nullptr; }
             });
 
             if( NODE->data == 0 ){
@@ -187,10 +187,10 @@ protected:
 
                         if( NODE->alt->nxt.size() <= k ){ i++; return NODE->nxt[0]; }
                             
-                        _str_* y = NODE->alt->nxt[k]; idx = match( _str, i, y );
+                        DONE* y = NODE->alt->nxt[k]; idx = match( _str, i, y );
                         bool d = ( idx[0] != idx[1] ) ? 1 : 0;
 
-                        if( d ) return (_str_*) nullptr; else { k++; continue; }
+                        if( d ) return (DONE*) nullptr; else { k++; continue; }
 
                     } else {
 
@@ -207,7 +207,7 @@ protected:
                         }
                     }
 
-                    }}  return (_str_*) nullptr;
+                    }}  return (DONE*) nullptr;
                 }
 
                 else for( auto x:NODE->nxt ){ 
@@ -216,7 +216,7 @@ protected:
                 }
 
                 if( i != _off ){ _res[0] = _off; _res[1] = i; 
-                    return (_str_*) nullptr; 
+                    return (DONE*) nullptr; 
                 }   return end(0); 
             }
 
@@ -239,7 +239,7 @@ protected:
                 }   return end(1);
             }
 
-            if( NODE->data == 1 ){ if( _off != i ){ _res[0] = _off; _res[1] = i; } return (_str_*) nullptr; }
+            if( NODE->data == 1 ){ if( _off != i ){ _res[0] = _off; _res[1] = i; } return (DONE*) nullptr; }
             if( data != NODE->data ){ return end(0); } return end(1);
 
         }); return _res;

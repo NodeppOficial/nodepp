@@ -216,10 +216,10 @@ VK_OEM_CLEAR	0xFE	Clear key
 namespace nodepp { class input_t {
 protected:
 
-    struct _str_ {    MSG msg;
+    struct NODE {    MSG msg;
     	array_t<uint> button, key;
         INPUT input; int state=0;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
     ptr_t<float> screen_ref( const float& x, const float& y ) const noexcept{
         auto size = get_screen_size(); return {{
@@ -227,7 +227,7 @@ protected:
         }};
 	};
 
-public: input_t() noexcept : obj( new _str_() ) {}
+public: input_t() noexcept : obj( new NODE() ) {}
 
     event_t<uint>      onButtonRelease;
     event_t<uint>      onButtonPress;

@@ -6,22 +6,22 @@
 namespace nodepp { class except_t { 
 protected: 
 
-    struct _str_ { 
+    struct NODE { 
         void * ev = nullptr;
         string_t msg;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
     virtual ~except_t() noexcept { 
-    //  if ( obj.count() > 2 ){ return; }
    	    process::onSIGERR.off(obj->ev);
+    //  if ( obj.count() > 2 ){ return; }
     }
 
     /*─······································································─*/
 
     template< class T, class = typename type::enable_if<type::is_class<T>::value,T>::type >
-    except_t( const T& except_type ) noexcept : obj(new _str_()) {
+    except_t( const T& except_type ) noexcept : obj(new NODE()) {
         obj->msg = except_type.what();
         auto inp = type::bind( this ); 
         obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
@@ -29,7 +29,7 @@ public:
 
     /*─······································································─*/
 
-    except_t( const string_t& msg ) noexcept : obj(new _str_()) {
+    except_t( const string_t& msg ) noexcept : obj(new NODE()) {
         obj->msg = msg;
         auto inp = type::bind( this ); 
         obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
@@ -37,7 +37,7 @@ public:
 
     /*─······································································─*/
 
-    except_t() noexcept : obj(new _str_()) {
+    except_t() noexcept : obj(new NODE()) {
         auto inp = type::bind( this ); 
         obj->msg = "something went wrong";
         obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });

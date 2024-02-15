@@ -73,10 +73,10 @@ private:
     using INFO = BLUETOOTH_DEVICE_INFO;
 
 protected:
-    struct _str_ {
+    struct NODE {
         HBLUETOOTH_RADIO_FIND hFind;
         HANDLE hRadio;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
@@ -85,7 +85,7 @@ public:
             CloseHandle( obj->hRadio );
     }
 
-    bluetooth_t() : obj( new _str_() ) {
+    bluetooth_t() : obj( new NODE() ) {
         obj->hFind = BluetoothFindFirstRadio( nullptr, &obj->hRadio );
         if( obj->hFind == nullptr )
           { process::error("Failed to open Bluetooth adapter"); }

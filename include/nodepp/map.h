@@ -9,14 +9,14 @@ protected:
 
     using T = type::pair<U,V>;
 
-    struct _str_ {
+    struct NODE {
         queue_t<T> queue;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
 public: 
 
     template< class... O >
-    map_t( const T& argc, const O&... args ) noexcept : obj(new _str_()) {
+    map_t( const T& argc, const O&... args ) noexcept : obj(new NODE()) {
         iterator::map([&]( T arg ){ obj->queue.push(arg); }, argc, args... );
     }
 
@@ -26,11 +26,11 @@ public:
     }
 
     template< ulong N >
-    map_t( const T (&args) [N] ) noexcept : obj(new _str_()) { 
+    map_t( const T (&args) [N] ) noexcept : obj(new NODE()) { 
         for( auto &x: args ){ obj->queue.push(x); }
     }
     
-    map_t() noexcept : obj(new _str_()) {}
+    map_t() noexcept : obj(new NODE()) {}
 
     /*─······································································─*/
 
@@ -38,13 +38,13 @@ public:
         auto x = obj->queue.first(); 
         
         while( !id.empty() && x != nullptr ){
-            if ( x->get().first == id )
-               { return x->get().second; } 
-            else x = x->next(); 
+            if ( x->data.first == id )
+               { return x->data.second; } 
+            else x = x->next; 
         }
 
                obj->queue.push({ id, V() }); 
-        return obj->queue.last()->get().second;
+        return obj->queue.last()->data.second;
     }
 
     /*─······································································─*/

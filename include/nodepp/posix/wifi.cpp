@@ -19,8 +19,8 @@ private:
 
 protected:
 
-    struct _str_ { int sockfd; };
-    ptr_t<_str_> obj;
+    struct NODE { int sockfd; };
+    ptr_t <NODE> obj;
 
 public:
 
@@ -29,7 +29,7 @@ public:
         iw_sockets_close( obj->sockfd ); 
     }
 
-    wifi_t() : obj( new _str_() ) { 
+    wifi_t() : obj( new NODE() ) { 
         obj->sockfd = iw_sockets_open(); if( obj->sockfd<0 )
              process::error("Failed to open Wi-Fi adapter");
     }

@@ -6,10 +6,10 @@
 namespace nodepp { template< class... A > class event_t { 
 protected:
 
-    struct _str_ {
+    struct NODE {
         function_t<void,A...> cb;
         bool                  on;
-    };  using ev = queue_t<_str_>;
+    };  using ev = queue_t<NODE>;
 
         ptr_t<ev> obj;
 
@@ -30,8 +30,8 @@ public: event_t() noexcept : obj( new ev ) {}
     void emit( const A&... args ) const noexcept {
         auto x = obj->first(); while( x != nullptr ){
              x->data.cb( args... ); if( !x->data.on )
-            { auto y=x->next(); obj->erase(x); x=y; } 
-             else x = x->next(); 
+            { auto y=x->next; obj->erase(x); x=y; } 
+              else x=x->next; 
         }
     }
     
@@ -40,7 +40,7 @@ public: event_t() noexcept : obj( new ev ) {}
     void off( void* id ) const noexcept { auto x = obj->first(); 
         while( id != nullptr && x != nullptr ){
             if ( x == id ){ obj->erase(x); break; } 
-            else x = x->next(); 
+            else x = x->next; 
         }
     }
 

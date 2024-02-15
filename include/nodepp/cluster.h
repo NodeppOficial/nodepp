@@ -4,15 +4,15 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
-#include "fs.h"
-#include "initializer.h"
-#include "windows/cluster.cpp"
+    #include "fs.h"
+    #include "initializer.h"
+    #include "windows/cluster.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
-#include "fs.h"
-#include "initializer.h"
-#include "posix/cluster.cpp"
+    #include "fs.h"
+    #include "initializer.h"
+    #include "posix/cluster.cpp"
 #else
-#error "This OS does not support cluster.h"
+    #error "This OS does not support cluster.h"
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/

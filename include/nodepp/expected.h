@@ -5,9 +5,7 @@ namespace nodepp {
 template <typename T, typename E> struct expected_t { 
 protected:
 
-    bool hasValue; union {
-       T data; E err;
-    };
+    bool hasValue; union { T data; E err; };
 
 public:
 

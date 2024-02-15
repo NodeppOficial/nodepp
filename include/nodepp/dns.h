@@ -4,15 +4,15 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
-#include "url.h"
-#include "socket.h"
-#include "windows/dns.cpp"
+    #include "url.h"
+    #include "socket.h"
+    #include "windows/dns.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
-#include "url.h"
-#include "socket.h"
-#include "posix/dns.cpp"
+    #include "url.h"
+    #include "socket.h"
+    #include "posix/dns.cpp"
 #else
-#error "This OS Does not support dns.h"
+    #error "This OS Does not support dns.h"
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/

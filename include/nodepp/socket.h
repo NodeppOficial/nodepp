@@ -4,13 +4,13 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
-#include "stream.h"
-#include "windows/socket.cpp"
+    #include "stream.h"
+    #include "windows/socket.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
-#include "stream.h"
-#include "posix/socket.cpp"
+    #include "stream.h"
+    #include "posix/socket.cpp"
 #else
-#error "This OS Does not support socket.h"
+    #error "This OS Does not support socket.h"
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/

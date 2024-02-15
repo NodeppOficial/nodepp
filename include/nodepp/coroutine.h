@@ -153,11 +153,13 @@ struct NODEPP_GENERATOR_BASE { protected:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define NODEPP_ARCH_CPU_64  4
-#define NODEPP_ARCH_CPU_32  3
-#define NODEPP_ARCH_ARM_64  2
-#define NODEPP_ARCH_ARM_32  1
-#define NODEPP_ARCH_UNKNOWN 0
+#define NODEPP_ARCH_ESP_8266 1
+#define NODEPP_ARCH_ESP_32   1
+#define NODEPP_ARCH_CPU_64   4
+#define NODEPP_ARCH_CPU_32   3
+#define NODEPP_ARCH_ARM_64   2
+#define NODEPP_ARCH_ARM_32   1
+#define NODEPP_ARCH_UNKNOWN  0
 
 #ifndef       _ARCH
 #if defined(__GNUC__)

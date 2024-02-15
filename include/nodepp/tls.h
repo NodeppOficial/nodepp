@@ -16,14 +16,14 @@ namespace nodepp {
 class tls_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         int                        state = 0;
         bool                       chck  = 1;
         agent_t                    agent;
         ssl_t                      ctx  ; 
         poll_t                     poll ;
         function_t<void,ssocket_t> func ;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
     
     /*─······································································─*/
 
@@ -39,7 +39,7 @@ protected:
         }   return 1; 
     }); }
     
-public: tls_t() noexcept : obj( new _str_() ) {}
+public: tls_t() noexcept : obj( new NODE() ) {}
 
     event_t<ssocket_t> onConnect;
     event_t<ssocket_t> onSocket;
@@ -49,8 +49,8 @@ public: tls_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    tls_t( decltype(_str_::func) _func, ssl_t* xtc, agent_t* opt=nullptr )
-    : obj( new _str_() ){ 
+    tls_t( decltype(NODE::func) _func, ssl_t* xtc, agent_t* opt=nullptr )
+    : obj( new NODE() ){ 
     if( xtc == nullptr ) process::error("Invalid SSL Contenx");
         obj->agent = opt==nullptr ? agent_t():*opt; 
         obj->func = _func; obj->ctx = *xtc; 
@@ -67,7 +67,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    void listen( const string_t& host, int port, decltype(_str_::func)* cb=nullptr  ) const noexcept {
+    void listen( const string_t& host, int port, decltype(NODE::func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_server() == -1 )
           { process::error(onError,"Error Initializing SSL context"); close(); return; }
         if( dns::lookup(host).empty() ){ process::error(onError,"dns couldn't get ip"); close(); return; }
@@ -112,13 +112,13 @@ public: tls_t() noexcept : obj( new _str_() ) {}
 
     }
 
-    void listen( const string_t& host, int port, decltype(_str_::func) cb ) const noexcept { 
+    void listen( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 
          listen( host, port, &cb ); 
     }
     
     /*─······································································─*/
 
-    void connect( const string_t& host, int port, decltype(_str_::func)* cb=nullptr  ) const noexcept {
+    void connect( const string_t& host, int port, decltype(NODE::func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_client() == -1 )
           { process::error(onError,"Error Initializing SSL context"); close(); return; }
         if( dns::lookup(host).empty() )
@@ -147,7 +147,7 @@ public: tls_t() noexcept : obj( new _str_() ) {}
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk); 
     }
 
-    void connect( const string_t& host, int port, decltype(_str_::func) cb ) const noexcept { 
+    void connect( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 
          connect( host, port, &cb ); 
     }
 

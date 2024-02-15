@@ -9,14 +9,14 @@
 namespace nodepp { class file_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         HANDLE       fd = INVALID_HANDLE_VALUE;
         ulong        range[2] = { 0, 0 };
         int          state    =   0;
         OVERLAPPED   ov    ;
         ptr_t<char>  buffer;
         string_t     borrow;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<NODE> obj = new NODE();
     
     /*─······································································─*/
 

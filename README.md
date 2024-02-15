@@ -50,6 +50,7 @@ Hello World!
 
 - **Nodepp:** compatible with Arduino [here](https://github.com/NodeppOficial/nodepp-arduino)
 - **Nodepp:** compatible with PC      [here](https://github.com/NodeppOficial/Nodepp)
+- **Nodepp:** compatible with ESPxxxx [here](https://github.com/NodeppOficial/Nodepp)
   
 ## Contribution
 

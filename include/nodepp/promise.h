@@ -62,24 +62,24 @@ namespace nodepp { namespace promise {
 namespace nodepp { template< class T, class V > class promise_t { 
 protected:
 
-    struct _str_ {
+    struct NODE {
         function_t<void,function_t<void,T>,function_t<void,V>> main_func;
         function_t<void,T> res_func;
         function_t<void,V> rej_func;
         function_t<void>   fin_func; int state;
-    };  ptr_t<_str_> obj = new _str_();
+    };  ptr_t<NODE> obj = new NODE();
 
     using slf = promise_t<T,V>;
 
 public:
 
-    promise_t& then( const decltype(_str_::res_func)& cb ) noexcept { obj->state=2; obj->res_func = cb; return (*this); }
+    promise_t& then( const decltype(NODE::res_func)& cb ) noexcept { obj->state=2; obj->res_func = cb; return (*this); }
     
-    promise_t& fail( const decltype(_str_::rej_func)& cb ) noexcept { obj->state=2; obj->rej_func = cb; return (*this); }
+    promise_t& fail( const decltype(NODE::rej_func)& cb ) noexcept { obj->state=2; obj->rej_func = cb; return (*this); }
 
     /*─······································································─*/
 
-    promise_t( const decltype(_str_::main_func)& cb ) noexcept { obj->main_func = cb; obj->state = 1; }
+    promise_t( const decltype(NODE::main_func)& cb ) noexcept { obj->main_func = cb; obj->state = 1; }
 
     virtual ~promise_t() noexcept { if( obj.count()>1 ){ return; } resolve(); }
 

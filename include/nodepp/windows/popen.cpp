@@ -9,7 +9,7 @@
 namespace nodepp { class popen_t { 
 protected:
 
-    struct _str_ {
+    struct NODE {
         PROCESS_INFORMATION pi;
         STARTUPINFO         si;
         int           fd;
@@ -17,7 +17,7 @@ protected:
         file_t  std_input;
         file_t  std_error;
         file_t  std_output;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
     template< class T >
     void _init_( const string_t& path, T& arg, T& env ) {
@@ -82,7 +82,7 @@ public:
     }
 
     template< class... T >
-    popen_t( const string_t& path, const initializer_t<string_t>& args ) : obj( new _str_() ) {
+    popen_t( const string_t& path, const initializer_t<string_t>& args ) : obj( new NODE() ) {
         array_t<const char*> arg; array_t<const char*> env; bool y=0;
 
         for ( auto x : args ) {

@@ -107,15 +107,15 @@ namespace nodepp { namespace date {
 namespace nodepp { class date_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         struct tm* info = nullptr;
         time_t time =::time( nullptr );
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
     
 public:
 
     template< class... V > 
-    date_t( const V&... args ) noexcept : obj( new _str_() ) { set_time( args... ); }
+    date_t( const V&... args ) noexcept : obj( new NODE() ) { set_time( args... ); }
     
     /*─······································································─*/
 

@@ -72,15 +72,15 @@ namespace nodepp { namespace { mutex_t mtx;
 namespace nodepp { class worker_t { 
 protected:
 
-    struct _str_ {
+    struct NODE {
         function_t<int>* cb;
         HANDLE thread;
         ptr_t<int> out;
         int state = 0;
         DWORD  id;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
 
-public: worker_t() noexcept : obj( new _str_ ) {}
+public: worker_t() noexcept : obj( new NODE ) {}
 
     virtual ~worker_t() noexcept {
         if( obj.count() > 1 ){ return; } 
@@ -91,7 +91,7 @@ public: worker_t() noexcept : obj( new _str_ ) {}
     /*─······································································─*/
 
     template< class T, class... V >
-    worker_t( T cb, V&... arg ) noexcept : obj( new _str_() ){
+    worker_t( T cb, V&... arg ) noexcept : obj( new NODE() ){
         ptr_t<type::pair<bool,T>> pb = new type::pair<bool,T>({ 0, cb });
         ptr_t<int>               out = new int(1);
         obj->cb = new function_t<int>([=](){ 

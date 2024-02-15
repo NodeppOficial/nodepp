@@ -53,11 +53,11 @@ protected:
     using SOCKADDR    = struct sockaddr;
     using SOCKADDR_IN = struct sockaddr_in;
 
-    struct _str_ {
+    struct DONE {
         socklen_t addrlen; bool srv=0; socklen_t len;
         SOCKADDR server_addr, client_addr;
         int _retry=10, retry=10;
-    };  ptr_t<_str_> skt = new _str_();
+    };  ptr_t<DONE> skt = new DONE();
     
     /*─······································································─*/
 

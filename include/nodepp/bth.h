@@ -15,13 +15,13 @@ namespace nodepp {
 class bth_t {
 protected:
 
-    struct _str_ {
+    struct NODE {
         int                        state = 0;
         bool                       chck  = 1;
         agent_t                    agent;
         poll_t                     poll ;
         function_t<void,bsocket_t> func ;
-    };  ptr_t<_str_> obj;
+    };  ptr_t<NODE> obj;
     
     /*─······································································─*/
 
@@ -38,7 +38,7 @@ protected:
         });
     }
     
-public: bth_t() noexcept : obj( new _str_() ) {}
+public: bth_t() noexcept : obj( new NODE() ) {}
 
     event_t<bsocket_t> onConnect;
     event_t<bsocket_t> onSocket;
@@ -48,7 +48,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    bth_t( decltype(_str_::func) _func, agent_t* opt ) noexcept : obj( new _str_() ) 
+    bth_t( decltype(NODE::func) _func, agent_t* opt ) noexcept : obj( new NODE() ) 
          { obj->func=_func; obj->agent=opt==nullptr?agent_t():*opt;  }
     
     /*─······································································─*/
@@ -62,7 +62,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
     
     /*─······································································─*/
 
-    void listen( const string_t& host, int port, decltype(_str_::func)* cb=nullptr ) const noexcept {
+    void listen( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; auto inp = type::bind( this );
 
         bsocket_t *sk = new bsocket_t; 
@@ -105,13 +105,13 @@ public: bth_t() noexcept : obj( new _str_() ) {}
 
     }
 
-    void listen( const string_t& host, int port, decltype(_str_::func) cb ) const noexcept { 
+    void listen( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 
          listen( host, port, &cb ); 
     }
     
     /*─······································································─*/
 
-    void connect( const string_t& host, int port, decltype(_str_::func)* cb=nullptr ) const noexcept {
+    void connect( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; auto inp = type::bind( this );
 
         bsocket_t sk = bsocket_t(); 
@@ -125,7 +125,7 @@ public: bth_t() noexcept : obj( new _str_() ) {}
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }
 
-    void connect( const string_t& host, int port, decltype(_str_::func) cb ) const noexcept { 
+    void connect( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 
          connect( host, port, &cb ); 
     }
 
