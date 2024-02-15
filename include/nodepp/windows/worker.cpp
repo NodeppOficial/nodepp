@@ -23,12 +23,12 @@ protected:
 
 public:
 
-    int lock(){ 
-        auto   x  = WaitForSingleObject( &mutex, INFINITE );
-        return x != WAIT_OBJECT_0;
-    }
+    int unlock() const noexcept { return ReleaseMutex( &mutex ); }
 
-    int unlock(){ return ReleaseMutex( &mutex ); }
+    int lock() const noexcept { 
+        auto   x  = WaitForSingleObject( &mutex, INFINITE );
+        return x == WAIT_OBJECT_0;
+    }
 
     mutex_t() : mutex( new HANDLE ) {
         if((*mutex=CreateMutex(NULL,0,NULL) ) == NULL )
