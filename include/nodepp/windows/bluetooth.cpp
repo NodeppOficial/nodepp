@@ -54,7 +54,10 @@ public: bsocket_t() noexcept : socket_t() {}
         set_reuse_port(1);
     #endif
         
-        SOCKADDR_BTH server  , client;
+        SOCKADDR_BTH server, client;
+        memset(&server, 0, sizeof(SOCKADDR_BTH));
+        memset(&client, 0, sizeof(SOCKADDR_BTH));
+
         server.port          = (ulong) port;
         server.addressFamily = AF;
 

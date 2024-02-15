@@ -296,6 +296,9 @@ public: socket_t() noexcept { socket::start_device(); }
     #endif
 
         SOCKADDR_IN server, client;
+        memset(&server, 0, sizeof(SOCKADDR_IN));
+        memset(&client, 0, sizeof(SOCKADDR_IN));
+
         server.sin_family  = AF;
         server.sin_port    = htons(port);
 

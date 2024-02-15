@@ -46,6 +46,9 @@ public: bsocket_t() noexcept : socket_t() {}
     #endif
         
         SOCKADDR_RC server, client;
+        memset(&server, 0, sizeof(SOCKADDR_RC));
+        memset(&client, 0, sizeof(SOCKADDR_RC));
+
         server.rc_channel = (uint8_t) port;
         server.rc_family  = AF;
 
