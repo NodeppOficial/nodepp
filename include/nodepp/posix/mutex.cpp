@@ -10,22 +10,33 @@ namespace nodepp { class mutex_t {
 protected:
 
     struct NODE {
+        void* addr = nullptr;
         pthread_mutex_t fd;
     };  ptr_t<NODE> mutex;
 
 public:
 
-    int unlock() const noexcept { return pthread_mutex_unlock(&mutex->fd)==0; }
+    void unlock() const noexcept { 
+        while( pthread_mutex_unlock(&mutex->fd)!=0 )
+             { process::delay(0); } 
+               mutex->addr = nullptr;
+    }
 
-    int lock()   const noexcept { return pthread_mutex_lock(&mutex->fd)==0; }
+    void lock() const noexcept { 
+        while( pthread_mutex_lock(&mutex->fd)!=0 )
+             { process::delay(0); } 
+               mutex->addr = &mutex;
+    }
 
     mutex_t() : mutex( new NODE() ) {
         if( pthread_mutex_init(&mutex->fd,NULL) != 0 )
           { process::error("Cant Start Mutex"); }
+            mutex->addr = nullptr;
     }
 
-    virtual ~mutex_t() noexcept { unlock();
-        if( mutex.count() > 1 ){ return; }
+    virtual ~mutex_t() noexcept {
+        if( mutex->addr == &mutex ){ unlock(); }
+        if( mutex.count() > 1 )    { return;   }
             pthread_mutex_destroy(&mutex->fd);
     }
 
