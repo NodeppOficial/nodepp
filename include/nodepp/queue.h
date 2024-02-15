@@ -279,7 +279,7 @@ public: queue_t() noexcept {}
                 auto prev = index->next;
                 index->next = new NODE( value ); 
                 index->next->prev = index;
-                prev->prev = indext->next;
+                prev->prev = index->next;
                 index->next->next = prev;
             }
         }
