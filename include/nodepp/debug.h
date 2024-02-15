@@ -17,7 +17,7 @@ public:
         process::onSIGERR.off(obj->ev);
         if ( obj.count() == 2 ){ 
 	    console::log( obj->msg, "closed" );  
-        }   
+        }
     }
     
     /*─······································································─*/
