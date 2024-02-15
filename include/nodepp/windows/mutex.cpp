@@ -10,25 +10,28 @@
 namespace nodepp { class mutex_t {
 protected:
 
-    ptr_t<HANDLE> mutex;
+    struct NODE {
+        HANDLER fd;
+    };  ptr_t<NODE> mutex;
 
 public:
 
-    int unlock() const noexcept { return ReleaseMutex( &mutex )!=0; }
+    int unlock() const noexcept { return ReleaseMutex( mutex->fd )!=0; }
 
     int lock() const noexcept { 
-        auto   x  = WaitForSingleObject( &mutex, INFINITE );
+        auto   x  = WaitForSingleObject( mutex->fd, INFINITE );
         return x == WAIT_OBJECT_0;
     }
 
-    mutex_t() : mutex( new HANDLE ) {
-        if((*mutex=CreateMutex(NULL,0,NULL) ) == NULL )
+    mutex_t() : mutex( new NODE() ) {
+        mutex->fd = CreateMutex(NULL,0,NULL);
+        if( mutex->fd == NULL )
           { process::error("Cant Start Mutex"); }
     }
 
     virtual ~mutex_t() noexcept {
         if( mutex.count() > 1 ){ return; }
-            CloseHandle(&mutex);
+            CloseHandle( mutex->fd );
     }
 
 };}
