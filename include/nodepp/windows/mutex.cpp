@@ -21,18 +21,18 @@ protected:
 
     struct NODE {
         void*  addr = nullptr;
-        HANDLER fd;
+        HANDLE fd;
     };  ptr_t<NODE> mutex;
 
 public:
 
-    int unlock() const noexcept { 
+    void unlock() const noexcept { 
         while( ReleaseMutex( mutex->fd ) == 0 )
              { worker::yield(); }
                mutex->addr = nullptr;
     }
 
-    int lock() const noexcept { 
+    void lock() const noexcept { 
         while( WaitForSingleObject( mutex->fd, INFINITE ) != 0 )
              { worker::yield(); }
                mutex->addr = &mutex;
