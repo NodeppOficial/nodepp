@@ -148,8 +148,7 @@ public: queue_t() noexcept {}
 
     NODE* operator&( void ) const noexcept { return act==nullptr ? first() : act; }
 
-    template< class... T >
-    NODE* operator[]( T... args ) noexcept { return this->get( args... ); }
+    NODE* operator[]( ulong idx ) noexcept { return this->get( idx ); }
     
     /*─······································································─*/
 
