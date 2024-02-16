@@ -7,10 +7,15 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace worker {
+
     void delay( ulong time ){ process::delay(time); }
+
     int    pid(){ return (int)pthread_self(); }
+
     void  exit(){ pthread_exit(NULL); }
-    void yield(){ process::delay(0); }
+
+    void yield(){ sched_yield(); }
+    
 }}
 
 /*────────────────────────────────────────────────────────────────────────────*/
