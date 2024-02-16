@@ -18,14 +18,13 @@ public:
 
     void wait( uchar count ) const noexcept { goto check;
 
-        loop:
-            if( obj->ctx != count ) { worker::yield(); }
+        loop: worker::yield();
         
         check:
             obj->mutex.lock(); 
-            if( obj->ctx>obj.count() ) obj->ctx = 0;
-            if( obj.count()>0 ) obj->ctx %= obj.count(); 
-            if( obj->ctx != count ) 
+            if( obj->ctx >= obj.count() ) obj->ctx = 0;
+            if( obj.count()>0 ) obj->ctx%=obj.count(); 
+            if( obj->ctx != count%obj.count() ) 
               { obj->mutex.unlock(); goto loop; }
             obj->mutex.unlock();
 
@@ -35,8 +34,7 @@ public:
 
     void wait() const noexcept { goto check;
 
-        loop:
-            if((obj->ctx%2) !=0 ) { worker::yield(); }
+        loop: worker::yield();
         
         check:
             obj->mutex.lock(); 
