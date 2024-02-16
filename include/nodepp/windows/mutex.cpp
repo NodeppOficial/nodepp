@@ -7,6 +7,15 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+namespace nodepp { namespace worker {
+    void delay( ulong time ){ process::delay(time); }
+    int    pid(){ return GetCurrentThreadId(); }
+    void yield(){ process::delay(0); }
+    void  exit(){ ExitThread(0); }
+}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 namespace nodepp { class mutex_t {
 protected:
 
@@ -18,14 +27,14 @@ protected:
 public:
 
     int unlock() const noexcept { 
-        while( ReleaseMutex( mutex->fd )==0 )
-             { process::delay(0); }
+        while( ReleaseMutex( mutex->fd ) == 0 )
+             { worker::yield(); }
                mutex->addr = nullptr;
     }
 
     int lock() const noexcept { 
         while( WaitForSingleObject( mutex->fd, INFINITE ) != 0 )
-             { process::delay(0); }
+             { worker::yield(); }
                mutex->addr = &mutex;
     }
 

@@ -6,15 +6,6 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace worker {
-    void delay( ulong time ){ process::delay(time); }
-    int    pid(){ return GetCurrentThreadId(); }
-    void yield(){ process::delay(0); }
-    void  exit(){ ExitThread(0); }
-}}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 namespace nodepp { namespace { mutex_t mtx;
 
     DWORD WINAPI sfunc( LPVOID arg ){

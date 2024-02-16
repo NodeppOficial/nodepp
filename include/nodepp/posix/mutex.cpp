@@ -6,6 +6,15 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+namespace nodepp { namespace worker {
+    void delay( ulong time ){ process::delay(time); }
+    int    pid(){ return (int)pthread_self(); }
+    void  exit(){ pthread_exit(NULL); }
+    void yield(){ process::delay(0); }
+}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 namespace nodepp { class mutex_t {
 protected:
 
@@ -18,13 +27,13 @@ public:
 
     void unlock() const noexcept { 
         while( pthread_mutex_unlock(&mutex->fd)!=0 )
-             { process::delay(0); } 
+             { worker::yield(); } 
                mutex->addr = nullptr;
     }
 
     void lock() const noexcept { 
         while( pthread_mutex_lock(&mutex->fd)!=0 )
-             { process::delay(0); } 
+             { worker::yield(); } 
                mutex->addr = &mutex;
     }
 
