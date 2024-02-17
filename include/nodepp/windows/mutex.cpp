@@ -31,6 +31,21 @@ protected:
 
 public:
 
+    mutex_t() : mutex( new NODE() ) {
+        mutex->fd   = CreateMutex( NULL, 0, NULL );
+        mutex->addr = nullptr;
+        if( mutex->fd == NULL )
+          { process::error("Cant Start Mutex"); }
+    }
+
+    virtual ~mutex_t() noexcept {
+        if( mutex->addr == (void*)this ){ unlock(); }
+        if( mutex.count() > 1 )         { return;   }
+            CloseHandle( mutex->fd );
+    }
+    
+    /*─······································································─*/
+
     void unlock() const noexcept { 
         while( ReleaseMutex( mutex->fd ) == 0 )
              { worker::yield(); }
@@ -40,20 +55,7 @@ public:
     void lock() const noexcept { 
         while( WaitForSingleObject( mutex->fd, INFINITE ) != 0 )
              { worker::yield(); }
-               mutex->addr = &mutex;
-    }
-
-    mutex_t() : mutex( new NODE() ) {
-        mutex->fd   = CreateMutex( NULL, 0, NULL );
-        mutex->addr = nullptr;
-        if( mutex->fd == NULL )
-          { process::error("Cant Start Mutex"); }
-    }
-
-    virtual ~mutex_t() noexcept {
-        if( mutex->addr == &mutex ){ unlock(); }
-        if( mutex.count() > 1 )    { return;   }
-            CloseHandle( mutex->fd );
+               mutex->addr = (void*)this;
     }
 
 };}
