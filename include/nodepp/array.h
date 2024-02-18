@@ -119,11 +119,11 @@ public: array_t() noexcept {};
     /*─······································································─*/
 
     long index_of( function_t<bool,T> func ) const noexcept { long i=0;
-        for( auto x : *this ){ if( func(x) ) return i; i++; } return -1;
+        for( auto& x : *this ){ if( func(x) ) return i; i++; } return -1;
     }
 
     ulong count( function_t<bool,T> func ) const noexcept { ulong n=0; 
-        for( auto x : *this ){ if( func(x) ) n++; } return n;
+        for( auto& x : *this ){ if( func(x) ) n++; } return n;
     }
     
     /*─······································································─*/
@@ -134,19 +134,19 @@ public: array_t() noexcept {};
     }
 
     bool some( function_t<bool,T> func ) const noexcept { 
-        for( auto x : *this ){ if( func(x) ) return 1; } return 0;
+        for( auto& x : *this ){ if( func(x) ) return 1; } return 0;
     }
 
     bool none( function_t<bool,T> func ) const noexcept { 
-        for( auto x : *this ){ if( func(x) ) return 0; } return 1;
+        for( auto& x : *this ){ if( func(x) ) return 0; } return 1;
     }
 
     bool every( function_t<bool,T> func ) const noexcept { 
-        for( auto x : *this ){ if( func(x) ) return 0; } return 1;
+        for( auto& x : *this ){ if( func(x) ) return 0; } return 1;
     }
 
     void map( function_t<void,T> func ) const noexcept { 
-        for( auto x : *this ){ func(x); }
+        for( auto& x : *this ){ func(x); }
     }
     
     /*─······································································─*/
@@ -201,11 +201,11 @@ public: array_t() noexcept {};
     }
 
     array_t copy() const noexcept { auto n_buffer = ptr_t<T>(size());
-        ulong n=first(); for( auto x : *this ){ n_buffer[n]=x; n++; } return n_buffer;
+        ulong n=first(); for( auto& x : *this ){ n_buffer[n]=x; n++; } return n_buffer;
     }
 
     array_t reverse() const noexcept { auto n_buffer = ptr_t<T>(size());
-        ulong n=last(); for( auto x : *this ){ n_buffer[n]=x; n--; } return n_buffer;
+        ulong n=last(); for( auto& x : *this ){ n_buffer[n]=x; n--; } return n_buffer;
     }
 
     array_t replace( function_t<bool,T> func, const T& targ ) const noexcept {
