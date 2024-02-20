@@ -23,6 +23,11 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
    process::pipe(); return 0; \
 }  void _init_
 
+#define onMain(CB) int main( int argc, char** args ){ \
+   process::start( argc, args ); CB(); \
+   process::pipe(); return 0; \
+}
+
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #define coReturn(VALUE) do { _state_ = _LINE_; return VALUE; case _LINE_:; } while (0)
@@ -73,11 +78,9 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define typeof(DATA) (string_t){ typeid( DATA ).name() }
+struct NODEPP_GENERATOR_BASE { protected: int _state_ = 0; };
 
-struct NODEPP_GENERATOR_BASE { protected:
-   int  _state_ = 0;
-};
+#define typeof(DATA) (string_t){ typeid( DATA ).name() }
 
 #define ullong  unsigned long long int
 #define ulong   unsigned long int

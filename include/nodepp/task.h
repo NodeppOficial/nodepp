@@ -23,7 +23,7 @@ namespace task {
             int rs = (pb->second)(arg...);
             pb->first = 0; return rs; 
         });
-    }
+    } 
 
     void next(){ onNext.emit();
         if( queue.empty() ){ return; }

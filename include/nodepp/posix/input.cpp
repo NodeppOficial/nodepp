@@ -923,17 +923,17 @@ public:
             elif( inp->obj->event.type == ButtonRelease ) { 
                      auto bt = inp->obj->event.xbutton.button;
                 for( ulong x=inp->obj->button.size(); x--; ){
-                    if( inp->obj->button[x] == bt ) 
-                      { inp->obj->button.erase(x); }
-                }   inp->onButtonRelease.emit( bt ); 
+                 if( inp->obj->button[x] == bt ) 
+                   { inp->obj->button.erase(x); }
+                }    inp->onButtonRelease.emit( bt ); 
             }
 
             elif( inp->obj->event.type == ButtonPress ) { 
                      auto bt = inp->obj->event.xbutton.button;
                 for( ulong x=inp->obj->button.size(); x--; ){
-                    if( inp->obj->button[x] == bt ){ return 1; }
-                }   inp->obj->button.push( bt ); 
-                    inp->onButtonPress.emit( bt );
+                 if( inp->obj->button[x] == bt ){ return 1; }
+                }    inp->obj->button.push( bt ); 
+                     inp->onButtonPress.emit( bt );
             }
 
     /*─······································································─*/
@@ -941,17 +941,17 @@ public:
             elif( inp->obj->event.type == KeyRelease ) { 
                      auto bt = inp->obj->event.xkey.keycode;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ) 
-                      { inp->obj->key.erase(x); }
-                }   inp->onKeyRelease.emit( bt ); 
+                 if( inp->obj->key[x] == bt ) 
+                   { inp->obj->key.erase(x); }
+                }    inp->onKeyRelease.emit( bt ); 
             }
 
             elif( inp->obj->event.type == KeyPress ) { 
                      auto bt = inp->obj->event.xkey.keycode;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ){ return 1; }
-                }   inp->obj->key.push( bt ); 
-                    inp->onKeyPress.emit( bt );
+                 if( inp->obj->key[x] == bt ){ return 1; }
+                }    inp->obj->key.push( bt ); 
+                     inp->onKeyPress.emit( bt );
             }
 
     /*─······································································─*/

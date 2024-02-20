@@ -218,7 +218,7 @@ protected:
 
     struct NODE {    MSG msg;
     	array_t<uint> button, key;
-        INPUT input; int state=0;
+        INPUT input; int state =0;
     };  ptr_t<NODE> obj;
 
     ptr_t<float> screen_ref( const float& x, const float& y ) const noexcept{
@@ -405,65 +405,65 @@ public: input_t() noexcept : obj( new NODE() ) {}
             elif( inp->obj->msg.message == WM_KEYDOWN ) { 
                      auto bt = inp->obj->msg.wParam;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ){ return 1; }
-                }   inp->obj->key.push( bt ); 
-                    inp->onKeyPress.emit( bt );
+                 if( inp->obj->key[x] == bt ){ return 1; }
+                }    inp->obj->key.push( bt ); 
+                     inp->onKeyPress.emit( bt );
             }
 
             elif( inp->obj->msg.message == WM_KEYUP ) { 
                      auto bt = inp->obj->msg.wParam;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ) 
-                      { inp->obj->key.erase(x); }
-                }   inp->onKeyRelease.emit( bt ); 
+                 if( inp->obj->key[x] == bt ) 
+                   { inp->obj->key.erase(x); }
+                }    inp->onKeyRelease.emit( bt ); 
             }
 
     /*─······································································─*/
 
             elif( inp->obj->msg.message == WM_LBUTTONDOWN ) { uint bt = 0;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ){ return 1; }
-                }   inp->obj->key.push( bt ); 
-                    inp->onKeyPress.emit( bt );
+                 if( inp->obj->key[x] == bt ){ return 1; }
+                }    inp->obj->key.push( bt ); 
+                     inp->onKeyPress.emit( bt );
             }
 
             elif( inp->obj->msg.message == WM_LBUTTONUP ) { uint bt = 0;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ) 
-                      { inp->obj->key.erase(x); }
-                }   inp->onKeyRelease.emit( bt ); 
+                 if( inp->obj->key[x] == bt ) 
+                   { inp->obj->key.erase(x); }
+                }    inp->onKeyRelease.emit( bt ); 
             }
 
     /*─······································································─*/
 
             elif( inp->obj->msg.message == WM_RBUTTONDOWN ) { uint bt = 1;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ){ return 1; }
-                }   inp->obj->key.push( bt ); 
-                    inp->onKeyPress.emit( bt );
+                 if( inp->obj->key[x] == bt ){ return 1; }
+                }    inp->obj->key.push( bt ); 
+                     inp->onKeyPress.emit( bt );
             }
 
             elif( inp->obj->msg.message == WM_RBUTTONUP ) { uint bt = 1;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ) 
-                      { inp->obj->key.erase(x); }
-                }   inp->onKeyRelease.emit( bt ); 
+                 if( inp->obj->key[x] == bt ) 
+                   { inp->obj->key.erase(x); }
+                }    inp->onKeyRelease.emit( bt ); 
             }
 
     /*─······································································─*/
 
             elif( inp->obj->msg.message == WM_MBUTTONDOWN ) { uint bt = 3;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ){ return 1; }
-                }   inp->obj->key.push( bt ); 
-                    inp->onKeyPress.emit( bt );
+                 if( inp->obj->key[x] == bt ){ return 1; }
+                }    inp->obj->key.push( bt ); 
+                     inp->onKeyPress.emit( bt );
             }
 
             elif( inp->obj->msg.message == WM_MBUTTONUP ) { uint bt = 3;
                 for( ulong x=inp->obj->key.size(); x--; ){
-                    if( inp->obj->key[x] == bt ) 
-                      { inp->obj->key.erase(x); }
-                }   inp->onKeyRelease.emit( bt ); 
+                 if( inp->obj->key[x] == bt ) 
+                   { inp->obj->key.erase(x); }
+                }    inp->onKeyRelease.emit( bt ); 
             }
 
     /*─······································································─*/
