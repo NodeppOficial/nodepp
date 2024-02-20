@@ -343,7 +343,7 @@ public: array_t() noexcept {};
     array_t slice( long start ) const noexcept {
 
 	    auto r = get_slice_range( start, size() );
-         if( r == nullptr ){ return {0,0}; } 
+         if( r == nullptr ){ return nullptr; } 
 
         auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
            { n_buffer[y++] = buffer[x]; } return n_buffer;
@@ -354,7 +354,7 @@ public: array_t() noexcept {};
     array_t slice( long start, long end ) const noexcept {
 
 	    auto r = get_slice_range( start, end );
-         if( r == nullptr ){ return {0,0}; } 
+         if( r == nullptr ){ return nullptr; } 
 
         auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
            { n_buffer[y++] = buffer[x]; } return n_buffer;
@@ -365,7 +365,7 @@ public: array_t() noexcept {};
     array_t splice( long start, ulong end ) noexcept { 
 
 	    auto r = get_splice_range( start, end );
-         if( r == nullptr ){ return {0,0}; } 
+         if( r == nullptr ){ return nullptr; } 
 
         auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
            { n_buffer[y++] = buffer[x]; } erase( r[0], r[0]+end ); return n_buffer;
@@ -375,7 +375,7 @@ public: array_t() noexcept {};
     array_t splice( long start, ulong del, const V (&value)[N] ) noexcept {
 
 	    auto r = get_splice_range( start, end );
-         if( r == nullptr ){ return {0,0}; } 
+         if( r == nullptr ){ return nullptr; } 
 
         auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
            { n_buffer[y++] = buffer[x]; }

@@ -338,7 +338,7 @@ public:
     string_t slice( long start ) const noexcept {
         
         auto r = get_slice_range( start, size() );
-         if( r == nullptr ){ return ""; }
+         if( r == nullptr ){ return nullptr; }
 
         auto n_buffer = string_t( buffer.data()+r[0], r[2] );
         return n_buffer;
@@ -349,7 +349,7 @@ public:
     string_t slice( long start, long end ) const noexcept {
         
         auto r = get_slice_range( start, end );
-         if( r == nullptr ){ return ""; }
+         if( r == nullptr ){ return nullptr; }
 
         auto n_buffer = string_t( buffer.data()+r[0], r[2] );
         return n_buffer;
@@ -360,7 +360,7 @@ public:
     string_t splice( long start, ulong end ) noexcept { 
         
         auto r = get_splice_range( start, end );
-         if( r == nullptr ){ return ""; }
+         if( r == nullptr ){ return nullptr; }
 
         auto n_buffer = string_t( buffer.data()+r[0], r[2] );
         erase( r[0], r[0]+end ); return n_buffer;
@@ -370,7 +370,7 @@ public:
     string_t splice( long start, ulong end, const V& value ) noexcept {
         
         auto r = get_splice_range( start, end );
-         if( r == nullptr ){ return ""; }
+         if( r == nullptr ){ return nullptr; }
 
         auto n_buffer = string_t( buffer.data()+r[0], r[2] );
         erase( r[0], r[0]+end ); insert( r[0], value ); return n_buffer;

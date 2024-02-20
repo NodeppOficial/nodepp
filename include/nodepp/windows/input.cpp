@@ -216,9 +216,15 @@ VK_OEM_CLEAR	0xFE	Clear key
 namespace nodepp { class input_t {
 protected:
 
-    struct NODE {    MSG msg;
+    struct image_t {
+        ptr_t<uchar> image;
+        int with, height;
+    }
+
+    struct NODE {
     	array_t<uint> button, key;
-        INPUT input; int state =0;
+        INPUT input; int state =0; 
+        MSG   msg;
     };  ptr_t<NODE> obj;
 
     ptr_t<float> screen_ref( const float& x, const float& y ) const noexcept{
@@ -249,6 +255,8 @@ public: input_t() noexcept : obj( new NODE() ) {}
 
     /*─······································································─*/
 
+    void close() const noexcept { if( obj->state == -1 ){ return; } obj->state = -1; onClose.emit(); }
+
     bool is_closed() const noexcept { return obj==nullptr ? 1 : obj->state==-1; }
 
     virtual void force_close() const noexcept {
@@ -256,12 +264,34 @@ public: input_t() noexcept : obj( new NODE() ) {}
 			obj->state =  -1;
     }
 
-    void close() const noexcept { obj->state = -1; }
+    /*─······································································─*/
+
+    image_t take_screenshot() noexcept {
+        HDC hdcScreen     = GetDC( NULL );
+        auto size         = get_screen_size();
+        HDC hdcMemDC      = CreateCompatibleDC(hdcScreen);
+        ptr_t<uchar> screenData ( (ulong)( size[0] * size[1] * 3 ) );
+
+        HBITMAP hbmScreen = CreateCompatibleBitmap( hdcScreen, size[0], size[1] );
+                            SelectObject( hdcMemDC, hbmScreen );
+
+        BitBlt( hdcMemDC, 0, 0, size[0], size[1], hdcScreen, 0, 0, SRCCOPY );
+        GetDIBits( hdcMemDC, hbmScreen, 0, height, &screenData, ... );
+
+        DeleteObject( hbmScreen ); DeleteDC( hdcMemDC );
+        ReleaseDC( NULL, hdcScreen );
+
+        image_t image; 
+                image.image  = screenData;
+                image.width  = size[0];
+                image.height = size[1];
+
+        return image;
+    }
 
     /*─······································································─*/
 
     string_t get_clipboard() const noexcept { string_t s;
-
         if ( !OpenClipboard(nullptr) ) { return s; }
 
         HANDLE clipboardData = GetClipboardData( CF_TEXT );
@@ -276,7 +306,6 @@ public: input_t() noexcept : obj( new NODE() ) {}
     }
 
     int set_clipboard( string_t msg ) const noexcept {
-
         if( !OpenClipboard(nullptr) ) { return -1; }
 
         HGLOBAL clipboardData = GlobalAlloc( GMEM_MOVEABLE, msg.size() );
@@ -468,7 +497,7 @@ public: input_t() noexcept : obj( new NODE() ) {}
 
     /*─······································································─*/
 
-            if( inp->obj->state == 1 ) coGoto(0);
+            if( !inp->is_closed() ) coGoto(0);
 			
 		coStop 
         });

@@ -717,6 +717,11 @@
 namespace nodepp { class input_t {
 protected:
 
+    struct image_t {
+        ptr_t<uchar> image;
+        int with, height;
+    }
+
     struct NODE {
         XEvent   event; int state = 0;
     	array_t<uint> button, key;
@@ -782,10 +787,35 @@ public:
 
     void close() const noexcept { if( obj->state == -1 ){ return; } obj->state = -1; onClose.emit(); }
 
+    bool is_closed() const noexcept { return obj==nullptr ? 1 : obj->state==-1; }
+
     virtual void force_close() const noexcept {
         if( obj->state == -1 ){ return; } obj->state = -1; 
         	XDestroyWindow( obj->dpy, obj->win ); 
 			XCloseDisplay( obj->dpy );
+    }
+
+    /*─······································································─*/
+
+    image_t take_screenshot() noexcept { XWindowAttributes gwa; ulong length = 0;
+        XGetWindowAttributes( obj->dpy, obj->win, &gwa ); int w=gwa.width, h=gwa.height;
+        XImage *image = XGetImage( obj->dpy, obj->win, 0, 0, w, ht, AllPlanes, ZPixmap );
+
+        ptr_t<uchar> screenData ( (ulong)( image->width * image->height * 3 ) );
+       
+        for( int y=0; y<image->height; y++ ){ for( int x=0; x<image->width; x++ ){
+            ulong pixel = XGetPixel( image, x, y );
+            screenData[length] = (pixel&image->red_mask)   >> image->red_shift;   length++;
+            screenData[length] = (pixel&image->green_mask) >> image->green_shift; length++;
+            screenData[length] = (pixel&image->blue_mask)  >> image->blue_shift;  length++;
+        }}
+
+        image_t image; 
+                image.image  = screenData;
+                image.width  = image->width;
+                image.height = image->height;
+
+        return image;
     }
 
     /*─······································································─*/
@@ -796,6 +826,7 @@ public:
         Atom type; int format; ulong length; uchar* data;
 
         XGetWindowProperty( obj->dpy, obj->win, clipboard, 0, 0, 0, AnyPropertyType, &type, &format, &length, &length, &data );
+        XGetWindowProperty( obj->dpy, obj->win, clipboard, 0, length, False, AnyPropertyType, &type, &format, &length, &data );
 
         if ( type == utf8String && format == 8 ) {
             string_t result = { (char*) data, length };
@@ -804,7 +835,8 @@ public:
     }
 
     int set_clipboard( string_t msg ) const noexcept {
-        Atom utf8String = XInternAtom( obj->dpy, "UTF8_STRING", 0 ); Atom clipboard  = XInternAtom( obj->dpy, "CLIPBOARD"  , 0 );
+        Atom utf8String = XInternAtom( obj->dpy, "UTF8_STRING", 0 ); 
+        Atom clipboard  = XInternAtom( obj->dpy, "CLIPBOARD"  , 0 );
         return XChangeProperty( obj->dpy, obj->win, clipboard, utf8String, 8, PropModeReplace, (uchar*)(msg.c_str()), msg.size() );
     }
 
@@ -956,7 +988,7 @@ public:
 
     /*─······································································─*/
 
-            if( inp->obj->state == 1 ) coGoto(0);
+            if( !inp->is_closed() ) coGoto(0);
 			
 		coStop 
         });

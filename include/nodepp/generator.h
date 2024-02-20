@@ -103,7 +103,7 @@ namespace nodepp { namespace _file_ {
         ulong size = 0;
         
     template< class T > gnEmit( T* str, const string_t& msg ){
-    gnStart c=0; y=0; str->flush(); str->del_borrow();
+    gnStart c=0; y=0; str->flush(); //str->del_borrow();
 
         if( !str->is_available() || msg.empty() ){ str->close(); coEnd; } 
         if(  str->get_borrow().empty() ){ str->set_borrow( msg ); }
@@ -570,14 +570,16 @@ namespace nodepp {
         ulong LEN = 0; //64b
     };
 
-    ulong write_ws_frame( char* bf, const ulong& sx ){
+    template< class T >
+    ulong write_ws_frame( char* bf, const ulong& sx, T* str ){
         static ulong len;
 
         if( bf    == nullptr    ){ return   0; }
         if( bf[0] == (char)0x81 ){ return len; }
 
-        string_t y = string_t( bf, sx ); uint idx = 0; 
+        string_t y = string_t( bf, sx ); uint idx = 0;
         auto   byt = encoder::bytes::get( y.size() ); 
+        ulong  lst = 0;
 
         bf[idx] = (char) 0b10000001; idx++;
         bf[idx] = (char) 0b00000000; // 0b10000000 MASKED
@@ -597,28 +599,29 @@ namespace nodepp {
         }
 
         for( ulong x = 0; x<y.size(); x++ ){
-             bf[idx] = y[x]; idx++;
-        }    
+             bf[idx] = y[x]; idx++; lst=x;
+        }    str->set_borrow( y.slice(lst) );
         
         len = idx; return idx; 
     }
 
-    ulong read_ws_frame( char* bf, const ulong& /*unused*/ ){
+    template< class T >
+    ulong read_ws_frame( char* bf, const ulong& /*unused*/, T* /*unused*/ ){
 
         if( bf == nullptr ){ return  0; }
 
-        uint   idx = 0; ws_frame_t st;
-        string_t y = string::to_bin( bf[idx] ); idx++;
+        uint idx = 0; ws_frame_t st;
+        auto y = array_t<bool>(encoder::bin::get( bf[0] )); 
 
-        st.FIN = y.splice(0,1) == "1";
+        st.FIN = y.splice(0,1)[0] == 1; idx++;
 
-        for( auto x : y.splice(0,3) ) st.RSV = st.RSV<<1 | (x=='1');
-        for( auto x : y.splice(0,4) ) st.OPC = st.OPC<<1 | (x=='1');
+        for( auto x : y.splice(0,3) ) st.RSV = st.RSV<<1 | x;
+        for( auto x : y.splice(0,4) ) st.OPC = st.OPC<<1 | x;
 
-        y = string::to_bin( bf[idx] ); idx++; 
-        st.MSK = y.splice(0,1) == "1"; 
+        y = array_t<bool>(encoder::bin::get( bf[1] ));
+        st.MSK = y.splice(0,1)[0] == 1; idx++; 
 
-        for( auto x : y.splice(0,7) ) st.LEN = st.LEN<<1 | (x=='1');
+        for( auto x : y.splice(0,7) ) st.LEN = st.LEN<<1 | x;
         if ( st.LEN == 126 ){ st.LEN = 0;
             st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
             st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
