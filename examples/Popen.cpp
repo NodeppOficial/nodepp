@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _main_() {
+onMain([](){
 
     array_t<string_t> cmd ({ "curl", "http://www.google.com/", "-Ls" });
     auto p = popen::async( cmd[0], cmd );
@@ -24,4 +24,4 @@ void _main_() {
         console::log( ":>", chunk );
     });
 
-}
+})

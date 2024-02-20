@@ -8,7 +8,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
 
     promise_t<int,int>([=]( function_t<void,int> res, function_t<void,int> rej ){
         timer::timeout([=](){ res(10); },1000);
@@ -22,6 +22,6 @@ void _main_() {
         console::error(":>",rej);
     });
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

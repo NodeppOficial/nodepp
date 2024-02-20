@@ -9,7 +9,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
     
     auto _rdb = fs::readable( path::join( os::cwd(), "www", "kloud.mp4" ) );
     auto _wrt = fs::writable( path::join( os::cwd(), "www", "mojon.mp4" ) );
@@ -23,6 +23,7 @@ void _main_() {
     });
 
     stream::pipe( _rdb, _wrt );
-}
+
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

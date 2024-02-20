@@ -7,7 +7,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
 
     tuple_t<int,float,string_t> tp ( 10, 10.50, "hello world!" );
 
@@ -15,6 +15,6 @@ void _main_() {
     console::log( tuple::get<1>(tp) );
     console::log( tuple::get<2>(tp) );    
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

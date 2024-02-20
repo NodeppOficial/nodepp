@@ -32,10 +32,10 @@ void decrypt(){
 
 }
 
-void _main_() {
+onMain([](){
 
      if ( process::env::get("mode") == "A" )
           encrypt();
      else decrypt();
 
-}
+})

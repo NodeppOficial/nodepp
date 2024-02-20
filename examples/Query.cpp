@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _main_() {
+onMain([](){
 
     auto q = query::parse( "?var1=10&var2=20&var3=30" );
 
@@ -19,4 +19,4 @@ void _main_() {
 
     console::log( query::format(q) );
 
-}
+})

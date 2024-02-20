@@ -7,7 +7,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
 	
     string_t dir = path::join( os::cwd(), "www", "index.html" );
     auto     ppt = path::parse( dir );
@@ -19,6 +19,6 @@ void _main_() {
     console::log( "base:", ppt.base );
     console::log( "extn:", ppt.ext );
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

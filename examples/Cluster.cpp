@@ -3,7 +3,7 @@
 
 using namespace nodepp;
 
-void _main_() {
+onMain([](){
 
     auto p = cluster::add({ "hello ", "world ", "dude " });
 
@@ -29,4 +29,4 @@ void _main_() {
         }    p.werror("nice");
     }
 
-}
+})

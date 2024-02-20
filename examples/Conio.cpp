@@ -2,7 +2,7 @@
 
 using namespace nodepp;
 
-void _main_() {
+onMain([](){
 
     conio::foreground( C_GREEN | C_BOLD );
     conio::print(" Hello World! \n");
@@ -28,4 +28,4 @@ void _main_() {
 
     conio::print(" Hello World! \n");
 
-}
+})

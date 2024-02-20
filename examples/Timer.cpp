@@ -7,7 +7,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
 
     //Interval: a setInterval equivalent
     auto A = timer::interval([=](){ 
@@ -24,6 +24,6 @@ void _main_() {
     //NOTE: this code will not work until delete the next line
     timer::clear(A); timer::clear(B);
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

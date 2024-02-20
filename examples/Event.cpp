@@ -10,7 +10,7 @@ using namespace nodepp;
 
 event_t<> ev; 
 
-void _main_() {
+onMain([](){
 
   ev.once([](){ console::done(" Bye World! "); });
 
@@ -35,6 +35,6 @@ void _main_() {
 
   console::log(" before event emitter ");
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

@@ -31,9 +31,9 @@
 
 using namespace nodepp;
 
-void _main_() {
+onMain([](){
     console::log("Hello World!");
-}
+})
 ```
 ```
 Hello World!

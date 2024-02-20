@@ -2,7 +2,7 @@
 
 using namespace nodepp;
 
-void _main_() {
+onMain([](){
 
     console::log("message");
     
@@ -16,4 +16,4 @@ void _main_() {
 
     console::warning("message");
 
-}
+})

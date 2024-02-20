@@ -6,12 +6,12 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
 
     process::env::init(".env");
     console::log( process::env::get("VARA") );
     console::log( process::env::get("VARB") );
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

@@ -7,7 +7,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
 	
     string_t uri = "http://becerra:enmanuel@www.google.com/path/to/file#done?var1=10&var2=50&var3=100&var4=hello_world!";
     auto     ppt = url::parse( uri ); 
@@ -28,6 +28,6 @@ void _main_() {
     for( auto x : ppt.query )
          console::log( x.first, ":>", x.second );
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

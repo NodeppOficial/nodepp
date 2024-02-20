@@ -4,7 +4,10 @@
 
 using namespace nodepp;
 
-void _main_() {
-    input_t inp;
+input_t inp;
+
+onMain([](){
+
     inp.set_mouse_position( 0, 0 );
-}
+
+})

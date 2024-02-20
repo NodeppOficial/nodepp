@@ -8,7 +8,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
     
     string_t dir = path::join( os::cwd(), "LICENSE" );
     auto    _str = fs::readable( dir );
@@ -19,6 +19,6 @@ void _main_() {
 
     stream::pipe(_str);
     
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

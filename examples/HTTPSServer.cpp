@@ -8,7 +8,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
 
     ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
 
@@ -29,6 +29,6 @@ void _main_() {
         console::log("server started at https://localhost:8000");
     });
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

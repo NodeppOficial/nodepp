@@ -12,7 +12,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
 
     auto server = http::server([=]( http_t cli ){ 
 
@@ -78,6 +78,6 @@ void _main_() {
         console::log("server started at http://localhost:8000");
     });
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/

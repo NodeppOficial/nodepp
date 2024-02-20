@@ -7,7 +7,7 @@ using namespace nodepp;
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-void _main_() {
+onMain([](){
     
     //Write File
     file_t fileA ( "file.txt", "w" );
@@ -19,6 +19,6 @@ void _main_() {
     file_t fileB ( "file.txt", "r" );
     console::log( fileB.read() );
 
-}
+})
 
 /*────────────────────────────────────────────────────────────────────────────*/
