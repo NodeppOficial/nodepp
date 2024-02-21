@@ -2,16 +2,6 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include <netdb.h>
-#include <iomanip>
-#include <net/if.h>
-#include <ifaddrs.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 namespace {
     using HOSTENT = struct hostent;
     using INADDR  = struct in_addr;
@@ -44,26 +34,21 @@ namespace nodepp { namespace dns {
             }
         }
 
-        return "";
+        return nullptr;
     }
     
     /*─······································································─*/
 
-    string_t get_hostname( const string_t& device ){ socket::start_device();
-        struct ifaddrs *interfaces = NULL;
-        struct ifaddrs *temp_addr  = NULL;
-        string_t result;
+    string_t get_hostname(){
+        auto socket = socket_t();
+        auto result = string_t();
+            
+        socket.SOCK = SOCK_DGRAM;
+        socket.PROT = IPPROTO_UDP;
+        socket.socket ( "127.0.0.1", 0 );
+        socket.connect();
 
-        if ( getifaddrs(&interfaces) == 0 ) {
-            temp_addr = interfaces; while (temp_addr!=NULL) {
-                if ( temp_addr->ifa_addr->sa_family == AF_INET ) {
-                if ( strcmp(temp_addr->ifa_name,device.c_str()) == 0 ) {
-                    result = inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
-                }}  temp_addr = temp_addr->ifa_next;
-            }
-        }
-
-        freeifaddrs(interfaces); return result;
+        return socket.get_sockname();
     }
     
     /*─······································································─*/

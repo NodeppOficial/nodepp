@@ -707,6 +707,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#include <limits.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
@@ -799,7 +800,8 @@ public:
 
     image_t take_screenshot() noexcept { auto size = this->get_screen_size();
         XImage *img = XGetImage( obj->dpy, obj->win, 0, 0, size[0], size[1], AllPlanes, ZPixmap );
-        ptr_t<char> data ( img->bytes_per_line * img->height, 0 ); memcpy( &data, img->data, data.size() );
+        ptr_t<char> data ( img->bytes_per_line * img->height, 0 ); 
+        memcpy( &data, img->data, data.size() );
 
         image_t image; 
                 image.data   = data;
@@ -814,15 +816,14 @@ public:
     string_t get_clipboard() const noexcept {
         Atom utf8String = XInternAtom( obj->dpy, "UTF8_STRING", 0 );
         Atom clipboard  = XInternAtom( obj->dpy, "CLIPBOARD"  , 0 );
-        Atom type; int format; ulong length; uchar* data;
+        Atom type; int format; ulong length; uchar* data = nullptr;
 
-        XGetWindowProperty( obj->dpy, obj->win, clipboard, 0, 0, 0, AnyPropertyType, &type, &format, &length, &length, &data );
-        XGetWindowProperty( obj->dpy, obj->win, clipboard, 0, length, False, AnyPropertyType, &type, &format, &length, &data );
+        XGetWindowProperty( obj->dpy, obj->win, clipboard, 0, LONG_MAX, 0, utf8String, &type, &format, &length, &length, &data);
 
         if ( type == utf8String && format == 8 ) {
             string_t result = { (char*) data, length };
             XFree( data ); return result;
-        } else { return ""; }
+        } else { return nullptr; }
     }
 
     int set_clipboard( string_t msg ) const noexcept {

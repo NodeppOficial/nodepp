@@ -58,8 +58,8 @@ public: bsocket_t() noexcept : socket_t() {}
         memset(&server, 0, sizeof(SOCKADDR_BTH));
         memset(&client, 0, sizeof(SOCKADDR_BTH));
 
+        server.addressFamily = AF; if( port>0 )
         server.port          = (ulong) port;
-        server.addressFamily = AF;
 
         str2ba( host.c_str(), &server.btAddr );
         obj->server_addr = *((SOCKADDR*) &server);

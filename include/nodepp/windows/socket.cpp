@@ -224,8 +224,15 @@ public: socket_t() noexcept { socket::start_device(); }
     
     /*─······································································─*/
 
-    string_t get_ip() const noexcept { int c; string_t buff { INET_ADDRSTRLEN };
-        SOCKADDR cli; if( obj->srv==1 ) cli = obj->client_addr; else cli = obj->server_addr;
+    string_t get_sockname() const noexcept { int c; string_t buff { INET_ADDRSTRLEN };
+        SOCKADDR cli; if( skt->srv==1 ) cli = skt->client_addr; else cli = skt->server_addr;
+        while( is_blocked( c=getsockname( obj->fd, &cli, &skt->len )) ){ process::next(); }
+        inet_ntop( AF, &(((SOCKADDR_IN*)&cli)->sin_addr), (char*)buff, buff.size() );
+        return c < 0 ? "127.0.0.1" : buff;
+    }
+
+    string_t get_peername() const noexcept { int c; string_t buff { INET_ADDRSTRLEN };
+        SOCKADDR cli; if( skt->srv==1 ) cli = skt->client_addr; else cli = skt->server_addr;
         while( is_blocked( c=getpeername( obj->fd, &cli, &obj->len )) ){ process::next(); }
         inet_ntop( AF, &(((SOCKADDR_IN*)&cli)->sin_addr), (char*)buff, buff.size() );
         return c < 0 ? "127.0.0.1" : buff;
@@ -367,12 +374,12 @@ public: socket_t() noexcept { socket::start_device(); }
         memset(&server, 0, sizeof(SOCKADDR_IN));
         memset(&client, 0, sizeof(SOCKADDR_IN));
         
-        server.sin_family  = AF;
+        server.sin_family  = AF; if( port>0 ) 
         server.sin_port    = htons(port);
 
           if( host == "0.0.0.0" || host == "globalhost" )       { server.sin_addr.s_addr = INADDR_ANY; }
+        elif( host == "127.0.0.1" || host == "localhost" )      { server.sin_addr.s_addr = INADDR_LOOPBACK; }
         elif( host == "255.255.255.255" || host == "broadcast" ){ server.sin_addr.s_addr = INADDR_BROADCAST; } 
-        elif( host == "127.0.0.1" || host == "localhost" )      { inet_pton(AF, "127.0.0.1", &server.sin_addr); }
         else                                                    { inet_pton(AF, host.c_str(), &server.sin_addr); }
 
         obj->server_addr = *((SOCKADDR*) &server);

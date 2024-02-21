@@ -49,8 +49,8 @@ public: bsocket_t() noexcept : socket_t() {}
         memset(&server, 0, sizeof(SOCKADDR_RC));
         memset(&client, 0, sizeof(SOCKADDR_RC));
 
+        server.rc_family  = AF; if( port>0 )
         server.rc_channel = (uint8_t) port;
-        server.rc_family  = AF;
 
         str2ba( host.c_str(), &server.rc_bdaddr );
         skt->server_addr = *((SOCKADDR*) &server);

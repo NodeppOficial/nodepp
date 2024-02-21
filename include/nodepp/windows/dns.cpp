@@ -2,11 +2,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#include <iomanip>
 #include <Windows.h>
-#include <wlanapi.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -35,23 +31,21 @@ namespace nodepp { namespace dns {
             }
         }
 
-        return "";
+        return nullptr;
     }
     
     /*─······································································─*/
 
     string_t get_hostname(){
-        string_t result; char hostName[256]; socket::start_device();
+        auto socket = socket_t();
+        auto result = string_t();
+            
+        socket.SOCK = SOCK_DGRAM;
+        socket.PROT = IPPROTO_UDP;
+        socket.socket ( "127.0.0.1", 0 );
+        socket.connect();
 
-        if( gethostname(hostName,sizeof(hostName)) == 0 ){
-            struct hostent* hostEntry; hostEntry = gethostbyname(hostName);
-            if( hostEntry != nullptr ){
-                struct in_addr** addrList = reinterpret_cast<struct in_addr**>(hostEntry->h_addr_list);
-                if( addrList[0] != nullptr ){ result = inet_ntoa(*addrList[0]); }
-            }
-        }
-
-        return result;
+        return socket.get_sockname();
     }
     
     /*─······································································─*/
