@@ -18,6 +18,7 @@ namespace nodepp { namespace dns {
           if( host == "255.255.255.255" || host == "broadcast" ) { return "255.255.255.255"; } 
         elif( host == "127.0.0.1" || host == "localhost" )       { return "127.0.0.1";       } 
         elif( host == "0.0.0.0" || host == "globalhost" )        { return "0.0.0.0";         }
+        elif( host == "1.1.1.1" || host == "loopback" )          { return "1.1.1.1";         }
 
         if( url::is_valid(host) ){ host = url::hostname(host); }
         struct hostent* host_info = gethostbyname(host.c_str());
@@ -42,7 +43,7 @@ namespace nodepp { namespace dns {
             
         socket.SOCK = SOCK_DGRAM;
         socket.PROT = IPPROTO_UDP;
-        socket.socket ( "127.0.0.1", 0 );
+        socket.socket ( "loopback", 0 );
         socket.connect();
 
         return socket.get_sockname();

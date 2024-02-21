@@ -378,8 +378,9 @@ public: socket_t() noexcept { socket::start_device(); }
         server.sin_port    = htons(port);
 
           if( host == "0.0.0.0" || host == "globalhost" )       { server.sin_addr.s_addr = INADDR_ANY; }
-        elif( host == "127.0.0.1" || host == "localhost" )      { server.sin_addr.s_addr = INADDR_LOOPBACK; }
+        elif( host == "1.1.1.1" || host == "loopback" )         { server.sin_addr.s_addr = INADDR_LOOPBACK; }
         elif( host == "255.255.255.255" || host == "broadcast" ){ server.sin_addr.s_addr = INADDR_BROADCAST; } 
+        elif( host == "127.0.0.1" || host == "localhost" )      { inet_pton(AF, "127.0.0.1", &server.sin_addr); }
         else                                                    { inet_pton(AF, host.c_str(), &server.sin_addr); }
 
         obj->server_addr = *((SOCKADDR*) &server);
