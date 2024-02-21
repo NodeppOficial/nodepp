@@ -718,9 +718,9 @@ namespace nodepp { class input_t {
 protected:
 
     struct image_t {
-        ptr_t<uchar> image;
-        int with, height;
-    }
+        int width, height;
+        ptr_t<char> data;
+    };
 
     struct NODE {
         XEvent   event; int state = 0;
@@ -797,25 +797,16 @@ public:
 
     /*─······································································─*/
 
-    image_t take_screenshot() noexcept { XWindowAttributes gwa; ulong length = 0;
-        XGetWindowAttributes( obj->dpy, obj->win, &gwa ); int w=gwa.width, h=gwa.height;
-        XImage *image = XGetImage( obj->dpy, obj->win, 0, 0, w, ht, AllPlanes, ZPixmap );
-
-        ptr_t<uchar> screenData ( (ulong)( image->width * image->height * 3 ) );
-       
-        for( int y=0; y<image->height; y++ ){ for( int x=0; x<image->width; x++ ){
-            ulong pixel = XGetPixel( image, x, y );
-            screenData[length] = (pixel&image->red_mask)   >> image->red_shift;   length++;
-            screenData[length] = (pixel&image->green_mask) >> image->green_shift; length++;
-            screenData[length] = (pixel&image->blue_mask)  >> image->blue_shift;  length++;
-        }}
+    image_t take_screenshot() noexcept { auto size = this->get_screen_size();
+        XImage *img = XGetImage( obj->dpy, obj->win, 0, 0, size[0], size[1], AllPlanes, ZPixmap );
+        ptr_t<char> data ( img->bytes_per_line * img->height, 0 ); memcpy( &data, img->data, data.size() );
 
         image_t image; 
-                image.image  = screenData;
-                image.width  = image->width;
-                image.height = image->height;
+                image.data   = data;
+                image.width  = img->width;
+                image.height = img->height;
 
-        return image;
+        XDestroyImage(img); return image;
     }
 
     /*─······································································─*/

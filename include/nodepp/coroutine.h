@@ -20,12 +20,12 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 #define _main_ _init_(); int main( int argc, char** args ){ \
    process::start( argc, args ); _init_(); \
-   process::pipe(); return 0; \
+   process::run(); return 0; \
 }  void _init_
 
 #define onMain(CB) int main( int argc, char** args ){ \
    process::start( argc, args ); CB(); \
-   process::pipe(); return 0; \
+   process::run(); return 0; \
 }
 
 /*────────────────────────────────────────────────────────────────────────────*/

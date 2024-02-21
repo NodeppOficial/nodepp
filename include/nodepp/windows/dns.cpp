@@ -8,9 +8,6 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
-#pragma comment(lib, "ws2_32.lib")
-#pragma comment(lib, "wlanapi.lib")
-
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace dns { 

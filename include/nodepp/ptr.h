@@ -120,6 +120,7 @@ public:
     bool  empty() const noexcept { return null() ||( size() <= 0 ); }
     bool   null() const noexcept { return value_  == nullptr; }
     T*     data() const noexcept { return value_; }
+    T*      get() const noexcept { return value_; }
     
     /*─······································································─*/
 

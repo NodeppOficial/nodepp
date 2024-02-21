@@ -217,9 +217,9 @@ namespace nodepp { class input_t {
 protected:
 
     struct image_t {
-        ptr_t<uchar> image;
-        int with, height;
-    }
+        ptr_t<char> data;
+        int width, height;
+    };
 
     struct NODE {
     	array_t<uint> button, key;
@@ -269,20 +269,34 @@ public: input_t() noexcept : obj( new NODE() ) {}
     image_t take_screenshot() noexcept {
         HDC hdcScreen     = GetDC( NULL );
         auto size         = get_screen_size();
-        HDC hdcMemDC      = CreateCompatibleDC(hdcScreen);
-        ptr_t<uchar> screenData ( (ulong)( size[0] * size[1] * 3 ) );
-
+        HDC hdcMemDC      = CreateCompatibleDC( hdcScreen );
         HBITMAP hbmScreen = CreateCompatibleBitmap( hdcScreen, size[0], size[1] );
                             SelectObject( hdcMemDC, hbmScreen );
 
         BitBlt( hdcMemDC, 0, 0, size[0], size[1], hdcScreen, 0, 0, SRCCOPY );
-        GetDIBits( hdcMemDC, hbmScreen, 0, height, &screenData, ... );
 
-        DeleteObject( hbmScreen ); DeleteDC( hdcMemDC );
-        ReleaseDC( NULL, hdcScreen );
+        BITMAPINFOHEADER bi = {0}; 
+        bi.biSize           = sizeof(BITMAPINFOHEADER);
+        bi.biSizeImage      =  size[0] * size[1] * 3;
+        bi.biWidth          =  size[0];
+        bi.biHeight         = -size[1];
+        bi.biCompression    = BI_RGB;
+        bi.biBitCount       = 24;
+        bi.biPlanes         = 1;
+        bi.biXPelsPerMeter  = 0;
+        bi.biYPelsPerMeter  = 0;
+        bi.biClrUsed        = 0;
+        bi.biClrImportant   = 0;
+
+        int bytesPerRow = (( size[0] * 24 + 31 ) / 32 ) * 4;
+        int imageSize   = sizeof(bi) + bytesPerRow * size[1];
+        ptr_t<char> data ( imageSize, 0 ); memcpy( &data, &bi, sizeof(bi) );
+
+        GetDIBits( hdcMemDC, hbmScreen, 0, size[1], &data+sizeof(bi), (BITMAPINFO*)&bi, DIB_RGB_COLORS );
+        DeleteObject( hbmScreen ); DeleteDC( hdcMemDC ); ReleaseDC( NULL, hdcScreen );
 
         image_t image; 
-                image.image  = screenData;
+                image.data   = data;
                 image.width  = size[0];
                 image.height = size[1];
 
@@ -327,8 +341,8 @@ public: input_t() noexcept : obj( new NODE() ) {}
 
 	ptr_t<int> get_screen_size() const noexcept { 
         return {{
-		    ::GetSystemMetrics( SM_CYSCREEN ),
-		    ::GetSystemMetrics( SM_CXSCREEN )
+		    ::GetSystemMetrics( SM_CXSCREEN ),
+		    ::GetSystemMetrics( SM_CYSCREEN )
 	    }}; 
     }
 

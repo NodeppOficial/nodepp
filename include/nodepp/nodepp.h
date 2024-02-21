@@ -94,7 +94,7 @@ namespace nodepp { namespace process {
     
     /*─······································································─*/
 
-    void pipe(){
+    void run(){
         while( !process::empty() )
                 process::next();
     }
