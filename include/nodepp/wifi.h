@@ -7,6 +7,7 @@
     #include "socket.h"
     #include "windows/wifi.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
+    #include "socket.h"
     #include "posix/wifi.cpp"
 #else
     #error "This OS Does not support wifi.h"

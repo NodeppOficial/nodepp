@@ -46,18 +46,15 @@ public:
     }
 
     string_t get_hostname() const noexcept {
-        string_t result; char hostName[256];
-        socket::start_device();
-        
-        if( gethostname(hostName,sizeof(hostName)) == 0 ){
-            struct hostent* hostEntry; hostEntry = gethostbyname(hostName);
-            if( hostEntry != nullptr ){
-                struct in_addr** addrList = reinterpret_cast<struct in_addr**>(hostEntry->h_addr_list);
-                if( addrList[0] != nullptr ){ result = inet_ntoa(*addrList[0]); }
-            }
-        }
+        auto socket = socket_t();
+        auto result = string_t();
+            
+        socket.SOCK = SOCK_DGRAM;
+        socket.PROT = IPPROTO_UDP;
+        socket.socket ( "loopback", 0 );
+        socket.connect();
 
-        return result;
+        return socket.get_sockname();
     }
 
     array_t<string_t> get_device_list() const noexcept {

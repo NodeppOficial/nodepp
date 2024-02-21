@@ -42,21 +42,16 @@ public:
         return system(string::format("ifconfig %s up",device.data()).c_str());
     }
 
-    string_t get_hostname( const string_t& device ) const noexcept {
-        struct ifaddrs *interfaces = NULL;
-        struct ifaddrs *temp_addr  = NULL;
-        string_t result;
+    string_t get_hostname() const noexcept {
+        auto socket = socket_t();
+        auto result = string_t();
+            
+        socket.SOCK = SOCK_DGRAM;
+        socket.PROT = IPPROTO_UDP;
+        socket.socket ( "loopback", 0 );
+        socket.connect();
 
-        if ( getifaddrs(&interfaces) == 0 ) {
-            temp_addr = interfaces; while (temp_addr!=NULL) {
-                if ( temp_addr->ifa_addr->sa_family == AF_INET ) {
-                if ( strcmp(temp_addr->ifa_name,device.c_str()) == 0 ) {
-                    result = inet_ntoa(((struct sockaddr_in*)temp_addr->ifa_addr)->sin_addr);
-                }}  temp_addr = temp_addr->ifa_next;
-            }
-        }
-
-        freeifaddrs(interfaces); return result;
+        return socket.get_sockname();
     }
 
     array_t<string_t> get_device_list() const noexcept {
