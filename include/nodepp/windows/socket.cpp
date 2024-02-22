@@ -225,14 +225,14 @@ public: socket_t() noexcept { socket::start_device(); }
     /*─······································································─*/
 
     string_t get_sockname() const noexcept { int c; string_t buff { INET_ADDRSTRLEN };
-        SOCKADDR cli; if( skt->srv==1 ) cli = skt->client_addr; else cli = skt->server_addr;
-        while( is_blocked( c=getsockname( obj->fd, &cli, &skt->len )) ){ process::next(); }
+        SOCKADDR cli; if( obj->srv==1 ) cli = obj->client_addr; else cli = obj->server_addr;
+        while( is_blocked( c=getsockname( obj->fd, &cli, &obj->len )) ){ process::next(); }
         inet_ntop( AF, &(((SOCKADDR_IN*)&cli)->sin_addr), (char*)buff, buff.size() );
         return c < 0 ? "127.0.0.1" : buff;
     }
 
     string_t get_peername() const noexcept { int c; string_t buff { INET_ADDRSTRLEN };
-        SOCKADDR cli; if( skt->srv==1 ) cli = skt->client_addr; else cli = skt->server_addr;
+        SOCKADDR cli; if( obj->srv==1 ) cli = obj->client_addr; else cli = obj->server_addr;
         while( is_blocked( c=getpeername( obj->fd, &cli, &obj->len )) ){ process::next(); }
         inet_ntop( AF, &(((SOCKADDR_IN*)&cli)->sin_addr), (char*)buff, buff.size() );
         return c < 0 ? "127.0.0.1" : buff;
