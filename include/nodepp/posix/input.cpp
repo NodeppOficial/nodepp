@@ -728,6 +728,7 @@ protected:
     	array_t<uint> button, key;
         Display* dpy = nullptr;
         Screen*  scr = nullptr;
+        Window   root;
         Window   win;
         int      id;
     };  ptr_t<NODE>  obj;
@@ -756,6 +757,7 @@ public:
     input_t() noexcept : obj( new NODE() ) {
         obj->dpy = XOpenDisplay( NULL );
         obj->id  = DefaultScreen( obj->dpy );
+        obj->root= DefaultRootWindow( obj->dpy );
         obj->win = XRootWindow( obj->dpy, obj->id );
         obj->scr = DefaultScreenOfDisplay( obj->dpy );
     }
@@ -799,7 +801,7 @@ public:
     /*─······································································─*/
 
     image_t take_screenshot() noexcept { auto size = this->get_screen_size();
-        XImage *img = XGetImage( obj->dpy, obj->win, 0, 0, size[0], size[1], AllPlanes, ZPixmap );
+        XImage *img = XGetImage( obj->dpy, obj->root, 0, 0, size[0], size[1], AllPlanes, ZPixmap );
         ptr_t<char> data ( img->bytes_per_line * img->height, 0 ); 
         memcpy( &data, img->data, data.size() );
 
