@@ -55,7 +55,7 @@ public:
         obj->mutex.unlock();
     }
 
-private:
+protected:
 
     struct NODE {
         void*   addr=nullptr;

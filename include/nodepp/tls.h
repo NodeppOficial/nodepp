@@ -122,7 +122,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_client() == -1 )
           { process::error(onError,"Error Initializing SSL context"); close(); return; }
         if( dns::lookup(host).empty() )
-           { process::error(onError,"dns couldn't get ip"); close(); return; }
+          { process::error(onError,"dns couldn't get ip"); close(); return; }
             auto inp = type::bind( this );
 
         ssocket_t sk = ssocket_t(); 

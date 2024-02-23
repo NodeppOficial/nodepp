@@ -35,7 +35,7 @@ namespace string {
         while( n-->0 ){ b[n] = c; } return b; 
     }
 
-    ptr_t<char> null(){ return string::buffer( "", 0 ); }
+    ptr_t<char> null(){ return nullptr; }
     
     /*─······································································─*/
 
