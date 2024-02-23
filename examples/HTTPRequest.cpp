@@ -12,9 +12,9 @@ onMain([](){
     fetch_t args;
             args.method = "GET";
             args.url = "http://www.google.com/";
-            args.headers = header_t({
+            args.headers = {{
                 { "Host", url::host(args.url) }
-            });
+            }};
         //  args.file = file_t("PATH","r");
         //  args.body = "MYBODY";
 

@@ -9,30 +9,30 @@
 
 namespace nodepp { namespace promise {
 
-    template< class T, class V > void resolve( 
+    template< class T, class V > ptr_t<int> resolve( 
         function_t<void,function_t<void,T>,function_t<void,V>> func,
         function_t<void,T> res, function_t<void,V> rej
-    ){  ptr_t<int> state = new int(0);
+    ){  ptr_t<int> state = new int(1);
         process::task::add([=](){ func (
-            [=]( T data ){ if( *state != 0 ){ return; } res(data); *state = 1; },
-            [=]( V data ){ if( *state != 0 ){ return; } rej(data); *state = 1; }
-        ); return -1; });
+            [=]( T data ){ if( *state != 1 ){ return; } res(data); *state = 0; },
+            [=]( V data ){ if( *state != 1 ){ return; } rej(data); *state = 0; }
+        ); return -1; }); return state;
     }
 
     /*─······································································─*/
 
-    template< class T > void resolve( 
+    template< class T > ptr_t<int> resolve( 
         function_t<void,function_t<void,T>> func,
         function_t<void,T> res
-    ){  ptr_t<int> state = new int(0);
+    ){  ptr_t<int> state = new int(1);
         process::task::add([=](){ func([=]( T data ){ 
-            if( *state != 0 ){ return; } res(data); *state = 1; 
-        }); return -1; });
+            if( *state != 1 ){ return; } res(data); *state = 0; 
+        }); return -1; }); return state;
     }
 
     /*─······································································─*/
 
-    template< class T > T await ( 
+    template< class T > T await( 
         function_t<void,function_t<void,T>> func 
     ){  T result; ptr_t<int> done = new int(0); 
         resolve<T>( func, [&]( T res ){ 
@@ -42,7 +42,7 @@ namespace nodepp { namespace promise {
 
     /*─······································································─*/
 
-    template< class T, class V > expected_t<T,V> await ( 
+    template< class T, class V > expected_t<T,V> await( 
         function_t<void,function_t<void,T>,function_t<void,V>> func 
     ){  T res; V rej; int st=-1; ptr_t<int> done = new int(0); 
         promise::resolve<T,V>( func, 
@@ -64,9 +64,8 @@ protected:
 
     struct NODE {
         function_t<void,function_t<void,T>,function_t<void,V>> main_func;
-        function_t<void,T> res_func;
-        function_t<void,V> rej_func;
-        function_t<void>   fin_func; int state;
+        function_t<void,T> res_func; ptr_t<int> addr;
+        function_t<void,V> rej_func; int state;
     };  ptr_t<NODE> obj = new NODE();
 
     using slf = promise_t<T,V>;
@@ -86,7 +85,7 @@ public:
     /*─······································································─*/
 
     void resolve() const noexcept { if( obj->state!=2 ){ return; } obj->state=0;
-        promise::resolve<T,V>( obj->main_func, obj->res_func, obj->rej_func ); 
+         obj->addr = promise::resolve<T,V>( obj->main_func, obj->res_func, obj->rej_func ); 
     }
 
     /*─······································································─*/
@@ -94,6 +93,13 @@ public:
     expected_t<T,V> await() const noexcept {
         if( obj->state == 0 ){ return V(); }
             obj->state  = 0;   return promise::await<T,V>( obj->main_func );
+    }
+
+    /*─······································································─*/
+
+    void clear() const noexcept {
+        if( obj->addr == nullptr ){ return; }
+            promise::clear( obj->addr );
     }
 
 };}
