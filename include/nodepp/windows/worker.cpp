@@ -6,25 +6,15 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace { mutex_t mtx;
+namespace nodepp { namespace { 
+    
+    mutex_t mtx;
 
     DWORD WINAPI sfunc( LPVOID arg ){
         auto cb = (function_t<int>*) arg;
         while((*cb)() >= 0 ){ worker::yield(); }
         mtx.lock(); process::threads--; mtx.unlock();
         delete cb; worker::exit(); return 0; 
-    }
-
-    DWORD WINAPI dfunc( LPVOID arg ){
-        auto cb = (function_t<int>*) arg;
-        while((*cb)() >= 0 ){ worker::yield(); }
-        delete cb; worker::exit(); return 0;
-    }
-
-    DWORD WINAPI jfunc( LPVOID arg ){
-        auto cb = (function_t<int>*) arg;
-        while((*cb)() >= 0 ){ worker::yield(); }
-        delete cb; worker::exit(); return 0;
     }
 
 }}
@@ -71,28 +61,12 @@ public: worker_t() noexcept : obj( new NODE ) {}
     
     /*─······································································─*/
 
-    int detach() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
-        obj->thread = CreateThread( NULL, 0, &dfunc, (void*)obj->cb, 0, &obj->id );
-        WaitForSingleObject( obj->thread, 0 ); return obj->thread == NULL ? -1 : 0;
-    }
-
-    int join() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
-        obj->thread = CreateThread( NULL, 0, &jfunc, (void*)obj->cb, 0, &obj->id );
-        WaitForSingleObject( obj->thread, INFINITE ); return obj->thread == NULL ? -1 : 0;
-    }
-
-    int add() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
+    int run() const noexcept { if( obj->state == 1 ){ return 0; } int c = 0; obj->state = 1;
         obj->thread = CreateThread( NULL, 0, &sfunc, (void*)obj->cb, 0, &obj->id );
         if( obj->thread != NULL ){ process::threads++; }
         WaitForSingleObject( obj->thread, 0 ); return obj->thread == NULL ? -1 : 0;
     }
 
 };}
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-namespace nodepp { namespace worker { template< class... T >
-    worker_t add( const T&... args ){ worker_t wrk( args... ); wrk.add(); return wrk; }
-}}
 
 /*────────────────────────────────────────────────────────────────────────────*/

@@ -13,4 +13,10 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+namespace nodepp { namespace worker { template< class... T >
+    worker_t add( const T&... args ){ worker_t wrk( args... ); wrk.run(); return wrk; }
+}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #endif

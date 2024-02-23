@@ -6,24 +6,14 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace { mutex_t mtx;
+namespace nodepp { namespace { 
+    
+    mutex_t mtx;
 
     void* sfunc( void* arg ){
         auto cb = (function_t<int>*) arg;
         while((*cb)() >= 0 ){ worker::yield(); }
         mtx.lock(); process::threads--; mtx.unlock();
-        delete cb; worker::exit(); return nullptr;
-    }
-
-    void* dfunc( void* arg ){
-        auto cb = (function_t<int>*) arg;
-        while((*cb)() >= 0 ){ worker::yield(); }
-        delete cb; worker::exit(); return nullptr;
-    }
-
-    void* jfunc( void* arg ){
-        auto cb = (function_t<int>*) arg;
-        while((*cb)() >= 0 ){ worker::yield(); }
         delete cb; worker::exit(); return nullptr;
     }
 
@@ -71,17 +61,7 @@ public: worker_t() noexcept : obj( new NODE ) {}
     
     /*─······································································─*/
 
-    int detach() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
-        auto  pth = pthread_create( &obj->id, NULL, &dfunc, (void*)obj->cb );
-        pthread_detach( obj->id ); return pth != 0 ? -1 : 0;
-    }
-
-    int join() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
-        auto  pth = pthread_create( &obj->id, NULL, &jfunc, (void*)obj->cb );
-        pthread_join( obj->id, NULL ); return pth != 0 ? -1 : 0;
-    }
-
-    int add() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
+    int run() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
         auto pth = pthread_create( &obj->id, NULL, &sfunc, (void*)obj->cb );
         if( !pth ) { process::threads++; } pthread_detach( obj->id );
         return pth != 0 ? -1 : 0;
@@ -90,7 +70,3 @@ public: worker_t() noexcept : obj( new NODE ) {}
 };}
 
 /*────────────────────────────────────────────────────────────────────────────*/
-
-namespace nodepp { namespace worker { template< class... T >
-    worker_t add( const T&... args ){ worker_t wrk( args... ); wrk.add(); return wrk; }
-}}

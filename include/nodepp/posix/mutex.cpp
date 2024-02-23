@@ -25,6 +25,7 @@ protected:
 
     struct NODE {
         void* addr = nullptr;
+        int   state= 0;
         pthread_mutex_t fd;
     };  ptr_t<NODE> mutex;
 
@@ -34,12 +35,22 @@ public:
         if( pthread_mutex_init(&mutex->fd,NULL) != 0 )
           { process::error("Cant Start Mutex"); }
             mutex->addr = nullptr;
+            mutex->state= 1;
     }
 
     virtual ~mutex_t() noexcept {
+        if( mutex->state== 0 )          { return;   }
         if( mutex->addr == (void*)this ){ unlock(); }
         if( mutex.count() > 1 )         { return;   }
-            pthread_mutex_destroy(&mutex->fd);
+            force_close();
+    }
+    
+    /*─······································································─*/
+
+    void force_close() const noexcept {
+         if( mutex->state == 0 ){ return; }
+             mutex->state == 0;
+         pthread_mutex_destroy(&mutex->fd);
     }
     
     /*─······································································─*/

@@ -26,6 +26,7 @@ protected:
 
     struct NODE {
         void*  addr = nullptr;
+        int    state= 0;
         HANDLE fd;
     };  ptr_t<NODE> mutex;
 
@@ -34,14 +35,24 @@ public:
     mutex_t() : mutex( new NODE() ) {
         mutex->fd   = CreateMutex( NULL, 0, NULL );
         mutex->addr = nullptr;
+        mutex->state= 1;
         if( mutex->fd == NULL )
           { process::error("Cant Start Mutex"); }
     }
 
     virtual ~mutex_t() noexcept {
+        if( mutex->state== 0 )          { return;   }
         if( mutex->addr == (void*)this ){ unlock(); }
         if( mutex.count() > 1 )         { return;   }
-            CloseHandle( mutex->fd );
+            force_close();
+    }
+    
+    /*─······································································─*/
+
+    void force_close() const noexcept {
+         if( mutex->state == 0 ){ return; }
+             mutex->state == 0;
+         CloseHandle( mutex->fd );
     }
     
     /*─······································································─*/
