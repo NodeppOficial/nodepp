@@ -5,52 +5,47 @@ namespace nodepp {
 template <typename T, typename E> struct expected_t { 
 protected:
 
-    bool hasValue; union { T data; E err; };
+    struct NODE {
+        bool has;
+        T data; E err;
+    };  ptr_t<NODE> obj;
 
 public:
 
-    expected_t( const T& val ) : hasValue(true) , data(val) {}
-
-    expected_t( const E& err ) : hasValue(false), err(err) {}
-
-    /*─······································································─*/
-
-    bool has_value() const { return hasValue; }
-
-    /*─······································································─*/
-
-    T& value() {
-        if ( !hasValue ) {
-            process::error("expected does not have a value");
-        }   return data;
+    expected_t( const T& val ) : obj( new NODE() ) {
+        obj->has = true; obj->data = val;
     }
 
-    const T& value() const {
-        if ( !hasValue ) {
-            process::error("expected does not have a value");
-        }   return data;
+    expected_t( const E& err ) : obj( new NODE() ) {
+        obj->has = false; obj->err = err; 
     }
 
     /*─······································································─*/
 
-    E& error() {
-        if ( hasValue ) {
-            process::error("expected does not have an error");
-        }   return err;
-    }
-
-    const E& error() const {
-        if ( hasValue ) {
-            process::error("expected does not have an error");
-        }   return err;
+    bool has_value() const noexcept { 
+        if( obj == nullptr ){ return false; }
+            return obj->has;
     }
 
     /*─······································································─*/
 
-    virtual ~expected_t() {
-        if( hasValue ){ data.~T(); } 
-        else          { err .~E(); }
-    }
+    T& value() { if ( !has_value() ) {
+        process::error("expected does not have a value");
+    }   return obj->data;  }
+
+    const T& value() const { if ( !has_value() ) {
+        process::error("expected does not have a value");
+    }   return obj->data;  }
+
+    /*─······································································─*/
+
+    E& error() { if ( has_value() ) {
+        process::error("expected does not have a value");
+    }   return obj->err;  }
+
+    const E& error() const { if ( has_value() ) {
+        process::error("expected does not have a value");
+    }   return obj->err;  }
 
 };}
 

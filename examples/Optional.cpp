@@ -5,10 +5,10 @@ using namespace nodepp;
 
 onMain([](){
 
-    optional_t<string_t> x ();
-//  expected_t<string_t> x ("error");
+    optional_t<string_t> x;
+//  optional_t<string_t> x ("error");
 
-    if( x.has_value() ) console::log( x.value() );
-    else                console::log( "x is empty" );
+    if( x.has_value() ) console::done( x.value() );
+    else                console::error( "x is empty" );
 
 })
