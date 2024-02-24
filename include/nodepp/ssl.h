@@ -204,7 +204,7 @@ public:
     /*─······································································─*/
 
     int _accept() const noexcept {
-        if( obj->ssl == nullptr ){ return -1; } 
+        if( obj->ssl == nullptr ){ return -1; }
         int c = SSL_accept( obj->ssl );
         if( c > 0 ){ obj->cnn = 1; }
         return is_blocked(c) ? -2 : c;
