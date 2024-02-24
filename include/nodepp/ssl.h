@@ -83,16 +83,6 @@ protected:
             error == SSL_ERROR_WANT_READ
         );
     } return 0; }
-
-    /*─······································································─*/
-
-    bool is_error( const int& c ) const noexcept { if( c < 0 ){
-        int error =  SSL_get_error( obj->ssl, c ); return ( 
-            error == SSL_ERROR_ZERO_RETURN          ||
-            error == SSL_ERROR_SYSCALL              ||
-            error == SSL_ERROR_SSL
-        );
-    } return 0; }
     
     /*─······································································─*/
 
@@ -123,7 +113,7 @@ public: ssl_t() noexcept : obj( new NODE() ) {}
 
     ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI* _func=nullptr ) : obj( new NODE() ) {
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) || !fs::exists_file(_chain) )
-            process::error("such key, cert or chain does not exist");
+             process::error("such key, cert or chain does not exist");
         if( _func != nullptr ) obj->fnc = new onSNI(*_func); 
              obj->key = _key;  obj->crt = _cert; obj->chn = _chain;
     }
@@ -136,7 +126,7 @@ public: ssl_t() noexcept : obj( new NODE() ) {}
 
     ssl_t( const string_t& _key, const string_t& _cert, onSNI* _func=nullptr ) : obj( new NODE() ) {
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) )
-            process::error("such key or cert does not exist");
+             process::error("such key or cert does not exist");
         if( _func != nullptr ) obj->fnc = new onSNI(*_func); 
              obj->key = _key;  obj->crt = _cert; 
     }
@@ -147,19 +137,19 @@ public: ssl_t() noexcept : obj( new NODE() ) {}
 
     /*─······································································─*/
 
-    ssl_t( ssl_t xtc, int df ) : obj( new NODE() ) {
-        if( xtc.get_ctx() == nullptr ) process::error("ctx has no context");
-            obj->ctx = xtc.get_ctx(); obj->ssl = SSL_new(obj->ctx); 
-            obj->srv = xtc.is_server(); set_nonbloking_mode(); 
-            set_fd( df );
+    ssl_t( ssl_t& xtc, int df ) : obj( new NODE() ) {
+       if( xtc.get_ctx() == nullptr ) process::error("ctx has no context");
+           obj->ctx = xtc.get_ctx(); obj->ssl = SSL_new(obj->ctx); 
+           obj->srv = xtc.is_server(); set_nonbloking_mode(); 
+           set_fd( df );
     }
     
     /*─······································································─*/
 
-    int set_fd( int df ) noexcept { return obj->ssl==nullptr ? -1 : SSL_set_fd( obj->ssl, df ); }
+    int set_fd( int df ) noexcept { return obj->ssl==nullptr ? -1 : SSL_set_fd(  obj->ssl, df ); }
     int get_rfd()  const noexcept { return obj->ssl==nullptr ? -1 : SSL_get_rfd( obj->ssl ); }
     int get_wfd()  const noexcept { return obj->ssl==nullptr ? -1 : SSL_get_wfd( obj->ssl ); }
-    int  get_fd()  const noexcept { return obj->ssl==nullptr ? -1 : SSL_get_fd( obj->ssl ); }
+    int  get_fd()  const noexcept { return obj->ssl==nullptr ? -1 : SSL_get_fd(  obj->ssl ); }
     
     /*─······································································─*/
 
@@ -250,9 +240,8 @@ public: ssl_t() noexcept : obj( new NODE() ) {}
 
     void force_close() const noexcept {
         if( obj->ssl != nullptr ){
-        if( this->is_server() ){
-            SSL_shutdown(obj->ssl);
-        }   SSL_free(obj->ssl); return;
+            SSL_shutdown( obj->ssl );
+            SSL_free(obj->ssl); return;
         } if ( obj->ctx != nullptr ){
             SSL_CTX_free(obj->ctx); return;
         }

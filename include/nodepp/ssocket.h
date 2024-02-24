@@ -18,10 +18,8 @@ public: ssocket_t() noexcept : socket_t() {}
     
     /*─······································································─*/
 
-    ssocket_t( ssl_t ctx, int df, ulong _size=CHUNK_SIZE ) noexcept : socket_t() { 
-        obj->fd = df; ssl = new ssl_t( ctx, df ); set_buffer_size( _size ); 
-                                                  set_nonbloking_mode(); 
-    }
+    ssocket_t( ssl_t ctx, int df, ulong _size=CHUNK_SIZE ) noexcept 
+    :socket_t( df, _size ) { ssl = new ssl_t( ctx, df ); }
     
     /*─······································································─*/
 

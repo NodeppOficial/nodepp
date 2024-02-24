@@ -26,14 +26,12 @@ private:
 
     using SOCKADDR_RC = struct sockaddr_rc;
 
-public: bsocket_t() noexcept : socket_t() {}
+public:
     
     /*─······································································─*/
 
-    bsocket_t( int df, ulong _size=CHUNK_SIZE ) noexcept : socket_t() { 
-        obj->fd = df; set_buffer_size( _size ); 
-                      set_nonbloking_mode(); 
-    }
+    template< class... T >
+    bsocket_t( T... args ) noexcept : socket_t( args... ) {}
     
     /*─······································································─*/
 

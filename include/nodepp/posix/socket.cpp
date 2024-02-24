@@ -281,8 +281,8 @@ public: socket_t() noexcept { socket::start_device(); }
     virtual void force_close() const noexcept {
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
         if( obj->state == -2 ){ return; } obj->state = -2;
-        if( is_server() ) ::shutdown(obj->fd,SHUT_RDWR);
-        ::close( obj->fd ); close(); onClose.emit();
+        ::shutdown(obj->fd,SHUT_RDWR); ::close( obj->fd ); 
+        close(); onClose.emit();
     }
 
     /*─······································································─*/

@@ -53,7 +53,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
     : obj( new NODE() ){ 
     if( xtc == nullptr ) process::error("Invalid SSL Contenx");
         obj->agent = opt==nullptr ? agent_t():*opt; 
-        obj->func = _func; obj->ctx = *xtc; 
+        obj->func  = _func; obj->ctx = *xtc; 
     }
 
     /*─······································································─*/
