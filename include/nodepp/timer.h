@@ -51,13 +51,13 @@ namespace nodepp { namespace timer {
     
     /*─······································································─*/
     
-    void delay( ulong* time ){
+    void await( ulong* time ){
         ulong stamp = process::millis() + *time;
         while( process::millis() < stamp )
              { process::next(); }
     };
 
-    void delay( ulong time ){ delay( (ulong*) &time ); }
+    void await( ulong time ){ await( (ulong*) &time ); }
     
     /*─······································································─*/
 
@@ -111,13 +111,13 @@ namespace nodepp { namespace utimer {
     
     /*─······································································─*/
     
-    void delay( ulong* time ){
+    void await( ulong* time ){
         ulong stamp = process::micros() + *time;
         while( process::micros() < stamp )
              { process::next(); }
     };
 
-    void delay( ulong time ){ delay( (ulong*) &time ); }
+    void await( ulong time ){ await( (ulong*) &time ); }
     
     /*─······································································─*/
 

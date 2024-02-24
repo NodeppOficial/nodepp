@@ -10,11 +10,12 @@
 namespace nodepp { class semaphore_t {
 public:
 
-    virtual ~semaphore_t() noexcept {
-        if( obj->addr == (void*)this ){ release(); }
-    };
-
     semaphore_t() : obj( new NODE() ){}
+
+    virtual ~semaphore_t() noexcept {
+        if( obj->addr == (void*)this )
+          { release(); }
+    };
     
     /*─······································································─*/
 

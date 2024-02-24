@@ -12,14 +12,14 @@
 namespace nodepp {
 
 class ssocket_t : public socket_t { 
-public: ssocket_t() noexcept : socket_t() {}
-
-    ptr_t<ssl_t> ssl;
+public: ptr_t<ssl_t> ssl;
     
     /*─······································································─*/
 
-    ssocket_t( ssl_t ctx, int df, ulong _size=CHUNK_SIZE ) noexcept 
-    :socket_t( df, _size ) { ssl = new ssl_t( ctx, df ); }
+    ssocket_t( ssl_t& ctx, int df, ulong size=CHUNK_SIZE ) noexcept 
+    :socket_t( df, size ), ssl( new ssl_t( ctx, df ) ) {}
+
+    ssocket_t() noexcept : socket_t() {}
     
     /*─······································································─*/
 
@@ -33,9 +33,7 @@ public: ssocket_t() noexcept : socket_t() {}
         if( is_closed() ){ return -1; } return ssl->_write( bf, sx );
     }
     
-};
-
-}
+};}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

@@ -19,6 +19,7 @@ namespace nodepp { using header_t = map_t< string_t, string_t >; namespace HTTP_
         case 101:  return "Switching Protocols";                                break;
         case 102:  return "Processing";                                         break;
         case 103:  return "Early Hints";                                        break;
+        
         case 200:  return "OK";                                                 break;
         case 201:  return "Created";                                            break;
         case 202:  return "Accepted";                                           break;
@@ -29,6 +30,7 @@ namespace nodepp { using header_t = map_t< string_t, string_t >; namespace HTTP_
         case 207:  return "Multi-Status";                                       break;
         case 208:  return "Already Reported";                                   break;
         case 226:  return "IM Used";                                            break;
+
         case 300:  return "Multiple Choices";                                   break;
         case 301:  return "Moved Permanently";                                  break;
         case 302:  return "Found";                                              break;
@@ -37,6 +39,7 @@ namespace nodepp { using header_t = map_t< string_t, string_t >; namespace HTTP_
         case 305:  return "Use Proxy";                                          break;
         case 307:  return "Temporary Redirect";                                 break;
         case 308:  return "Permanent Redirect";                                 break;
+
         case 400:  return "Bad Request";                                        break;
         case 401:  return "Unauthorized";                                       break;
         case 402:  return "Payment Required";                                   break;
@@ -66,6 +69,7 @@ namespace nodepp { using header_t = map_t< string_t, string_t >; namespace HTTP_
         case 429:  return "Too Many Requests";                                  break;
         case 431:  return "Request Header Fields Too Large";                    break;
         case 451:  return "Unavailable For Legal Reasons";                      break;
+
         case 500:  return "Internal Server Error";                              break;
         case 501:  return "Not Implemented";                                    break;
         case 502:  return "Bad Gateway";                                        break;

@@ -10,6 +10,19 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+namespace nodepp { namespace ssl {
+
+    void start_device(){ static bool ssl=false; 
+        if( ssl == false ){
+            SSL_library_init();
+            OpenSSL_add_all_algorithms();
+        }   ssl = true;
+    }
+
+}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 namespace nodepp { class ssl_t { 
 protected:
     
@@ -71,7 +84,7 @@ protected:
     
     /*─······································································─*/
 
-    bool is_blocked( const int& c ) const noexcept { if( c < 0 ){
+    bool is_blocked( const int& c ) const noexcept { if( c<=0 ){
         int error =  SSL_get_error( obj->ssl, c ); return ( 
             error == SSL_ERROR_WANT_CLIENT_HELLO_CB ||
             error == SSL_ERROR_WANT_X509_LOOKUP     ||
@@ -102,7 +115,7 @@ protected:
         );
     }
 
-public: ssl_t() noexcept : obj( new NODE() ) {}
+public:
     
     virtual ~ssl_t() {
         if( obj.count() > 1 ) { return; }
@@ -111,38 +124,44 @@ public: ssl_t() noexcept : obj( new NODE() ) {}
     
     /*─······································································─*/
 
-    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI* _func=nullptr ) : obj( new NODE() ) {
+    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI* _func=nullptr ) 
+    : obj( new NODE() ) { ssl::start_device();
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) || !fs::exists_file(_chain) )
              process::error("such key, cert or chain does not exist");
         if( _func != nullptr ) obj->fnc = new onSNI(*_func); 
              obj->key = _key;  obj->crt = _cert; obj->chn = _chain;
     }
 
-    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI _func ) : obj( new NODE() ) {
+    ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI _func ) 
+    : obj( new NODE() ) { ssl::start_device();
           *this = ssl_t( _key, _cert, _chain, &_func );
     }
     
     /*─······································································─*/
 
-    ssl_t( const string_t& _key, const string_t& _cert, onSNI* _func=nullptr ) : obj( new NODE() ) {
+    ssl_t( const string_t& _key, const string_t& _cert, onSNI* _func=nullptr ) 
+    : obj( new NODE() ) { ssl::start_device();
         if( !fs::exists_file(_key) || !fs::exists_file(_cert) )
              process::error("such key or cert does not exist");
         if( _func != nullptr ) obj->fnc = new onSNI(*_func); 
              obj->key = _key;  obj->crt = _cert; 
     }
 
-    ssl_t( const string_t& _key, const string_t& _cert, onSNI _func ) : obj( new NODE() ) {
+    ssl_t( const string_t& _key, const string_t& _cert, onSNI _func ) 
+    : obj( new NODE() ) { ssl::start_device();
           *this = ssl_t( _key, _cert, &_func );
     }
 
     /*─······································································─*/
 
-    ssl_t( ssl_t& xtc, int df ) : obj( new NODE() ) {
+    ssl_t( ssl_t& xtc, int df ) : obj( new NODE() ) { ssl::start_device();
        if( xtc.get_ctx() == nullptr ) process::error("ctx has no context");
            obj->ctx = xtc.get_ctx(); obj->ssl = SSL_new(obj->ctx); 
            obj->srv = xtc.is_server(); set_nonbloking_mode(); 
            set_fd( df );
     }
+     
+    ssl_t() noexcept : obj( new NODE() ) { ssl::start_device(); }
     
     /*─······································································─*/
 
