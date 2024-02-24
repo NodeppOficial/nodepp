@@ -85,7 +85,8 @@ protected:
     /*─······································································─*/
 
     bool is_blocked( const int& c ) const noexcept { if( c<=0 ){
-        int error =  SSL_get_error( obj->ssl, c ); return ( 
+        int error =  SSL_get_error( obj->ssl, c ); 
+        ERR_clear_error(); return ( 
             error == SSL_ERROR_WANT_CLIENT_HELLO_CB ||
             error == SSL_ERROR_WANT_X509_LOOKUP     ||
             error == SSL_ERROR_WANT_ASYNC_JOB       ||
@@ -259,8 +260,11 @@ public:
 
     void force_close() const noexcept {
         if( obj->ssl != nullptr ){
+        if( obj->cnn == 1 )
             SSL_shutdown( obj->ssl );
-            SSL_free(obj->ssl); return;
+            SSL_clear(obj->ssl);
+            SSL_free(obj->ssl); 
+            return;
         } if ( obj->ctx != nullptr ){
             SSL_CTX_free(obj->ctx); return;
         }
