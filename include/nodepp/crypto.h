@@ -35,7 +35,6 @@ namespace nodepp { namespace crypto {
 
     void start_device(){ static bool ssl=false; 
         if( ssl == false ){
-            SSL_library_init();
             OpenSSL_add_all_algorithms();
         }   ssl = true;
     }
