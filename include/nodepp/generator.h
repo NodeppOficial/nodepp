@@ -84,10 +84,10 @@ namespace nodepp { namespace _file_ {
 
         if( y.empty() ) do {
                  c =str->_read( str->get_buffer_data(),min(d,size) );
-             if( c==-2 ){ coNext; }
+             if( true /* c==-2 */ ){ coNext; }
         } while( c==-2 );
         
-        if( c<=0 && y.empty() ){ str->close(); coEnd; } elif ( c>0 ){
+        if( c<=0 && y.empty() && !str->is_busy() ){ str->close(); coEnd; } elif ( c>0 ){
             y = string_t( str->get_buffer_data(), (ulong) c );
         }   c = y.size();
         
@@ -103,17 +103,17 @@ namespace nodepp { namespace _file_ {
         ulong size = 0;
         
     template< class T > gnEmit( T* str, const string_t& msg ){
-    gnStart c=0; y=0; str->flush(); //str->del_borrow();
+    gnStart c=0; y=0; str->flush();
 
         if( !str->is_available() || msg.empty() ){ str->close(); coEnd; } 
         if(  str->get_borrow().empty() ){ str->set_borrow( msg ); }
         
-        do { do { c = str->_write(str->get_borrow_data()+y,str->get_borrow_size()-y);
-             if ( c==-2 )           { coNext; }
+        do { do { c = str->_write( str->get_borrow_data()+y, str->get_borrow_size()-y );
+             if ( true /* c==-2 */ ){ coNext; }
         } while ( c==-2 ); if( c>0 ){ y += c; }
         } while ( c>=0 && y<str->get_borrow_size() ); str->del_borrow();
         
-        if( c<=0 ){ str->close(); coEnd; }
+        if( c<=0 && !str->is_busy() ){ str->close(); coEnd; }
         
     gnStop
     }};
