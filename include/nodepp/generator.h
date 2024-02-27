@@ -156,7 +156,7 @@ namespace nodepp { namespace _stream_ {
         gnStart inp.onPipe.emit();
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; } 
-               if( _read.c < 0 )   { break;  }
+               if( _read.c <=0 )   { break;  }
                     inp.onData.emit( _read.y );
             }
             if(!inp.is_busy() ) inp.close(); 
