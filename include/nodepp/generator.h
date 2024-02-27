@@ -64,18 +64,20 @@ namespace nodepp { namespace _timer_ {
     #define  GENERATOR_FILE
 namespace nodepp { namespace _file_ {
 
-    GENERATOR( read ){ public: 
-
-        ulong*   r;
+    GENERATOR( read ){ 
+    private:  
+        ulong    d; 
+        ulong*   r; 
+        
+    public: 
         string_t y;
         int      c; 
-        ulong    d;
 
     template< class T > gnEmit( T* str, ulong size=CHUNK_SIZE ){
     gnStart c=0; d=0; y.clear(); str->flush();
 
         if(!str->is_available() ){ coEnd; } r = str->get_range();
-        if( str->get_borrow().empty() ){ y = str->get_borrow(); }
+        if(!str->get_borrow().empty() ){ y = str->get_borrow(); }
 
           if ( r[1] != 0 ){ auto pos = str->pos(); d = r[1]-r[0];
           if ( pos < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
@@ -88,28 +90,31 @@ namespace nodepp { namespace _file_ {
         
         if( c > 0 ){
             y = string_t( str->get_buffer_data(), (ulong) c );
-        }   c = y.size(); str->del_borrow();
+        }   c = y.size(); str->get_borrow().clear();
         
     gnStop
     }};
     
     /*─······································································─*/
 
-    GENERATOR( write ){ public:
+    GENERATOR( write ){ 
+    private:
+        string_t b ;
 
+    public:
         ulong    y = 0; 
         int      c = 0;
         
     template< class T > gnEmit( T* str, const string_t& msg ){
     gnStart c=0; y=0; str->flush();
-            str->set_borrow( msg );
 
         if(!str->is_available() || msg.empty() ){ coEnd; }
+        if( b.empty() ){ b = msg; }
         
-        do { do { c=str->_write( str->get_borrow_data()+y, str->get_borrow_size()-y );
+        do { do { c=str->_write( b.data()+y, b.size()-y );
              if ( c==-2 )           { coNext; }
         } while ( c==-2 ); if( c>0 ){ y += c; }
-        } while ( c>=0 && y<str->get_borrow_size() ); str->del_borrow();
+        } while ( c>=0 && y<b.size() ); b.clear();
 
     gnStop
     }};
