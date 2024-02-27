@@ -57,6 +57,7 @@ protected:
         SOCKADDR server_addr, client_addr;
         int addrlen; bool srv=0; int len;
         int _retry=10, retry=10;
+        int feof = 1;
 
         SOCKET       fd = INVALID_SOCKET;
         ulong        range[2] = { 0, 0 };
@@ -254,10 +255,10 @@ public: socket_t() noexcept { socket::start_device(); }
 
     /*─······································································─*/
 
-            bool is_available() const noexcept { return obj->state >= 0 && obj->fd != INVALID_SOCKET; }
-            bool    is_closed() const noexcept { return obj->state <  0 || is_feof() || !is_available(); }
-            bool      is_busy() const noexcept { return obj->state == 1 && is_available(); }
-    virtual bool      is_feof() const noexcept { return get_error()!= 0; }
+            bool    is_closed() const noexcept { return obj->state <  0 ||  is_feof() || obj->fd == INVALID_SOCKET; }
+            bool      is_busy() const noexcept { return obj->state == 1 &&  is_available(); }
+            bool is_available() const noexcept { return obj->state >= 0 && !is_closed(); }
+    virtual bool      is_feof() const noexcept { return obj->feof  == 0; }
             bool    is_server() const noexcept { return obj->srv; }
 
     /*─······································································─*/
@@ -455,18 +456,18 @@ public: socket_t() noexcept { socket::start_device(); }
     /*─······································································─*/
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } int c = 0; if( SOCK != SOCK_DGRAM ){
-            return is_blocked(c=::recv( obj->fd, bf, sx, 0 )) ? -2 : c;
+        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; } if( SOCK != SOCK_DGRAM ){
+            obj->feof = ::recv( obj->fd, bf, sx, 0 ); return is_blocked(obj->feof) ? -2 : obj->feof;
         } else { SOCKADDR* cli; if( obj->srv==1 ) cli = &obj->client_addr; else cli = &obj->server_addr;
-            return is_blocked(c=::recvfrom( obj->fd, bf, sx, 0, cli, &obj->len )) ? -2 : c;
+            obj->feof = ::recvfrom( obj->fd, bf, sx, 0, cli, &obj->len ); return is_blocked(obj->feof) ? -2 : obj->feof;
         }   return -1;
     }
     
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } int c = 0; if( SOCK != SOCK_DGRAM ){
-            return is_blocked(c=::send( obj->fd, bf, sx, 0 )) ? -2 : c;
+        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; } if( SOCK != SOCK_DGRAM ){
+            obj->feof = ::send( obj->fd, bf, sx, 0 ); return is_blocked(obj->feof) ? -2 : obj->feof;
         } else { SOCKADDR* cli; if( obj->srv==1 ) cli = &obj->client_addr; else cli = &obj->server_addr;
-            return is_blocked(c=::sendto( obj->fd, bf, sx, 0, cli, obj->len )) ? -2 : c;
+            obj->feof = ::sendto( obj->fd, bf, sx, 0, cli, obj->len ); return is_blocked(obj->feof) ? -2 : obj->feof;
         }   return -1;
     } 
     

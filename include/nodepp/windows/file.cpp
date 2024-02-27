@@ -13,6 +13,7 @@ protected:
         HANDLE       fd = INVALID_HANDLE_VALUE;
         ulong        range[2] = { 0, 0 };
         int          state    =   0;
+        int          feof     =   1;
         OVERLAPPED   ov    ;
         ptr_t<char>  buffer;
         string_t     borrow;
@@ -80,10 +81,10 @@ public: file_t() noexcept {}
 
     /*─······································································─*/
 
-    bool    is_available() const noexcept { return obj->state >= 0 && obj->fd != INVALID_HANDLE_VALUE; }
-    bool       is_closed() const noexcept { return obj->state <  0 || is_feof() || !is_available(); }
-    bool         is_busy() const noexcept { return obj->state == 1 && is_available(); }
-    virtual bool is_feof() const noexcept { return 0; }
+    bool       is_closed() const noexcept { return obj->state <  0 ||  is_feof() || obj->fd == INVALID_HANDLE_VALUE; }
+    bool         is_busy() const noexcept { return obj->state == 1 &&  is_available(); }
+    bool    is_available() const noexcept { return obj->state >= 0 && !is_closed(); }
+    virtual bool is_feof() const noexcept { return obj->feof ==  0; }
 
     /*─······································································─*/
     
@@ -171,13 +172,15 @@ public: file_t() noexcept {}
     /*─······································································─*/
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } DWORD c = 0;
-        return is_blocked( ReadFile( obj->fd, bf, sx, NULL, &obj->ov ), c ) ? -2 : c;
+        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; }
+        obj->feof = ReadFile( obj->fd, bf, sx, NULL, &obj->ov );
+        DWORD c = 0; return is_blocked( obj->feof, c ) ? -2 : c;
     }
 
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } DWORD c = 0;
-        return is_blocked( WriteFile( obj->fd, bf, sx, NULL, &obj->ov ), c ) ? -2 : c;
+        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; }
+        obj->feof = WriteFile( obj->fd, bf, sx, NULL, &obj->ov );
+        DWORD c = 0; return is_blocked( obj->feof, c ) ? -2 : c;
     }
     
 };}

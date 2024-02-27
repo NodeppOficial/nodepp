@@ -144,7 +144,7 @@ namespace tcp {
         server.onConnect.once([=]( socket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
-            if(  _read->c  <=  0 )   { return 1; }
+            if(  _read->c  <   0 )   { return 1; }
             cli.onData.emit(_read->y); return 1;
         }) ; });
 
@@ -171,7 +171,7 @@ namespace tcp {
         process::poll::add([=](){
             if(!cli.is_available() ) { cli.close(); return -1; }
             if((*_read)(&cli)==1 )   { return 1; }
-            if(  _read->c  <=  0 )   { return 1; }
+            if(  _read->c  <   0 )   { return 1; }
             cli.onData.emit(_read->y); return 1;
         }); 
 

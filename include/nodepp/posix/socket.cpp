@@ -228,7 +228,7 @@ public: socket_t() noexcept { socket::start_device(); }
     
     /*─······································································─*/
 
-    virtual bool   is_feof() const noexcept { return get_error() != 0; }
+    virtual bool   is_feof() const noexcept { return obj->feof == 0; }
 
             bool is_server() const noexcept { return skt->srv; }
     
@@ -289,7 +289,7 @@ public: socket_t() noexcept { socket::start_device(); }
 
     virtual int socket( const string_t& host, int port ) noexcept { 
         if( host.empty() ){ process::error(onError,"dns coudn't found ip"); return -1; }
-        skt->addrlen = sizeof( skt->server_addr ); socket::start_device();
+            skt->addrlen = sizeof( skt->server_addr ); socket::start_device();
 
         if((obj->fd=::socket( AF, SOCK, PROT )) <= 0 )
           { process::error(onError,"can't initializate socket fd"); return -1; } 
@@ -360,18 +360,18 @@ public: socket_t() noexcept { socket::start_device(); }
     /*─······································································─*/
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } int c = 0; if( SOCK != SOCK_DGRAM ){
-            return is_blocked(c=::recv( obj->fd, bf, sx, 0 )) ? -2 : c;
+        if ( is_closed() ){ return -1; } if( sx==0 ){ return 0; } if( SOCK != SOCK_DGRAM ){
+            obj->feof=::recv( obj->fd, bf, sx, 0 ); return is_blocked(obj->feof) ? -2 : obj->feof;
         } else { SOCKADDR* cli; if( skt->srv==1 ) cli = &skt->client_addr; else cli = &skt->server_addr;
-            return is_blocked(c=::recvfrom( obj->fd, bf, sx, 0, cli, &skt->len )) ? -2 : c;
+            obj->feof=::recvfrom( obj->fd, bf, sx, 0, cli, &skt->len ); return is_blocked(obj->feof) ? -2 : obj->feof;
         }   return -1;
     }
     
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } int c = 0; if( SOCK != SOCK_DGRAM ){
-            return is_blocked(c=::send( obj->fd, bf, sx, 0 )) ? -2 : c;
+        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; } if( SOCK != SOCK_DGRAM ){
+            obj->feof=::send( obj->fd, bf, sx, 0 ); return is_blocked(obj->feof) ? -2 : obj->feof;
         } else { SOCKADDR* cli; if( skt->srv==1 ) cli = &skt->client_addr; else cli = &skt->server_addr;
-            return is_blocked(c=::sendto( obj->fd, bf, sx, 0, cli, skt->len )) ? -2 : c;
+            obj->feof=::sendto( obj->fd, bf, sx, 0, cli, skt->len ); return is_blocked(obj->feof) ? -2 : obj->feof;
         }   return -1;
     } 
     

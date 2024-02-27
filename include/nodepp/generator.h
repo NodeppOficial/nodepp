@@ -73,21 +73,20 @@ namespace nodepp { namespace _file_ {
 
     template< class T > gnEmit( T* str, ulong size=CHUNK_SIZE ){
     gnStart c=0; d=0; y.clear(); str->flush();
+            y=str->get_borrow(); str->del_borrow();
 
-        if( !str->is_available() ){ str->close(); coEnd; } r = str->get_range();
-        if( !str->get_borrow().empty() ){ y=str->get_borrow(); str->del_borrow(); }
+        if( !str->is_available() ){ coEnd; } r = str->get_range();
 
           if ( r[1] != 0 ){ auto pos = str->pos(); d = r[1]-r[0];
           if ( pos < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
-        elif ( pos >=r[1] ){ str->close(); coEnd; } }
+        elif ( pos >=r[1] ){ coEnd; } }
         else { d = str->get_buffer_size(); }
 
         if( y.empty() ) do {
-                 c =str->_read( str->get_buffer_data(),min(d,size) );
-             if( true /* c==-2 */ ){ coNext; }
-        } while( c==-2 );
+            c=str->_read( str->get_buffer_data(), min(d,size) );
+        if( c==-2 ){ coNext; } } while ( c==-2 );
         
-        if( c<=0 && y.empty() && !str->is_busy() ){ str->close(); coEnd; } elif ( c>0 ){
+        if( c > 0 ){
             y = string_t( str->get_buffer_data(), (ulong) c );
         }   c = y.size();
         
@@ -100,21 +99,18 @@ namespace nodepp { namespace _file_ {
 
         ulong    y = 0; 
         int      c = 0;
-        ulong size = 0;
         
     template< class T > gnEmit( T* str, const string_t& msg ){
     gnStart c=0; y=0; str->flush();
+            str->set_borrow( msg );
 
-        if( !str->is_available() || msg.empty() ){ str->close(); coEnd; } 
-        if(  str->get_borrow().empty() ){ str->set_borrow( msg ); }
+        if(!str->is_available() || msg.empty() ){ coEnd; }
         
-        do { do { c = str->_write( str->get_borrow_data()+y, str->get_borrow_size()-y );
-             if ( true /* c==-2 */ ){ coNext; }
+        do { do { c=str->_write( str->get_borrow_data()+y, str->get_borrow_size()-y );
+             if ( c==-2 )           { coNext; }
         } while ( c==-2 ); if( c>0 ){ y += c; }
         } while ( c>=0 && y<str->get_borrow_size() ); str->del_borrow();
-        
-        if( c<=0 && !str->is_busy() ){ str->close(); coEnd; }
-        
+
     gnStop
     }};
 
@@ -160,7 +156,7 @@ namespace nodepp { namespace _stream_ {
         gnStart inp.onPipe.emit();
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; } 
-               if( _read.c <= 0 )  { break; }
+               if( _read.c < 0 )   { break;  }
                     inp.onData.emit( _read.y );
             }
             if(!inp.is_busy() ) inp.close(); 
@@ -171,8 +167,9 @@ namespace nodepp { namespace _stream_ {
         gnStart inp.onPipe.emit(); out.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 )         { coNext; }
-               if( _read.c <= 0 )           { break; }
+               if( _read.c <=0 )            { break;  }
             while( _write(&out,_read.y)==1 ){ coNext; }
+               if( _write.c <=0 )           { break;  }
                     inp.onData.emit( _read.y );
             }
             if(!inp.is_busy() ) inp.close(); 
@@ -193,7 +190,7 @@ namespace nodepp { namespace _stream_ {
         gnStart inp.onPipe.emit();
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; } 
-               if( _read.c <= 0 )  { break; }
+               if( _read.c <=0 )   { break;  }
                    inp.onData.emit( _read.y );
             }      
             if(!inp.is_busy() ) inp.close(); 
@@ -204,8 +201,9 @@ namespace nodepp { namespace _stream_ {
         gnStart inp.onPipe.emit(); out.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 )         { coNext; } 
-               if( _read.c <= 0 )           { break; }
+               if( _read.c <=0 )            { break;  }
             while( _write(&out,_read.y)==1 ){ coNext; }
+               if( _write.c <=0 )           { break;  }
                     inp.onData.emit( _read.y );
             }       
             if(!inp.is_busy() ) inp.close(); 
@@ -231,7 +229,6 @@ namespace nodepp { namespace _zlib_ {
         int x=0; ulong size; string_t dout;
         _file_::write _write;
         _file_::read  _read;
-        
 
         template< class T, class V, class U >
         gnEmit( const T& inp, const V& out, U cb ){
@@ -251,7 +248,7 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 ){ coNext; }
-               if( _read.c <= 0 )  { break; }
+               if( _read.c <=0 )   { break;  }
 
                 str->avail_in = _read.y.size();
                 str->avail_out= inp.get_buffer_size();
@@ -262,7 +259,8 @@ namespace nodepp { namespace _zlib_ {
                 if(( size=inp.get_buffer_size()-str->avail_out )>0){
                     dout = string_t( inp.get_buffer_data(), size );
                     inp.onData.emit(dout); 
-                    while( _write(&out,dout)==1 ){ coNext; } continue;
+                    while( _write(&out,dout)==1 ){ coNext; }
+                       if( _write.c <=0 )        { break;  } continue;
                 }
                 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
@@ -296,7 +294,7 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; }
-               if( _read.c <= 0 )  { break; }
+               if( _read.c <=0 )   { break;  }
 
                 str->avail_in = _read.y.size();
                 str->avail_out= inp.get_buffer_size();
@@ -331,7 +329,6 @@ namespace nodepp { namespace _zlib_ {
         int x=0; ulong size; string_t dout;
         _file_::write _write;
         _file_::read  _read;
-        
 
         template< class T, class V, class U >
         gnEmit( const T& inp, const V& out, U cb ){
@@ -351,7 +348,7 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 ){ coNext; }
-               if( _read.c <= 0 )  { break; }
+               if( _read.c <=0 )   { break;  }
 
                 str->avail_in = _read.y.size();
                 str->avail_out= inp.get_buffer_size();
@@ -362,7 +359,8 @@ namespace nodepp { namespace _zlib_ {
                 if(( size=inp.get_buffer_size()-str->avail_out )>0){
                     dout = string_t( inp.get_buffer_data(), size );
                     inp.onData.emit(dout); 
-                    while( _write(&out,dout)==1 ){ coNext; } continue;
+                    while( _write(&out,dout)==1 ){ coNext; }
+                       if( _write.c <=0 )        { break;  } continue;
                 }
 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
@@ -396,7 +394,7 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; }
-               if( _read.c <= 0 )  { break; }
+               if( _read.c <=0 )   { break;  }
 
                 str->avail_in = _read.y.size();
                 str->avail_out= inp.get_buffer_size();
@@ -582,7 +580,7 @@ namespace nodepp {
         ulong  lst = 0;
 
         bf[idx] = (char) 0b10000001; idx++;
-        bf[idx] = (char) 0b00000000; // 0b10000000 MASKED
+        bf[idx] = (char) 0b00000000;
 
         if ( y.size() < 126 ){ 
             bf[idx]|= (uchar) y.size(); idx++;

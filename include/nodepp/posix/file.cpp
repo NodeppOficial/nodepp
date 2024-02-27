@@ -15,6 +15,7 @@ protected:
         ulong        range[2] ={ 0, 0 };
         int          state    =  0;
         int          fd       = -1;
+        int          feof     =  1;
         ptr_t<char>  buffer;
         string_t     borrow;
     };  ptr_t<NODE> obj = new NODE();
@@ -84,10 +85,10 @@ public: file_t() noexcept {}
 
     /*─······································································─*/
 
-    bool       is_closed() const noexcept { return obj->state <  0 || is_feof() || !is_available(); }
-    bool         is_busy() const noexcept { return obj->state == 1 && is_available(); }
-    bool    is_available() const noexcept { return obj->state >= 0 && obj->fd != -1; }
-    virtual bool is_feof() const noexcept { return 0; }
+    bool       is_closed() const noexcept { return obj->state <  0 ||  is_feof() || obj->fd == -1; }
+    bool         is_busy() const noexcept { return obj->state == 1 &&  is_available(); }
+    bool    is_available() const noexcept { return obj->state >= 0 && !is_closed(); }
+    virtual bool is_feof() const noexcept { return obj->feof <=  0; }
 
     /*─······································································─*/
     
@@ -185,13 +186,15 @@ public: file_t() noexcept {}
     /*─······································································─*/
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } int c = 0;
-        return is_blocked( c=::read( obj->fd, bf, sx ) ) ? -2 : c;
+        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; }
+        obj->feof=::read( obj->fd, bf, sx );
+        return is_blocked( obj->feof ) ? -2 : obj->feof;
     }
 
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } int c = 0;
-        return is_blocked( c=::write( obj->fd, bf, sx ) ) ? -2 : c;
+        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; }
+        obj->feof=::write( obj->fd, bf, sx );
+        return is_blocked( obj->feof ) ? -2 : obj->feof;
     }
 
 };}
