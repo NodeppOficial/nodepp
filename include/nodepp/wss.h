@@ -22,11 +22,11 @@ public:
     
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         int    x = ssocket_t::_read( bf, sx );
-        return x<=0 ? x : read_ws_frame( bf, x, this);
+        return x<=0 ? x : read_ws_frame( bf, x );
     }
     
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        int    x = write_ws_frame( bf, sx, this );
+        int    x = write_ws_frame( bf, sx );
         return x<=0 ? x : ssocket_t::_write( bf, x );
     }
 

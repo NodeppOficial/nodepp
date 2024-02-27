@@ -388,6 +388,7 @@ public: array_t() noexcept {};
     explicit operator T*(void) const noexcept { return &buffer; }
     const T* c_arr() const noexcept { return &buffer; }
           T*  data() const noexcept { return &buffer; }
+          T*   get() const noexcept { return &buffer; }
     ptr_t<T>&  ptr() noexcept { return  buffer; }
 
 };}

@@ -88,7 +88,7 @@ public: file_t() noexcept {}
     bool       is_closed() const noexcept { return obj->state <  0 ||  is_feof() || obj->fd == -1; }
     bool         is_busy() const noexcept { return obj->state == 1 &&  is_available(); }
     bool    is_available() const noexcept { return obj->state >= 0 && !is_closed(); }
-    virtual bool is_feof() const noexcept { return obj->feof <=  0; }
+    virtual bool is_feof() const noexcept { return 0; /* obj->feof == 0 */ }
 
     /*─······································································─*/
     
@@ -187,7 +187,7 @@ public: file_t() noexcept {}
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } if( sx==0 ){ return 0; }
-        obj->feof=::read( obj->fd, bf, sx );
+        obj->feof =::read( obj->fd, bf, sx );
         return is_blocked( obj->feof ) ? -2 : obj->feof;
     }
 

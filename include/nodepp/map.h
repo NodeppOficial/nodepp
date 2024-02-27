@@ -51,6 +51,8 @@ public:
 
     ptr_t<T> data() const noexcept { return obj->queue.data(); }
     
+    ptr_t<T>  get() const noexcept { return obj->queue.data(); }
+    
     /*─······································································─*/
 
     void erase() const noexcept { obj->queue.erase(); }

@@ -79,7 +79,7 @@ namespace nodepp { namespace _file_ {
         if(!str->is_available() ){ coEnd; } r = str->get_range();
         if(!str->get_borrow().empty() ){ data = str->get_borrow(); }
 
-          if ( r[1] != 0 ){ auto pos = str->pos(); d = r[1]-r[0];
+          if ( r[1] != 0  ){ auto pos = str->pos(); d = r[1]-r[0];
           if ( pos < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
         elif ( pos >=r[1] ){ coEnd; } }
         else { d = str->get_buffer_size(); }
@@ -90,7 +90,7 @@ namespace nodepp { namespace _file_ {
         
         if( state > 0 ){
             data = string_t( str->get_buffer_data(), (ulong) state );
-        }   state = data.size(); str->get_borrow().clear();
+        }   state = data.size(); str->del_borrow();
         
     gnStop
     }};
@@ -166,7 +166,7 @@ namespace nodepp { namespace _stream_ {
         template< class T > gnEmit( const T& inp ){
         gnStart inp.onPipe.emit();
             while( inp.is_available() ){
-            while( _read(&inp)==1 ){ coNext; } 
+            while( _read(&inp)==1 ){ coNext; }
                if( _read.state<=0 ){ break;  }
                     inp.onData.emit( _read.data );
             }
@@ -588,8 +588,7 @@ namespace nodepp {
         ulong LEN = 0; //64b
     };
 
-    template< class T >
-    ulong write_ws_frame( char* bf, const ulong& sx, T* str ){
+    ulong write_ws_frame( char* bf, const ulong& sx ){
         static ulong len;
 
         if( bf    == nullptr    ){ return   0; }
@@ -618,19 +617,17 @@ namespace nodepp {
 
         for( ulong x = 0; x<y.size(); x++ ){
              bf[idx] = y[x]; idx++; lst=x;
-        }    str->set_borrow( y.slice(lst) );
+        }
         
         len = idx; return idx; 
     }
 
-    template< class T >
-    ulong read_ws_frame( char* bf, const ulong& /*unused*/, T* /*unused*/ ){
-
+    ulong read_ws_frame( char* bf, const ulong& /*unused*/ ){
         if( bf == nullptr ){ return  0; }
 
         uint idx = 0; ws_frame_t st;
         auto y = array_t<bool>(encoder::bin::get( bf[0] )); 
-
+        
         st.FIN = y.splice(0,1)[0] == 1; idx++;
 
         for( auto x : y.splice(0,3) ) st.RSV = st.RSV<<1 | x;

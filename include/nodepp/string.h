@@ -412,6 +412,7 @@ public:
 
     explicit operator char* (void) const noexcept { return empty() ? (char*)"" : &buffer; }
           char*  data() const noexcept { return empty() ? (char*) "" : &buffer; }
+          char*   get() const noexcept { return empty() ? (char*) "" : &buffer; }
     const char* c_str() const noexcept { return empty() ?         "" : &buffer; }
     explicit operator bool(void) const noexcept { return empty(); }
     ptr_t<char>&  ptr() noexcept { return buffer; }
