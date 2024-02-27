@@ -33,10 +33,10 @@ namespace nodepp { namespace serial {
 			cli.onDrain.once([=](){ cli.free(); });
 
 			process::task::add([=](){
-				if(!cli.is_available() ) { cli.close(); return -1; }
-				if((*_read)(&cli)==1 )   { return 1; }
-				if(  _read->c <= 0  )    { return 1; }
-				cli.onData.emit(_read->y); return 1;
+				if(!cli.is_available() )    { cli.close(); return -1; }
+				if((*_read)(&cli)==1 )      { return 1; }
+				if(  _read->state<=0 )      { return 1; }
+				cli.onData.emit(_read->data); return 1;
 			});
 
 		}); 

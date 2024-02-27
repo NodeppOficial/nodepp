@@ -7,22 +7,22 @@ namespace nodepp { namespace _timer_ {
     GENERATOR( timer ){ public:
 
         template< class V, class... T > 
-        gnEmit( V func, const ptr_t<ulong>& out, ulong time, const T&... args ){
+        gnEmit( V func, const ptr_t<int>& out, ulong time, ptr_t<ulong> stm, const T&... args ){
         gnStart
             if(*out == 0 )                   coEnd;
-            if( process::millis() <= *out )  coGoto(0);
+            if( process::millis() <= *stm )  coGoto(0);
             if( func(args...)<0 )            coEnd;
-            *out = process::millis() + time; coGoto(0); 
+            *stm = process::millis() + time; coGoto(0); 
         gnStop
         }
 
         template< class V, class... T > 
-        gnEmit( V func, const ptr_t<ulong>& out, ulong* time, const T&... args ){
+        gnEmit( V func, const ptr_t<int>& out, ulong* time, ptr_t<ulong> stm, const T&... args ){
         gnStart
             if(*out == 0 )                   coEnd;
-            if( process::millis() <= *out )  coGoto(0);
+            if( process::millis() <= *stm )  coGoto(0);
             if( func(args...)<0 )            coEnd;
-            *out = process::millis() +*time; coGoto(0); 
+            *stm = process::millis() +*time; coGoto(0); 
         gnStop
         }
 
@@ -33,22 +33,22 @@ namespace nodepp { namespace _timer_ {
     GENERATOR( utimer ){ public:
 
         template< class V, class... T > 
-        gnEmit( V func, const ptr_t<ulong>& out, ulong time, const T&... args ){
+        gnEmit( V func, const ptr_t<int>& out, ulong time, ptr_t<ulong> stm, const T&... args ){
         gnStart
             if(*out == 0 )                   coEnd;
-            if( process::micros() <= *out )  coGoto(0);
+            if( process::micros() <= *stm )  coGoto(0);
             if( func(args...)<0 )            coEnd;
-            *out = process::micros() + time; coGoto(0);
+            *stm = process::micros() + time; coGoto(0);
         gnStop
         }
 
         template< class V, class... T > 
-        gnEmit( V func, const ptr_t<ulong>& out, ulong* time, const T&... args ){
+        gnEmit( V func, const ptr_t<int>& out, ulong* time, ptr_t<ulong> stm, const T&... args ){
         gnStart
             if(*out == 0 )                   coEnd;
-            if( process::micros() <= *out )  coGoto(0);
+            if( process::micros() <= *stm )  coGoto(0);
             if( func(args...)<0 )            coEnd;
-            *out = process::micros() +*time; coGoto(0);
+            *stm = process::micros() +*time; coGoto(0);
         gnStop
         }
 
@@ -70,27 +70,27 @@ namespace nodepp { namespace _file_ {
         ulong*   r; 
         
     public: 
-        string_t y;
-        int      c; 
+        string_t data ;
+        int      state; 
 
     template< class T > gnEmit( T* str, ulong size=CHUNK_SIZE ){
-    gnStart c=0; d=0; y.clear(); str->flush();
+    gnStart state=0; d=0; data.clear(); str->flush();
 
         if(!str->is_available() ){ coEnd; } r = str->get_range();
-        if(!str->get_borrow().empty() ){ y = str->get_borrow(); }
+        if(!str->get_borrow().empty() ){ data = str->get_borrow(); }
 
           if ( r[1] != 0 ){ auto pos = str->pos(); d = r[1]-r[0];
           if ( pos < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
         elif ( pos >=r[1] ){ coEnd; } }
         else { d = str->get_buffer_size(); }
 
-        if( y.empty() ) do {
-            c=str->_read( str->get_buffer_data(), min(d,size) );
-        if( c==-2 ){ coNext; } } while ( c==-2 );
+        if( data.empty() ) do {
+            state=str->_read( str->get_buffer_data(), min(d,size) );
+        if( true /* state==-2 */ ){ coNext; } } while ( state==-2 );
         
-        if( c > 0 ){
-            y = string_t( str->get_buffer_data(), (ulong) c );
-        }   c = y.size(); str->get_borrow().clear();
+        if( state > 0 ){
+            data = string_t( str->get_buffer_data(), (ulong) state );
+        }   state = data.size(); str->get_borrow().clear();
         
     gnStop
     }};
@@ -102,42 +102,45 @@ namespace nodepp { namespace _file_ {
         string_t b ;
 
     public:
-        ulong    y = 0; 
-        int      c = 0;
+        ulong    data ; 
+        int      state;
         
     template< class T > gnEmit( T* str, const string_t& msg ){
-    gnStart c=0; y=0; str->flush();
+    gnStart state=0; data=0; str->flush();
 
         if(!str->is_available() || msg.empty() ){ coEnd; }
         if( b.empty() ){ b = msg; }
         
-        do { do { c=str->_write( b.data()+y, b.size()-y );
-             if ( c==-2 )           { coNext; }
-        } while ( c==-2 ); if( c>0 ){ y += c; }
-        } while ( c>=0 && y<b.size() ); b.clear();
+        do { do { state=str->_write( b.data()+data, b.size()-data );
+             if ( true /* state==-2 */ )    { coNext;        }
+        } while ( state==-2 ); if( state>0 ){ data += state; }
+        } while ( state>=0 && data<b.size() ); b.clear();
 
     gnStop
     }};
 
     /*─······································································─*/
 
-    GENERATOR( line ){ public: 
-    
-        _file_::read prs;
-        string_t     s,y;  
-        ulong          c; 
+    GENERATOR( line ){ 
+    private:
+        _file_::read _read;
+        string_t     s;
+
+    public: 
+        string_t  data ;  
+        ulong     state; 
 
     template< class T > gnEmit( T* str ){
-    gnStart c=1; s.clear(); y.clear(); str->flush();
+    gnStart state=1; s.clear(); data.clear(); str->flush();
 
         while( str->is_available() ){
-        while( prs(str) == 1 ){ coNext; }
-           if( prs.c<=0 ){ break; } c=1; s += prs.y; 
-          for( auto x:s ){ if( x == '\n' ){ break; } c++; }
-           if( c<=s.size() ){ break; }
+        while( _read(str) == 1 ){ coNext; }
+           if( _read.state<= 0 ){ break; } state = 1; s += _read.data; 
+          for( auto &x: s )     { if( x == '\n' ){ break; } state++; }
+           if( state<=s.size() ){ break; }
         }      str->set_borrow(s);
 
-        y = str->get_borrow().splice( 0, c );
+        data = str->get_borrow().splice( 0, state );
     
     gnStop
     }};
@@ -152,17 +155,20 @@ namespace nodepp { namespace _file_ {
     #define  GENERATOR_STREAM 
 namespace nodepp { namespace _stream_ {
 
-    GENERATOR( pipe ){ public:
+    GENERATOR( pipe ){ 
+    private:
 
         _file_::write _write;
         _file_::read  _read;
+
+    public:
 
         template< class T > gnEmit( const T& inp ){
         gnStart inp.onPipe.emit();
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; } 
-               if( _read.c <=0 )   { break;  }
-                    inp.onData.emit( _read.y );
+               if( _read.state<=0 ){ break;  }
+                    inp.onData.emit( _read.data );
             }
             if(!inp.is_busy() ) inp.close(); 
         gnStop
@@ -171,11 +177,11 @@ namespace nodepp { namespace _stream_ {
         template< class T, class V > gnEmit( const T& inp, const V& out ){
         gnStart inp.onPipe.emit(); out.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
-            while( _read(&inp)==1 )         { coNext; }
-               if( _read.c <=0 )            { break;  }
-            while( _write(&out,_read.y)==1 ){ coNext; }
-               if( _write.c <=0 )           { break;  }
-                    inp.onData.emit( _read.y );
+            while( _read(&inp) ==1 )           { coNext; }
+               if( _read.state <=0 )           { break;  }
+            while( _write(&out,_read.data)==1 ){ coNext; }
+               if( _write.state<=0 )           { break;  }
+                    inp.onData.emit( _read.data );
             }
             if(!inp.is_busy() ) inp.close(); 
             if(!out.is_busy() ) out.close();
@@ -186,17 +192,20 @@ namespace nodepp { namespace _stream_ {
     
     /*─······································································─*/
 
-    GENERATOR( line ){ public:
+    GENERATOR( line ){ 
+    private:
 
         _file_::write _write;
         _file_::line  _read;
+
+    public:
 
         template< class T > gnEmit( const T& inp ){
         gnStart inp.onPipe.emit();
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; } 
-               if( _read.c <=0 )   { break;  }
-                   inp.onData.emit( _read.y );
+               if( _read.state<=0 ){ break;  }
+                   inp.onData.emit( _read.data );
             }      
             if(!inp.is_busy() ) inp.close(); 
         gnStop
@@ -205,11 +214,11 @@ namespace nodepp { namespace _stream_ {
         template< class T, class V > gnEmit( const T& inp, const V& out ){
         gnStart inp.onPipe.emit(); out.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
-            while( _read(&inp)==1 )         { coNext; } 
-               if( _read.c <=0 )            { break;  }
-            while( _write(&out,_read.y)==1 ){ coNext; }
-               if( _write.c <=0 )           { break;  }
-                    inp.onData.emit( _read.y );
+            while( _read(&inp)==1 )            { coNext; } 
+               if( _read.state<=0 )            { break;  }
+            while( _write(&out,_read.data)==1 ){ coNext; }
+               if( _write.state<=0 )           { break;  }
+                    inp.onData.emit( _read.data );
             }       
             if(!inp.is_busy() ) inp.close(); 
             if(!out.is_busy() ) out.close();
@@ -228,12 +237,15 @@ namespace nodepp { namespace _stream_ {
     #define  GENERATOR_ZLIB 
 namespace nodepp { namespace _zlib_ {
 
-    GENERATOR( inflate ){ public:
+    GENERATOR( inflate ){ 
+    private:
     
         ptr_t<z_stream> str = new z_stream;
         int x=0; ulong size; string_t dout;
         _file_::write _write;
         _file_::read  _read;
+
+    public:
 
         template< class T, class V, class U >
         gnEmit( const T& inp, const V& out, U cb ){
@@ -253,11 +265,11 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 ){ coNext; }
-               if( _read.c <=0 )   { break;  }
+               if( _read.state<=0 ){ break;  }
 
-                str->avail_in = _read.y.size();
+                str->avail_in = _read.data.size();
                 str->avail_out= inp.get_buffer_size();
-                str->next_in  = (Bytef*)_read.y.data();
+                str->next_in  = (Bytef*)_read.data.data();
                 str->next_out = (Bytef*)inp.get_buffer_data(); 
                             x = ::inflate( &str, Z_FINISH );
 
@@ -265,7 +277,7 @@ namespace nodepp { namespace _zlib_ {
                     dout = string_t( inp.get_buffer_data(), size );
                     inp.onData.emit(dout); 
                     while( _write(&out,dout)==1 ){ coNext; }
-                       if( _write.c <=0 )        { break;  } continue;
+                       if( _write.state<=0 )     { break;  } continue;
                 }
                 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
@@ -299,11 +311,11 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; }
-               if( _read.c <=0 )   { break;  }
+               if( _read.state<=0 ){ break;  }
 
-                str->avail_in = _read.y.size();
+                str->avail_in = _read.data.size();
                 str->avail_out= inp.get_buffer_size();
-                str->next_in  = (Bytef*)_read.y.data();
+                str->next_in  = (Bytef*)_read.data.data();
                 str->next_out = (Bytef*)inp.get_buffer_data(); 
                             x = ::inflate( &str, Z_PARTIAL_FLUSH );
 
@@ -328,12 +340,15 @@ namespace nodepp { namespace _zlib_ {
     
     /*─······································································─*/
 
-    GENERATOR( deflate ){ public:
-    
+    GENERATOR( deflate ){ 
+    private:
+
         ptr_t<z_stream> str = new z_stream;
         int x=0; ulong size; string_t dout;
         _file_::write _write;
         _file_::read  _read;
+
+    public:
 
         template< class T, class V, class U >
         gnEmit( const T& inp, const V& out, U cb ){
@@ -353,11 +368,11 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 ){ coNext; }
-               if( _read.c <=0 )   { break;  }
+               if( _read.state<=0 ){ break;  }
 
-                str->avail_in = _read.y.size();
+                str->avail_in = _read.data.size();
                 str->avail_out= inp.get_buffer_size();
-                str->next_in  = (Bytef*)_read.y.data();
+                str->next_in  = (Bytef*)_read.data.data();
                 str->next_out = (Bytef*)inp.get_buffer_data(); 
                             x = ::deflate( &str, Z_PARTIAL_FLUSH );
 
@@ -365,7 +380,7 @@ namespace nodepp { namespace _zlib_ {
                     dout = string_t( inp.get_buffer_data(), size );
                     inp.onData.emit(dout); 
                     while( _write(&out,dout)==1 ){ coNext; }
-                       if( _write.c <=0 )        { break;  } continue;
+                       if( _write.state<=0 )     { break;  } continue;
                 }
 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
@@ -399,11 +414,11 @@ namespace nodepp { namespace _zlib_ {
 
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; }
-               if( _read.c <=0 )   { break;  }
+               if( _read.state<=0 ){ break;  }
 
-                str->avail_in = _read.y.size();
+                str->avail_in = _read.data.size();
                 str->avail_out= inp.get_buffer_size();
-                str->next_in  = (Bytef*)_read.y.data();
+                str->next_in  = (Bytef*)_read.data.data();
                 str->next_out = (Bytef*)inp.get_buffer_data(); 
                             x = ::deflate( &str, Z_PARTIAL_FLUSH );
 

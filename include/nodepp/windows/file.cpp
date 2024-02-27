@@ -150,7 +150,7 @@ public: file_t() noexcept {}
         auto gen = nodepp::_file_::line();
         while( gen( this ) == 1 )
              { process::next(); }
-        return gen.y;
+        return gen.data;
     }
     
     /*─······································································─*/
@@ -159,14 +159,14 @@ public: file_t() noexcept {}
         auto gen = nodepp::_file_::read();
         while( gen( this, size ) == 1 )
              { process::next(); }
-        return gen.y;
+        return gen.data;
     }
 
     ulong write( const string_t& msg ) const noexcept {
         auto gen = nodepp::_file_::write();
         while( gen( this, msg ) == 1 )
              { process::next(); }
-        return gen.y;
+        return gen.data;
     }
     
     /*─······································································─*/

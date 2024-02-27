@@ -142,10 +142,10 @@ namespace tcp {
         cli.busy();
 
         server.onConnect.once([=]( socket_t cli ){ process::poll::add([=](){
-            if(!cli.is_available() ) { cli.close(); return -1; }
-            if((*_read)(&cli)==1 )   { return 1; }
-            if(  _read->c  <=  0 )   { return 1; }
-            cli.onData.emit(_read->y); return 1;
+            if(!cli.is_available() )    { cli.close(); return -1; }
+            if((*_read)(&cli)==1 )      { return 1; }
+            if(  _read->state<=0 )      { return 1; }
+            cli.onData.emit(_read->data); return 1;
         }) ; });
 
         process::task::add([=](){
@@ -169,10 +169,10 @@ namespace tcp {
         cli.busy();
 
         process::poll::add([=](){
-            if(!cli.is_available() ) { cli.close(); return -1; }
-            if((*_read)(&cli)==1 )   { return 1; }
-            if(  _read->c  <=  0 )   { return 1; }
-            cli.onData.emit(_read->y); return 1;
+            if(!cli.is_available() )    { cli.close(); return -1; }
+            if((*_read)(&cli)==1 )      { return 1; }
+            if(  _read->state<=0 )      { return 1; }
+            cli.onData.emit(_read->data); return 1;
         }); 
 
     }); return client; }
