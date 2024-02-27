@@ -73,9 +73,9 @@ namespace nodepp { namespace _file_ {
 
     template< class T > gnEmit( T* str, ulong size=CHUNK_SIZE ){
     gnStart c=0; d=0; y.clear(); str->flush();
-            y=str->get_borrow(); str->del_borrow();
 
-        if( !str->is_available() ){ coEnd; } r = str->get_range();
+        if(!str->is_available() ){ coEnd; } r = str->get_range();
+        if( str->get_borrow().empty() ){ y = str->get_borrow(); }
 
           if ( r[1] != 0 ){ auto pos = str->pos(); d = r[1]-r[0];
           if ( pos < r[0] ){ str->del_borrow(); str->pos( r[0] ); }
@@ -88,7 +88,7 @@ namespace nodepp { namespace _file_ {
         
         if( c > 0 ){
             y = string_t( str->get_buffer_data(), (ulong) c );
-        }   c = y.size();
+        }   c = y.size(); str->del_borrow();
         
     gnStop
     }};
