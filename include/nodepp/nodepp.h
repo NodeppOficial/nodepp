@@ -4,7 +4,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include "import.h"
-#include "regex.h"
+#include "query.h"
 #include "task.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -28,15 +28,11 @@ namespace nodepp { namespace process {
         int i=0; do {
             if(!regex::test(args[i],"^\\?") ) {
                 process::args.push(args[i]);
-            } else { auto argc = string_t( args[i] ); argc.shift(); 
-                 auto data = string::split( argc, '&' );
-            for( auto x : data ){ 
-                 auto y = regex::match_all( x, "[^=]+" );
-                 if ( y.size() != 2 ){ continue; }
-                 process::env::set( y[0], y[1] ); 
-            }} 
-        }   while( i ++< argc - 1 );
-            process::signal::start();
+            } else {
+                for( auto &x: query::parse( args[i] ).data() )
+                     process::env::set( x.first, x.second );
+            }
+        }   while( i ++< argc - 1 ); process::signal::start();
     }
     
     /*─······································································─*/

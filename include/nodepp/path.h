@@ -47,11 +47,12 @@ namespace _path_ { map_t<string_t,string_t> mimetype ({
     { "mpeg", "video/mpeg" },
     { "avi", "video/x-msvideo" },
 
-    { "cpp", "text/X-C" },
+    { "c", "text/X-C" },
     { "css", "text/css" },
     { "csv", "text/csv" },
     { "html", "text/html" },
     { "scss", "text/scss" },
+    { "cpp", "text/X-CPP" },
     { "ics", "text/calendar" },
     { "js", "text/javascript" },
     { "xml", "application/xhtml+xml" },
