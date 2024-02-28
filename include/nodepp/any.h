@@ -33,7 +33,7 @@ public: any_t() noexcept {};
 
     template< class T >
     T get() const noexcept { 
-        T any; if( any_ptr == nullptr ) return any;
+        T any; if( any_ptr == nullptr ) return T();
         any_ptr->get((void*)&any); return any; 
     }
     

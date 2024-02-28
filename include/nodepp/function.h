@@ -24,7 +24,7 @@ public:
     explicit operator bool(void) const noexcept { return func_ptr.null(); }
     
     V operator()( const T&... arg ) const { 
-        if( func_ptr == nullptr ) return V(0);
+        if( func_ptr == nullptr ) return V();
         return func_ptr->invoke(arg...); 
     }
     
