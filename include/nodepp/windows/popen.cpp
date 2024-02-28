@@ -58,8 +58,8 @@ protected:
 
     void _busy() const noexcept {
         obj->std_input .busy();
-        obj->std_output.busy();
-        obj->std_error .busy();
+    //  obj->std_output.busy();
+    //  obj->std_error .busy();
     }
 
 public:

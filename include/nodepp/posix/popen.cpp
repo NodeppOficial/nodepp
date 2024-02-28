@@ -120,7 +120,7 @@ public:
         process::task::add([=](){
             if(!inp->std_input().is_available() ){ inp->close(); return -1; }
             if((*_read1)(&inp->std_input())==1 ) { return  1; }
-            if(  _read1->c <= 0  )               { return  1; }
+            if(  _read1->state <= 0  )           { return  1; }
             inp->onData.emit(_read1->data);    
             inp->onDout.emit(_read1->data);        return  1;
         });

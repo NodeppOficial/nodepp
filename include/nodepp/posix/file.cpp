@@ -88,7 +88,7 @@ public: file_t() noexcept {}
     bool       is_closed() const noexcept { return obj->state <  0 ||  is_feof() || obj->fd == -1; }
     bool         is_busy() const noexcept { return obj->state == 1 &&  is_available(); }
     bool    is_available() const noexcept { return obj->state >= 0 && !is_closed(); }
-    virtual bool is_feof() const noexcept { return 0; /* obj->feof == 0 */ }
+    virtual bool is_feof() const noexcept { return obj->feof  == 0; }
 
     /*─······································································─*/
     

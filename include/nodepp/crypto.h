@@ -796,18 +796,18 @@ public:
         fclose( fp ); return res;
     }
 
-    void set_private_key( const string_t& path ) const noexcept {
-        FILE* fp = fopen( path.c_str(), "r" );
-        PEM_read_RSAPrivateKey( fp, &obj->rsa, NULL, NULL ); fclose( fp );
-    }
-
     void set_public_key( const string_t& path ) const noexcept {
         FILE* fp = fopen( path.c_str(), "r" );
         PEM_read_RSA_PUBKEY( fp, &obj->rsa, NULL, NULL ); fclose( fp );
     }
 
+    void set_private_key( const string_t& path ) const noexcept {
+        FILE* fp = fopen( path.c_str(), "r" );
+        PEM_read_RSAPrivateKey( fp, &obj->rsa, NULL, NULL ); fclose( fp );
+    }
+
     string_t encrypt( const string_t& msg, int padding=0 ) const noexcept {
-        if( msg.empty() || padding < 0 || obj->state == 0 ){ return ""; }
+        if( msg.empty() || padding < 0 || obj->state ==0 ){ return ""; }
         int          len = RSA_size( obj->rsa );
         ptr_t<uchar> out = new uchar[len];
         ulong y = 0; int c = 0;
@@ -869,9 +869,7 @@ public:
         obj->k     = BN_new();
         obj->state = 1;
         if( !obj->dh || !obj->g )
-          { process::error( "creating new dh_t" ); }
-        if( !DH_check( obj->dh, nullptr ) )
-          { process::error( "while checking dh" ); }
+          { process::error( "creating new dh" ); }
         if( !DH_generate_key( obj->dh ) )
           { process::error( "while generating dh params" ); }
     }

@@ -18,12 +18,11 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define onMain( ... ) void _main_() { function_t<void>( __VA_ARGS__ )(); }
-
-#define _main_ _init_(); int main( int argc, char** args ){ \
-   process::start( argc, args ); _init_(); \
-   process::run(); return 0; \
-}  void _init_
+#define onMain( ... ) int main( int argc, char** args ) { \
+   process::start( argc, args );      \
+   function_t<void>( __VA_ARGS__ )(); \
+   process::run(); return 0;          \
+}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
