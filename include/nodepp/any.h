@@ -29,10 +29,13 @@ public: any_t() noexcept {};
     /*─······································································─*/
 
     template< class T >
-    T get() const noexcept { T any; any_ptr->get((void*)&any); return any; }
+    void set( const T& f ) noexcept { any_ptr = new any_impl<T>(f); }
 
     template< class T >
-    void set( const T& f ) noexcept { any_ptr = new any_impl<T>(f); }
+    T get() const noexcept { 
+        T any; if( any_ptr == nullptr ) return any;
+        any_ptr->get((void*)&any); return any; 
+    }
     
     /*─······································································─*/
 

@@ -595,19 +595,19 @@ namespace nodepp {
         if( bf[0] == (char)0x81 ){ return len; }
 
         string_t y = string_t( bf, sx ); uint idx = 0;
-        auto   byt = encoder::bytes::get( y.size() ); 
+        auto   byt = encoder::bytes::get( sx ); 
         ulong  lst = 0;
 
         bf[idx] = (char) 0b10000001; idx++;
         bf[idx] = (char) 0b00000000;
 
-        if ( y.size() < 126 ){ 
-            bf[idx]|= (uchar) y.size(); idx++;
-        } elif ( y.size() <= 65536 ){ 
+        if ( sx < 126 ){ 
+            bf[idx]|= (uchar) sx; idx++;
+        } elif ( sx <= 65536 ){ 
             bf[idx]|= (uchar) 126; idx++;
             bf[idx] = (uchar)(byt[byt.size()-2]); idx++;
             bf[idx] = (uchar)(byt[byt.size()-1]); idx++;
-        } elif ( y.size() <= 4294967296 ){
+        } elif ( sx <= 4294967296 ){
             bf[idx]|= (uchar) 127; idx++;
             bf[idx] = (uchar)(byt[byt.size()-4]); idx++;
             bf[idx] = (uchar)(byt[byt.size()-3]); idx++;
@@ -615,7 +615,7 @@ namespace nodepp {
             bf[idx] = (uchar)(byt[byt.size()-1]); idx++;
         }
 
-        for( ulong x = 0; x<y.size(); x++ ){
+        for( ulong x = 0; x<sx; x++ ){
              bf[idx] = y[x]; idx++; lst=x;
         }
         
@@ -623,7 +623,7 @@ namespace nodepp {
     }
 
     ulong read_ws_frame( char* bf, const ulong& /*unused*/ ){
-        if( bf == nullptr ){ return  0; }
+        if( bf == nullptr ){ return 0; }
 
         uint idx = 0; ws_frame_t st;
         auto y = array_t<bool>(encoder::bin::get( bf[0] )); 

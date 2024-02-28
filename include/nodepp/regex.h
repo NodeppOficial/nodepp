@@ -16,8 +16,8 @@ protected:
         DONE* alt = nullptr; array_t<DONE*> nxt;
         ulong rep[2] = { 0, 0 };
 
-        virtual ~DONE(){ for( auto x:nxt ){ 
-            if(   x!=nullptr ){ delete x;     x = nullptr; }
+        virtual ~DONE(){ for( auto x: nxt ){ 
+            if(   x!=nullptr ){ delete   x;   x = nullptr; }
         }   if( alt!=nullptr ){ delete alt; alt = nullptr; } }
 
         void pipe( function_t<DONE*,DONE*> cb ){

@@ -20,10 +20,13 @@ public:
     bool empty()  const noexcept { return func_ptr.null(); }
     
     /*─······································································─*/
-    
-    V operator()( const T&... arg ) const { return func_ptr->invoke(arg...); }
 
     explicit operator bool(void) const noexcept { return func_ptr.null(); }
+    
+    V operator()( const T&... arg ) const { 
+        if( func_ptr == nullptr ) return V(0);
+        return func_ptr->invoke(arg...); 
+    }
     
 private:
 
