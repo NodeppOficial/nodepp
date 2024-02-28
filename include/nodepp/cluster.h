@@ -20,7 +20,7 @@
 namespace nodepp { namespace cluster {
 
     cluster_t add( const initializer_t<string_t>& args ){ 
-        cluster_t pid( args ); pid.pipe(); return pid;
+    cluster_t pid( args ); pid.pipe(); return pid;
     }
 
     cluster_t add(){ cluster_t pid; 
