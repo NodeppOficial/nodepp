@@ -45,14 +45,28 @@ public:
     object_t& operator[]( const string_t& name ) const noexcept {
         auto mem = obj->mem.get<ARRAY>();
 
-        for ( ulong x=0; x<mem.size(); x++ ) {
-            if( mem[x].first == string::to_string(name) )
-                return mem[x].second;
-        }   T item ({ name, 0 });
+        for( ulong x=0; x<mem.size(); x++ ) {
+         if( mem[x].first == string::to_string(name) )
+             return mem[x].second;
+        }    T item ({ name, 0 });
 
         mem.push( item ); obj->mem = mem; 
         return mem[mem.last()].second;
     }
+
+    /*─······································································─*/
+
+    void erase( const string_t& name ) const noexcept {
+        auto mem = obj->mem.get<ARRAY>();
+
+        for( ulong x=0; x<mem.size(); x++ ) {
+         if( mem[x].first == string::to_string(name) )
+             mem.erase( x );
+        } 
+
+    }
+
+    void erase() noexcept { obj = nullptr; }
     
 };}
 
