@@ -3,7 +3,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace process { event_t<> onNext;
+namespace nodepp { namespace process {
 
 namespace task {
 
@@ -25,7 +25,7 @@ namespace task {
         });
     } 
 
-    void next(){ onNext.emit();
+    void next(){ onSIGNEXT.emit();
         if( queue.empty() ){ return; }
           auto x = queue.get();
           int  y = x->data();
@@ -57,7 +57,7 @@ namespace loop {
         });
     }
 
-    void next(){ onNext.emit();
+    void next(){ onSIGNEXT.emit();
         if( queue.empty() ){ return; }
           auto x = queue.get();
           int  y = x->data();
@@ -89,7 +89,7 @@ namespace poll {
         });
     }
 
-    void next(){ onNext.emit();
+    void next(){ onSIGNEXT.emit();
         if( queue.empty() ){ return; }
           auto x = queue.get();
           int  y = x->data();

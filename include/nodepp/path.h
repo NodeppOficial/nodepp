@@ -47,7 +47,7 @@ namespace _path_ { map_t<string_t,string_t> mimetype ({
     { "mpeg", "video/mpeg" },
     { "avi", "video/x-msvideo" },
 
-    { "c", "text/X-C" },
+    { "c",   "text/X-C" },
     { "css", "text/css" },
     { "csv", "text/csv" },
     { "html", "text/html" },
@@ -100,7 +100,6 @@ namespace {
 #if _KERNEL == NODEPP_KERNEL_WINDOWS
     string_t sep  = "\\\\";
     string_t root = "c:\\\\";
-    string_t none = "[\\\\]+";
     string_t  one = "[^\\\\]+";
     string_t init = "\\w:\\\\";
     string_t _beg = "\\w:\\\\";
@@ -111,7 +110,6 @@ namespace {
     string_t _beg = "/";
     string_t root = "./";
     string_t  beg = "^/";
-    string_t none = "[/]+";
     string_t  one = "[^/]+";
 #endif
 }
@@ -171,7 +169,7 @@ namespace {
     /*─······································································─*/
 
     string_t dirname( const string_t& path ){ 
-        auto vec = regex::split( path, none );
+        auto vec = regex::split( path, "/+|\\\\+" );
         vec.pop(); return vec.join( sep );
     }
     

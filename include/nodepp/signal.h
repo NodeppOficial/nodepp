@@ -22,6 +22,7 @@ namespace nodepp { namespace process {
     event_t<int> onSIGABRT; //on Abort
     event_t<>    onSIGERR;  //on Error
     event_t<>    onSIGEXIT; //on Exit
+    event_t<>    onSIGNEXT; //on Next
 
     namespace signal {
 

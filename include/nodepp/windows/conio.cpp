@@ -38,6 +38,19 @@ namespace nodepp { namespace conio { WORD attr = 0, dflt = 7;
         SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), dflt ); 
         attr = 0; return size;
     }
+
+    template< class... T >
+    int err( const T&... args ){ if( attr != 0 ){
+        SetConsoleTextAttribute( GetStdHandle( STD_ERROR_HANDLE ), attr ); }
+
+        int last = sizeof...( args ), size = 0;
+        string::map([&]( string_t arg ){ 
+            size += perr( arg + ( --last<1 ? "" : " " ) ); 
+        },  args... );
+        
+        SetConsoleTextAttribute( GetStdHandle( STD_ERROR_HANDLE ), dflt ); 
+        attr = 0; return size;
+    }
     
     /*─······································································─*/
 

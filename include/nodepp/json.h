@@ -7,17 +7,13 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { using json_t = object_t; }
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 namespace nodepp { namespace json {
 
 string_t format( const object_t& json ){
     return nullptr;
 }
 
-json_t parse( const string_t& json ){ 
+object_t parse( const string_t& json ){ 
     return nullptr;
 }
 

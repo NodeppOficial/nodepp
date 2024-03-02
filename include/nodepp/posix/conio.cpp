@@ -37,6 +37,16 @@ namespace nodepp { namespace conio {
         return size;
     }
 
+    template< class... T >
+    int err( const T&... args ){
+        int last = sizeof...( args ), size = 0;
+        string::map([&]( string_t arg ){ 
+            size += perr( arg + ( --last<1 ? "" : " " ) ); 
+        },  args... ); 
+            size += perr("\033[0m"); 
+        return size;
+    }
+
     /*─······································································─*/
     
     int set_position( int x, int y ){ return pout(string::format("\033[%d;%dH",x,y)); }

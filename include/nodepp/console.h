@@ -10,6 +10,9 @@
 namespace nodepp { namespace console {
 
     template< class... T >
+    int err( const T&... args ){ return conio::err(args...,"\n"); }
+
+    template< class... T >
     int log( const T&... args ){ return conio::log(args...,"\n"); }
 
     template< class... T >

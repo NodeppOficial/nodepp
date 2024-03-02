@@ -11,23 +11,21 @@ namespace nodepp { namespace encoder {
     
     ulong hash( const string_t& key, int tableSize ) {
         ulong hash = 5381; for ( auto c : key ) {
-            hash = ((hash << 5) + hash) + c;
-        }   return hash % tableSize;
+              hash = ((hash << 5) + hash) + c;
+        }     return hash % tableSize;
     }
     
     /*─······································································─*/
 
-    ulong hash() { int x = sizeof(ulong) * 8; 
+    ulong hash() { int x= sizeof(ulong) * 8; 
             ulong  data = 0; while( x --> 0 ){
-            data = data << 1 | ( data | rand() % 2 );
+            data = data <<1 | ( data | rand() % 2 );
         }   return data;
     }
     
     /*─······································································─*/
 
-    ulong hash( int key, int tableSize ) {
-        return key % tableSize;
-    }
+    ulong hash( int key, int tableSize ) { return key % tableSize; }
 
 }}
 
@@ -39,15 +37,15 @@ namespace nodepp { namespace encoder { namespace bytes {
     ptr_t<uchar> get( T num ){
         ptr_t<uchar> res ( sizeof(num), 0 );
         for( ulong y=0; y<res.size(); y++ ){
-            res[y] = num >> ( 8*(res.size()-y-1) ); 
-        }   return res;
+             res[y] = num >> ( 8*(res.size()-y-1) ); 
+        }    return res;
     }
 
     template< class T >
     T set( const ptr_t<uchar>& num ){ T res;
-        for( ulong y=0; y<num.size(); y++ ){
-            res = res << 8 | num[y];
-        }   return res;
+      for( ulong y=0; y<num.size(); y++ ){
+           res = res << 8 | num[y];
+      }    return res;
     }
 
 }}}
