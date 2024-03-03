@@ -111,35 +111,35 @@ public:
         if( obj->state == 1 ){ return; } obj->state = 1; onOpen.emit();
             ptr_t<_file_::read> _read1 = new _file_::read;
             ptr_t<_file_::read> _read2 = new _file_::read;
-            auto inp = type::bind( this );
-            onExit([=](){ inp->free(); }); _busy();
+            auto self = type::bind( this );
+            onExit([=](){ self->free(); }); _busy();
 
         if( process::is_child() ){
 
         process::task::add([=](){
-            if(!inp->std_input().is_available() ){ inp->close(); return -1; }
-            if((*_read1)(&inp->std_input())==1 ) { return  1; }
+            if(!self->std_input().is_available() ){ self->close(); return -1; }
+            if((*_read1)(&self->std_input())==1 ) { return  1; }
             if(  _read1->state <= 0  )           { return  1; }
-            inp->onData.emit(_read1->data);    
-            inp->onDout.emit(_read1->data);        return  1;
+            self->onData.emit(_read1->data);    
+            self->onDout.emit(_read1->data);        return  1;
         });
 
         } else {
 
         process::task::add([=](){
-            if(!inp->std_output().is_available() ){ inp->close(); return -1; }
-            if((*_read1)(&inp->std_output())==1 ) { return  1; }
+            if(!self->std_output().is_available() ){ self->close(); return -1; }
+            if((*_read1)(&self->std_output())==1 ) { return  1; }
             if(  _read1->state <= 0 )             { return  1; }
-            inp->onData.emit(_read1->data);    
-            inp->onDout.emit(_read1->data);         return  1;
+            self->onData.emit(_read1->data);    
+            self->onDout.emit(_read1->data);         return  1;
         });
 
         process::task::add([=](){
-            if(!inp->std_error().is_available() ){ inp->close(); return -1; }
-            if((*_read2)(&inp->std_error())==1 ) { return  1; }
+            if(!self->std_error().is_available() ){ self->close(); return -1; }
+            if((*_read2)(&self->std_error())==1 ) { return  1; }
             if(  _read2->state <= 0 )            { return  1; }
-            inp->onData.emit(_read2->data);   
-            inp->onDerr.emit(_read2->data);        return  1;
+            self->onData.emit(_read2->data);   
+            self->onDerr.emit(_read2->data);        return  1;
         });
 
         }
