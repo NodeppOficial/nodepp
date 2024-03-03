@@ -98,7 +98,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
                    }, cli );
             } coGoto(0); }
 
-            coYield(2); self->close(); delete sk; 
+            coYield(2); self->close(); delete sk;
         
         coStop
         });
