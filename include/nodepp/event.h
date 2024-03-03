@@ -9,11 +9,9 @@ protected:
     struct NODE {
         function_t<void,A...> cb;
         bool                  on;
-    };  using ev = queue_t<NODE>;
+    };  ptr_t<queue_t<NODE>> obj;
 
-        ptr_t<ev> obj;
-
-public: event_t() noexcept : obj( new ev ) {}
+public: event_t() noexcept : obj( new queue_t<NODE>() ) {}
     
     /*─······································································─*/
 

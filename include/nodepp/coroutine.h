@@ -153,8 +153,6 @@ struct NODEPP_GENERATOR_BASE { protected: int _state_ = 0; };
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define NODEPP_ARCH_ESP_8266 6
-#define NODEPP_ARCH_ESP_32   5
 #define NODEPP_ARCH_CPU_64   4
 #define NODEPP_ARCH_CPU_32   3
 #define NODEPP_ARCH_ARM_64   2

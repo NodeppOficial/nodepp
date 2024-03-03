@@ -119,10 +119,9 @@ public:
     virtual void force_close() const noexcept {
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
         if( obj->state == -2 ){ return; } obj->state = -2;
-        obj->input .close(); 
-        obj->output.close();
-        obj->error .close();
-        close(); kill(); onClose.emit();
+            obj->input .close(); 
+            obj->output.close();
+            obj->error .close(); close(); kill(); onClose.emit();
     }
 
     /*─······································································─*/

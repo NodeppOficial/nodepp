@@ -253,6 +253,17 @@ namespace nodepp { namespace type {
     };
 
     /*─······································································─*/
+
+    template <typename T>
+    struct is_member_pointer : false_type {};
+
+    template <typename T, typename U>
+    struct is_member_pointer<T U::*> : true_type {};
+
+    template <typename T, typename U>
+    struct is_member_pointer<T (U::*)()> : true_type {};
+
+    /*─······································································─*/
     
     template< int V, typename... Ts > struct is_greater_than {
         static constexpr bool value = sizeof...(Ts) > V;
@@ -347,11 +358,6 @@ namespace nodepp { namespace type {
 
     };
 
-    /*─······································································─*/
-
-    template< class T, class V > T* cast( V* object ){ return ( T* )( object ); }
-    template< class T, class V > T  cast( V  object ){ return ( T  )( object ); }
-
 }}
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -361,8 +367,15 @@ namespace nodepp { namespace type {
 /*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace type {
-    template<class T> ptr_t<T> bind( T* object ){ return new T( *object ); }
-    template<class T> ptr_t<T> bind( T  object ){ return new T(  object ); }
+
+    template< class T, class V > T* cast( ptr_t<V>& object ){ return ( T* )( object ); }
+    template< class T, class V > T* cast(       V*  object ){ return ( T* )( object ); }
+    template< class T, class V > T  cast(       V   object ){ return ( T  )( object ); }
+
+    template<class T> ptr_t<T>      bind( ptr_t<T>& object ){ return new T( *object ); }
+    template<class T> ptr_t<T>      bind(       T*  object ){ return new T( *object ); }
+    template<class T> ptr_t<T>      bind(       T   object ){ return new T(  object ); }
+
 }}
 
 /*────────────────────────────────────────────────────────────────────────────*/

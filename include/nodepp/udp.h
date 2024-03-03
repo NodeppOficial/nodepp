@@ -49,7 +49,7 @@ public: udp_t() noexcept : obj(new NODE()) {}
     /*─······································································─*/
 
     void listen( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
-        if( obj->state == 1 ) { return; } obj->state = 1; auto inp = type::bind( this );
+        if( obj->state == 1 ) { return; } obj->state = 1; auto self = type::bind( this );
         if( dns::lookup(host).empty() )
           { process::error(onError,"dns couldn't get ip"); close(); return; }
             
@@ -60,7 +60,7 @@ public: udp_t() noexcept : obj(new NODE()) {}
                  sk.set_sockopt( obj->agent );
         
         if( sk.bind() < 0 ){ process::error(onError,"Error while binding UDP"); close(); return; }
-        if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ inp->close(); });
+        if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }
 
@@ -71,7 +71,7 @@ public: udp_t() noexcept : obj(new NODE()) {}
     /*─······································································─*/
 
     void connect( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
-        if( obj->state == 1 ){ return; } obj->state = 1; auto inp = type::bind( this );
+        if( obj->state == 1 ){ return; } obj->state = 1; auto self = type::bind( this );
         if( dns::lookup(host).empty() )
           { process::error(onError,"dns couldn't get ip"); close(); return; }
 
@@ -81,7 +81,7 @@ public: udp_t() noexcept : obj(new NODE()) {}
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( obj->agent );
     
-        if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ inp->close(); });
+        if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }
 
