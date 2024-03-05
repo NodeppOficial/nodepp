@@ -20,7 +20,6 @@ protected:
         ptr_t<int>      ls;
     };  ptr_t<NODE>    obj;
 
-
 public:
 
     event_t<int>    onWrite;

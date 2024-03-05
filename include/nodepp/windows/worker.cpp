@@ -25,11 +25,11 @@ namespace nodepp { class worker_t {
 protected:
 
     struct NODE {
+        DWORD            id;
         function_t<int>* cb;
-        HANDLE thread;
-        ptr_t<int> out;
-        int state = 0;
-        DWORD  id;
+        ptr_t<int>      out;
+        HANDLE       thread;
+        int         state=0;
     };  ptr_t<NODE> obj;
 
 public: worker_t() noexcept : obj( new NODE ) {}
