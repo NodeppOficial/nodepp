@@ -18,7 +18,7 @@ protected:
     struct NODE {
         uint  type;
         any_t  mem;
-    }; ptr_t<NODE> obj;
+    };  ptr_t<NODE> obj;
 
 public:
 
@@ -29,7 +29,7 @@ public:
     }
 
     template< class U > 
-    object_t( const U& any ) noexcept : obj(new NODE()){ 
+    object_t( const U& any ) noexcept : obj(new NODE()) { 
         obj->mem = any; 
     }
     

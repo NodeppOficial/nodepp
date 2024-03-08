@@ -42,6 +42,7 @@ namespace nodepp { namespace iterator {
     }
 
     /*─······································································─*/
+    
 #ifndef ARDUINO
     template< class T, class... V > 
     T max( const T& argc, const V&... args ){ T n = argc;
@@ -55,6 +56,7 @@ namespace nodepp { namespace iterator {
         return n;
     }
 #endif
+
     /*─······································································─*/
 /*
     template< class T, class... V >
@@ -110,6 +112,7 @@ namespace nodepp { namespace string {
     }
 
     /*─······································································─*/
+
 #ifndef ARDUINO
     template< class T, class... V > 
     T max( const T& argc, const V&... args ){ T n = argc;
@@ -123,6 +126,7 @@ namespace nodepp { namespace string {
         return n;
     }
 #endif
+    
     /*─······································································─*/
 
     template< class T, class... V >

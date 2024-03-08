@@ -13,6 +13,7 @@ namespace nodepp {
 /*────────────────────────────────────────────────────────────────────────────*/
 
 struct path_t {
+    string_t type;
     string_t path;
     string_t root; 
     string_t base;
@@ -25,67 +26,67 @@ struct path_t {
 
 namespace _path_ { map_t<string_t,string_t> mimetype ({
 
-    { "txt", "text/plain" },
+    { "txt",  "text/plain" },
     { "text", "text/plain" },
 
-    { "otf", "font/otf" },
-    { "ttf", "font/ttf" },
+    { "otf",  "font/otf" },
+    { "ttf",  "font/ttf" },
     { "woff", "font/woff" },
-    { "woff2", "font/woff2" },
+    { "woff2","font/woff2" },
 
-    { "oga", "audio/ogg" },
-    { "aac", "audio/aac" },
-    { "wav", "audio/wav" },
-    { "mp3", "audio/mpeg" },
+    { "oga",  "audio/ogg" },
+    { "aac",  "audio/aac" },
+    { "wav",  "audio/wav" },
+    { "mp3",  "audio/mpeg" },
     { "opus", "audio/opus" },
     { "weba", "audio/webm" },
 
-    { "ogv", "video/ogg" },
-    { "mp4", "video/mp4" },
-    { "ts", "video/mp2t" },
+    { "ogv",  "video/ogg" },
+    { "mp4",  "video/mp4" },
+    { "ts",   "video/mp2t" },
     { "webm", "video/webm" },
     { "mpeg", "video/mpeg" },
-    { "avi", "video/x-msvideo" },
+    { "avi",  "video/x-msvideo" },
 
-    { "c",   "text/X-C" },
-    { "css", "text/css" },
-    { "csv", "text/csv" },
+    { "c",    "text/X-C" },
+    { "css",  "text/css" },
+    { "csv",  "text/csv" },
     { "html", "text/html" },
     { "scss", "text/scss" },
-    { "cpp", "text/X-CPP" },
-    { "ics", "text/calendar" },
-    { "js", "text/javascript" },
-    { "xml", "application/xhtml+xml" },
+    { "cpp",  "text/X-CPP" },
+    { "ics",  "text/calendar" },
+    { "js",   "text/javascript" },
+    { "xml",  "application/xhtml+xml" },
 
-    { "bmp", "image/bmp" },
-    { "gif", "image/gif" },
-    { "png", "image/png" },
-    { "jpg", "image/jpeg" },
+    { "bmp",  "image/bmp" },
+    { "gif",  "image/gif" },
+    { "png",  "image/png" },
+    { "jpg",  "image/jpeg" },
     { "jpeg", "image/jpeg" },
     { "webp", "image/webp" },
-    { "svg", "image/svg+xml" },
-    { "ico", "image/vnd.microsoft.icon" },
+    { "svg",  "image/svg+xml" },
+    { "ico",  "image/vnd.microsoft.icon" },
 
-    { "zip", "application/zip" },
-    { "gz", "application/gzip" },
-    { ".h", "application/x-.h" },
+    { "zip",  "application/zip" },
+    { "gz",   "application/gzip" },
+    { ".h",   "application/x-.h" },
     { "json", "application/json" },
     { "wasm", "application/wasm" },
-    { "tar", "application/x-tar" },
-    { "rar", "application/vnd.rar" },
-    { "7z", "application/x-7z-compressed" },
+    { "tar",  "application/x-tar" },
+    { "rar",  "application/vnd.rar" },
+    { "7z",   "application/x-7z-compressed" },
     { "m3u8", "application/vnd.apple.mpegurl" },
-    { "exe", "application/vnd.microsoft.portable-executable" },
+    { "exe",  "application/vnd.microsoft.portable-executable" },
 
-    { "pdf", "application/pdf" },
-    { "doc", "application/msword" },
-    { "vsd", "application/vnd.visio" },
-    { "xls", "application/vnd.ms-excel" },
-    { "ppt", "application/vnd.ms-powerpoint" },
-    { "swf", "application/x-shockwave-fla.h" },
-    { "ods", "application/vnd.oasis.opendocument.spreadsheet" },
-    { "odp", "application/vnd.oasis.opendocument.presentation" },
-    { "odt", "application/vnd.oasis.opendocument.presentation" },
+    { "pdf",  "application/pdf" },
+    { "doc",  "application/msword" },
+    { "vsd",  "application/vnd.visio" },
+    { "xls",  "application/vnd.ms-excel" },
+    { "ppt",  "application/vnd.ms-powerpoint" },
+    { "swf",  "application/x-shockwave-fla.h" },
+    { "ods",  "application/vnd.oasis.opendocument.spreadsheet" },
+    { "odp",  "application/vnd.oasis.opendocument.presentation" },
+    { "odt",  "application/vnd.oasis.opendocument.presentation" },
     { "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
     { "docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
     { "pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation" }
@@ -155,14 +156,14 @@ namespace {
     string_t mimetype( const string_t& path ){
         string_t ext = extname( path ); if( ext.empty() ) 
         { return ext; } for( auto x: _path_::mimetype.data() ){
-            if( regex::test( ext, x.first ) ){ return x.second; }
+            if( regex::test( x.first, ext ) ){ return x.second; }
         }   return string::format("aplication/%s",ext.c_str());
     }
 
     string_t mimetype( const path_t& path ){
          if( path.ext.empty() ) { return path.ext; } 
         for( auto x: _path_::mimetype.data() ){
-            if( regex::test( path.ext, x.first ) ){ return x.second; }
+            if( regex::test( x.first, path.ext ) ){ return x.second; }
         }   return string::format("aplication/%s",path.ext.c_str());
     }
 
@@ -221,6 +222,7 @@ namespace {
         result.ext  = extname( path ); 
         result.dir  = dirname( path );
         result.base = basename( path );
+        result.type = mimetype( path );
         result.name = basename( path, "\\."+result.ext );
 
         return result;
