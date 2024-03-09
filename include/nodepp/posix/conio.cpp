@@ -1,3 +1,14 @@
+/*
+ * Copyright 2023 The Nodepp Project Authors. All Rights Reserved.
+ *
+ * Licensed under the MIT (the "License").  You may not use
+ * this file except in compliance with the License.  You can obtain a copy
+ * in the file LICENSE in the source distribution or at
+ * https://www.nodepp.xyz/license.html
+ */
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #pragma once
 
 #include <sys/ioctl.h>
@@ -12,6 +23,8 @@
 #define C_YELLOW  0x06
 #define C_MAGENTA 0x07
 #define C_BOLD    0x10
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 namespace nodepp { namespace conio {
 
