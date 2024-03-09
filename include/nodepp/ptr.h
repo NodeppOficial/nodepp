@@ -12,7 +12,7 @@ public:
     ptr_t( ulong n )                 noexcept { resize( n ); }
     ptr_t()                          noexcept { reset(); }
 
-    virtual ~ptr_t() noexcept { reset(); }
+    virtual ~ptr_t() noexcept { if( count()!=0 ) reset(); }
     
     /*─······································································─*/
 
@@ -124,16 +124,16 @@ public:
 
     /*─······································································─*/
 
-    ulong  size() const noexcept { return length_ == nullptr ? 0 : *length_; }
-    ulong count() const noexcept { return count_  == nullptr ? 0 : *count_; }
-    bool  empty() const noexcept { return null()  || size() <= 0 ; }
-    bool   null() const noexcept { return value_  == nullptr; }
+    ulong  size() const noexcept { return value_ == nullptr ? 0 : *length_; }
+    ulong count() const noexcept { return value_ == nullptr ? 0 : *count_; }
+    bool  empty() const noexcept { return null() || size() <= 0 ; }
+    bool   null() const noexcept { return value_ == nullptr; }
     T*     data() const noexcept { return value_; }
     T*      get() const noexcept { return value_; }
     
     /*─······································································─*/
 
-    void free()       noexcept { if( count()>=1 ){ *count_=1; } reset(); }
+    void free()       noexcept { if( count()!=0 ){ *count_=1; reset(); } }
     T*    end() const noexcept { return value_ + size(); }
     T*  begin() const noexcept { return value_; }
     

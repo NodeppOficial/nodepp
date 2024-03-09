@@ -6,13 +6,14 @@ namespace nodepp { class serial_t : public file_t {
 protected:
 
 	int set_baud_rate( const string_t& path, uint baud ) const noexcept {
+		if( path.empty() || baud == 0 ) { return -1; }
 		return ::system( string::format("stty -F %s %u",(char*)path,baud).data());
 	}
 
 public: serial_t() noexcept : file_t() {}
     event_t<serial_t> onConnect;
 
-	serial_t( const string_t& path, uint baud=9600, const string_t& flag="r+", const ulong& _size=CHUNK_SIZE ){ 
+	serial_t( const string_t& path, uint baud=0, const string_t& flag="r+", const ulong& _size=CHUNK_SIZE ){ 
 		set_baud_rate( path, baud ); obj->fd = open( (char*) path, get_fd_flag(flag) );
 		if( obj->fd < 0 ) process::error("such device does not exist");
 		set_buffer_size(_size); set_nonbloking_mode();
