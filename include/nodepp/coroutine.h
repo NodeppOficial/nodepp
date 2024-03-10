@@ -102,7 +102,7 @@ struct NODEPP_GENERATOR_BASE { protected: int _state_ = 0; };
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #define forEach( ITEM, CB ) for( auto& x : ITEM ){ CB( x ); }
-#define function( ... ) [=]( __VA_ARGS__ )
+#define _( ... ) [=]( __VA_ARGS__ )
 #define forEver() for (;;)
 #define elif else if
 
