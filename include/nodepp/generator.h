@@ -677,8 +677,6 @@ namespace _ws_ {
         if( input <= 0 ){ size = size==0?sx:size; return -1; }
     gnStart state=1; size=0; key=0; output=0;
 
-        /*------*/
-
         frame = read_ws_frame( bf, sx );
         if( frame.LEN ==  0 ){           coEnd; }
         if( frame.OPC == 24 ){ state=-1; coEnd; } input-= frame.NEL;
