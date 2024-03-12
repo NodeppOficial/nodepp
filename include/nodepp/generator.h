@@ -713,19 +713,20 @@ namespace _ws_ {
         hdr = write_ws_frame( bf, sx ); brr = string_t( bf, sx );
         memmove( bf, hdr.data(), hdr.size() ); size = hdr.size();
 
-        while( size != 0 ){ if( input > 0 ){
+        while( size > 0 ){ if( input > 0 ){
             output += input; size -= input;
             memmove( bf, bf+input, size );
         } coSet(1); return -1; coYield(1); }
 
         memmove( bf, brr.data(), brr.size() ); size = brr.size();
 
-        while( size != 0 ){ if( input > 0 ){
+        while( output < sx ){ if( input > 0 ){
             output += input; size -= input;
+        if( size == 0 ){ break; }
             memmove( bf, bf+input, size );
         } coSet(2); return -1; coYield(2); }
 
-        coGoto(0);
+        coSet(0); return 1;
     gnStop
     }};
 
