@@ -713,7 +713,7 @@ namespace _ws_ {
         hdr = write_ws_frame( bf, sx ); brr = string_t( bf, sx );
         memmove( bf, hdr.data(), hdr.size() ); size = hdr.size();
 
-        while( size > 0 ){ if( input > 0 ){
+        while( output < hdr.size() ){ if( input > 0 ){
             output += input; size -= input;
             memmove( bf, bf+input, size );
         } coSet(1); return -1; coYield(1); }
