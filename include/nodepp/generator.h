@@ -613,7 +613,7 @@ namespace nodepp {
         bf[idx] = (char) 0b00000000;
 
         if ( sx < 126 ){ 
-            bf[idx]|= (uchar) sx; idx++;
+            bf[idx] = (uchar)(byt[byt.size()-1]); idx++;
         } elif ( sx <= 65536 ){ 
             bf[idx]|= (uchar) 126; idx++;
             bf[idx] = (uchar)(byt[byt.size()-2]); idx++;

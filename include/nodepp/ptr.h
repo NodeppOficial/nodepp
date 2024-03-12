@@ -23,7 +23,7 @@ public:
     ptr_t( ulong n )                 noexcept { resize( n ); }
     ptr_t()                          noexcept { reset(); }
 
-    virtual ~ptr_t() noexcept { if( count()!=0 ) reset(); }
+    virtual ~ptr_t() noexcept { reset(); }
     
     /*─······································································─*/
 
@@ -144,8 +144,8 @@ public:
     
     /*─······································································─*/
 
-    void free()       noexcept { if( count()!=0 ){ *count_=1; reset(); } }
     T*    end() const noexcept { return value_ + size(); }
+    void free()       noexcept { *count_ = 1; reset(); }
     T*  begin() const noexcept { return value_; }
     
     /*─······································································─*/
@@ -171,8 +171,7 @@ protected:
         if( other.count() == 0 ){ return; }
         length_= other.length_;
         count_ = other.count_;
-        value_ = other.value_;
-             ++(*other.count_);
+        value_ = other.value_; ++(*count_);
     }
     
     /*─······································································─*/
