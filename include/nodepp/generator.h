@@ -687,9 +687,9 @@ namespace _ws_ {
 
         for( ulong x=0; x<min( size, (ulong)input ) && frame.MSK ; x++ ){
              bf[x] = bf[x] ^ frame.KEY[key]; key++; key%=4;
-        }if( size > 0 ){ output=input; size-=input; input=0; }
+        }if( size >  0 ){ output=input; size-=input; input=0; }
 
-        if( size == 0 ){ coGoto(0); } else { coGoto(1); }
+        if ( size == 0 ){ coGoto(0); } else { coGoto(1); }
 
     gnStop
     }};
@@ -711,22 +711,20 @@ namespace _ws_ {
     gnStart state=1; size=0; output=0; input=0;
 
         hdr = write_ws_frame( bf, sx ); brr = string_t( bf, sx );
-        memmove( bf, hdr.data(), hdr.size() ); size = hdr.size();
 
-        while( output < hdr.size() ){ if( input > 0 ){
-            output += input; size -= input;
+        memmove( bf, hdr.data(), hdr.size() ); size = hdr.size(); output = 0;
+        while( size!=0 ){ if( input > 0 ){
+            size -= input; output = input;
             memmove( bf, bf+input, size );
         } coSet(1); return -1; coYield(1); }
 
-        memmove( bf, brr.data(), brr.size() ); size = brr.size();
+        memmove( bf, brr.data(), brr.size() ); size = brr.size(); output = 0;
+        while( size!=0 ){ if( input > 0 ){
+            size-= input; output = input;
+        if( size == 0 ){ break; } coNext;
+        } coSet(2); return -1; coYield(2); } 
 
-        while( output < sx ){ if( input > 0 ){
-            output += input; size -= input;
-        if( size == 0 ){ break; }
-            memmove( bf, bf+input, size );
-        } coSet(2); return -1; coYield(2); }
-
-        coSet(0); return 1;
+        coGoto(0);
     gnStop
     }};
 
