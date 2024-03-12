@@ -597,48 +597,39 @@ namespace nodepp {
         bool  MSK = 1; //1b
         char  KEY [4]; //4B
         ulong LEN = 0; //64b
+        uchar NEL = 0; //8b
     };
 
-    ulong write_ws_frame( char* bf, const ulong& sx ){
-        static ulong len;
+    /*─······································································─*/
 
-        if( bf    == nullptr    ){ return   0; }
-        if( bf[0] == (char)0x81 ){ return len; }
+    string_t write_ws_frame( char* /*unused*/, const ulong& sx ){
 
-        string_t y = string_t( bf, sx ); uint idx = 0;
-        auto   byt = encoder::bytes::get( sx ); 
-        ulong  lst = 0;
-
-        bf[idx] = (char) 0b10000001; idx++;
-        bf[idx] = (char) 0b00000000;
+        auto bfx = ptr_t<char>( 64, '\0' ); uint idx = 0;
+        auto byt = encoder::bytes::get( sx ); 
+        bfx[idx] = (char) 0b10000001; idx++ ;
 
         if ( sx < 126 ){ 
-            bf[idx]|= (uchar) sx; idx++;
+            bfx[idx] = (uchar)(byt[byt.size()-1]); idx++;
         } elif ( sx <= 65536 ){ 
-            bf[idx]|= (uchar) 126; idx++;
-            bf[idx] = (uchar)(byt[byt.size()-2]); idx++;
-            bf[idx] = (uchar)(byt[byt.size()-1]); idx++;
+            bfx[idx] = (uchar)( 126 ); idx++;
+            bfx[idx] = (uchar)(byt[byt.size()-2]); idx++;
+            bfx[idx] = (uchar)(byt[byt.size()-1]); idx++;
         } elif ( sx <= 4294967296 ){
-            bf[idx]|= (uchar) 127; idx++;
-            bf[idx] = (uchar)(byt[byt.size()-4]); idx++;
-            bf[idx] = (uchar)(byt[byt.size()-3]); idx++;
-            bf[idx] = (uchar)(byt[byt.size()-2]); idx++;
-            bf[idx] = (uchar)(byt[byt.size()-1]); idx++;
+            bfx[idx] = (uchar)( 127 ); idx++;
+            bfx[idx] = (uchar)(byt[byt.size()-4]); idx++;
+            bfx[idx] = (uchar)(byt[byt.size()-3]); idx++;
+            bfx[idx] = (uchar)(byt[byt.size()-2]); idx++;
+            bfx[idx] = (uchar)(byt[byt.size()-1]); idx++;
         }
 
-        for( ulong x = 0; x<sx; x++ ){
-             bf[idx] = y[x]; idx++; lst=x;
-        }
-        
-        len = idx; return idx; 
+        return { &bfx, idx }; 
     }
 
-    ulong read_ws_frame( char* bf, const ulong& /*unused*/ ){
-        if( bf == nullptr ){ return 0; }
+    ws_frame_t read_ws_frame( char* bf, const ulong& /*unused*/ ){
 
         uint idx = 0; ws_frame_t st;
         auto y = array_t<bool>(encoder::bin::get( bf[0] )); 
-        
+
         st.FIN = y.splice(0,1)[0] == 1; idx++;
 
         for( auto x : y.splice(0,3) ) st.RSV = st.RSV<<1 | x;
@@ -648,6 +639,7 @@ namespace nodepp {
         st.MSK = y.splice(0,1)[0] == 1; idx++; 
 
         for( auto x : y.splice(0,7) ) st.LEN = st.LEN<<1 | x;
+
         if ( st.LEN == 126 ){ st.LEN = 0;
             st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
             st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
@@ -661,16 +653,81 @@ namespace nodepp {
         if ( st.MSK ) for( ulong x=0; x<4; x++ )
            { st.KEY[x] = bf[idx]; idx++; }
 
-        if ( st.MSK ) for ( ulong x=0; x<st.LEN; x++ )
-           { bf[x] = bf[idx] ^ st.KEY[x%4]; idx++; }
-        else for ( ulong x=0; x<st.LEN; x++ )
-           { bf[x] = bf[idx]; idx++; }
-
-        if ( st.OPC == 24 ){ return 0; } 
-        if ( st.OPC ==  8 ){ return 0; }
-
-        return st.LEN; 
+        st.NEL = idx; return st;
     }
 
-}
+    /*─······································································─*/
+
+namespace _ws_ {
+
+    GENERATOR( read ){ 
+    private:
+
+        ws_frame_t frame;
+        int        key=0;
+
+    public:
+    
+        int        state = 1;
+        int        input = 0;
+        int        output= 0;
+        ulong      size  = 0;
+
+    gnEmit( char* bf, const ulong& sx ) {
+        if( input <= 0 ){ size = size==0?sx:size; return -1; }
+    gnStart state=1; size=0; key=0; output=0;
+
+        frame = read_ws_frame( bf, sx );
+        if( frame.LEN ==  0 ){           coEnd; }
+        if( frame.OPC == 24 ){ state=-1; coEnd; } input-= frame.NEL;
+        if( frame.OPC ==  8 ){ state=-1; coEnd; } size  = frame.LEN;
+
+        memmove( bf, bf+frame.NEL, min( size, (ulong)input ) ); 
+        goto LOOP; coYield(1); LOOP:
+
+        for( ulong x=0; x<min( size, (ulong)input ) && frame.MSK ; x++ ){
+             bf[x] = bf[x] ^ frame.KEY[key]; key++; key%=4;
+        }if( size > 0 ){ output=input; size-=input; input=0; }
+
+        if( size == 0 ){ coGoto(0); } else { coGoto(1); }
+
+    gnStop
+    }};
+
+    GENERATOR( write ){
+    private:
+
+        string_t   brr;
+        string_t   hdr;
+
+    public:
+    
+        int        state = 1;
+        int        input = 0;
+        int        output=-2;
+        ulong      size  = 0;
+
+    gnEmit( char* bf, const ulong& sx ) {
+    gnStart state=1; size=0; output=0; input=0;
+
+        hdr = write_ws_frame( bf, sx ); brr = string_t( bf, sx );
+        memmove( bf, hdr.data(), hdr.size() ); size = hdr.size();
+
+        while( size != 0 ){ if( input > 0 ){
+            output += input; size -= input;
+            memmove( bf, bf+input, size );
+        } coSet(1); return -1; coYield(1); }
+
+        memmove( bf, brr.data(), brr.size() ); size = brr.size();
+
+        while( size != 0 ){ if( input > 0 ){
+            output += input; size -= input;
+            memmove( bf, bf+input, size );
+        } coSet(2); return -1; coYield(2); }
+
+        coGoto(0);
+    gnStop
+    }};
+
+}}
 #endif

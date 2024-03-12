@@ -26,19 +26,28 @@
 namespace nodepp { class ws_t : public socket_t {
 public:
 
+    ptr_t<_ws_::write> _write_ = new _ws_::write();
+    ptr_t<_ws_::read>  _read_  = new _ws_::read();
+
     template< class... T > 
     ws_t( const T&... args ) : socket_t(args...) {}
 
     /*─······································································─*/
     
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
-        int    x = socket_t::_read( bf, sx );
-        return x<=0 ? x : read_ws_frame( bf, x );
+        while((*_read_)( bf, sx )==-1 ){
+        while((_read_->input=socket_t::_read( bf, _read_->size ))==-2 )
+            { return -2; } if( _read_->state<=0 ){ break; }
+                           if( _read_->input<=0 ){ break; } 
+        }   return _read_->output;
     }
-    
+  
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        int    x = write_ws_frame( bf, sx );
-        return x<=0 ? x : socket_t::_write( bf, x );
+        while((*_write_)( bf, sx )==-1 ){
+        while((_write_->input=socket_t::_write( bf, _write_->size ))==-2 )
+            { return -2; } if( _write_->state<=0 ){ break; }
+                           if( _write_->input<=0 ){ break; }
+        }   return _write_->output;
     }
 
 };}

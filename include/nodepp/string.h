@@ -34,19 +34,23 @@ namespace string {
     
     /*─······································································─*/
 
-    ptr_t<char> buffer( ulong n ){ auto b = ptr_t<char>( n+1, '\0' ); return b; }
+    ptr_t<char> buffer( ulong n ){ 
+        if ( n == 0 ){ return nullptr; }
+        auto b = ptr_t<char>( n+1, '\0' ); return b; 
+    }
 
     ptr_t<char> buffer( const char* c, ulong n ){
+        if ( c == nullptr ){ return nullptr; }
+        if ( n == 0 ){ return nullptr; }
         auto b = ptr_t<char>( n+1, '\0' );
         while( n-->0 ){ b[n] = c[n]; } return b; 
     }
 
     ptr_t<char> buffer( ulong n, const char& c ){
+        if ( n == 0 ){ return nullptr; }
         auto b = ptr_t<char>( n+1, '\0' );
         while( n-->0 ){ b[n] = c; } return b; 
     }
-
-    ptr_t<char> null(){ return nullptr; }
     
     /*─······································································─*/
 
@@ -101,23 +105,23 @@ protected:
     
 public:
 
-    string_t() noexcept { buffer = ""; }
+    string_t() noexcept { buffer = nullptr; }
 
-    string_t( const char* argc ) noexcept { ulong n=0;
-        if( argc == nullptr || (n=strlen(argc))==0 ){ 
-            buffer = ""; return;
-        }   buffer = string::buffer( argc, n );
+    string_t( const char* argc ) noexcept {
+        if( argc == nullptr ){ 
+            buffer = nullptr; return;
+        }   buffer = string::buffer( argc, strlen(argc) );
     }
 
     string_t( const ulong& n, const char& c ) noexcept {
-        if( n==0 ){ 
-            buffer = ""; return;
+        if( n == 0 ){ 
+            buffer = nullptr; return;
         }   buffer = string::buffer( n, c );
     }
 
     string_t( const char* argc, const ulong& n ) noexcept {
         if( argc == nullptr || n == 0 ){ 
-            buffer = ""; return;
+            buffer = nullptr; return;
         }   buffer = string::buffer( argc, n );
     }
     
@@ -152,9 +156,6 @@ public:
     bool operator>=( const string_t& oth ) const noexcept { return compare( oth ) >= 0; }
     bool operator<=( const string_t& oth ) const noexcept { return compare( oth ) <= 0; }
     bool operator< ( const string_t& oth ) const noexcept { return compare( oth ) ==-1; }
-    
-    /*─······································································─*/
-
     bool operator==( const string_t& oth ) const noexcept { return compare( oth ) == 0; }
     bool operator!=( const string_t& oth ) const noexcept { return compare( oth ) != 0; }
     
