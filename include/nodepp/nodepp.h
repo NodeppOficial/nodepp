@@ -78,8 +78,7 @@ namespace nodepp { namespace process {
 
     template< class T, class... V > 
     void await( T cb, const V&... args ){
-        while( cb( args... ) >= 0 )
-             { next(); }
+        while( cb( args... ) != -1 ){ next(); }
     }
     
     /*─······································································─*/

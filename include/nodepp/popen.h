@@ -43,11 +43,9 @@ namespace nodepp { namespace popen {
     
     template< class... T >
     string_t await( const string_t& path, const initializer_t<string_t>& args ){
-        string_t result; auto fp = popen_t( path, args ); 
-        while ( fp.std_output().is_available() ){ 
-           auto data = fp.std_output().read();
-           if (!data.empty() ){ result += data; }
-        }       return result;
+        string_t result; auto fp = popen_t( path, args ); _stream_::pipe _read;
+        fp.onData([&]( string_t chunk ){ result += chunk; });
+        process::await( _read, fp.std_output() ); return result;
     }
 
     string_t await( const string_t& path ){

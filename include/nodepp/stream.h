@@ -52,10 +52,10 @@ namespace nodepp { namespace stream {
     /*─······································································─*/
     
     template< class T >
-    string_t await( const T& fp ){ string_t result;
-        while ( fp.is_available() ){ auto data = fp.read();
-           if (!data.empty() ){ result += data; }
-        }   return result;
+    string_t await( const T& fp ){ 
+        string_t result; _stream_::pipe _read;
+        fp.onData([&]( string_t chunk ){ result += chunk; });
+        process::await( _read, fp ); return result;
     }
 
 }}
