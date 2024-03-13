@@ -474,8 +474,8 @@ namespace nodepp {
             string_t sec = regex::match(cli.headers["Sec-Websocket-Key"],"[^\\s\n ]+");
             string_t key = sec + SECRET;
 
-                auto sha = _crypto_::hash::SHA1();  sha.update(key);
-                auto b64 = _crypto_::enc::BASE64(); b64.update(sha.get());
+                auto sha = crypto::hash::SHA1();  sha.update(key);
+                auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
             cli.write_header( 101, {{
@@ -505,8 +505,8 @@ namespace nodepp {
             string_t dta = regex::match(cli.headers["Sec-Websocket-Accept"],"[^\\s\n ]+");
             string_t sec = key + SECRET;
 
-                auto sha = _crypto_::hash::SHA1();  sha.update(sec);
-                auto b64 = _crypto_::enc::BASE64(); b64.update(sha.get());
+                auto sha = crypto::hash::SHA1();  sha.update(sec);
+                auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
         if( dta != enc ){ process::error("secret key does not match"); }
@@ -537,8 +537,8 @@ namespace nodepp {
             string_t sec = regex::match(cli.headers["Sec-Websocket-Key"],"[^\\s\n ]+");
             string_t key = sec + SECRET;
 
-                auto sha = _crypto_::hash::SHA1();  sha.update(key);
-                auto b64 = _crypto_::enc::BASE64(); b64.update(sha.get());
+                auto sha = crypto::hash::SHA1();  sha.update(key);
+                auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
             cli.write_header( 101, {{
@@ -569,8 +569,8 @@ namespace nodepp {
             string_t dta = regex::match(cli.headers["Sec-Websocket-Accept"],"[^\\s\n ]+");
             string_t sec = key + SECRET;
 
-                auto sha = _crypto_::hash::SHA1();  sha.update(sec);
-                auto b64 = _crypto_::enc::BASE64(); b64.update(sha.get());
+                auto sha = crypto::hash::SHA1();  sha.update(sec);
+                auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
         if( dta != enc ){ process::error("secret key does not match"); }   

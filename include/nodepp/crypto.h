@@ -90,7 +90,7 @@ public:
 
     template< class T >
     hash_t( const T& type, ulong length ) 
-    :  obj( new NODE() ) { _crypto_::start_device();
+    :  obj( new NODE() ) { crypto::start_device();
         obj->buff  = ptr_t<uchar>( length );
         obj->ctx   = EVP_MD_CTX_new();
         obj->state = 1;
@@ -108,7 +108,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return _crypto_::buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -145,7 +145,7 @@ public:
 
     template< class T >
     hmac_t( const string_t& key, const T& type, ulong length ) 
-    :  obj( new NODE() ) { _crypto_::start_device();
+    :  obj( new NODE() ) { crypto::start_device();
         obj->buff  = ptr_t<uchar>( length ); 
         obj->ctx   = HMAC_CTX_new(); 
         obj->state = 1;
@@ -163,7 +163,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return _crypto_::buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept {
@@ -203,7 +203,7 @@ public:
 
     template< class T >
     encrypt_t( const string_t& iv, const string_t& key, const T& type ) 
-    :     obj( new NODE() ) { _crypto_::start_device();
+    :     obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1; 
@@ -213,7 +213,7 @@ public:
 
     template< class T >
     encrypt_t( const string_t& key, const T& type ) 
-    :     obj( new NODE() ) { _crypto_::start_device();
+    :     obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1; 
@@ -233,7 +233,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return _crypto_::buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -277,7 +277,7 @@ public:
 
     template< class T >
     decrypt_t( const string_t& iv, const string_t& key, const T& type ) 
-    :     obj( new NODE() ) { _crypto_::start_device();
+    :     obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1;
@@ -287,7 +287,7 @@ public:
 
     template< class T >
     decrypt_t( const string_t& key, const T& type ) 
-    :     obj( new NODE() ) { _crypto_::start_device();
+    :     obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   = EVP_CIPHER_CTX_new(); 
         obj->state = 1;
@@ -307,7 +307,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return _crypto_::buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -350,7 +350,7 @@ public:
     event_t<>         onClose;
 
     enc_base64_t() 
-    :        obj( new NODE() ) { _crypto_::start_device();
+    :        obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,0);
         obj->ctx   = EVP_ENCODE_CTX_new();
         obj->state = 1;
@@ -371,7 +371,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return _crypto_::buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -411,7 +411,7 @@ protected:
 public:
 
     encoder_t( const string_t& chr ) 
-    :     obj( new NODE() ) { _crypto_::start_device();
+    :     obj( new NODE() ) { crypto::start_device();
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
@@ -440,7 +440,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return _crypto_::buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -480,7 +480,7 @@ public:
     event_t<>         onClose;
 
     dec_base64_t() 
-    :        obj( new NODE() ) { _crypto_::start_device();
+    :        obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,0);
         obj->ctx   = EVP_ENCODE_CTX_new();
         obj->state = 1; 
@@ -501,7 +501,7 @@ public:
     }
 
     string_t get_hex() const noexcept {  
-        return _crypto_::buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -544,7 +544,7 @@ public:
     event_t<>         onClose;
 
     decoder_t( const string_t& chr ) 
-    :     obj( new NODE() ) { _crypto_::start_device();
+    :     obj( new NODE() ) { crypto::start_device();
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
@@ -572,7 +572,7 @@ public:
     }
 
     string_t get_hex() const noexcept { 
-        return _crypto_::buff2hex( this->get() );
+        return crypto::buff2hex( this->get() );
     }
 
     void force_close() const noexcept { 
@@ -609,7 +609,7 @@ public:
 
     template< class T >
     ecdh_t( const string_t& key, const T& type ) noexcept 
-    :  obj( new NODE() ) { _crypto_::start_device();
+    :  obj( new NODE() ) { crypto::start_device();
         obj->state = 1;
 
         obj->key_pair = EC_KEY_new_by_curve_name(type);
@@ -625,7 +625,7 @@ public:
 
     template< class T >
     ecdh_t( const T& type ) noexcept 
-    :  obj( new NODE() ) { _crypto_::start_device();
+    :  obj( new NODE() ) { crypto::start_device();
         obj->state = 1;
 
         obj->key_pair = EC_KEY_new_by_curve_name(type);
@@ -643,7 +643,7 @@ public:
 
     string_t get_public_key_hex() const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return _crypto_::buff2hex( this->get_public_key() );
+        return crypto::buff2hex( this->get_public_key() );
     }
 
     string_t get_private_key() const noexcept { 
@@ -654,7 +654,7 @@ public:
 
     string_t get_private_key_hex() const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return _crypto_::buff2hex( this->get_private_key() );
+        return crypto::buff2hex( this->get_private_key() );
     }
 
     void force_close() const noexcept { 
@@ -694,7 +694,7 @@ public:
 
     template< class T >
     ecdsa_t( const string_t& key, const T& type ) noexcept 
-    :   obj( new NODE() ) { _crypto_::start_device();
+    :   obj( new NODE() ) { crypto::start_device();
         obj->state = 1;
 
         obj->key_pair  = EC_KEY_new_by_curve_name(type);
@@ -712,7 +712,7 @@ public:
 
     template< class T >
     ecdsa_t( const T& type ) noexcept 
-    :   obj( new NODE() ) { _crypto_::start_device();
+    :   obj( new NODE() ) { crypto::start_device();
         obj->state = 1;
 
         obj->key_pair  = EC_KEY_new();
@@ -727,12 +727,12 @@ public:
 
     string_t get_public_key( uint x = 0 ) const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return _crypto_::hex2buff( get_public_key_hex(x) );
+        return crypto::hex2buff( get_public_key_hex(x) );
     }
 
     string_t get_private_key() const noexcept {
         if( obj->state != 1 ){ return ""; }
-        return _crypto_::hex2buff( get_private_key_hex() );
+        return crypto::hex2buff( get_private_key_hex() );
     }
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept { 
@@ -782,7 +782,7 @@ public:
 
     template< class T >
     rsa_t() : obj( new NODE() ) {
-        _crypto_::start_device();
+        crypto::start_device();
         obj->rsa   = RSA_new();
         obj->num   =  BN_new();
         obj->state = 1;
@@ -874,7 +874,7 @@ protected:
 public:
 
     dh_t() : obj( new NODE() ) {
-        _crypto_::start_device();
+        crypto::start_device();
         obj->dh    = DH_new(); 
         obj->g     = BN_new();
         obj->k     = BN_new();
@@ -942,7 +942,7 @@ public:
 
     template< class T >
     dsa_t( uint size ) 
-    : obj( new NODE() ) { _crypto_::start_device();
+    : obj( new NODE() ) { crypto::start_device();
         obj->state = 1; obj->len = size; obj->dsa = DSA_new(); 
         if(!DSA_generate_parameters_ex( obj->dsa, obj->len, NULL, 0, NULL, NULL, NULL ) )
           { process::error("while generating DSA parameters"); }
@@ -953,7 +953,7 @@ public:
 
     template< class T >
     dsa_t( const string_t& path, uint size ) 
-    : obj( new NODE() ) { _crypto_::start_device(); obj->state = 1;
+    : obj( new NODE() ) { crypto::start_device(); obj->state = 1;
         obj->len = size; obj->dsa = DSA_new(); FILE* fp = fopen(path.c_str(),"r");
         if ( fp == nullptr ) process::error("such file or directory does not exist");
         obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, nullptr, nullptr );
