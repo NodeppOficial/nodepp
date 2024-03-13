@@ -17,7 +17,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace socket {
+namespace nodepp { namespace _socket_ {
 
     void start_device(){ static bool sockets=false; 
         if( sockets == false ){ WSADATA wsaData;
@@ -98,7 +98,7 @@ protected:
         return ioctlsocket( obj->fd, FIONBIO, &mode ) != 0 ? -1 : 1;
     }
 
-public: socket_t() noexcept { socket::start_device(); }
+public: socket_t() noexcept { _socket_::start_device(); }
 
     event_t<>          onUnpipe;
     event_t<>          onResume;
@@ -349,7 +349,7 @@ public: socket_t() noexcept { socket::start_device(); }
     
     /*─······································································─*/
 
-    socket_t( SOCKET fd, ulong _size=CHUNK_SIZE ){ socket::start_device();
+    socket_t( SOCKET fd, ulong _size=CHUNK_SIZE ){ _socket_::start_device();
         if( fd == INVALID_SOCKET ) process::error("Such Socket has an Invalid fd");
             obj->fd = fd; set_nonbloking_mode(); set_buffer_size(_size);
     }
@@ -369,7 +369,7 @@ public: socket_t() noexcept { socket::start_device(); }
         if( host.empty() )
           { process::error(onError,"dns coudn't found ip"); return -1; }
         
-        obj->addrlen = sizeof( obj->server_addr ); socket::start_device(); 
+        obj->addrlen = sizeof( obj->server_addr ); _socket_::start_device(); 
 
         if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )
           { process::error(onError,"can't initializate socket fd"); return -1; } 

@@ -20,7 +20,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace socket {
+namespace nodepp { namespace _socket_ {
 
     void start_device(){ static bool sockets=false; 
         if( sockets == false ){
@@ -82,7 +82,7 @@ protected:
         );
     }
 
-public: socket_t() noexcept { socket::start_device(); }
+public: socket_t() noexcept { _socket_::start_device(); }
 
     int SOCK  = SOCK_STREAM;
     int AF    = AF_INET; 
@@ -280,7 +280,7 @@ public: socket_t() noexcept { socket::start_device(); }
     
     /*─······································································─*/
 
-    socket_t( int fd, ulong _size=CHUNK_SIZE ){ socket::start_device();
+    socket_t( int fd, ulong _size=CHUNK_SIZE ){ _socket_::start_device();
         if( fd < 0 )  process::error("Such Socket has an Invalid fd");
         obj->fd = fd; set_nonbloking_mode(); set_buffer_size(_size); 
     }
@@ -298,7 +298,7 @@ public: socket_t() noexcept { socket::start_device(); }
 
     virtual int socket( const string_t& host, int port ) noexcept { 
         if( host.empty() ){ process::error(onError,"dns coudn't found ip"); return -1; }
-            skt->addrlen = sizeof( skt->server_addr ); socket::start_device();
+            skt->addrlen = sizeof( skt->server_addr ); _socket_::start_device();
 
         if((obj->fd=::socket( AF, SOCK, PROT )) <= 0 )
           { process::error(onError,"can't initializate socket fd"); return -1; } 

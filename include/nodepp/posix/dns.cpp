@@ -27,7 +27,7 @@ namespace nodepp { namespace dns {
     
     /*─······································································─*/
 
-    string_t lookup( string_t host ) { socket::start_device();
+    string_t lookup( string_t host ) { _socket_::start_device();
 
           if( host == "255.255.255.255" || host == "broadcast" ) { return "255.255.255.255"; } 
         elif( host == "127.0.0.1"       || host == "localhost" ) { return "127.0.0.1";       } 
