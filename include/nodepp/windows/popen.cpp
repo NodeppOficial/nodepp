@@ -64,12 +64,6 @@ protected:
 
     }
 
-    void _busy() const noexcept {
-        obj->std_input .busy();
-        obj->std_output.busy();
-        obj->std_error .busy();
-    }
-
 public:
 
     event_t<>          onResume;
@@ -138,7 +132,7 @@ public:
             ptr_t<_file_::read> _read1 = new _file_::read;
             ptr_t<_file_::read> _read2 = new _file_::read;
             auto self = type::bind( this );
-            onExit([=](){ self->free(); }); _busy();
+            onExit([=](){ self->free(); });
 
         if( process::is_child() ){
 

@@ -48,7 +48,7 @@ namespace nodepp { namespace encoder { namespace bytes {
     ptr_t<uchar> get( T num ){
         ptr_t<uchar> res ( sizeof(num), 0 );
         for( ulong y=0; y<res.size(); y++ ){
-             res[y] = num >> ( 8*(res.size()-y-1) ); 
+             res[y] = num >> ( 8*(res.size()-y-1) );
         }    return res;
     }
 

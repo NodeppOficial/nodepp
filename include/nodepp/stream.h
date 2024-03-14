@@ -51,9 +51,14 @@ namespace nodepp { namespace stream {
     
     /*─······································································─*/
     
+    template< class T, class V >
+    ulong await( const T& fa, const V& fb ){ ulong result; _stream_::pipe _read;
+        fa.onData([&]( string_t chunk ){ result += chunk.size(); });
+        process::await( _read, fa, fb ); return result;
+    }
+    
     template< class T >
-    string_t await( const T& fp ){ 
-        string_t result; _stream_::pipe _read;
+    string_t await( const T& fp ){ string_t result; _stream_::pipe _read;
         fp.onData([&]( string_t chunk ){ result += chunk; });
         process::await( _read, fp ); return result;
     }

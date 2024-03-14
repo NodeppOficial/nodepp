@@ -61,7 +61,7 @@ namespace nodepp { namespace ws {
         ptr_t<_file_::read> _read = new _file_::read;
         cli.onDrain.once([=](){ cli.free(); });
 
-        server.onConnect.once([=]( ws_t cli ){ cli.busy(); 
+        server.onConnect.once([=]( ws_t cli ){
         process::poll::add([=](){
             if(!cli.is_available() )    { cli.close(); return -1; }
             if((*_read)(&cli)==1 )      { return 1; }
@@ -102,7 +102,7 @@ namespace nodepp { namespace ws {
         ws_t cli = nodepp::WSClient( http::fetch( args, opt ), key );
              cli.onDrain.once([=](){ cli.free(); }); 
 
-        cli.onOpen.once([=](){ cli.busy(); 
+        cli.onOpen.once([=](){ 
         process::poll::add([=](){
             if(!cli.is_available() )    { cli.close(); return -1; }
             if((*_read)(&cli)==1 )      { return 1; }

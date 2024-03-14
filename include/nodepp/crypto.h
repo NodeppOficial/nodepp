@@ -42,7 +42,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { namespace _crypto_ {
+namespace nodepp { namespace crypto {
 
     void start_device(){ static bool ssl=false; 
         if( ssl == false ){

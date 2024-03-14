@@ -180,8 +180,7 @@ namespace nodepp { namespace _stream_ {
             while( _read(&inp)==1 ){ coNext; }
                if( _read.state<=0 ){ break;  }
                     inp.onData.emit( _read.data );
-            }
-            if(!inp.is_busy() ) inp.close(); 
+            }       inp.close(); 
         gnStop
         }
 
@@ -193,9 +192,7 @@ namespace nodepp { namespace _stream_ {
             while( _write(&out,_read.data)==1 ){ coNext; }
                if( _write.state<=0 )           { break;  }
                     inp.onData.emit( _read.data );
-            }
-            if(!inp.is_busy() ) inp.close(); 
-            if(!out.is_busy() ) out.close();
+            }       inp.close(); out.close();
         gnStop
         }
 
@@ -217,8 +214,7 @@ namespace nodepp { namespace _stream_ {
             while( _read(&inp)==1 ){ coNext; } 
                if( _read.state<=0 ){ break;  }
                    inp.onData.emit( _read.data );
-            }      
-            if(!inp.is_busy() ) inp.close(); 
+            }      inp.close(); 
         gnStop
         }
 
@@ -230,9 +226,7 @@ namespace nodepp { namespace _stream_ {
             while( _write(&out,_read.data)==1 ){ coNext; }
                if( _write.state<=0 )           { break;  }
                     inp.onData.emit( _read.data );
-            }       
-            if(!inp.is_busy() ) inp.close(); 
-            if(!out.is_busy() ) out.close();
+            }       inp.close(); out.close();
         gnStop
         }
 
@@ -297,10 +291,7 @@ namespace nodepp { namespace _zlib_ {
                     process::error( out.onError, message ); break;
                 }
             
-            }   inflateEnd( &str ); 
-            
-            if( out.is_busy() ) out.close(); 
-            if( inp.is_busy() ) inp.close(); 
+            }   inflateEnd( &str ); out.close(); inp.close(); 
         
         gnStop
         }
@@ -340,9 +331,7 @@ namespace nodepp { namespace _zlib_ {
                     process::error( inp.onError, message ); break;
                 } 
 
-            }   inflateEnd( &str );
-            
-            if( inp.is_busy() ) inp.close(); 
+            }   inflateEnd( &str ); inp.close(); 
             
         gnStop
         }
@@ -400,10 +389,7 @@ namespace nodepp { namespace _zlib_ {
                     process::error( out.onError, message ); break;
                 }
             
-            }   deflateEnd( &str ); 
-            
-            if( out.is_busy() ) out.close(); 
-            if( inp.is_busy() ) inp.close(); 
+            }   deflateEnd( &str ); out.close(); inp.close(); 
             
         gnStop
         }
@@ -443,9 +429,7 @@ namespace nodepp { namespace _zlib_ {
                     process::error( inp.onError, message ); break;
                 } 
 
-            }   deflateEnd( &str ); 
-            
-            if( inp.is_busy() ) inp.close(); 
+            }   deflateEnd( &str ); inp.close(); 
             
         gnStop
         }
@@ -597,7 +581,6 @@ namespace nodepp {
         bool  MSK = 1; //1b
         char  KEY [4]; //4B
         ulong LEN = 0; //64b
-        uchar NEL = 0; //8b
     };
 
     /*─······································································─*/
@@ -610,11 +593,11 @@ namespace nodepp {
 
         if ( sx < 126 ){ 
             bfx[idx] = (uchar)(byt[byt.size()-1]); idx++;
-        } elif ( sx <= 65536 ){ 
+        } elif ( sx < 65536 ){ 
             bfx[idx] = (uchar)( 126 ); idx++;
             bfx[idx] = (uchar)(byt[byt.size()-2]); idx++;
             bfx[idx] = (uchar)(byt[byt.size()-1]); idx++;
-        } elif ( sx <= 4294967296 ){
+        } else {
             bfx[idx] = (uchar)( 127 ); idx++;
             bfx[idx] = (uchar)(byt[byt.size()-4]); idx++;
             bfx[idx] = (uchar)(byt[byt.size()-3]); idx++;
@@ -625,35 +608,35 @@ namespace nodepp {
         return { &bfx, idx }; 
     }
 
-    ws_frame_t read_ws_frame( char* bf, const ulong& /*unused*/ ){
+    int read_ws_frame( char* bf, ws_frame_t& st, int& _state_, ulong& size ){
+        array_t<bool> y;
+    gnStart memset( &st, 0, sizeof(ws_frame_t) );
+        
+        y = array_t<bool>(encoder::bin::get( bf[0] )); 
 
-        uint idx = 0; ws_frame_t st;
-        auto y = array_t<bool>(encoder::bin::get( bf[0] )); 
-
-        st.FIN = y.splice(0,1)[0] == 1; idx++;
-
+        st.FIN    =   y.splice(0,1)[0] == 1;
         for( auto x : y.splice(0,3) ) st.RSV = st.RSV<<1 | x;
         for( auto x : y.splice(0,4) ) st.OPC = st.OPC<<1 | x;
-
+        
         y = array_t<bool>(encoder::bin::get( bf[1] ));
-        st.MSK = y.splice(0,1)[0] == 1; idx++; 
 
+        st.MSK    =   y.splice(0,1)[0] == 1;
         for( auto x : y.splice(0,7) ) st.LEN = st.LEN<<1 | x;
 
-        if ( st.LEN == 126 ){ st.LEN = 0;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
-        } elif ( st.LEN == 127 ) { st.LEN = 0;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
-            st.LEN = st.LEN << 8 | (uchar) bf[idx]; idx++;
+          if ( st.LEN == 126 ){ size = 2; st.LEN=0; }
+        elif ( st.LEN == 127 ){ size = 4; st.LEN=0; }
+
+        if ( st.LEN == 0 ){ coNext;
+        for( ulong x=0; x < size; x++ )
+           { st.LEN = st.LEN << 8 | (uchar) bf[x]; }
         }
 
-        if ( st.MSK ) for( ulong x=0; x<4; x++ )
-           { st.KEY[x] = bf[idx]; idx++; }
+        if ( st.MSK == 1 ){ size=4; coNext; 
+        for( ulong x=0; x < size; x++ )
+           { st.KEY[x] = bf[x]; }
+        }
 
-        st.NEL = idx; return st;
+    gnStop
     }
 
     /*─······································································─*/
@@ -665,38 +648,49 @@ namespace _ws_ {
 
         ws_frame_t frame;
         int        key=0;
+        bool       fin=0;
+        ulong      len=0;
+        int        pos=0;
 
     public:
     
         int        state = 1;
         int        input = 0;
         int        output= 0;
-        ulong      size  = 0;
+        ulong      size  = 2;
 
-    gnEmit( char* bf, const ulong& sx ) {
-        if( input <= 0 ){ size = size==0?sx:size; return -1; }
-    gnStart state=1; size=0; key=0; output=0;
+    gnEmit( char* bf, const ulong& sx ) { if( input<=0 ){ return -1; }
+    gnStart state=1; key=0; output=0; len=0; size=2; pos=0; fin=0;
 
-        frame = read_ws_frame( bf, sx );
-        if( frame.LEN ==  0 ){           coEnd; }
-        if( frame.OPC == 24 ){ state=-1; coEnd; } input-= frame.NEL;
-        if( frame.OPC ==  8 ){ state=-1; coEnd; } size  = frame.LEN;
+        while( read_ws_frame( bf, frame, pos, size )==1 )
+             { coSet(1); return -1; coYield(1); }
+        
+        /*------*/
+
+        if( frame.OPC == 24 ){ state=-1; coEnd; }
+        if( frame.OPC ==  8 ){ state=-1; coEnd; } 
+            size = min( sx, frame.LEN - len );
 
         /*------*/
 
-        memmove( bf, bf+frame.NEL, min( size, (ulong)input ) ); 
-        goto LOOP; coYield(1); LOOP:
+        coSet(2); return -1; coYield(2);
 
         /*------*/
 
-        for( ulong x=0; x<min( size, (ulong)input ) && frame.MSK ; x++ ){
-             bf[x] = bf[x] ^ frame.KEY[key]; key++; key%=4;
-        }if( size >  0 ){ output=input; size-=input; input=0; }
+        if ( len >= frame.LEN ){ size = 2; input = 0; coGoto(0); }
+
+        for( ulong x=0; x<input && frame.MSK ; x++ )
+           { bf[x] = bf[x] ^ frame.KEY[key]; key++; key%=4; }
+
+        if ( len <  frame.LEN ){ 
+             len += input; output = input; input = 0;
+             size = min( sx, frame.LEN - len );
+        if ( size == 0 ){ size = 2; input = 0; coGoto(0); }
+        }
 
         /*------*/
 
-        if ( size == 0 ){ coGoto(0); } else { coGoto(1); }
-
+        coGoto(2);
     gnStop
     }};
 
@@ -746,7 +740,7 @@ namespace _ws_ {
             memmove( bf, bf+input, size );
         } coSet(2); return -1; coYield(2); }
 
-        /*------*/ 
+        /*------*/
 
         coGoto(0);
     gnStop

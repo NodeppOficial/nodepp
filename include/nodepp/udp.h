@@ -109,7 +109,6 @@ namespace udp {
     udp_t server( const udp_t& server ){ server.onSocket([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
         cli.onDrain.once([=](){ cli.free(); });
-        cli.busy();
 
         server.onConnect.once([=]( socket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() )    { cli.close(); return -1; }
@@ -136,7 +135,6 @@ namespace udp {
     udp_t client( const udp_t& client ){ client.onOpen.once([=]( socket_t cli ){
         ptr_t<_file_::read> _read = new _file_::read;
         cli.onDrain.once([=](){ cli.free(); });
-        cli.busy();
 
         process::poll::add([=](){
             if(!cli.is_available() )    { cli.close(); return -1; }

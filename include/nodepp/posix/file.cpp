@@ -64,7 +64,6 @@ public: file_t() noexcept {}
     event_t<except_t>  onError;
     event_t<>          onDrain;
     event_t<>          onClose;
-    event_t<>          onBusy;
     event_t<>          onStop;
     event_t<>          onOpen;
     event_t<>          onPipe;
@@ -95,7 +94,6 @@ public: file_t() noexcept {}
     /*─······································································─*/
 
     bool       is_closed() const noexcept { return obj->state <  0 ||  is_feof() || obj->fd == -1; }
-    bool         is_busy() const noexcept { return obj->state == 1 &&  is_available(); }
     bool    is_available() const noexcept { return obj->state >= 0 && !is_closed(); }
     virtual bool is_feof() const noexcept { return obj->feof  == 0; }
 
@@ -104,7 +102,6 @@ public: file_t() noexcept {}
     void resume() const noexcept { if(obj->state== 0) { return; } obj->state= 0; onResume.emit(); }
     void  close() const noexcept { if(obj->state < 0) { return; } obj->state=-1; onDrain.emit();  }
     void   stop() const noexcept { if(obj->state==-3) { return; } obj->state=-3; onStop.emit();   }
-    void   busy() const noexcept { if(obj->state== 1) { return; } obj->state= 1; onBusy.emit();   }
     void  reset() const noexcept { if(obj->state!=-2) { return; } resume(); pos(0); }
     void  flush() const noexcept { obj->buffer.fill(0); }
     void   free() const noexcept { force_close(); } 
