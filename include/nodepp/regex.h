@@ -408,7 +408,7 @@ namespace regex {
     template< class V, class... T > string_t format( const V& val, const T&... args ){
         string_t result = string::to_string(val); ulong n=0; string::map([&]( string_t arg ){
             string_t reg = "\\$\\{" + string::to_string(n) + "\\}"; 
-            result = replace_all(result,reg,arg); n++;
+            result = replace_all( result, reg, arg ); n++;
         },  args... ); return result;
     }
 
