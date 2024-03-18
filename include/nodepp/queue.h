@@ -215,24 +215,6 @@ public: queue_t() noexcept {}
     }
 
     /*─······································································─*/
-
-#ifndef ARDUINO
-
-    NODE* max() const noexcept { 
-        if( empty() ){ return nullptr; } 
-        NODE* n = first(), p = first(); while( n!=nullptr ){ 
-            if( p->data < n->data ){ p = n; } n = n->next;
-        }   return p;
-    }
-
-    NODE* min() const noexcept { 
-        if( empty() ){ return nullptr; } 
-        NODE* n = first(), p = first(); while( n!=nullptr ){ 
-            if( p->data > n->data ){ p = n; } n = n->next;
-        }   return p;
-    }
-
-#endif
     
     bool is_item( NODE* item ) const noexcept {
         auto n = first(); while( n != nullptr && item != nullptr ){

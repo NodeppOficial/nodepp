@@ -179,22 +179,6 @@ public: array_t() noexcept {};
     }
 
     /*─······································································─*/
-#ifndef ARDUINO
-
-    T max() const noexcept { T n = (*this)[0];
-        for( auto x=this->begin() + 1; x != this->end(); x++ ){
-            n = ::max( n, *x ); 
-        }   return n;
-    }
-
-    T min() const noexcept { T n = (*this)[0];
-        for( auto x=this->begin() + 1; x != this->end(); x++ ){
-            n = ::min( n, *x ); 
-        }   return n;
-    }
-    
-#endif
-    /*─······································································─*/
 
     int compare( const array_t& oth ) const noexcept {
         if( size() < oth.size() ){ return -1; }

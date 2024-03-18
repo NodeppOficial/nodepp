@@ -6,9 +6,7 @@
  * in the file LICENSE in the source distribution or at
  * https://www.nodepp.xyz/license.html
  */
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
+ 
 #ifndef NODEPP_REGEX
 #define NODEPP_REGEX
 
@@ -23,12 +21,12 @@ protected:
 
     struct DONE { public:
 
-        char data = 0; bool f=0, r=0, n=0; ulong idx = 0;
         DONE* alt = nullptr; array_t<DONE*> nxt;
-        ulong rep[2] = { 0, 0 };
+        char data = '\0'; bool f=0, r=0, n=0; 
+        int rep[2]= { 0, 0 }; int idx = 0;
 
-        virtual ~DONE(){ for( auto x: nxt ){ 
-            if(   x!=nullptr ){ delete   x;   x = nullptr; }
+        virtual ~DONE(){ for( auto x:nxt ){ 
+            if(   x!=nullptr ){ delete x;     x = nullptr; }
         }   if( alt!=nullptr ){ delete alt; alt = nullptr; } }
 
         void pipe( function_t<DONE*,DONE*> cb ){
@@ -51,13 +49,14 @@ protected:
     int can_repeat( DONE* NODE ) const noexcept { 
         if( !NODE->r ){ return -1; } NODE->idx++; 
 
-          if ( (long)NODE->rep[1] == 0 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 :-1; } 
-        elif ( (long)NODE->rep[1] ==-1 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 : 1; } 
+          if ( NODE->rep[1] == 0 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 :-1; } 
+        elif ( NODE->rep[1] == 1 ){ return ( NODE->idx < NODE->rep[1] ) ? 0 :-1; } 
+        elif ( NODE->rep[1] ==-1 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 : 1; } 
         
         else {
-              if ( NODE->idx>=NODE->rep[0] && NODE->idx<=(NODE->rep[1]+1) ){ return  1; }
-            elif ( NODE->idx>=(NODE->rep[1]+1) )                           { return -1; }
-            else                                                           { return  0; }
+              if ( NODE->idx>=NODE->rep[0] && NODE->idx< NODE->rep[1] ){ return  1; }
+            elif ( NODE->idx>=NODE->rep[1] )                           { return -1; }
+            else                                                       { return  0; }
         }
         
     }
@@ -88,8 +87,8 @@ protected:
                 if( prv == nullptr ){ _ERROR(string::format( "regex at character: %d", i )); }
                 DONE* nw = new DONE; switch(x){
                     case '?': nw->r = 1; nw->rep[0] = 0; nw->rep[1] = 1; break;
-                    case '*': nw->r = 1; nw->rep[0] = 1; nw->rep[1] =-1; break;
-                    case '+': nw->r = 1; nw->rep[0] = 2; nw->rep[1] =-1; break;
+                    case '*': nw->r = 1; nw->rep[0] = 0; nw->rep[1] =-1; break;
+                    case '+': nw->r = 1; nw->rep[0] = 1; nw->rep[1] =-1; break;
                 }   nw->alt = new DONE; nw->alt->nxt.push(act);
                     prv->nxt[ prv->nxt.size()-1 ] = nw; 
                     act->nxt.push( null() ); act  = nw;
@@ -106,7 +105,7 @@ protected:
 
             if( x == '\\' || x == '.' ){ add_new( act, prv, 0 );
                 if( x == '\\' ){ add_flag( _reg[i+1], act ); i++; }
-                if( x == '.' ){ act->f = 1; act->data = '.'; }                                       
+                if( x == '.'  ){ act->f = 1; act->data = '.'; }                                       
                 continue;
             }
     
@@ -209,13 +208,13 @@ protected:
                         bool d = ( idx[0] != idx[1] ) ? 1 : 0;
                              i = (!d) ? i : idx[1];
 
-                        if( c == 1 && !d ){ return NODE->nxt[0]; }
-                        if( c == 0 && !d ){ break; }
-
-                        if( c ==-1 ){
+                          if( c == 1 && !d ){ return NODE->nxt[0]; }
+                        elif( c == 0 && !d ){ break; }
+                        elif( c ==-1 ){
                             if(d) { return NODE->nxt[0]; }
                             else  { break; }
                         }
+
                     }
 
                     }}  return (DONE*) nullptr;
@@ -408,7 +407,7 @@ namespace regex {
     template< class V, class... T > string_t format( const V& val, const T&... args ){
         string_t result = string::to_string(val); ulong n=0; string::map([&]( string_t arg ){
             string_t reg = "\\$\\{" + string::to_string(n) + "\\}"; 
-            result = replace_all( result, reg, arg ); n++;
+            result = replace_all(result,reg,arg); n++;
         },  args... ); return result;
     }
 

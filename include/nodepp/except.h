@@ -25,8 +25,7 @@ protected:
 public:
 
     virtual ~except_t() noexcept { 
-   	    process::onSIGERR.off(obj->ev);
-    //  if ( obj.count() > 2 ){ return; }
+   	    process::onSIGERR.off( obj->ev );
     }
 
     /*─······································································─*/
