@@ -70,24 +70,6 @@ namespace nodepp { namespace conio { WORD attr = 0, dflt = 7;
         return SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
     }
 
-    ptr_t<int> get_position(){ CONSOLE_SCREEN_BUFFER_INFO csbi;
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        GetConsoleScreenBufferInfo( hConsole, &csbi );
-        return {{ 
-            csbi.dwCursorPosition.X,
-            csbi.dwCursorPosition.Y
-        }};
-    }
-
-    ptr_t<int> get_size(){ CONSOLE_SCREEN_BUFFER_INFO csbi;
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        GetConsoleScreenBufferInfo( hConsole, &csbi );
-        return {{
-            csbi.srWindow.Right  - csbi.srWindow.Left + 1, 
-            csbi.srWindow.Bottom - csbi.srWindow.Top  + 1
-        }};
-    }
-
     /*─······································································─*/
 
     int inverse(){ attr |= COMMON_LVB_REVERSE_VIDEO; return 1; }

@@ -11,9 +11,6 @@
 
 #pragma once
 
-#include <sys/ioctl.h>
-#include <unistd.h>
-
 #define C_BLACK   0x00
 #define C_WHITE   0x01
 #define C_GREEN   0x02
@@ -63,11 +60,6 @@ namespace nodepp { namespace conio {
     /*─······································································─*/
     
     int set_position( int x, int y ){ return pout(string::format("\033[%d;%dH",x,y)); }
-
-    ptr_t<int> get_size(){ struct winsize csbi;
-        ioctl( STDIN_FILENO, TIOCGWINSZ, &csbi );
-        return {{ csbi.ws_row, csbi.ws_col }};
-    }
 
     /*─······································································─*/
 

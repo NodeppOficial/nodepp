@@ -147,7 +147,9 @@ public:
 	uint*   size() const noexcept { return data->size; }
 
 	ulong length() const noexcept { return data->data.size(); }
-    
+
+	bool   empty() const noexcept { return data->data.empty(); }
+
 };}
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -157,7 +159,7 @@ namespace nodepp {
     template< class T >
 	matrix_t<T> operator* ( matrix_t<T>& mtrx, T val ){ 
 		matrix_t<T> res( mtrx.size()[0], mtrx.size()[1] );
-		for ( ulong x=0; x<res.get().size(); x++ )
+		for ( ulong x=0; x<res.length(); x++ )
 			{ res[x] = mtrx[x] * val; }
 		return res;
 	}
@@ -165,7 +167,7 @@ namespace nodepp {
 	template< class T >
 	matrix_t<T> operator/ ( matrix_t<T>& mtrx, T val ){ 
 		matrix_t<T> res( mtrx.size()[0], mtrx.size()[1] );
-		for ( ulong x=0; x<res.get().size(); x++ )
+		for ( ulong x=0; x<res.length(); x++ )
 			{ res[x] = mtrx[x] / val; }
 		return res;
 	}
@@ -279,7 +281,7 @@ namespace nodepp { namespace matrix {
 	template< class T >
 	matrix_t<T> min( matrix_t<T>& mtrx, T _min ){
 		matrix_t<T> res( mtrx.size()[0], mtrx.size()[1] );
-		for ( ulong x=0; x<res.get().size(); x++ )
+		for ( ulong x=0; x<res.length(); x++ )
 			{ res[x] = min( mtrx[x], _min ); }
 		return res;
 	}
@@ -287,7 +289,7 @@ namespace nodepp { namespace matrix {
 	template< class T >
 	matrix_t<T> max( matrix_t<T>& mtrx, T _max ){
 		matrix_t<T> res( mtrx.size()[0], mtrx.size()[1] );
-		for ( ulong x=0; x<res.get().size(); x++ )
+		for ( ulong x=0; x<res.length(); x++ )
 			{ res[x] = max( mtrx[x], _max ); }
 		return res;
 	}
@@ -295,7 +297,7 @@ namespace nodepp { namespace matrix {
 	template< class T >
 	matrix_t<T> clamp( matrix_t<T>& mtrx, T _min, T _max ){
 		matrix_t<T> res( mtrx.size()[0], mtrx.size()[1] );
-		for ( ulong x=0; x<res.get().size(); x++ )
+		for ( ulong x=0; x<res.length(); x++ )
 			{ res[x] = clamp( mtrx[x], _min, _max ); }
 		return res;
 	}
@@ -303,18 +305,26 @@ namespace nodepp { namespace matrix {
     /*─······································································─*/
 
 	template< class T >
-	matrix_t<T> pow( matrix_t<T>& mtrx, T val ){
+	matrix_t<T> abs( matrix_t<T>& mtrx ){
 		matrix_t<T> res( mtrx.size()[0], mtrx.size()[1] );
-		for ( ulong x=0; x<res.get().size(); x++ )
-			{ res[x] = pow( mtrx[x], val ); }
+		for ( ulong x=0; x<res.length(); x++ )
+			{ res[x] = abs( mtrx[x] ); }
 		return res;
 	}
 
 	template< class T >
-	matrix_t<T> sqrt( matrix_t<T>& mtrx, T val ){
+	matrix_t<T> sqrt( matrix_t<T>& mtrx ){
 		matrix_t<T> res( mtrx.size()[0], mtrx.size()[1] );
-		for ( ulong x=0; x<res.get().size(); x++ )
-			{ res[x] = sqrt( mtrx[x], val ); }
+		for ( ulong x=0; x<res.length(); x++ )
+			{ res[x] = sqrt( mtrx[x] ); }
+		return res;
+	}
+
+	template< class T >
+	matrix_t<T> pow( matrix_t<T>& mtrx, T val ){
+		matrix_t<T> res( mtrx.size()[0], mtrx.size()[1] );
+		for ( ulong x=0; x<res.length(); x++ )
+			{ res[x] = pow( mtrx[x], val ); }
 		return res;
 	}
 
