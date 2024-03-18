@@ -43,8 +43,7 @@ Hello World!
 - Examples : [here](https://github.com/NodeppOficial/Nodepp/tree/main/examples)
 
 ## FAQ
-- reddit : [/r/Cplusplus/](https://www.reddit.com/r/Cplusplus/comments/19e2kw3/write_asynchronous_code_with_c_nodepp/) 
-- reddit : [/r/cpp/](https://www.reddit.com/r/cpp/comments/19camli/write_asynchronously_code_with_c_nodepp/)
+- reddit : [/r/Cplusplus/](https://www.reddit.com/r/Cplusplus/comments/19e2kw3/write_asynchronous_code_with_c_nodepp/)
   
 ## Contribution
 
