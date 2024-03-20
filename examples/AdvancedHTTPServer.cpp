@@ -16,7 +16,7 @@ onMain([](){
     auto server = http::server([=]( http_t cli ){ 
 
         string_t dir = "www/index.html";
-        if( cli.path.size() > 1 )
+        if( cli.path != "/" )
             dir = path::join( "www", cli.path );
 
         console::log( cli.path, cli.get_fd() );

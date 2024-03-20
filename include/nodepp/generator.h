@@ -623,10 +623,9 @@ namespace nodepp {
         st.MSK    =   y.splice(0,1)[0] == 1;
         for( auto x : y.splice(0,7) ) st.LEN = st.LEN<<1 | x;
 
-          if ( st.LEN == 126 ){ size = 2; st.LEN=0; }
-        elif ( st.LEN == 127 ){ size = 4; st.LEN=0; }
-
-        if ( st.LEN == 0 ){ coNext;
+        if ( st.LEN  > 125 ){ 
+        if ( st.LEN == 126 ){ size = 2; }
+        if ( st.LEN == 127 ){ size = 4; } coNext;
         for( ulong x=0; x < size; x++ )
            { st.LEN = st.LEN << 8 | (uchar) bf[x]; }
         }
@@ -648,7 +647,6 @@ namespace _ws_ {
 
         ws_frame_t frame;
         int        key=0;
-        bool       fin=0;
         ulong      len=0;
         int        pos=0;
 
@@ -656,17 +654,18 @@ namespace _ws_ {
     
         int        state = 1;
         int        input = 0;
-        int        output= 0;
+        int        output=-1;
         ulong      size  = 2;
 
     gnEmit( char* bf, const ulong& sx ) { if( input<=0 ){ return -1; }
-    gnStart state=1; key=0; output=0; len=0; size=2; pos=0; fin=0;
+    gnStart state=1; key=0; output=-2; len=0; size=2; pos=0;
 
         while( read_ws_frame( bf, frame, pos, size )==1 )
              { coSet(1); return -1; coYield(1); }
         
         /*------*/
 
+        if( frame.LEN ==  0 ){ size = 2; input = 0; coGoto(0); }
         if( frame.OPC == 24 ){ state=-1; coEnd; }
         if( frame.OPC ==  8 ){ state=-1; coEnd; } 
             size = min( sx, frame.LEN - len );
@@ -709,7 +708,7 @@ namespace _ws_ {
         ulong      size  = 0;
 
     gnEmit( char* bf, const ulong& sx ) {
-    gnStart state=1; input=0; output=0; len=0; size=sx;
+    gnStart state=1; input=0; output=-2; len=0; size=sx;
 
         brr = string_t( bf, size ); 
         hdr = write_ws_frame( bf, size ); 

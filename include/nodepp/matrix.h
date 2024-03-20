@@ -28,6 +28,9 @@ protected:
 
 public:
 
+	matrix_t ( const initializer_t<T>& val, uint x, uint y ) noexcept : 
+	    data ( new NODE() ){ resize( x, y ); set( val ); }
+
 	matrix_t ( uint x=0, uint y=0 ) noexcept : 
 	    data ( new NODE() ){ resize( x, y ); }
 
@@ -44,7 +47,7 @@ public:
 
 	void resize( uint x, uint y ) noexcept {
 		data->size[0] = x; data->size[1] = y;
-		data->data = ptr_t<T>( (ulong)(data->size[0]*data->size[1]), T() );
+		data->data = ptr_t<T>( (ulong)(x*y), T() );
 	}
     
     /*─······································································─*/
@@ -102,6 +105,11 @@ public:
 
 	void set( const initializer_t<T> val ) const noexcept {
 		 for( ulong x=val.size(); x--; ){ data->data[x] = val[x]; }
+	}
+
+	template< class V, ulong N >
+	void set( const V (&val) [N] ) const noexcept {
+		 for( ulong x=N; x--; ){ data->data[x] = (T)val[x]; }
 	}
 
 	template< ulong N >
@@ -237,10 +245,10 @@ namespace nodepp {
 			);	process::error( data.c_str() ); 
 		}
 	
-		for( uint x2=0; x2<B.size()[0]; x2++){ for( uint y1=0; y1<A.size()[1]; y1++ ){
-		for( uint x1=0; x1<A.size()[0]; x1++){ for( uint y2=0; y2<B.size()[1]; y2++ ){
+		for( uint y1=0; y1<A.size()[1]; y1++ ){ for( uint x2=0; x2<B.size()[0]; x2++){ 
+		for( uint y2=0; y2<B.size()[1]; y2++ ){ for( uint x1=0; x1<A.size()[0]; x1++){ 
 		if ( x1 != y2 ){ continue; }
-			 C.get( y1, x2 ) += A.get( y1, x1 ) * B.get( y2, x2 );
+			 C.get( x2, y1 ) += A.get( x1, y1 ) * B.get( x2, y2 );
 		}}}}
 	
 		return C;
