@@ -654,7 +654,7 @@ namespace _ws_ {
     
         int        state = 1;
         int        input = 0;
-        int        output=-1;
+        int        output=-2;
         ulong      size  = 2;
 
     gnEmit( char* bf, const ulong& sx ) { if( input<=0 ){ return -1; }
