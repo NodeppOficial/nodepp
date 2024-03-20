@@ -209,7 +209,7 @@ public: queue_t() noexcept {}
         }   return 1;
     }
 
-    void map( function_t<void,V> func ) const noexcept {
+    void map( function_t<void,V&> func ) const noexcept {
         if( empty() ){ return; } NODE* n = first(); 
         while( n!=nullptr ){ func( n->data ); n = n->next; }
     }

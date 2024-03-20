@@ -156,7 +156,7 @@ public: array_t() noexcept {};
         for( auto& x : *this ){ if( func(x) ) return 0; } return 1;
     }
 
-    void map( function_t<void,T> func ) const noexcept { 
+    void map( function_t<void,T&> func ) const noexcept { 
         for( auto& x : *this ){ func(x); }
     }
     

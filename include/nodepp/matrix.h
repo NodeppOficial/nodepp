@@ -79,7 +79,50 @@ public:
 		
 		data->size[0] =row; data->size[1] =col; data->data =mtrx;
 	}
+    
+    /*─······································································─*/
 
+	long index_of( function_t<bool,T> func ) const noexcept { long i=0;
+        for( auto& x : *this ){ if( func(x) ) return i; i++; } return -1;
+    }
+
+    ulong count( function_t<bool,T> func ) const noexcept { ulong n=0; 
+        for( auto& x : *this ){ if( func(x) ) n++; } return n;
+    }
+    
+    /*─······································································─*/
+
+    T reduce( function_t<T,T,T> func ) const noexcept { T act = (*this)[0];
+        for( auto x=this->begin() + 1; x != this->end(); x++ )
+           { act = func( act, *x ); } return act;
+    }
+
+    bool some( function_t<bool,T> func ) const noexcept { 
+        for( auto& x : *this ){ if( func(x) ) return 1; } return 0;
+    }
+
+    bool none( function_t<bool,T> func ) const noexcept { 
+        for( auto& x : *this ){ if( func(x) ) return 0; } return 1;
+    }
+
+    bool every( function_t<bool,T> func ) const noexcept { 
+        for( auto& x : *this ){ if( func(x) ) return 0; } return 1;
+    }
+    
+    /*─······································································─*/
+
+	void map( function_t<void,int,int,T&> callback ) const noexcept {
+		 for( uint y=0; y<data->size[1]; y++ ){ 
+		 for( uint x=0; x<data->size[0]; x++ ){
+			  callback( x, y, get(x,y) );
+		 }} 
+	}
+
+	void map( function_t<void,int,T&> callback ) const noexcept {
+		 for( uint x=0; x<data->data.size(); x++ ){ 
+			  callback( x, get(x) );
+		 }
+	}
     
     /*─······································································─*/
 
@@ -253,6 +296,8 @@ namespace nodepp {
 	
 		return C;
 	}
+    
+    /*─······································································─*/
 
 	// operator/
 

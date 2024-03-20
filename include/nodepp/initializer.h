@@ -89,6 +89,41 @@ namespace nodepp { template< class T > class initializer_t : public ptr_t<T> {
         *this = arr; return *this;
     }
 
+    /*─······································································─*/
+
+    long index_of( function_t<bool,T> func ) const noexcept { long i=0;
+        for( auto& x : *this ){ if( func(x) ) return i; i++; } return -1;
+    }
+
+    ulong count( function_t<bool,T> func ) const noexcept { ulong n=0; 
+        for( auto& x : *this ){ if( func(x) ) n++; } return n;
+    }
+    
+    /*─······································································─*/
+
+    T reduce( function_t<T,T,T> func ) const noexcept { T act = (*this)[0];
+        for( auto x=this->begin() + 1; x != this->end(); x++ )
+           { act = func( act, *x ); } return act;
+    }
+
+    bool some( function_t<bool,T> func ) const noexcept { 
+        for( auto& x : *this ){ if( func(x) ) return 1; } return 0;
+    }
+
+    bool none( function_t<bool,T> func ) const noexcept { 
+        for( auto& x : *this ){ if( func(x) ) return 0; } return 1;
+    }
+
+    bool every( function_t<bool,T> func ) const noexcept { 
+        for( auto& x : *this ){ if( func(x) ) return 0; } return 1;
+    }
+
+    void map( function_t<void,T&> func ) const noexcept { 
+        for( auto& x : *this ){ func(x); }
+    }
+    
+    /*─······································································─*/
+
 };}
 
 /*────────────────────────────────────────────────────────────────────────────*/
