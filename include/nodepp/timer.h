@@ -25,7 +25,7 @@ namespace nodepp { namespace timer {
         ptr_t<ulong> stm = new ulong( process::millis() + *time ); 
         auto         prs = _timer_::timer();
         ptr_t<int>   out = new int( 1 ); 
-        process::task::add( prs, func, out, stm, time, args... ); 
+        process::task::add( prs, func, out, time, stm, args... ); 
         return out;
     };
     
@@ -87,7 +87,7 @@ namespace nodepp { namespace utimer {
         ptr_t<ulong> stm = new ulong( process::micros() + time );  
         auto         prs = _timer_::utimer();
         ptr_t<int>   out = new int( 1 );  
-        process::task::add( prs, func, out, stm, args... ); 
+        process::task::add( prs, func, out, time, stm, args... ); 
         return out;
     };
     
@@ -96,7 +96,7 @@ namespace nodepp { namespace utimer {
         ptr_t<ulong> stm = new ulong( process::micros() + time );  
         auto         prs = _timer_::utimer();
         ptr_t<int>   out = new int( 1 );  
-        process::task::add( prs, func, out, stm, args... ); 
+        process::task::add( prs, func, out, time, stm, args... ); 
         return out;
     };
     

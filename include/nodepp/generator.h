@@ -610,7 +610,7 @@ namespace nodepp {
 
     int read_ws_frame( char* bf, ws_frame_t& st, int& _state_, ulong& size ){
         array_t<bool> y;
-    gnStart memset( &st, 0, sizeof(ws_frame_t) );
+    gnStart st = ws_frame_t();
         
         y = array_t<bool>(encoder::bin::get( bf[0] )); 
 
@@ -678,7 +678,7 @@ namespace _ws_ {
 
         if ( len >= frame.LEN ){ size = 2; input = 0; coGoto(0); }
 
-        for( ulong x=0; x<input && frame.MSK ; x++ )
+        for( int x=0; x<input && frame.MSK ; x++ )
            { bf[x] = bf[x] ^ frame.KEY[key]; key++; key%=4; }
 
         if ( len <  frame.LEN ){ 
