@@ -84,7 +84,7 @@ namespace nodepp { namespace utimer {
     
     template< class V, class... T >
     ptr_t<int> add ( V func, ulong* time, const T&... args ){
-        ptr_t<ulong> stm = new ulong( process::micros() + time );  
+        ptr_t<ulong> stm = new ulong( process::micros() +*time );  
         auto         prs = _timer_::utimer();
         ptr_t<int>   out = new int( 1 );  
         process::task::add( prs, func, out, time, stm, args... ); 
