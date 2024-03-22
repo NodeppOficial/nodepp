@@ -63,7 +63,7 @@ namespace TEST { namespace CONSOLE {
             }
         });
 
-        test.onClose([=](){
+        test.onClose.once([=](){
             console::log(":> RESULT | total:", *totl, "| passed:", *done, "| error:", *err, "| skipped:", *skp );
         });
 

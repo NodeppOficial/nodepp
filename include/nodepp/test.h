@@ -102,6 +102,8 @@ namespace nodepp {
                 }   
             x = x->next; process::next(); }
 
+            onClose.emit();
+
         }
         
         /*-------------------------------------------------------------------*/
@@ -134,6 +136,8 @@ namespace nodepp {
                         self->onSkip.emit();
                     }   x = x->next; coNext;
                 }
+
+                self->onClose.emit();
 
             coStop
             });

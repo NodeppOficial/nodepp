@@ -52,12 +52,14 @@ public: worker_t() noexcept : obj( new NODE ) {}
 
     template< class T, class... V >
     worker_t( T cb, V&... arg ) noexcept : obj( new NODE() ){
-        ptr_t<type::pair<bool,T>> pb = new type::pair<bool,T>({ 0, cb });
-        ptr_t<int>               out = new int(1);
+        ptr_t<T>    clb = new T( cb );
+        ptr_t<bool> blk = new bool(0);
+        ptr_t<bool> out = new bool(1);
         obj->cb = new function_t<int>([=](){ 
-            if( pb->first ){ return 1; }     pb->first = 1;
-            int rs = ( pb->second )(arg...); pb->first = 0;
-            return *out!=1 ? -1 : rs;
+            if( *out==0 ){ return -1; }
+            if( *blk==1 ){ return  1; } *blk = 1;
+            int rs = ( *clb )(arg...);  *blk = 0;
+            return *out!=1 ? -1 : rs; 
         }); obj->out = out;
     }
     

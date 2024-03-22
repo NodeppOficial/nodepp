@@ -18,9 +18,8 @@ namespace nodepp { namespace _timer_ {
     GENERATOR( timer ){ public:
 
         template< class V, class... T > 
-        gnEmit( V func, const ptr_t<int>& out, ulong time, ptr_t<ulong> stm, const T&... args ){
+        gnEmit( V func, ulong time, ptr_t<ulong> stm, const T&... args ){
         gnStart
-            if(*out == 0 )                   coEnd;
             if( process::millis() <= *stm )  coGoto(0);
             if( func(args...)<0 )            coEnd;
             *stm = process::millis() + time; coGoto(0); 
@@ -28,9 +27,8 @@ namespace nodepp { namespace _timer_ {
         }
 
         template< class V, class... T > 
-        gnEmit( V func, const ptr_t<int>& out, ulong* time, ptr_t<ulong> stm, const T&... args ){
+        gnEmit( V func, ulong* time, ptr_t<ulong> stm, const T&... args ){
         gnStart
-            if(*out == 0 )                   coEnd;
             if( process::millis() <= *stm )  coGoto(0);
             if( func(args...)<0 )            coEnd;
             *stm = process::millis() +*time; coGoto(0); 
@@ -44,9 +42,8 @@ namespace nodepp { namespace _timer_ {
     GENERATOR( utimer ){ public:
 
         template< class V, class... T > 
-        gnEmit( V func, const ptr_t<int>& out, ulong time, ptr_t<ulong> stm, const T&... args ){
+        gnEmit( V func, ulong time, ptr_t<ulong> stm, const T&... args ){
         gnStart
-            if(*out == 0 )                   coEnd;
             if( process::micros() <= *stm )  coGoto(0);
             if( func(args...)<0 )            coEnd;
             *stm = process::micros() + time; coGoto(0);
@@ -54,9 +51,8 @@ namespace nodepp { namespace _timer_ {
         }
 
         template< class V, class... T > 
-        gnEmit( V func, const ptr_t<int>& out, ulong* time, ptr_t<ulong> stm, const T&... args ){
+        gnEmit( V func, ulong* time, ptr_t<ulong> stm, const T&... args ){
         gnStart
-            if(*out == 0 )                   coEnd;
             if( process::micros() <= *stm )  coGoto(0);
             if( func(args...)<0 )            coEnd;
             *stm = process::micros() +*time; coGoto(0);

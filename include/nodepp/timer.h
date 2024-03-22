@@ -21,44 +21,40 @@
 namespace nodepp { namespace timer {
     
     template< class V, class... T >
-    ptr_t<int> add ( V func, ulong* time, const T&... args ){
+    void* add ( V func, ulong* time, const T&... args ){
         ptr_t<ulong> stm = new ulong( process::millis() + *time ); 
         auto         prs = _timer_::timer();
-        ptr_t<int>   out = new int( 1 ); 
-        process::task::add( prs, func, out, time, stm, args... ); 
-        return out;
+        return process::task::add( prs, func, time, stm, args... ); 
     };
     
     template< class V, class... T >
-    ptr_t<int> add ( V func, ulong time, const T&... args ){
+    void* add ( V func, ulong time, const T&... args ){
         ptr_t<ulong> stm = new ulong( process::millis() + time ); 
         auto         prs = _timer_::timer();
-        ptr_t<int>   out = new int( 1 ); 
-        process::task::add( prs, func, out, time, stm, args... ); 
-        return out;
+        return process::task::add( prs, func, time, stm, args... ); 
     };
     
     /*─······································································─*/
 
     template< class V, class... T >
-    ptr_t<int> timeout ( V func, ulong* time, const T&... args ){
+    void* timeout ( V func, ulong* time, const T&... args ){
         return timer::add([=]( T... args ){ func(args...); return -1; }, time, args... );
     };
 
     template< class V, class... T >
-    ptr_t<int> timeout ( V func, ulong time, const T&... args ){
+    void* timeout ( V func, ulong time, const T&... args ){
         return timer::add([=]( T... args ){ func(args...); return -1; }, time, args... );
     };
     
     /*─······································································─*/
 
     template< class V, class... T >
-    ptr_t<int> interval ( V func, ulong* time, const T&... args ){
+    void* interval ( V func, ulong* time, const T&... args ){
         return timer::add([=]( T... args ){ func(args...); return 1; }, time, args... );
     };
 
     template< class V, class... T >
-    ptr_t<int> interval( V func, ulong time, const T&... args ){
+    void* interval( V func, ulong time, const T&... args ){
         return timer::add([=]( T... args ){ func(args...); return 1; }, time, args... );
     };
     
@@ -74,7 +70,7 @@ namespace nodepp { namespace timer {
     
     /*─······································································─*/
 
-    void clear( const ptr_t<int>& address ){ if( !address ) *address = 0; }
+    void clear( void* address ){ process::clear( address ); }
 
 }}
 
@@ -83,44 +79,40 @@ namespace nodepp { namespace timer {
 namespace nodepp { namespace utimer {
     
     template< class V, class... T >
-    ptr_t<int> add ( V func, ulong* time, const T&... args ){
+    void* add ( V func, ulong* time, const T&... args ){
         ptr_t<ulong> stm = new ulong( process::micros() +*time );  
         auto         prs = _timer_::utimer();
-        ptr_t<int>   out = new int( 1 );  
-        process::task::add( prs, func, out, time, stm, args... ); 
-        return out;
+        return process::task::add( prs, func, time, stm, args... ); 
     };
     
     template< class V, class... T >
-    ptr_t<int> add ( V func, ulong time, const T&... args ){
+    void* add ( V func, ulong time, const T&... args ){
         ptr_t<ulong> stm = new ulong( process::micros() + time );  
         auto         prs = _timer_::utimer();
-        ptr_t<int>   out = new int( 1 );  
-        process::task::add( prs, func, out, time, stm, args... ); 
-        return out;
+        return process::task::add( prs, func, time, stm, args... ); 
     };
     
     /*─······································································─*/
 
     template< class V, class... T >
-    ptr_t<int> timeout ( V func, ulong* time, const T&... args ){
+    void* timeout ( V func, ulong* time, const T&... args ){
         return utimer::add([=]( T... args ){ func(args...); return -1; }, time, args... );
     };
 
     template< class V, class... T >
-    ptr_t<int> timeout ( V func, ulong time, const T&... args ){
+    void* timeout ( V func, ulong time, const T&... args ){
         return utimer::add([=]( T... args ){ func(args...); return -1; }, time, args... );
     };
     
     /*─······································································─*/
 
     template< class V, class... T >
-    ptr_t<int> interval ( V func, ulong* time, const T&... args ){
+    void* interval ( V func, ulong* time, const T&... args ){
         return utimer::add([=]( T... args ){ func(args...); return 1; }, time, args... );
     };
 
     template< class V, class... T >
-    ptr_t<int> interval( V func, ulong time, const T&... args ){
+    void* interval( V func, ulong time, const T&... args ){
         return utimer::add([=]( T... args ){ func(args...); return 1; }, time, args... );
     };
     
@@ -136,7 +128,7 @@ namespace nodepp { namespace utimer {
     
     /*─······································································─*/
 
-    void clear( const ptr_t<int>& address ){ if( !address ) *address = 0; }
+    void clear( void* address ){ process::clear( address ); }
 
 }}
 

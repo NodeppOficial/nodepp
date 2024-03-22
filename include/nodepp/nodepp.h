@@ -66,7 +66,7 @@ namespace nodepp { namespace process {
     /*─······································································─*/
 
     template< class... T >
-    void add( const T&... args ){ process::loop::add( args... ); }
+    void* add( const T&... args ){ return process::loop::add( args... ); }
 
     /*─······································································─*/
 
@@ -89,6 +89,10 @@ namespace nodepp { namespace process {
         process::poll::clear(); 
         process::loop::clear(); 
         process::threads = 0; 
+    }
+
+    void clear( void* address ){
+         *((bool*)address) = 0;
     }
     
     /*─······································································─*/

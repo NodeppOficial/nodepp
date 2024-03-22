@@ -34,7 +34,7 @@ protected:
 
     struct NODE {
         function_t<int>* cb;
-        ptr_t<int> out;
+        ptr_t<bool> out;
         int state =0;
         pthread_t id;
         int mode  =0;
@@ -52,11 +52,13 @@ public: worker_t() noexcept : obj( new NODE ) {}
 
     template< class T, class... V >
     worker_t( T cb, const V&... arg ) noexcept : obj( new NODE() ){
-        ptr_t<type::pair<bool,T>> pb = new type::pair<bool,T>({ 0, cb });
-        ptr_t<int>               out = new int(1);
+        ptr_t<T>    clb = new T( cb );
+        ptr_t<bool> blk = new bool(0);
+        ptr_t<bool> out = new bool(1);
         obj->cb = new function_t<int>([=](){ 
-            if( pb->first ){ return 1; }     pb->first = 1;
-            int rs = ( pb->second )(arg...); pb->first = 0;
+            if( *out==0 ){ return -1; }
+            if( *blk==1 ){ return  1; } *blk = 1;
+            int rs = ( *clb )(arg...);  *blk = 0;
             return *out!=1 ? -1 : rs; 
         }); obj->out = out;
     }
@@ -66,6 +68,8 @@ public: worker_t() noexcept : obj( new NODE ) {}
     int    pid() const noexcept { return (int)obj->id; }
 
     void close() const noexcept { *obj->out = 0; }
+
+    void clear() const noexcept { *obj->out = 0; }
     
     /*─······································································─*/
 
