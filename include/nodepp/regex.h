@@ -50,7 +50,6 @@ protected:
         if( !NODE->r ){ return -1; } NODE->idx++; 
 
           if ( NODE->rep[1] == 0 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 :-1; } 
-        elif ( NODE->rep[1] == 1 ){ return ( NODE->idx < NODE->rep[1] ) ? 0 :-1; } 
         elif ( NODE->rep[1] ==-1 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 : 1; } 
         
         else {
@@ -87,8 +86,8 @@ protected:
                 if( prv == nullptr ){ _ERROR(string::format( "regex at character: %d", i )); }
                 DONE* nw = new DONE; switch(x){
                     case '?': nw->r = 1; nw->rep[0] = 0; nw->rep[1] = 1; break;
-                    case '*': nw->r = 1; nw->rep[0] = 0; nw->rep[1] =-1; break;
-                    case '+': nw->r = 1; nw->rep[0] = 1; nw->rep[1] =-1; break;
+                    case '*': nw->r = 1; nw->rep[0] = 1; nw->rep[1] =-1; break;
+                    case '+': nw->r = 1; nw->rep[0] = 2; nw->rep[1] =-1; break;
                 }   nw->alt = new DONE; nw->alt->nxt.push(act);
                     prv->nxt[ prv->nxt.size()-1 ] = nw; 
                     act->nxt.push( null() ); act  = nw;

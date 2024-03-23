@@ -1,5 +1,6 @@
 #include <nodepp/nodepp.h>
 #include <nodepp/path.h>
+#include <nodepp/os.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

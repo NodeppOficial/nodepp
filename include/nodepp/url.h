@@ -65,13 +65,10 @@ namespace url {
     /*─······································································─*/
 
     string_t auth( const string_t& URL ){ string_t null; 
-        regex_t _a("//[^@/]+@"), _b("@"), _c("[@/]+"), _d(":");
+        regex_t _a("\\w+:\\w+@");
         if( !is_valid(URL) || !_a.test( URL ) ) 
           { return null; } null = _a.match( URL );
-        if( !_b.test( null ) ){ return ""; }
-        if( !_d.test( null ) ){ return ""; }
-        if( null.size() <= 4 ){ return ""; }
-            return _c.replace_all( null, "" );
+            return null.slice( 0, -1 );
     }
 
     string_t user( const string_t& URL ){ string_t null; 
@@ -104,11 +101,9 @@ namespace url {
     }
 
     string_t path( const string_t& URL ){
-        string_t null; regex_t _a("/+[^?/#]+");
-        if( !is_valid(URL) || !_a.test(URL) ){ return ""; }
-	    auto vec = _a.match_all( URL );
-	if( vec.size() <= 1 ) return "/";
-	    vec.shift(); return vec.join("");
+        string_t null; regex_t _a("/[^/?#.]+");
+        if ( !is_valid(URL) || !_a.test(URL) ){ return nullptr; }
+	         return _a.match_all( URL ).slice(1).join("");
     }
 
     string_t host( const string_t& URL ){ string_t null; 

@@ -54,8 +54,8 @@ public: array_t() noexcept {};
 
     array_t( T* value ) noexcept {
         if( value == nullptr ){ return; } ulong n = 0; 
-        while( ( !value[n] || value[n] != '\0' ) && n < sizeof(value) ){ n++; }
-        buffer = ptr_t<T>( value, n );
+        while( ( !value[n] ) && n < sizeof(value) )
+             { n++; } buffer = ptr_t<T>( value, n );
     }
 
     array_t( const ptr_t<T>& argc ) noexcept { buffer = argc; }
