@@ -16,7 +16,9 @@ namespace TEST { namespace COROUTINE {
                 ptr_t<uint> x = new uint(0);
 
                 auto time = process::add([=](){
-                     (*x)++; return 1;
+                coStart
+                     (*x)++; coGoto(0);
+                coStop
                 });
 
                 while( *x < 10 ){ process::next(); }
@@ -25,6 +27,24 @@ namespace TEST { namespace COROUTINE {
                 process::next();
 
                 if( *x != 10 ){ TEST_FAIL(); }
+
+                TEST_DONE();
+            } catch ( ... ) {
+                TEST_FAIL();
+            }
+        });
+
+        TEST_ADD( test, "TEST 2 | process::add ", [](){
+            try {
+                ptr_t<uint> x = new uint(0);
+
+                auto time = process::add([=](){
+                coStart
+                     (*x)++; // coGoto(0);
+                coStop
+                });
+
+                while( *x != 0 ){ process::next(); }
 
                 TEST_DONE();
             } catch ( ... ) {

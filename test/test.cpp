@@ -6,6 +6,7 @@ using namespace nodepp;
 #include "coroutine.cpp"
 #include "console.cpp"
 #include "timer.cpp"
+#include "regex.cpp"
 
 onMain([](){
 
@@ -20,6 +21,11 @@ onMain([](){
     console::clear();
 
     TEST::COROUTINE::TEST_RUNNER();
+
+    console::wait(); 
+    console::clear();
+
+    TEST::REGEX::TEST_RUNNER();
 
     console::wait(); 
     console::clear();

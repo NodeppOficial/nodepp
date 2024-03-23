@@ -7,6 +7,8 @@
  * https://www.nodepp.xyz/license.html
  */
 
+// This is just an sketch not the final library
+
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #ifndef NODEPP_REGEX

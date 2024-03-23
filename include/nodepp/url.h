@@ -50,7 +50,7 @@ struct url_t {
 namespace url {
 
     bool is_valid( const string_t& URL ){
-        return regex::test( URL, "^\\w+://([^.]+)", "i" );
+        return regex::test( URL, "^\\w+://([^.]+)", 1 );
     }
     
     /*─······································································─*/

@@ -54,9 +54,9 @@ protected:
         elif ( NODE->rep[1] ==-1 ){ return ( NODE->idx < NODE->rep[0] ) ? 0 : 1; } 
         
         else {
-              if ( NODE->idx>=NODE->rep[0] && NODE->idx< NODE->rep[1] ){ return  1; }
-            elif ( NODE->idx>=NODE->rep[1] )                           { return -1; }
-            else                                                       { return  0; }
+              if ( NODE->idx >=NODE->rep[1] ){ return -1; }
+            elif ( NODE->idx > NODE->rep[0] ){ return  1; }  
+            else                             { return  0; }
         }
         
     }
@@ -206,14 +206,11 @@ protected:
 
                         idx = match( _str, i, x ); c = can_repeat(NODE);
                         bool d = ( idx[0] != idx[1] ) ? 1 : 0;
-                             i = (!d) ? i : idx[1];
+                             i = (!d) ? i :  idx[1];
 
-                          if( c == 1 && !d ){ return NODE->nxt[0]; }
-                        elif( c == 0 && !d ){ break; }
-                        elif( c ==-1 ){
-                            if(d) { return NODE->nxt[0]; }
-                            else  { break; }
-                        }
+                          if( c == 0 && !d ){ break; }
+                        elif( c == 1 && !d ){ return NODE->nxt[0]; }
+                        elif( c ==-1 )      { return NODE->nxt[0]; }
 
                     }
 
@@ -255,15 +252,10 @@ protected:
         }); return _res;
     }
     
-public: regex_t() noexcept {}
+public: regex_t() noexcept : icase(0) {}
 
-    regex_t( const string_t& _reg, const string_t& _flags="" ) noexcept {
-        for( auto x:_flags ){ switch(x){
-            case 'i': icase = true; break;
-            case 'm': multi = true; break; //not implemented
-            case 's': dotl  = true; break; //not implemented
-        }}  root = compile( _reg );
-    }
+    regex_t ( const string_t& _reg, const bool& i=false ) noexcept : 
+    icase(i){ root = compile( _reg ); }
     
     /*─······································································─*/
 
@@ -344,43 +336,43 @@ public: regex_t() noexcept {}
 
 namespace regex {
 
-    string_t replace_all( const string_t& _str, const string_t& _reg, const string_t& _rep, const string_t& _flg="" ){
+    string_t replace_all( const string_t& _str, const string_t& _reg, const string_t& _rep, const bool& _flg=false ){
         regex_t reg( _reg, _flg ); return reg.replace_all( _str, _rep );
     }
     
     /*─······································································─*/
 
-    array_t<ptr_t<ulong>> search_all( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
+    array_t<ptr_t<ulong>> search_all( const string_t& _str, const string_t& _reg, const bool& _flg=false ){
         regex_t reg( _reg, _flg ); return reg.search_all( _str );
     }
     
     /*─······································································─*/
 
-    string_t replace( const string_t& _str, const string_t& _reg, const string_t& _rep, const string_t& _flg="" ){
+    string_t replace( const string_t& _str, const string_t& _reg, const string_t& _rep, const bool& _flg=false ){
         regex_t reg( _reg, _flg ); return reg.replace( _str, _rep );
     }
     
     /*─······································································─*/
 
-    array_t<string_t> match_all( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
+    array_t<string_t> match_all( const string_t& _str, const string_t& _reg, const bool& _flg=false ){
         regex_t reg( _reg, _flg ); return reg.match_all( _str );
     }
     
     /*─······································································─*/
 
-    ptr_t<ulong> search( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
+    ptr_t<ulong> search( const string_t& _str, const string_t& _reg, const bool& _flg=false ){
         regex_t reg( _reg, _flg ); return reg.search( _str );
     }
     
     /*─······································································─*/
 
-    string_t match( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
+    string_t match( const string_t& _str, const string_t& _reg, const bool& _flg=false ){
         regex_t reg( _reg, _flg ); return reg.match( _str );
     }
 
     /*─······································································─*/
 
-    bool test( const string_t& _str, const string_t& _reg, const string_t& _flg="" ){
+    bool test( const string_t& _str, const string_t& _reg, const bool& _flg=false ){
         regex_t reg( _reg, _flg ); return reg.test( _str );
     }
 
