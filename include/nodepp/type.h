@@ -383,7 +383,7 @@ namespace nodepp { namespace type {
     template< class T, class V > T* cast(       V*  object ){ return ( T* )( object ); }
     template< class T, class V > T  cast(       V   object ){ return ( T  )( object ); }
 
-    template<class T> ptr_t<T>      bind( ptr_t<T>& object ){ return new T( *object ); }
+    template<class T> ptr_t<T>      bind( ptr_t<T>& object ){ return    object.copy(); }
     template<class T> ptr_t<T>      bind(       T*  object ){ return new T( *object ); }
     template<class T> ptr_t<T>      bind(       T   object ){ return new T(  object ); }
 
