@@ -49,17 +49,21 @@ public:
     /*─······································································─*/
 
     template < class V, class = typename type::enable_if<!type::is_pointer<V>::value,V>::type >
-    V& get_field( const string_t& fieldName ) {
-        auto x = fields.index_of([=]( T data ){ return data.first == fieldName; });
-        if( x<0 ){ process::error( "Field not found [",fieldName,"]"  ); }
-        return *type::cast<V>( fields[x]->data.second );
+    V& get_field( const string_t& fieldName ) const {
+        auto x = fields.first(); while( x != nullptr ) {
+            if( x->data.first == fieldName )
+                 return *type::cast<V>( x->data.second );
+            else x = x->next;
+        }   throw except_t( "Field not found [",fieldName,"]" );
     }
 
     template < class V, class = typename type::enable_if<type::is_pointer<V>::value,V>::type >
-    V* get_field( const string_t& fieldName ) {
-        auto x = fields.index_of([=]( T data ){ return data.first == fieldName; });
-        if( x<0 ){ process::error( "Field not found [",fieldName,"]" ); }
-        return type::cast<V>( fields[x]->data.second );
+    V* get_field( const string_t& fieldName ) const {
+        auto x = fields.first(); while( x != nullptr ) {
+            if( x->data.first == fieldName )
+                 return type::cast<V>( x->data.second );
+            else x = x->next;
+        }   throw except_t( "Field not found [",fieldName,"]" );
     }
 
     /*─······································································─*/
