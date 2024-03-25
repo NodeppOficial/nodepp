@@ -127,12 +127,12 @@ namespace url {
         string_t _host = host( URL ); string_t _prot = protocol( URL );
         if( _a.test( _host ) ){
             string_t _port = _a.match( _host );
-                   _port = _b.replace_all( _port, "" );
-                   return string::to_uint( _port );
+                     _port = _b.replace_all( _port, "" );
+                     return string::to_uint( _port );
         } else {
             for( ulong i=0; i<prot.size(); i++ ) {
-                regex_t _a(prot[i]); if( _a.test( _prot ) )
-                { return prts[i]; }
+                regex_t _a(prot[i]); 
+            if ( _a.test( _prot ) ){ return prts[i]; }
             }
         }   return 8000;
     }

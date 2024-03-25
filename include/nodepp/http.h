@@ -119,7 +119,7 @@ namespace nodepp { struct fetch_t {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { class http_t : public socket_t, public NODEPP_GENERATOR_BASE {
+namespace nodepp { class http_t : public socket_t, public generator_t {
 protected:
 
     bool      has_header=0;

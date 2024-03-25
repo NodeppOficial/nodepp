@@ -75,14 +75,14 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
 
     void listen( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; auto self = type::bind( this );
-        if( dns::lookup(host).empty() ){ process::error(onError,"dns couldn't get ip"); close(); return; }
+        if( dns::lookup(host).empty() ){ _EERROR(onError,"dns couldn't get ip"); close(); return; }
 
         socket_t *sk = new socket_t; 
                   sk->PROT = IPPROTO_TCP;
                   sk->socket( dns::lookup(host), port ); 
         
-        if(   sk->bind()  < 0 ){ process::error(onError,"Error while binding TCP");   close(); delete sk; return; }
-        if( sk->listen()  < 0 ){ process::error(onError,"Error while listening TCP"); close(); delete sk; return; }
+        if(   sk->bind()  < 0 ){ _EERROR(onError,"Error while binding TCP");   close(); delete sk; return; }
+        if( sk->listen()  < 0 ){ _EERROR(onError,"Error while listening TCP"); close(); delete sk; return; }
         if( obj->chck == true ){ init_poll_loop( self ); }
 
         onOpen.emit(*sk); if( cb != nullptr ){ (*cb)(*sk); }
@@ -97,7 +97,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
                   { break; } coYield(1);
             }
             
-            if( _accept == -1 ){ process::error(self->onError,"Error while accepting TCP"); coGoto(2); }
+            if( _accept == -1 ){ _EERROR(self->onError,"Error while accepting TCP"); coGoto(2); }
             elif ( !sk->is_available() || self->is_closed() ){ coGoto(2); }
             elif ( self->obj->chck == true ){ self->obj->poll.push_read(_accept); coGoto(0); }
             else { socket_t cli( _accept ); if( cli.is_available() ){ 
@@ -125,14 +125,14 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
     void connect( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; auto self = type::bind( this );
         if( dns::lookup(host).empty() )
-          { process::error(onError,"dns couldn't get ip"); close(); return; }
+          { _EERROR(onError,"dns couldn't get ip"); close(); return; }
 
         socket_t sk = socket_t(); 
                  sk.PROT = IPPROTO_TCP;
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( obj->agent );
 
-        if( sk.connect() < 0 ){ process::error(onError,"Error while connecting TCP"); close(); return; }
+        if( sk.connect() < 0 ){ _EERROR(onError,"Error while connecting TCP"); close(); return; }
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
     }

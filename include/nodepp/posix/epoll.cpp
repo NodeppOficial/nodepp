@@ -18,7 +18,7 @@ namespace nodepp {
 
 namespace { using EPOLLFD = struct epoll_event; }
 
-class poll_t : public NODEPP_GENERATOR_BASE {
+class poll_t : public generator_t {
 protected:
 
     struct NODE {

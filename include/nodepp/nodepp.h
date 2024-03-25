@@ -70,10 +70,8 @@ namespace nodepp { namespace process {
 
     /*─······································································─*/
 
-    template< class T >
-    void error( T& ev, const string_t& msg ){ _EERROR( ev, msg ); }
-
-    void error( const string_t& msg ){ _ERROR( msg ); }
+    template< class... T >
+    void error( const T&... msg ){ _ERROR( msg... ); }
 
     /*─······································································─*/
 

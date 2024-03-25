@@ -19,7 +19,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { class https_t : public ssocket_t, public NODEPP_GENERATOR_BASE {
+namespace nodepp { class https_t : public ssocket_t, public generator_t {
 protected:
 
     bool      has_header=0;

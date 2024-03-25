@@ -40,7 +40,7 @@
 namespace nodepp {
 namespace { using POLLFD = struct pollfd; }
 
-class poll_t : public NODEPP_GENERATOR_BASE {
+class poll_t : public generator_t {
 protected:
 
     struct POLLFD { int fd; int md; };

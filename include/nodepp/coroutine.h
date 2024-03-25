@@ -22,9 +22,9 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define _EERROR( Ev, message ) if ( Ev.empty() ){ console::error(message); } \
-                               else Ev.emit( except_t( message ) );
-#define _ERROR( MESSAGE )      throw except_t ( MESSAGE );
+#define _EERROR( EV, ... ) if (!EV.empty() ){ console::error(__VA_ARGS__); } \
+                           else EV.emit( except_t(__VA_ARGS__) );
+#define _ERROR( ... )      throw except_t (__VA_ARGS__);
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -52,7 +52,7 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define GENERATOR(NAME) struct NAME : public NODEPP_GENERATOR_BASE
+#define GENERATOR(NAME) struct NAME : public generator_t
 #define gnStart    { switch(_state_) { case 0:;
 #define gnStop     } _state_ = 0;  return -1; }
 #define gnEmit       int operator()
@@ -84,7 +84,7 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-struct NODEPP_GENERATOR_BASE { protected: int _state_ = 0; };
+struct generator_t { protected: int _state_ = 0; };
 
 #define typeof(DATA) (string_t){ typeid( DATA ).name() }
 

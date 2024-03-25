@@ -80,16 +80,16 @@ public: tls_t() noexcept : obj( new NODE() ) {}
 
     void listen( const string_t& host, int port, decltype(NODE::func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_server() == -1 )
-          { process::error(onError,"Error Initializing SSL context"); close(); return; }
-        if( dns::lookup(host).empty() ){ process::error(onError,"dns couldn't get ip"); close(); return; }
+          { _EERROR(onError,"Error Initializing SSL context"); close(); return; }
+        if( dns::lookup(host).empty() ){ _EERROR(onError,"dns couldn't get ip"); close(); return; }
             auto self = type::bind( this );
         
         ssocket_t *sk = new ssocket_t; 
                    sk->PROT = IPPROTO_TCP;
                    sk->socket( dns::lookup(host), port );
 
-        if( sk->bind()    < 0 ){ process::error(onError,"Error while binding TLS");   close(); delete sk; return; }
-        if( sk->listen()  < 0 ){ process::error(onError,"Error while listening TLS"); close(); delete sk; return; }
+        if( sk->bind()    < 0 ){ _EERROR(onError,"Error while binding TLS");   close(); delete sk; return; }
+        if( sk->listen()  < 0 ){ _EERROR(onError,"Error while listening TLS"); close(); delete sk; return; }
         if( obj->chck == true ){ init_poll_loop( self ); }
 
         onOpen.emit(*sk); if( cb != nullptr ){ (*cb)(*sk); } 
@@ -104,7 +104,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
                   { break; } coYield(1);
             }
             
-            if( _accept == -1 ){ process::error(self->onError,"Error while accepting TLS"); coGoto(2); }
+            if( _accept == -1 ){ _EERROR(self->onError,"Error while accepting TLS"); coGoto(2); }
             elif ( !sk->is_available() || self->is_closed() ){ coGoto(2); }
             elif ( self->obj->chck == true ){ self->obj->poll.push_read(_accept); coGoto(0); }
             else { ssocket_t cli( self->obj->ctx, _accept ); if( cli.is_available() ){ 
@@ -131,9 +131,9 @@ public: tls_t() noexcept : obj( new NODE() ) {}
 
     void connect( const string_t& host, int port, decltype(NODE::func)* cb=nullptr  ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_client() == -1 )
-          { process::error(onError,"Error Initializing SSL context"); close(); return; }
+          { _EERROR(onError,"Error Initializing SSL context"); close(); return; }
         if( dns::lookup(host).empty() )
-          { process::error(onError,"dns couldn't get ip"); close(); return; }
+          { _EERROR(onError,"dns couldn't get ip"); close(); return; }
             auto self = type::bind( this );
 
         ssocket_t sk = ssocket_t(); 
@@ -142,7 +142,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
                   sk.set_sockopt( obj->agent );
 
         if( sk.connect() < 0 ){ 
-            process::error(onError,"Error while connecting TLS"); 
+            _EERROR(onError,"Error while connecting TLS"); 
             close(); return; 
         }
 
@@ -150,7 +150,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         sk.ssl->set_hostname( host );
 
         if( sk.ssl->connect() <= 0 ){ 
-            process::error(onError,"Error while handshaking TLS");
+            _EERROR(onError,"Error while handshaking TLS");
             close(); return; 
         }
 

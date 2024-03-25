@@ -23,8 +23,8 @@
 - Includes Support for **Poll | Epoll | Kqueue | WSAPoll** making it easy to handle multiple file descriptors
 
 ## Build & Run
-LINUX:   `g++ -o main main.cpp -I ./include ; ./main`
-WINDOWS: `g++ -o main main.cpp -I -lws2_32 ./include ; ./main`
+- LINUX:   `g++ -o main main.cpp -I ./include ; ./main`
+- WINDOWS: `g++ -o main main.cpp -I -lws2_32 ./include ; ./main`
 
 ## Hello world
 ```cpp

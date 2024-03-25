@@ -297,11 +297,11 @@ public: socket_t() noexcept { _socket_::start_device(); }
     /*─······································································─*/
 
     virtual int socket( const string_t& host, int port ) noexcept { 
-        if( host.empty() ){ process::error(onError,"dns coudn't found ip"); return -1; }
+        if( host.empty() ){ _EERROR(onError,"dns coudn't found ip"); return -1; }
             skt->addrlen = sizeof( skt->server_addr ); _socket_::start_device();
 
         if((obj->fd=::socket( AF, SOCK, PROT )) <= 0 )
-          { process::error(onError,"can't initializate socket fd"); return -1; } 
+          { _EERROR(onError,"can't initializate socket fd"); return -1; } 
           
         set_buffer_size( CHUNK_SIZE );
         set_nonbloking_mode();

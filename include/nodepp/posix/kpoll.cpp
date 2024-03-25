@@ -21,7 +21,7 @@ namespace nodepp {
 
 namespace { using KPOLLFD = struct kevent; }
 
-class poll_t : public NODEPP_GENERATOR_BASE {
+class poll_t : public generator_t {
 protected:
 
     struct NODE {
