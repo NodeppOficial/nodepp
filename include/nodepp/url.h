@@ -102,7 +102,7 @@ namespace url {
 
     string_t path( const string_t& URL ){
         string_t null; regex_t _a("/[^/?#]+");
-        if ( !is_valid(URL) || !_a.test(URL) ){ return nullptr; }
+        if ( !is_valid(URL) || !_a.test(URL) ){ return "/"; }
 	         return _a.match_all( URL ).slice(1).join("");
     }
 
