@@ -23,8 +23,8 @@
 - Includes Support for **Poll | Epoll | Kqueue | WSAPoll** making it easy to handle multiple file descriptors
 
 ## Build & Run
-- LINUX:   `g++ -o main main.cpp -I ./include ; ./main`
-- WINDOWS: `g++ -o main main.cpp -I -lws2_32 ./include ; ./main`
+- Posix:   `g++ -o main main.cpp -I ./include ; ./main`
+- Windows: `g++ -o main main.cpp -I -lws2_32 ./include ; ./main`
 
 ## Hello world
 ```cpp
@@ -57,7 +57,7 @@ If you want to contribute to **Nodepp**, you are welcome to do so! You can contr
 - Writing tests and ensuring compatibility with different platforms
 - Before submitting a pull request, make sure to read the contribution guidelines.
 
-NOTE: We don't use STD here
+NOTE: We don't use STD here, just Pure C++.
 
 ## License
 
