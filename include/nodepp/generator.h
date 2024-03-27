@@ -476,7 +476,7 @@ namespace nodepp {
         auto cli = res.value();
 
         if( cli.status != 101 ){ 
-            process::error(cli.onError,string::format("Can't connect to WS Server -> status %d",cli.status)); 
+            _EERROR(cli.onError,string::format("Can't connect to WS Server -> status %d",cli.status)); 
             cli.close(); return cli; 
         }
 
@@ -540,7 +540,7 @@ namespace nodepp {
         auto cli = res.value();
 
         if( cli.status != 101 ){ 
-            process::error(cli.onError,string::format("Can't connect to WS Server -> status %d",cli.status)); 
+            _EERROR(cli.onError,string::format("Can't connect to WS Server -> status %d",cli.status)); 
             cli.close(); return cli; 
         }
 
