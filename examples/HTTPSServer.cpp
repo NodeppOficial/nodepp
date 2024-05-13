@@ -1,18 +1,22 @@
-#include <node++/node++.h>
-#include <node++/https.h>
-#include <node++/date.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/https.h>
+#include <nodepp/date.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
+/*────────────────────────────────────────────────────────────────────────────*/
 
-void server( int process ){
+void onMain(){
+
+    ssl_t ssl( "./ssl/cert.key", "./ssl/cert.crt" );
 
     auto server = https::server([=]( https_t cli ){
 
         console::log( cli.path, cli.get_fd() );
         
-        cli.write_headers( 200, {{
+        cli.write_header( 200, {{
             { "content-type", "text/html" }
         }});
         
@@ -27,4 +31,4 @@ void server( int process ){
 
 }
 
-void _Ready() { server( os::pid() ); }
+/*────────────────────────────────────────────────────────────────────────────*/

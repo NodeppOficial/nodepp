@@ -1,23 +1,36 @@
-#include <node++/node++.h>
-#include <node++/fetch.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/http.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready(){
+/*────────────────────────────────────────────────────────────────────────────*/
 
-    fetch::http({
-        .url = "http://www.google.com/",
-    })
+void onMain(){
 
-    .then([]( auto cli ){
+    fetch_t args;
+            args.method = "GET";
+            args.url = "http://www.google.com/";
+            args.headers = {{
+                { "Host", url::host(args.url) }
+            }};
+        //  args.file = file_t("PATH","r");
+        //  args.body = "MYBODY";
+
+    http::fetch( args )
+
+    .then([]( http_t cli ){
         console::log( cli.headers["Host"] );
         cli.onData([]( string_t chunk ){
-            console::log( chunk.size(), ":>", chunk );
+            console::log( chunk );
         }); stream::pipe( cli );
     })
 
-    .fail([]( auto err ){
+    .fail([]( except_t err ){
         console::error( err );
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

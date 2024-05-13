@@ -1,18 +1,24 @@
-#include <node++/node++.h>
-#include <node++/zlib.h>
-#include <node++/fs.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/zlib.h>
+#include <nodepp/fs.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void onMain(){
 
     auto B = fs::writable("mojon.txt");
-    auto A = fs::readable("ppt.txt");
+    auto A = fs::readable("LICENSE");
 
-    A.onDone([](){
+    A.onClose([](){
         console::log("done");
     });
 
-    zlib::inflate_pipe( A, B );
+    zlib::gzip::pipe( A, B );
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

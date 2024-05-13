@@ -1,9 +1,13 @@
-#include <node++/node++.h>
-#include <node++/tuple.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/tuple.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() { 
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void onMain(){
 
     tuple_t<int,float,string_t> tp ( 10, 10.50, "hello world!" );
 
@@ -12,3 +16,5 @@ void _Ready() {
     console::log( tuple::get<2>(tp) );    
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

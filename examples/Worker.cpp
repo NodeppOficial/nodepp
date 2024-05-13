@@ -1,24 +1,44 @@
-#include <node++/node++.h>
-#include <node++/worker.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/worker.h>
+#include <nodepp/timer.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
 
-    worker::add([=](){ static int itr = 10;
-    _Start
-        while( itr --> 0 ){
-            console::done(" Process 1:",itr); _Yield(1);
+void onMain(){
+
+    ptr_t<int> x = new int(100);
+    mutex_t mut;
+
+    worker::add([=](){ 
+        mut.lock();
+    coStart
+
+        while( *x > 0 ){ *x-=1;
+            console::info("Hello World",*x);
+            worker::delay( 100 ); 
+            mut.unlock(); coNext;
         }
-    _Stop
+
+    coStop
     });
 
-    worker::add([=](){ static int itr = 10;
-    _Start
-        while( itr --> 0 ){
-            console::error("Process 2:",itr); _Yield(1);
+    worker::add([=](){ 
+        mut.lock();
+    coStart
+
+        while( *x > 0 ){ *x-=1;
+            console::done("Hello World",*x);
+            worker::delay( 100 ); 
+            mut.unlock(); coNext;
         }
-    _Stop
+
+    coStop
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

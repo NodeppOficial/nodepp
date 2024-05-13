@@ -1,14 +1,20 @@
-#include <node++/node++.h>
-#include <node++/observer.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/observer.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
+/*────────────────────────────────────────────────────────────────────────────*/
+
 observer_t obj ({
-    { "string", "hola mundo" },
+    { "string", "Hello Word!" },
     { "int", 10 }
 });
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void onMain(){
 
     obj.on( "string", []( any_t A, any_t B ){
         console::log( (string_t) A, "|", (string_t) B );
@@ -19,8 +25,10 @@ void _Ready() {
     });
 
     obj.set([]( observer_t state ){ return observer_t ({
-        { "string", (string_t) state["string"] + " de mierda" },
+        { "string", (string_t) state["string"] + "Something" },
         { "int", (int) state["int"] + 50 }
     }); });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

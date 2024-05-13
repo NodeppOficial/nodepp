@@ -1,11 +1,15 @@
-#include <node++/node++.h>
-#include <node++/regex.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/regex.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
 
-    regex_t reg("[0-9]+","i");
+void onMain(){
+
+    regex_t reg("[0-9]+",true);
     console::log( "hola 123: ", reg.test("hola 123") ? "true" : "false" );
     console::log( "hola 123: ", reg.match("hola 123") );
 
@@ -24,3 +28,5 @@ void _Ready() {
     }
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

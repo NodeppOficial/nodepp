@@ -1,16 +1,35 @@
-#include <node++/node++.h>
-#include <node++/stream.h>
-#include <node++/serial.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/timer.h>
+#include <nodepp/serial.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready(){
+/*────────────────────────────────────────────────────────────────────────────*/
 
-    auto str = serial::connect( "/dev/ttyUSB0", 9600 );
+void onMain(){
 
-    str.onData.on([=]( string_t chunk ){
-        console::print( (char*) chunk );
+    auto list = serial::get_devices();
+
+    if( list.empty() ){ 
+        process::error("Not Serial Device Found"); 
+    } else {
+        console::log( list[0] );
+    }
+
+    auto x = serial::connect( list[0] );
+
+    x.onConnect([]( serial_t cli ){
+
+        console::log( "connected" );
+
+        cli.onData([]( string_t chunk ){
+            console::log( chunk );
+        });
+
     });
 
-    stream::pipeline( str );
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

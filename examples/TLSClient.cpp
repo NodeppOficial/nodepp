@@ -1,11 +1,15 @@
-#include <node++/node++.h>
-#include <node++/tls.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/tls.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
+ssl_t ssl( "./ssl/cert.key", "./ssl/cert.crt" );
 
-void _Ready() {
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void onMain(){
 
     auto client = tls::client( &ssl );
 
@@ -24,7 +28,9 @@ void _Ready() {
     });
 
     client.connect( "localhost", 8000, []( socket_t cli ){
-        console::log("client started at https://localhost:8000");
+        console::log("client started at tls://localhost:8000");
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

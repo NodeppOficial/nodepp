@@ -1,10 +1,14 @@
-#include <node++/node++.h>
-#include <node++/promise.h>
-#include <node++/timer.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/promise.h>
+#include <nodepp/timer.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() { 
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void onMain(){
 
     auto t = timer::add([](){
         static int i=0; i++;
@@ -31,3 +35,5 @@ void _Ready() {
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

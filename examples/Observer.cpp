@@ -1,15 +1,19 @@
-#include <node++/node++.h>
-#include <node++/timer.h>
-#include <node++/observer.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/timer.h>
+#include <nodepp/observer.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
 observer_t obj ({
     { "a", 0 },
-    { "b", 0 },
+    { "b", 0 }
 });
 
-void _Ready(){
+/*────────────────────────────────────────────────────────────────────────────*/
+
+void onMain(){
 
     obj.on( "b", []( any_t A, any_t B ){
         console::done( " B:>", (int)A, "|", (int)B );
@@ -23,3 +27,5 @@ void _Ready(){
     timer::interval([=](){ obj.set( "a", rand() % 10 ); },5000);
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

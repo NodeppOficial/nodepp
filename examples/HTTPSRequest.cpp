@@ -1,27 +1,37 @@
-#include <node++/node++.h>
-#include <node++/fetch.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/https.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-ssl_t ssl( "./ssl/key.pem", "./ssl/cert.pem" );
+/*────────────────────────────────────────────────────────────────────────────*/
 
-void _Ready(){
+void onMain(){
 
-    fetch::https({
-        .ssl = &ssl,
-        .url = "https://localhost:8000/404",
-    })
+    ssl_t ssl( "./ssl/cert.key", "./ssl/cert.crt" );
 
-    .then([]( auto cli ){
-        console::log( cli.headers["Host"] );
+    fetch_t args;
+            args.method = "GET";
+            args.url = "https://www.google.com/";
+            args.headers = {{
+                { "Host", url::host(args.url) }
+            }};
+        //  args.file = file_t("PATH","r");
+        //  args.body = "MYBODY";
+
+    https::fetch( args, &ssl )
+
+    .then([]( https_t cli ){
         cli.onData([]( string_t chunk ){
             console::log( chunk.size(), ":>", chunk );
-        });
-        stream::rawpipe( cli );
+        }); stream::pipe( cli );
     })
 
-    .fail([]( auto err ){
+    .fail([]( except_t err ){
         console::error( err );
     });
 
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

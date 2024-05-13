@@ -1,13 +1,16 @@
-#include <node++/node++.h>
-#include <node++/url.h>
+#include <nodepp/nodepp.h>
+#include <nodepp/url.h>
+
+/*────────────────────────────────────────────────────────────────────────────*/
 
 using namespace nodepp;
 
-void _Ready() {
-	
-    string_t uri = "http://becerra:enmanuel@www.google.com/mojon#done?mojon=10";
+/*────────────────────────────────────────────────────────────────────────────*/
 
-    auto ppt = url::parse( uri ); 
+void onMain(){
+	
+    string_t uri = "http://becerra:enmanuel@www.google.com/path/to/file#done?var1=10&var2=50&var3=100&var4=hello_world!";
+    auto     ppt = url::parse( uri ); 
 
     console::log( "hostname:", ppt.hostname );
     console::log( "protocol:", ppt.protocol );
@@ -22,4 +25,9 @@ void _Ready() {
     console::log( "auth:",     ppt.auth );
     console::log( "href:",     ppt.href );
 
+    for( auto x : ppt.query.data() )
+         console::log( x.first, ":>", x.second );
+
 }
+
+/*────────────────────────────────────────────────────────────────────────────*/

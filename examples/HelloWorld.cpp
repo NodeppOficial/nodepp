@@ -1,7 +1,7 @@
-#include <node++/node++.h>
+#include <nodepp/nodepp.h>
 
 using namespace nodepp;
 
-void _Ready() { 
+void onMain(){
     console::log("¡Hello World!");    
 }
