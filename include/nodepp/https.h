@@ -75,7 +75,8 @@ public:
             }
 
             method  = init[0]; if( version.empty() ) version = init[2];
-            url     = string::format( "https://%s%s%s", (char*)headers["Host"], (char*)path, (char*)search );
+            string_t host =headers["Host"].empty() ? "localhost:xxxx" : headers["Host"];
+            url     = string::format( "https://%s%s%s", (char*)host, (char*)path, (char*)search );
         } else {
             version = init[0]; status = string::to_int(init[1]);
         }   coNext;
