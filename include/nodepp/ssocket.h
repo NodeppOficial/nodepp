@@ -29,19 +29,22 @@ public: ptr_t<ssl_t> ssl;
 
     ssocket_t( ssl_t& ctx, int df, ulong size=CHUNK_SIZE ) noexcept 
     :socket_t( df, size ), ssl( new ssl_t( ctx, df ) ) {}
-
     ssocket_t() noexcept : socket_t() {}
     
     /*─······································································─*/
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } return ssl->_read( bf, sx );
+        if( is_closed() ){ return -1; } 
+        obj->feof = ssl->_read( bf,sx );
+        return obj->feof;
     }
     
     /*─······································································─*/
 
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } return ssl->_write( bf, sx );
+        if ( is_closed() ){ return -1; } 
+        obj->feof = ssl->_write( bf,sx );
+        return obj->feof;
     }
     
 };}
