@@ -72,13 +72,10 @@ protected:
 
     virtual bool is_blocked( int& c ) const noexcept { 
         if ( c >= 0 ){ return 0; } auto error = os::error(); 
-        if ( error == EISCONN ){ c =0; return 0; }
-      elif ( error == ECONNRESET ){
-        if ( skt->retry<=0 )           return 0;
-             skt->retry--;             return 1;
-        }    skt->retry = skt->_retry; return (
+        if ( error == EISCONN ){ c =0; return 0; } return (
              error == EWOULDBLOCK || error == EINPROGRESS ||
-             error == EALREADY    || error == EAGAIN
+             error == EALREADY    || error == EAGAIN      ||
+             error == ECONNRESET
         );
     }
 
@@ -316,11 +313,11 @@ public: socket_t() noexcept { _socket_::start_device(); }
         server.sin_family  = AF; if( port>0 ) 
         server.sin_port    = htons(port);
 
-          if( host == "0.0.0.0"         || host == "globalhost" ){ server.sin_addr.s_addr = INADDR_ANY; }
-        elif( host == "1.1.1.1"         || host == "loopback" )  { server.sin_addr.s_addr = INADDR_LOOPBACK; }
-        elif( host == "255.255.255.255" || host == "broadcast" ) { server.sin_addr.s_addr = INADDR_BROADCAST; } 
-        elif( host == "127.0.0.1"       || host == "localhost" ) { inet_pton(AF, "127.0.0.1", &server.sin_addr); }
-        else                                                     { inet_pton(AF, host.c_str(),&server.sin_addr); }
+          if( host == "0.0.0.0"         || host == "global"    ){ server.sin_addr.s_addr = INADDR_ANY; }
+        elif( host == "1.1.1.1"         || host == "loopback"  ){ server.sin_addr.s_addr = INADDR_LOOPBACK; }
+        elif( host == "255.255.255.255" || host == "broadcast" ){ server.sin_addr.s_addr = INADDR_BROADCAST; } 
+        elif( host == "127.0.0.1"       || host == "localhost" ){ inet_pton(AF, "127.0.0.1", &server.sin_addr); }
+        else                                                    { inet_pton(AF, host.c_str(),&server.sin_addr); }
 
         skt->server_addr = *((SOCKADDR*) &server);
         skt->client_addr = *((SOCKADDR*) &client);
