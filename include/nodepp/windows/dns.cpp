@@ -21,27 +21,77 @@ namespace nodepp { namespace dns {
     
     /*─······································································─*/
 
-    string_t lookup( string_t host ) { _socket_::start_device();
+    string_t lookup_ipv6( string_t host ) { _socket_::start_device();
 
-          if( host == "255.255.255.255" || host == "broadcast" ){ return "255.255.255.255"; } 
-        elif( host == "127.0.0.1"       || host == "localhost" ){ return "127.0.0.1";       } 
-        elif( host == "0.0.0.0"         || host == "global"    ){ return "0.0.0.0";         }
-        elif( host == "1.1.1.1"         || host == "loopback"  ){ return "1.1.1.1";         }
+          if( host == "broadcast" || host == "::2" ){ return "::2"; } 
+        elif( host == "localhost" || host == "::1" ){ return "::1"; } 
+        elif( host == "global"    || host == "::0" ){ return "::0"; }
+        elif( host == "loopback"  || host == "::3" ){ return "::3"; }
 
         if( url::is_valid(host) ){ host = url::hostname(host); }
-        struct hostent* host_info = gethostbyname(host.c_str());
 
-        if( host_info != NULL ){
-            struct in_addr** address_list = (struct in_addr**)host_info->h_addr_list;
-            int address_size = host_info->h_length;
-            for( int x = 0; x < address_size; x++ ) {
-             if( address_list[x] == nullptr ){ continue; }
-                 return inet_ntoa(*address_list[x]);
+        addrinfo hints, *res; memset(&hints,0,sizeof(hints));
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_family   = AF_UNSPEC;
+        hints.ai_flags    = AI_PASSIVE;
+
+        if( getaddrinfo( host.get(), nullptr, &hints, &res ) != 0 )
+          { return "::1"; }
+
+        char ipstr[INET6_ADDRSTRLEN]; void *addr; string_t ipAddress;
+
+        while ( res != nullptr ) {
+            
+            if ( res->ai_family == AF_INET6 ) {
+                struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)res->ai_addr;
+                addr = &(ipv6->sin6_addr);
             }
+
+            inet_ntop( res->ai_family, addr, ipstr, sizeof(ipstr) );
+            ipAddress = ipstr; res = res->ai_next;
         }
 
-        return nullptr;
+        freeaddrinfo(res); return ipAddress;
     }
+    
+    /*─······································································─*/
+
+    string_t lookup_ipv4( string_t host ) { _socket_::start_device();
+
+          if( host == "255.255.255.255" || host == "broadcast" ){ return "255.255.255.255"; } 
+        elif( host == "127.0.0.1"       || host == "localhost" ){ return "127.0.0.1"; } 
+        elif( host == "0.0.0.0"         || host == "global"    ){ return "0.0.0.0"; }
+        elif( host == "1.1.1.1"         || host == "loopback"  ){ return "1.1.1.1"; }
+
+        if( url::is_valid(host) ){ host = url::hostname(host); }
+
+        addrinfo hints, *res; memset(&hints,0,sizeof(hints));
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_family   = AF_UNSPEC;
+        hints.ai_flags    = AI_PASSIVE;
+
+        if( getaddrinfo( host.get(), nullptr, &hints, &res ) != 0 )
+          { return nullptr; }
+
+        char ipstr[INET_ADDRSTRLEN]; void *addr; string_t ipAddress;
+
+        while ( res != nullptr ) {
+            
+            if ( res->ai_family == AF_INET ) {
+                struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
+                addr = &(ipv4->sin_addr);
+            }
+
+            inet_ntop( res->ai_family, addr, ipstr, sizeof(ipstr) );
+            ipAddress = ipstr; res = res->ai_next;
+        }
+
+        freeaddrinfo(res); return ipAddress;
+    }
+    
+    /*─······································································─*/
+
+    string_t lookup( string_t host ) { return lookup_ipv4( host ); }
     
     /*─······································································─*/
 

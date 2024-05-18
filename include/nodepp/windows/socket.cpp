@@ -53,7 +53,6 @@ struct agent_t {
     bool  reuse_port    = 1;
     bool  keep_alive    = 0;
     bool  broadcast     = 0;
-    bool  reconnect     = 10;
 };
 
 class socket_t {
@@ -67,7 +66,6 @@ protected:
 
         SOCKADDR server_addr, client_addr;
         int addrlen; bool srv=0; int len;
-        int _retry=10, retry=10;
         int feof = 1;
 
         SOCKET       fd = INVALID_SOCKET;
@@ -159,16 +157,17 @@ public: socket_t() noexcept { _socket_::start_device(); }
              { process::next(); } return c;
     }
 
+    int set_ipv6_only_mode( uint en ) const noexcept { int c;
+        while( is_blocked( c=setsockopt( obj->fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&en, sizeof(en) ) ) )
+             { process::next(); } return c;
+    }
+
 #ifdef SO_REUSEPORT
     int set_reuse_port( uint en ) const noexcept { int c;
         while( is_blocked( c=setsockopt( obj->fd, SOL_SOCKET, SO_REUSEPORT, (char*)&en, sizeof(en) ) ) )
              { process::next(); } return c;
     }
 #endif
-
-    int set_reconnect( uint en ) const noexcept { obj->_retry = en; obj->retry = en; return en; }
-
-    /*─······································································─*/
 
     int get_error() const noexcept { int c, en; socklen_t size = sizeof(en);
         while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_ERROR, (char*)&en, &size) ) )
@@ -217,6 +216,11 @@ public: socket_t() noexcept { _socket_::start_device(); }
     }
 #endif
 
+    int get_ipv6_only_mode() const noexcept { int c, en; socklen_t size = sizeof(en);
+        while( is_blocked( c=getsockopt(obj->fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&en, &size) ) )
+             { process::next(); } return c==0 ? en : c;
+    }
+
     int get_keep_alive() const noexcept { int c, en; socklen_t size = sizeof(en);
         while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_KEEPALIVE, (char*)&en, &size) ) )
              { process::next(); } return c==0 ? en : c;
@@ -227,8 +231,6 @@ public: socket_t() noexcept { _socket_::start_device(); }
              { process::next(); } return c==0 ? en : c;
     }
 
-    int get_reconnect() const noexcept { return obj->_retry; }
-    
     /*─······································································─*/
 
     string_t get_sockname() const noexcept { int c; string_t buff { INET_ADDRSTRLEN };
@@ -314,7 +316,6 @@ public: socket_t() noexcept { _socket_::start_device(); }
     #endif
         set_keep_alive   ( opt.keep_alive    );
         set_broadcast    ( opt.broadcast     );
-        set_reconnect    ( opt.reconnect     );
     }
 
     agent_t get_sockopt() const noexcept { 
@@ -328,7 +329,6 @@ public: socket_t() noexcept { _socket_::start_device(); }
     #endif
         opt.keep_alive    = get_keep_alive();
         opt.broadcast     = get_broadcast();
-        opt.reconnect     = get_reconnect();
     return opt;
     }
     
@@ -358,16 +358,15 @@ public: socket_t() noexcept { _socket_::start_device(); }
     /*─······································································─*/
 
     virtual int socket( const string_t& host, int port ) noexcept {
-        if( host.empty() )
-          { _EERROR(onError,"dns coudn't found ip"); return -1; }
-        
-        obj->addrlen = sizeof( obj->server_addr ); _socket_::start_device(); 
+        if( host.empty() ){ _EERROR(onError,"dns coudn't found ip"); return -1; }
+            obj->addrlen = sizeof( obj->server_addr ); _socket_::start_device(); 
 
         if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )
           { _EERROR(onError,"can't initializate socket fd"); return -1; } 
           
         set_buffer_size( CHUNK_SIZE );
         set_nonbloking_mode();
+        set_ipv6_only_mode(0);
         set_reuse_address(1);
 
     #ifdef SO_REUSEPORT
@@ -377,9 +376,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
         SOCKADDR_IN server, client;
         memset(&server, 0, sizeof(SOCKADDR_IN));
         memset(&client, 0, sizeof(SOCKADDR_IN));
-        
-        server.sin_family  = AF; if( port>0 ) 
-        server.sin_port    = htons(port);
+        server.sin_family = AF; if( port>0 ) server.sin_port = htons(port);
 
           if( host == "0.0.0.0"         || host == "global"    ){ server.sin_addr.s_addr = INADDR_ANY; }
         elif( host == "1.1.1.1"         || host == "loopback"  ){ server.sin_addr.s_addr = INADDR_LOOPBACK; }
@@ -387,9 +384,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
         elif( host == "127.0.0.1"       || host == "localhost" ){ inet_pton(AF, "127.0.0.1", &server.sin_addr); }
         else                                                    { inet_pton(AF, host.c_str(),&server.sin_addr); }
 
-        obj->server_addr = *((SOCKADDR*) &server);
-        obj->client_addr = *((SOCKADDR*) &client);
-        obj->len = sizeof( server ); return 1;
+        obj->server_addr = *((SOCKADDR*) &server); obj->client_addr = *((SOCKADDR*) &client); obj->len = sizeof( server ); return 1;
     }
     
     /*─······································································─*/

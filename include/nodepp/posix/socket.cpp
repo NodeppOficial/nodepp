@@ -52,7 +52,6 @@ struct agent_t {
     bool  reuse_port    = 1;
     bool  keep_alive    = 0;
     bool  broadcast     = 0;
-    bool  reconnect     = 10;
 };
 
 class socket_t : public file_t {
@@ -65,7 +64,6 @@ protected:
     struct DONE {
         socklen_t addrlen; bool srv=0; socklen_t len;
         SOCKADDR server_addr, client_addr;
-        int _retry=10, retry=10;
     };  ptr_t<DONE> skt = new DONE();
     
     /*─······································································─*/
@@ -132,16 +130,17 @@ public: socket_t() noexcept { _socket_::start_device(); }
              { process::next(); } return c;
     }
 
+    int set_ipv6_only_mode( uint en ) const noexcept { int c;
+        while( is_blocked( c=setsockopt( obj->fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&en, sizeof(en) ) ) )
+             { process::next(); } return c;
+    }
+
 #ifdef SO_REUSEPORT
     int set_reuse_port( uint en ) const noexcept { int c;
         while( is_blocked( c=setsockopt( obj->fd, SOL_SOCKET, SO_REUSEPORT, (char*)&en, sizeof(en) ) ) )
              { process::next(); } return c;
     }
 #endif
-
-    int set_reconnect( uint en ) const noexcept { skt->_retry = en; skt->retry = en; return en; }
-
-    /*─······································································─*/
 
     int get_error() const noexcept { int c, en; socklen_t size = sizeof(en);
         while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_ERROR, (char*)&en, &size) ) )
@@ -183,6 +182,11 @@ public: socket_t() noexcept { _socket_::start_device(); }
              { process::next(); } return c==0 ? en : c;
     }
 
+    int get_ipv6_only_mode() const noexcept { int c, en; socklen_t size = sizeof(en);
+        while( is_blocked( c=getsockopt(obj->fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&en, &size) ) )
+             { process::next(); } return c==0 ? en : c;
+    }
+
 #ifdef SO_REUSEPORT
     int get_reuse_port() const noexcept { int c, en; socklen_t size = sizeof(en);
         while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_REUSEPORT, (char*)&en, &size) ) )
@@ -199,8 +203,6 @@ public: socket_t() noexcept { _socket_::start_device(); }
         while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_BROADCAST, (char*)&en, &size) ) )
              { process::next(); } return c==0 ? en : c;
     }
-
-    int get_reconnect() const noexcept { return skt->_retry; }
     
     /*─······································································─*/
 
@@ -248,7 +250,6 @@ public: socket_t() noexcept { _socket_::start_device(); }
     #endif
         set_keep_alive   ( opt.keep_alive    );
         set_broadcast    ( opt.broadcast     );
-        set_reconnect    ( opt.reconnect     );
     }
 
     agent_t get_sockopt() const noexcept { 
@@ -262,7 +263,6 @@ public: socket_t() noexcept { _socket_::start_device(); }
     #endif
         opt.keep_alive    = get_keep_alive();
         opt.broadcast     = get_broadcast();
-        opt.reconnect     = get_reconnect();
     return opt;
     }
     
@@ -300,6 +300,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
           
         set_buffer_size( CHUNK_SIZE );
         set_nonbloking_mode();
+        set_ipv6_only_mode(0);
         set_reuse_address(1);
 
     #ifdef SO_REUSEPORT
@@ -309,9 +310,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
         SOCKADDR_IN server, client;
         memset(&server, 0, sizeof(SOCKADDR_IN));
         memset(&client, 0, sizeof(SOCKADDR_IN));
-
-        server.sin_family  = AF; if( port>0 ) 
-        server.sin_port    = htons(port);
+        server.sin_family = AF; if( port>0 ) server.sin_port = htons(port);
 
           if( host == "0.0.0.0"         || host == "global"    ){ server.sin_addr.s_addr = INADDR_ANY; }
         elif( host == "1.1.1.1"         || host == "loopback"  ){ server.sin_addr.s_addr = INADDR_LOOPBACK; }
@@ -319,9 +318,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
         elif( host == "127.0.0.1"       || host == "localhost" ){ inet_pton(AF, "127.0.0.1", &server.sin_addr); }
         else                                                    { inet_pton(AF, host.c_str(),&server.sin_addr); }
 
-        skt->server_addr = *((SOCKADDR*) &server);
-        skt->client_addr = *((SOCKADDR*) &client);
-        skt->len = sizeof( server ); return 1;
+        skt->server_addr = *((SOCKADDR*) &server); skt->client_addr = *((SOCKADDR*) &client); skt->len = sizeof( server ); return 1;
     }
     
     /*─······································································─*/
