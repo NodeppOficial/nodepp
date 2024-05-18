@@ -36,7 +36,7 @@ namespace nodepp { namespace dns {
         hints.ai_flags    = AI_PASSIVE;
 
         if( getaddrinfo( host.get(), nullptr, &hints, &res ) != 0 )
-          { return "::1"; }
+          { return nullptr; }
 
         char ipstr[INET6_ADDRSTRLEN]; void *addr; string_t ipAddress;
 
