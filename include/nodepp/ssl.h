@@ -277,9 +277,9 @@ public:
 
     void free() const noexcept {
         if( obj->ssl != nullptr ){
-        if( obj->cnn == 1 )
+        if( obj->cnn == 1 ){
             SSL_shutdown( obj->ssl );
-            SSL_clear(obj->ssl);
+        }   SSL_clear(obj->ssl);
             SSL_free(obj->ssl); 
             return;
         } if ( obj->ctx != nullptr ){

@@ -21,7 +21,7 @@ namespace nodepp { namespace _timer_ {
         gnEmit( V func, ulong time, const T&... args ){
         gnStart
             coDelay( time ); if( func(args...)<0 )
-            coEnd; coGoto(0); 
+            { coEnd; } coGoto(0); 
         gnStop
         }
 
@@ -29,7 +29,7 @@ namespace nodepp { namespace _timer_ {
         gnEmit( V func, ulong* time, const T&... args ){
         gnStart
             coDelay( *time ); if( func(args...)<0 )
-            coEnd; coGoto(0); 
+            { coEnd; } coGoto(0); 
         gnStop
         }
 
@@ -43,7 +43,7 @@ namespace nodepp { namespace _timer_ {
         gnEmit( V func, ulong time, const T&... args ){
         gnStart
             coUDelay( time ); if( func(args...)<0 )
-            coEnd; coGoto(0);
+            { coEnd; } coGoto(0);
         gnStop
         }
 
@@ -51,7 +51,7 @@ namespace nodepp { namespace _timer_ {
         gnEmit( V func, ulong* time, const T&... args ){
         gnStart
             coUDelay( *time ); if( func(args...)<0 )
-            coEnd; coGoto(0);
+            { coEnd; } coGoto(0);
         gnStop
         }
 
