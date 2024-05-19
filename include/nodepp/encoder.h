@@ -11,6 +11,9 @@
 
 #ifndef NODEPP_ENCODER
 #define NODEPP_ENCODER
+#ifndef BASE64
+#define BASE64 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+#endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -219,8 +222,6 @@ namespace nodepp { namespace encoder { namespace utf32 {
 
 namespace nodepp { namespace encoder { namespace base64 {
 
-    const string_t base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
     string_t get( const string_t &in ) {
 
         string_t out; int val = 0, valb = -6;
@@ -228,12 +229,12 @@ namespace nodepp { namespace encoder { namespace base64 {
         for ( uchar c: in ) {
             val = ( val  << 8 ) + c; valb += 8;
             while ( valb >= 0 ) {
-                out.push(base64[(val>>valb)&0x3F]);
+                out.push(BASE64[(val>>valb)&0x3F]);
                 valb -= 6;
             }
         }
 
-        if (valb>-6) out.push(base64[((val<<8)>>(valb+8))&0x3F]);
+        if (valb>-6) out.push(BASE64[((val<<8)>>(valb+8))&0x3F]);
         while (out.size()%4){ out.push('='); } return out;
     }
 
@@ -242,7 +243,7 @@ namespace nodepp { namespace encoder { namespace base64 {
         string_t out; int val=0, valb=-8;
         array_t<int> T( 256, -1 );
 
-        for ( int i=0; i<64; i++ ) T[base64[i]] = i;
+        for ( int i=0; i<64; i++ ) T[BASE64[i]] = i;
         for ( uchar c: in ) { if ( T[c]==-1 ) break;
             val = ( val << 6 ) + T[c]; valb += 6;
             if (valb >= 0) {
@@ -258,4 +259,5 @@ namespace nodepp { namespace encoder { namespace base64 {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#undef BASE64
 #endif
