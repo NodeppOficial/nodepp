@@ -17,12 +17,11 @@
 ## Features
 
 - **C++11 | C++14 | C++17 | c++20 | c++23** Compatible
-- Allows writing **C++** code as if writing in **NodeJS** or **Javascript**
 - Includes a **build-in JSON** parser / stringify system
-- Open source project, meaning anyone can contribute and improve it
 - Includes a **build-in RegExp** engine for processing text strings
+- Allows writing **C++** code as if writing in **NodeJS** or **Javascript**
+- Compatible with several platforms like **Windows | Linux | macOS | freeBSD**
 - Adds a high-level abstraction layer to simplify **C++** application development
-- Compatible with several platforms like **Windows | Linux | macOS | freeBSD | Arduino**
 - Includes an **Event Loop** that can handle multiple events and tasks on a single thread
 - Supports **Coroutines**, which allows running multiple tasks concurrently on a single thread
 - Includes support for **TCP | TLS | UDP | HTTP | WS** making it easy to create networked applications
