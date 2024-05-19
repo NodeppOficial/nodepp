@@ -1046,16 +1046,16 @@ namespace crypto { namespace hash {
           SHA512() : hash_t( EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
     };
 
-    class KECCACK256 : public hash_t { public:
-          KECCACK256() : hash_t( EVP_sha3_256(), SHA256_DIGEST_LENGTH ) {}
+    class KECCAK256 : public hash_t { public:
+          KECCAK256() : hash_t( EVP_sha3_256(), SHA256_DIGEST_LENGTH ) {}
     };
 
-    class KECCACK384 : public hash_t { public:
-          KECCACK384() : hash_t( EVP_sha3_384(), SHA384_DIGEST_LENGTH ) {}
+    class KECCAK384 : public hash_t { public:
+          KECCAK384() : hash_t( EVP_sha3_384(), SHA384_DIGEST_LENGTH ) {}
     };
 
-    class KECCACK512 : public hash_t { public:
-          KECCACK512() : hash_t( EVP_sha3_512(), SHA512_DIGEST_LENGTH ) {}
+    class KECCAK512 : public hash_t { public:
+          KECCAK512() : hash_t( EVP_sha3_512(), SHA512_DIGEST_LENGTH ) {}
     };
 
     class RIPEMD160 : public hash_t { public:
@@ -1092,16 +1092,16 @@ namespace crypto { namespace hmac {
           SHA512 ( const string_t& key ) : hmac_t( key, EVP_sha512(), SHA512_DIGEST_LENGTH ) {}
     };
 
-    class KECCACK256 : public hmac_t { public:
-          KECCACK256 ( const string_t& key ) : hmac_t( key, EVP_sha3_256(), SHA256_DIGEST_LENGTH ) {}
+    class KECCAK256 : public hmac_t { public:
+          KECCAK256 ( const string_t& key ) : hmac_t( key, EVP_sha3_256(), SHA256_DIGEST_LENGTH ) {}
     };
 
-    class KECCACK384 : public hmac_t { public:
-          KECCACK384 ( const string_t& key ) : hmac_t( key, EVP_sha3_384(), SHA384_DIGEST_LENGTH ) {}
+    class KECCAK384 : public hmac_t { public:
+          KECCAK384 ( const string_t& key ) : hmac_t( key, EVP_sha3_384(), SHA384_DIGEST_LENGTH ) {}
     };
 
-    class KECCACK512 : public hmac_t { public:
-          KECCACK512 ( const string_t& key ) : hmac_t( key, EVP_sha3_512(), SHA512_DIGEST_LENGTH ) {}
+    class KECCAK512 : public hmac_t { public:
+          KECCAK512 ( const string_t& key ) : hmac_t( key, EVP_sha3_512(), SHA512_DIGEST_LENGTH ) {}
     };
 
     class RIPEMD160 : public hmac_t { public:
