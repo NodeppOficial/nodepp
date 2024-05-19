@@ -951,24 +951,13 @@ protected:
     
 public:
 
-    template< class T >
-    dsa_t( uint size ) 
+    dsa_t( uint size=512 ) 
     : obj( new NODE() ) { crypto::start_device();
         obj->state = 1; obj->len = size; obj->dsa = DSA_new(); 
         if(!DSA_generate_parameters_ex( obj->dsa, obj->len, NULL, 0, NULL, NULL, NULL ) )
           { process::error("while generating DSA parameters"); }
         if(!DSA_generate_key( obj->dsa ) )
           { process::error("while generating DSA key"); }
-
-    }
-
-    template< class T >
-    dsa_t( const string_t& path, uint size ) 
-    : obj( new NODE() ) { crypto::start_device(); obj->state = 1;
-        obj->len = size; obj->dsa = DSA_new(); FILE* fp = fopen(path.data(),"r");
-        if ( fp == nullptr ) process::error("such file or directory does not exist");
-        obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, nullptr, nullptr );
-        fclose( fp ); if( obj->dsa==nullptr ) process::error("while creating DSA");
     }
 
     string_t sign( const string_t& msg ) const noexcept {
@@ -981,14 +970,26 @@ public:
         return DSA_verify( 0, (uchar*)msg.data(), msg.size(), (uchar*)sgn.data(), sgn.size(), obj->dsa );
     }
 
-    void save_private_key( const string_t& path ) const {
+    void read_private_key( const string_t& path ) const {
+        FILE* fp = fopen(path.data(),"r");
+        if ( fp == nullptr ) process::error(" while reading private key");
+        obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, nullptr, nullptr );
+    }
+
+    void read_public_key( const string_t& path ) const {
+        FILE* fp = fopen(path.data(),"r");
+        if ( fp == nullptr ) process::error(" while reading public key");
+        obj->dsa = PEM_read_DSA_PUBKEY( fp, &obj->dsa, nullptr, nullptr );
+    }
+
+    void write_private_key( const string_t& path ) const {
         if( obj->state != 1 ){ return; } FILE* fp = fopen( path.data(), "w" );
         if ( fp == nullptr ) { process::error("while creating file"); }
         if (!PEM_write_DSA_PUBKEY( fp, obj->dsa ) ) 
            { fclose( fp ); process::error("while writting the private key"); } fclose( fp );
     }
 
-    void save_public_key( const string_t& path ) const {
+    void write_public_key( const string_t& path ) const {
         if( obj->state != 1 ){ return; } FILE* fp = fopen( path.data(), "w" );
         if ( fp == nullptr ) { process::error("while creating file"); }
         if (!PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, nullptr, nullptr ) )
@@ -1362,7 +1363,7 @@ namespace crypto { namespace rsa {
 
 namespace crypto { namespace dsa {
     
-    class DSA : public ecdsa_t { public: template< class... T >
+    class DSA : public dsa_t { public: template< class... T >
           DSA ( const T&... args ) : dsa_t ( args... ) {}
     };
 
