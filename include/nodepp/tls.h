@@ -78,7 +78,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
     
     /*─······································································─*/
 
-    void listen( const string_t& host, int port, decltype(NODE::func)* cb=nullptr  ) const noexcept {
+    void listen( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( obj->ctx.create_server() == -1 )
           { _EERROR(onError,"Error Initializing SSL context"); close(); return; }
         if( dns::lookup(host).empty() ){ _EERROR(onError,"dns couldn't get ip"); close(); return; }
