@@ -38,9 +38,8 @@ namespace nodepp { namespace dns {
         if( getaddrinfo( host.get(), nullptr, &hints, &res ) != 0 )
           { return nullptr; }
 
-        char ipstr[INET6_ADDRSTRLEN]; void *addr; string_t ipAddress;
-
-        while ( res != nullptr ) {
+        char ipstr[INET6_ADDRSTRLEN]; string_t ipAddress;
+        while ( res != nullptr ) { void *addr = nullptr;
             
             if ( res->ai_family == AF_INET6 ) {
                 struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)res->ai_addr;
@@ -73,9 +72,8 @@ namespace nodepp { namespace dns {
         if( getaddrinfo( host.get(), nullptr, &hints, &res ) != 0 )
           { return nullptr; }
 
-        char ipstr[INET_ADDRSTRLEN]; void *addr; string_t ipAddress;
-
-        while ( res != nullptr ) {
+        char ipstr[INET_ADDRSTRLEN]; string_t ipAddress;
+        while ( res != nullptr ) { void *addr = nullptr;
             
             if ( res->ai_family == AF_INET ) {
                 struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;

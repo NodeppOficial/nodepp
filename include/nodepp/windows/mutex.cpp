@@ -59,7 +59,7 @@ public:
 
     void free() const noexcept {
          if( mutex->state == 0 ){ return; }
-             mutex->state == 0;
+             mutex->state =  0;
          CloseHandle( mutex->fd );
     }
     

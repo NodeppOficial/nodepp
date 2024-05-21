@@ -57,7 +57,7 @@ public:
 
     void free() const noexcept {
          if( mutex->state == 0 ){ return; }
-             mutex->state == 0;
+             mutex->state =  0;
          pthread_mutex_destroy(&mutex->fd);
     }
     
