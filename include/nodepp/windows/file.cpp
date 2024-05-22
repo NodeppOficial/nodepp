@@ -37,7 +37,7 @@ protected:
         elif( flag == "r+" ){ fg[0] |= GENERIC_READ|GENERIC_WRITE; fg[2] |= OPEN_EXISTING; }
         elif( flag == "w+" ){ fg[0] |= GENERIC_READ|GENERIC_WRITE; fg[2] |= OPEN_ALWAYS;   }
         elif( flag == "a+" ){ fg[0] |= FILE_APPEND_DATA;           fg[2] |= OPEN_EXISTING; }
-        else                { fg[0] |= GENERIC_READ|GENERIC_WRITE; fg[2] |= CREATE_ALWAYS; fg[2] |= FILE_ATTRIBUTE_TEMPORARY; }
+        else                { fg[0] |= GENERIC_READ|GENERIC_WRITE; fg[2] |= CREATE_ALWAYS; }
         return  fg;
     }
     
@@ -48,10 +48,12 @@ protected:
     /*─······································································─*/
 
     virtual bool is_blocked( const bool& x, DWORD& c ) const noexcept {
-        if ( x ){ return 0; }
+        if ( x || c != 0 ){ return 0; }
         if ( GetOverlappedResult( obj->fd, &obj->ov, &c, 0 ) )
-           { obj->ov.Offset += c; }
-        return os::error() == ERROR_HANDLE_EOF ? 0 : c<=0;
+           { obj->ov.Offset += c; } 
+        return os::error() == ERROR_IO_INCOMPLETE ? 1 :
+               os::error() == ERROR_HANDLE_EOF    ? 0 :
+               os::error() == ERROR_IO_PENDING    ? 1 : c < 0;
     }
     
 public: file_t() noexcept {}
@@ -176,15 +178,15 @@ public: file_t() noexcept {}
     /*─······································································─*/
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; }
-        obj->feof = ReadFile( obj->fd, bf, sx, NULL, &obj->ov ); DWORD c = 0; 
+        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; } DWORD c = 0; 
+        obj->feof = ReadFile( obj->fd, bf, sx, &c, &obj->ov );
         obj->feof = is_blocked( obj->feof, c ) ? -2 : c;
         return obj->feof;
     }
 
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; }
-        obj->feof = WriteFile( obj->fd, bf, sx, NULL, &obj->ov ); DWORD c = 0; 
+        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; } DWORD c = 0; 
+        obj->feof = WriteFile( obj->fd, bf, sx, &c, &obj->ov );
         obj->feof = is_blocked( obj->feof, c ) ? -2 : c;
         return obj->feof;
     }

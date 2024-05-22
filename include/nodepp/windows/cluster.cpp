@@ -10,7 +10,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #pragma once
-#include <unistd.h>
+#include "pipe.cpp"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -19,7 +19,7 @@ protected:
 
     struct NODE {
         PROCESS_INFORMATION pi;
-        STARTUPINFO         si;
+        STARTUPINFO  si;
         int          fd;
         int    state =0;
         file_t    input;
@@ -41,30 +41,33 @@ protected:
                             sa.lpSecurityDescriptor = NULL;
                             sa.bInheritHandle = TRUE;
 
-        HANDLE fda[2]; ::CreatePipe(&fda[0], &fda[1], &sa, 0); 
-        HANDLE fdb[2]; ::CreatePipe(&fdb[0], &fdb[1], &sa, 0); 
-        HANDLE fdc[2]; ::CreatePipe(&fdc[0], &fdc[1], &sa, 0); 
+        HANDLE fda[2]; CreatePipe( &fda[0], &fda[1], &sa, CHUNK_SIZE, FILE_FLAG_OVERLAPPED, FILE_FLAG_OVERLAPPED );
+        HANDLE fdb[2]; CreatePipe( &fdb[0], &fdb[1], &sa, CHUNK_SIZE, FILE_FLAG_OVERLAPPED, FILE_FLAG_OVERLAPPED );
+        HANDLE fdc[2]; CreatePipe( &fdc[0], &fdc[1], &sa, CHUNK_SIZE, FILE_FLAG_OVERLAPPED, FILE_FLAG_OVERLAPPED );
         
-        ZeroMemory(&obj->si, sizeof(obj->si));
-        ZeroMemory(&obj->pi, sizeof(obj->pi));
-                    obj->si.cb         = sizeof(STARTUPINFO);
+        ZeroMemory(&obj->si, sizeof(STARTUPINFO));
+        ZeroMemory(&obj->pi, sizeof(PROCESS_INFORMATION));
+                    obj->si.cb         = sizeof( STARTUPINFO );
                     obj->si.hStdInput  = fda[0];
                     obj->si.hStdError  = fdc[1];
                     obj->si.hStdOutput = fdb[1];
                     obj->si.dwFlags   |= STARTF_USESTDHANDLES;
-       
-        arg.unshift( process::args[0].c_str() ); env.push("CHILD=TRUE"); env.push( nullptr ); auto cmd = arg.join(" ");
-        obj->fd = ::CreateProcess( arg[0], cmd.data(), NULL, NULL, 1, 0, env.data(), NULL, &obj->si, &obj->pi );
+                    
+        arg.unshift( process::args[0].c_str() ); auto cmd = arg.join(" ");
+        env.push("CHILD=TRUE"); auto ven = env.join( "\0" ); 
+        auto dta = LPTSTR( ven.empty() ? NULL : ven.get() );
+
+        obj->fd = ::CreateProcess( NULL, cmd.data(), NULL, NULL, 1, 0, dta, NULL, &obj->si, &obj->pi );
         WaitForSingleObject( obj->pi.hProcess, 0 ); WaitForSingleObject( obj->pi.hThread, 0 );
 
-        if ( obj->fd > 0 ) { // Parent process
-            obj->input  = { fda[1] }; ::CloseHandle( fda[0] );
-            obj->output = { fdb[0] }; ::CloseHandle( fdb[1] );
-            obj->error  = { fdc[0] }; ::CloseHandle( fdc[1] );
+        if ( obj->fd > 0 ){ // Parent process
+            obj->input  = { fda[1] };
+            obj->output = { fdb[0] };
+            obj->error  = { fdc[0] };
         } else {
-            ::CloseHandle( fda[0] ); ::CloseHandle( fda[1] );
-            ::CloseHandle( fdb[0] ); ::CloseHandle( fdb[1] );
-            ::CloseHandle( fdc[0] ); ::CloseHandle( fdc[1] ); free();
+            ::CloseHandle ( fda[0] ); ::CloseHandle ( fda[1] );
+            ::CloseHandle ( fdb[0] ); ::CloseHandle ( fdb[1] );
+            ::CloseHandle ( fdc[0] ); ::CloseHandle ( fdc[1] ); free();
         }
 
     }
@@ -107,7 +110,7 @@ public:
 
     /*─······································································─*/
 
-    bool is_alive() { DWORD exitCode;
+    bool is_alive() const noexcept { DWORD exitCode;
         if ( GetExitCodeProcess(obj->pi.hProcess,&exitCode) ) {
         if ( exitCode == STILL_ACTIVE ) { return true; }
         }    return false;
@@ -120,9 +123,9 @@ public:
     virtual void free() const noexcept {
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
         if( obj->state == -2 ){ return; } obj->state = -2;
-            obj->input .close(); 
-            obj->output.close();
-            obj->error .close(); close(); kill(); onClose.emit();
+            obj->input .close(); obj->output.close();
+            obj->error .close(); close(); kill(); 
+            onClose.emit();
     }
 
     /*─······································································─*/
@@ -186,8 +189,8 @@ public:
     
     /*─······································································─*/
     
-    file_t& readable() const noexcept { return obj->output; }
-    file_t& writable() const noexcept { return obj->input;  }
+    file_t& readable()  const noexcept { return obj->output; }
+    file_t& writable()  const noexcept { return obj->input;  }
     file_t& std_error() const noexcept { return obj->error;  }
 
     /*─······································································─*/
