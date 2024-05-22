@@ -138,7 +138,7 @@ public: json_t () noexcept = default;
 
             for( auto &item: obj.as<array_t<object_t>>() )
                { result += stringify( item ); result.push(','); }
-                 result.pop();
+            if ( result[ result.size()-1 ] == ',' ){ result.pop(); }
 
             result.push(']'); goto END;
         }
@@ -165,9 +165,9 @@ public: json_t () noexcept = default;
             case 0x0012: result += string::format("\"%s\"",obj.as<string_t>().get());            break;
 
             case 0xf703: do { result.push('[');
-                auto data = obj.as<array_t<bool>>(); for( auto &x: data ){
-                     result += string::format("\"%s\",",x ? "true":"false" );
-                }    result.pop();
+                auto data = obj.as<array_t<bool>>(); for( auto &x: data )
+                { result += string::format("\"%s\",",x ? "true":"false" ); }   
+             if ( result[ result.size()-1 ] == ',' ){ result.pop(); } 
             result.push(']'); } while(0); break;
             
             case 0xf712: return string::format("[%s]",obj.as<array_t<string_t>>().join().get()); break; 

@@ -1,3 +1,7 @@
+#include <nodepp/nodepp.h>
+#include <nodepp/test.h>
+
+using namespace nodepp;
 
 namespace TEST { namespace CONSOLE {
 
@@ -76,3 +80,5 @@ namespace TEST { namespace CONSOLE {
     }
 
 }}
+
+void onMain(){ TEST::CONSOLE::TEST_RUNNER(); }
