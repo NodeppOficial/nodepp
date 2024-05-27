@@ -645,7 +645,7 @@ namespace _ws_ {
     
         int        state = 1;
         int        input = 0;
-        int        output=-2;
+        int        output= 0;
         ulong      size  = 2;
 
     gnEmit( char* bf, const ulong& sx ) { 
@@ -660,24 +660,20 @@ namespace _ws_ {
         if( frame.LEN ==  0 ){ size = 2; input = 0; coGoto(0); }
         if( frame.OPC >= 20 ){ state=-1; output= 0; coEnd; }
         if( frame.OPC ==  8 ){ state=-1; output= 0; coEnd; } 
-            size = min( sx, frame.LEN - len );
 
         /*------*/
 
-        coSet(2); return -1; coYield(2);
+        size = frame.LEN; coSet(2); return -1; coYield(2);
 
         /*------*/
-
-        if ( len >= frame.LEN ){ size = 2; input = 0; coGoto(0); }
 
         for( int x=0; x<input && frame.MSK ; x++ )
            { bf[x] = bf[x] ^ frame.KEY[key]; key++; key%=4; }
 
-        if ( len <  frame.LEN ){ 
-             len += input; output = input; input = 0;
-             size = min( sx, frame.LEN - len );
+             len += input; output = input;
+             size-= input; input  = 0;
+
         if ( size == 0 ){ size = 2; input = 0; coGoto(0); }
-        }
 
         /*------*/
 
@@ -690,46 +686,49 @@ namespace _ws_ {
 
         string_t   brr;
         string_t   hdr;
-        ulong      len;
 
     public:
     
         int        state = 1;
         int        input = 0;
-        int        output=-2;
+        int        output= 0;
         ulong      size  = 0;
 
     gnEmit( char* bf, const ulong& sx ) {
-    gnStart state=1; input=0; output=-2; len=0; size=sx;
+    gnStart size=sx; output=0; input=0;
 
-        brr = string_t( bf, size ); 
+        /*------*/
+
         hdr = write_ws_frame( bf, size ); 
+        brr = string_t      ( bf, size ); 
 
         /*------*/
 
-        size=hdr.size(); len=0; output=0; input=0;
-        memmove( bf, hdr.data(), size ); 
+        size=hdr.size();input=0;output=0;
+        memmove( bf, hdr.data( ), size ); 
 
         /*------*/
 
-        len = 0; while( true ){ if( input > 0 ){
-            size-=input; output=input; len+=input;
-        if( len >= hdr.size() ){ break; }
-            memmove( bf, bf+input, size );
-        } coSet(1); return -1; coYield(1); }
+        do{ if( input > 0 ){
+            output+= input; size -= input;
+        if( size == 0 ){ break; }
+            memmove( bf,bf+input,sx-input );
+        }   coSet(1); return -1; coYield(1); 
+        }   while(1);
 
         /*------*/
 
-        size=brr.size(); len=0; output=0; input=0;
-        memmove( bf, brr.data(), size ); 
+        size=brr.size();input=0;output=0;
+        memmove( bf, brr.data( ), size ); 
 
         /*------*/
 
-        while( true ){ if( input > 0 ){
-            size-=input; output=input; len+=input;
-        if( len >= brr.size() ){ break; }
-            memmove( bf, bf+input, size );
-        } coSet(2); return -1; coYield(2); }
+        do{ if( input > 0 ){
+            output+= input; size -= input;
+        if( size == 0 ){ break; }
+            memmove( bf,bf+input,sx-input );
+        }   coSet(2); return -1; coYield(2); 
+        }   while(1);
 
         /*------*/
 
