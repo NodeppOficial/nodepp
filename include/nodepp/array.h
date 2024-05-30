@@ -343,7 +343,7 @@ public: array_t() noexcept {};
     }
 
     template< class V, ulong N >
-    array_t splice( long start, ulong del, const V (&value)[N] ) noexcept {
+    array_t splice( long start, ulong end, const V (&value)[N] ) noexcept {
 
 	    auto r = get_splice_range( start, end );
          if( r == nullptr ){ return nullptr; } 
