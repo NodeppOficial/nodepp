@@ -45,13 +45,13 @@ namespace nodepp { namespace _socket_ {
 namespace nodepp {
 
 struct agent_t {
-    bool reuse_address = 1;
-    uint recv_timeout  = 120;
-    uint send_timeout  = 120;
-    uint buffer_size   = CHUNK_SIZE;
-    bool reuse_port    = 1;
-    bool keep_alive    = 0;
-    bool broadcast     = 0;
+    bool  reuse_address = 1;
+    uint  recv_timeout  = 120;
+    uint  send_timeout  = 120;
+    ulong buffer_size   = CHUNK_SIZE;
+    bool  reuse_port    = 1;
+    bool  keep_alive    = 0;
+    bool  broadcast     = 0;
 };
 
 class socket_t : public file_t {
@@ -79,9 +79,9 @@ protected:
 
 public: socket_t() noexcept { _socket_::start_device(); }
 
-    int SOCK  = SOCK_STREAM;
-    int AF    = AF_INET; 
-    int PROT  = 0;
+    int SOCK    = SOCK_STREAM;
+    int AF      = AF_INET; 
+    int IPPROTO = 0;
     
     /*─······································································─*/
 
@@ -219,6 +219,11 @@ public: socket_t() noexcept { _socket_::start_device(); }
         inet_ntop( AF, &(((SOCKADDR_IN*)&cli)->sin_addr), (char*)buff, buff.size() );
         return c < 0 ? "127.0.0.1" : buff;
     }
+
+    int get_sockport() const noexcept { int c;
+        SOCKADDR cli; if( skt->srv==1 ) cli = skt->client_addr; else cli = skt->server_addr;
+        return ntohs( ((SOCKADDR_IN*)&cli)->sin_port );
+    }
     
     /*─······································································─*/
 
@@ -295,7 +300,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
         if( host.empty() ){ _EERROR(onError,"dns coudn't found ip"); return -1; }
             skt->addrlen = sizeof( skt->server_addr ); _socket_::start_device();
 
-        if((obj->fd=::socket( AF, SOCK, PROT )) <= 0 )
+        if((obj->fd=::socket( AF, SOCK, IPPROTO )) <= 0 )
           { _EERROR(onError,"can't initializate socket fd"); return -1; } 
           
         set_buffer_size( CHUNK_SIZE );

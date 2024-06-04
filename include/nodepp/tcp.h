@@ -78,7 +78,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
         if( dns::lookup(host).empty() ){ _EERROR(onError,"dns couldn't get ip"); close(); return; }
 
         socket_t *sk = new socket_t; 
-                  sk->PROT = IPPROTO_TCP;
+                  sk->IPPROTO = IPPROTO_TCP;
                   sk->socket( dns::lookup(host), port ); 
         
         if(   sk->bind()  < 0 ){ _EERROR(onError,"Error while binding TCP");   close(); delete sk; return; }
@@ -128,7 +128,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
           { _EERROR(onError,"dns couldn't get ip"); close(); return; }
 
         socket_t sk = socket_t(); 
-                 sk.PROT = IPPROTO_TCP;
+                 sk.IPPROTO = IPPROTO_TCP;
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( obj->agent );
 

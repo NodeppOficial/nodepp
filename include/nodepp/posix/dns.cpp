@@ -93,8 +93,8 @@ namespace nodepp { namespace dns {
         auto socket = socket_t();
         auto result = string_t();
             
-        socket.SOCK = SOCK_DGRAM;
-        socket.PROT = IPPROTO_UDP;
+        socket.SOCK    = SOCK_DGRAM;
+        socket.IPPROTO = IPPROTO_UDP;
         socket.socket ( "loopback", 0 );
         socket.connect();
 

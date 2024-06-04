@@ -85,7 +85,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
             auto self = type::bind( this );
         
         ssocket_t *sk = new ssocket_t; 
-                   sk->PROT = IPPROTO_TCP;
+                   sk->IPPROTO = IPPROTO_TCP;
                    sk->socket( dns::lookup(host), port );
 
         if( sk->bind()    < 0 ){ _EERROR(onError,"Error while binding TLS");   close(); delete sk; return; }
@@ -137,7 +137,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
             auto self = type::bind( this );
 
         ssocket_t sk = ssocket_t(); 
-                  sk.PROT = IPPROTO_TCP;
+                  sk.IPPROTO = IPPROTO_TCP;
                   sk.socket( dns::lookup(host), port );
                   sk.set_sockopt( obj->agent );
 

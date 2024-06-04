@@ -30,7 +30,6 @@
 
 namespace nodepp { namespace popen {
 
-    template< class... T >
     popen_t async( const string_t& path, const initializer_t<string_t>& args ){ 
     popen_t pid  ( path, args ); pid.pipe(); return pid;
     }
@@ -41,7 +40,6 @@ namespace nodepp { namespace popen {
     
     /*─······································································─*/
     
-    template< class... T >
     string_t await( const string_t& path, const initializer_t<string_t>& args ){
         string_t result; auto fp = popen_t( path, args ); _stream_::pipe _read;
         fp.onData([&]( string_t chunk ){ result += chunk; });

@@ -65,8 +65,8 @@ public: udp_t() noexcept : obj(new NODE()) {}
           { _EERROR(onError,"dns couldn't get ip"); close(); return; }
             
         socket_t sk = socket_t(); 
-                 sk.SOCK = SOCK_DGRAM;
-                 sk.PROT = IPPROTO_UDP;
+                 sk.SOCK    = SOCK_DGRAM;
+                 sk.IPPROTO = IPPROTO_UDP;
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( obj->agent );
         
@@ -87,8 +87,8 @@ public: udp_t() noexcept : obj(new NODE()) {}
           { _EERROR(onError,"dns couldn't get ip"); close(); return; }
 
         socket_t sk = socket_t(); 
-                 sk.SOCK = SOCK_DGRAM;
-                 sk.PROT = IPPROTO_UDP;
+                 sk.SOCK    = SOCK_DGRAM;
+                 sk.IPPROTO = IPPROTO_UDP;
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( obj->agent );
     

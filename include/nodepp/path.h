@@ -78,6 +78,8 @@ namespace _path_ { map_t<string_t,string_t> mimetype ({
     { "svg",  "image/svg+xml" },
     { "ico",  "image/vnd.microsoft.icon" },
 
+    { "url",  "application/x-www-form-urlencoded" },
+
     { "zip",  "application/zip" },
     { "gz",   "application/gzip" },
     { ".h",   "application/x-.h" },

@@ -46,13 +46,13 @@ namespace nodepp { namespace _socket_ {
 namespace nodepp {
 
 struct agent_t {
-    bool reuse_address = 1;
-    uint recv_timeout  = 120;
-    uint send_timeout  = 120;
-    uint buffer_size   = CHUNK_SIZE;
-    bool reuse_port    = 1;
-    bool keep_alive    = 0;
-    bool broadcast     = 0;
+    bool  reuse_address = 1;
+    uint  recv_timeout  = 120;
+    uint  send_timeout  = 120;
+    ulong buffer_size   = CHUNK_SIZE;
+    bool  reuse_port    = 1;
+    bool  keep_alive    = 0;
+    bool  broadcast     = 0;
 };
 
 class socket_t {
@@ -106,9 +106,9 @@ public: socket_t() noexcept { _socket_::start_device(); }
     
     /*─······································································─*/
 
-    int SOCK  = SOCK_STREAM;
-    int AF    = AF_INET; 
-    int PROT  = 0;
+    int SOCK    = SOCK_STREAM;
+    int AF      = AF_INET; 
+    int IPPROTO = 0;
     
     /*─······································································─*/
 
@@ -361,7 +361,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
         if( host.empty() ){ _EERROR(onError,"dns coudn't found ip"); return -1; }
             obj->addrlen = sizeof( obj->server_addr ); _socket_::start_device(); 
 
-        if((obj->fd=::socket( AF, SOCK, PROT )) == INVALID_SOCKET )
+        if((obj->fd=::socket( AF, SOCK, IPPROTO )) == INVALID_SOCKET )
           { _EERROR(onError,"can't initializate socket fd"); return -1; } 
           
         set_buffer_size( CHUNK_SIZE );
