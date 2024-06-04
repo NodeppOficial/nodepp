@@ -246,6 +246,11 @@ public: socket_t() noexcept { _socket_::start_device(); }
         inet_ntop( AF, &(((SOCKADDR_IN*)&cli)->sin_addr), (char*)buff, buff.size() );
         return c < 0 ? "127.0.0.1" : buff;
     }
+
+    int get_sockport() const noexcept { int c;
+        SOCKADDR cli; if( skt->srv==1 ) cli = skt->client_addr; else cli = skt->server_addr;
+        return ntohs( ((SOCKADDR_IN*)&cli)->sin_port );
+    }
     
     /*─······································································─*/
 
