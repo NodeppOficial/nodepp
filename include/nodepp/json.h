@@ -97,7 +97,7 @@ protected:
 public: json_t () noexcept = default;
 
     object_t parse( const string_t& str ) const {
-        ulong x = 0; string_t data; do {
+        ulong x = 0; string_t data; process::next(); do {
 
             if ( str[x] == '[' || str[x] == '{' || str[x] == '"' ){
                  auto pos = get_next_key( x, str );
@@ -122,7 +122,7 @@ public: json_t () noexcept = default;
     }
 
     string_t stringify( const object_t& obj ) const { 
-    string_t result;
+    string_t result; process::next();
 
         if( obj.get_type_id() == 20 ){
             result.push('{');
