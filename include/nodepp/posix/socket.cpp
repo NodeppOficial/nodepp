@@ -46,8 +46,8 @@ namespace nodepp {
 
 struct agent_t {
     bool  reuse_address = 1;
-    uint  recv_timeout  = 120;
-    uint  send_timeout  = 120;
+    uint  recv_timeout  = 0;
+    uint  send_timeout  = 0;
     ulong buffer_size   = CHUNK_SIZE;
     bool  reuse_port    = 1;
     bool  keep_alive    = 0;

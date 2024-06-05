@@ -649,17 +649,18 @@ namespace _ws_ {
         ulong      size  = 2;
 
     gnEmit( char* bf, const ulong& sx ) { 
-        if( input<=0 ){ output = 0; return -1; }
-    gnStart state=1; key=0; output=-2; len=0; size=2; pos=0;
+        if( input<=0 ){ output=0; return -1; }
+    gnStart key=0; output=-2; len=0; size=2; pos=0;
 
         while( read_ws_frame( bf, frame, pos, size )==1 )
              { coSet(1); return -1; coYield(1); }
         
         /*------*/
 
+        console::log( frame.LEN, frame.OPC, errno );
         if( frame.LEN ==  0 ){ size = 2; input = 0; coGoto(0); }
-        if( frame.OPC >= 20 ){ state=-1; output= 0; coEnd; }
-        if( frame.OPC ==  8 ){ state=-1; output= 0; coEnd; } 
+        if( frame.OPC >= 20 ){ state=-1; output=-1; coEnd; }
+        if( frame.OPC ==  8 ){ state=-1; output=-1; coEnd; } 
 
         /*------*/
 
@@ -710,7 +711,7 @@ namespace _ws_ {
         /*------*/
 
         do{ if( input > 0 ){
-            output+= input; size -= input;
+            output += input; size -= input;
         if( size == 0 ){ break; }
             memmove( bf,bf+input,sx-input );
         }   coSet(1); return -1; coYield(1); 
@@ -724,7 +725,7 @@ namespace _ws_ {
         /*------*/
 
         do{ if( input > 0 ){
-            output+= input; size -= input;
+            output += input; size -= input;
         if( size == 0 ){ break; }
             memmove( bf,bf+input,sx-input );
         }   coSet(2); return -1; coYield(2); 
