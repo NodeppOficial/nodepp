@@ -657,7 +657,6 @@ namespace _ws_ {
         
         /*------*/
 
-        console::log( frame.LEN, frame.OPC, errno );
         if( frame.LEN ==  0 ){ size = 2; input = 0; coGoto(0); }
         if( frame.OPC >= 20 ){ state=-1; output=-1; coEnd; }
         if( frame.OPC ==  8 ){ state=-1; output=-1; coEnd; } 
