@@ -37,14 +37,14 @@ public:
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         while((*_read_)( bf, sx )==-1 && is_available() && _read_->state>0 ){
         while((_read_->input=ssocket_t::_read( bf, _read_->size ))==-2 )
-              { return -2; } if( _read_->input<=0 ) { return 0; } 
+              { return -2; } if( _read_->input<=0 ){ _read_->output=0; }
         }       obj->feof=_read_->output; return _read_->output;
     }
   
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
         while((*_write_)( bf, sx )==-1 && is_available() && _write_->state>0 ){
         while((_write_->input=ssocket_t::_write( bf, _write_->size ))==-2 )
-              { return -2; } if( _write_->input<=0 ) { return 0; }
+              { return -2; } if( _write_->input<=0 ){ _write_->output=0; }
         }       obj->feof=_write_->output; return _write_->output;
     }
 
