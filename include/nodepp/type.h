@@ -197,7 +197,15 @@ namespace nodepp { namespace type {
 
     template<typename T> struct remove_reference<T&&> { using type = T; };
 
+    /*─······································································─*/
+
     template<typename T> typename remove_reference<T>::type&& move(T&& arg) { return static_cast<typename remove_reference<T>::type&&>( arg ); }
+
+    template<typename T> typename remove_reference<T>::type&  copy(T& arg) { return static_cast<typename remove_reference<T>::type&>( arg ); }
+
+    template<typename T> typename remove_reference<T>::type&& forward(T&& arg) { return copy(arg); }
+
+    template<typename T> typename remove_reference<T>::type&  forward(T& arg) { return move(arg); }
     
     /*─······································································─*/
 
