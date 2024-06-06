@@ -203,9 +203,9 @@ namespace nodepp { namespace type {
 
     template<typename T> typename remove_reference<T>::type&  copy(T& arg) { return static_cast<typename remove_reference<T>::type&>( arg ); }
 
-    template<typename T> typename remove_reference<T>::type&& forward(T&& arg) { return copy(arg); }
+    template<typename T> typename remove_reference<T>::type&& forward(T&& arg) { return move(arg); }
 
-    template<typename T> typename remove_reference<T>::type&  forward(T& arg) { return move(arg); }
+    template<typename T> typename remove_reference<T>::type&  forward(T& arg) { return copy(arg); }
     
     /*─······································································─*/
 
