@@ -14,46 +14,61 @@ void server() {
 
         console::log( cli.path, cli.get_fd() );
 
-        for( auto x : cli.query ){
+        for( auto x : cli.query.data() ){
              console::log( "->",x.first, ":", x.second );
         }
 
         if( cli.method == "POST" ){
-            for( auto x : cli.headers ){
-                 console::log( x.first, ":", x.second );
-            }    console::log( "cli:", cli.read() );
-            cli.write_headers( 200, {{
+
+            if( cli.headers["content-length"].empty() ){
+                cli.write_header( 404, header_t({
+                    { "content-type", "text/plain" }
+                }));
+                cli.write("something went wrong");
+                cli.close(); return;
+            }
+
+            auto data = cli.read();
+            console::log( "cli:", data, data.size() );
+
+            cli.write_header( 200, header_t({
                 { "content-type", "text/html" }
-            }}); cli.write("recived");
-                 cli.close(); return;
+            })); 
+            cli.write("recived"); 
+            cli.close(); return;
+            
         }
 
         elif ( cli.path == "/day" ){
-            cli.write_headers( 200, {{
+            cli.write_header( 200, header_t({
                 { "content-type", "text/html" }
-            }}); cli.write(string::to_string( date::day() ));
-                 cli.close(); return;
+            })); 
+            cli.write(string::to_string( date::day() ));
+            cli.close(); return;
         }
 
         elif ( cli.path == "/month" ){
-            cli.write_headers( 200, {{
+            cli.write_header( 200, header_t({
                 { "content-type", "text/html" }
-            }}); cli.write(string::to_string( date::month() ));
-                 cli.close(); return;
+            })); 
+            cli.write(string::to_string( date::month() ));
+            cli.close(); return;
         }
 
         elif ( cli.path == "/year" ){
-            cli.write_headers( 200, {{
+            cli.write_header( 200, header_t({
                 { "content-type", "text/html" }
-            }}); cli.write(string::to_string( date::year() ));
-                 cli.close(); return;
+            })); 
+            cli.write(string::to_string( date::year() ));
+            cli.close(); return;
         }
 
         else {
-            cli.write_headers( 200, {{
+            cli.write_header( 200, header_t({
                 { "content-type", "text/html" }
-            }}); cli.write( date::fulltime() );
-                 cli.close(); return;
+            })); 
+            cli.write( date::fulltime() );
+            cli.close(); return;
         }
 
     });

@@ -24,8 +24,10 @@ void onMain(){
         console::log( cli.path, cli.get_fd() );
 
         if( !fs::exists_file(dir) ){
-            cli.write_header( 404, {{ { "content-type", "text/plain" } }} );
-            cli.write( string::format("404: Oops time: %s",date::fulltime().data()) ); 
+            cli.write_header( 404, header_t({ 
+                { "content-type", "text/plain" } }
+            ));
+            cli.write("Oops: 404 Error"); 
             cli.close(); return;
         }
 
