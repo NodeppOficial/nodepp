@@ -282,10 +282,10 @@ public: regex_t () noexcept : obj( new NODE() ) {}
     /*─······································································─*/
 
     array_t<ptr_t<ulong>> search_all( const string_t& _str ) const noexcept {
-        array_t<ptr_t<ulong>> result; ulong s=0; while(1){
-            auto idx = search( _str, s );
+        array_t<ptr_t<ulong>> result; ulong off=0; while(1){
+            auto idx = search( _str, off );
             if( idx == nullptr )  { return result; }
-            if( idx[0] == idx[1] ){ return result; } s=idx[1];
+            if( idx[0] == idx[1] ){ return result; } off=idx[1];
                 ptr_t<ulong> mem({ idx[0], idx[1] }); result.push(mem);
         }
     }
@@ -309,8 +309,8 @@ public: regex_t () noexcept : obj( new NODE() ) {}
     
     /*─······································································─*/
 
-    string_t replace( string_t _str, const string_t& _rep, ulong s=0 ) const noexcept {
-        auto idx = search( _str, s );
+    string_t replace( string_t _str, const string_t& _rep, ulong off=0 ) const noexcept {
+        auto idx = search( _str, off );
         if( idx == nullptr )  { return _str; }
         if( idx[0] == idx[1] ){ return _str; }
             _str.splice( idx[0], idx[1] - idx[0], _rep ); return _str;
@@ -327,8 +327,8 @@ public: regex_t () noexcept : obj( new NODE() ) {}
     
     /*─······································································─*/
 
-    string_t match( const string_t& _str, ulong s=0 ) const noexcept { 
-        auto idx = search( _str, s );
+    string_t match( const string_t& _str, ulong off=0 ) const noexcept { 
+        auto idx = search( _str, off );
         if( idx == nullptr )  { return nullptr; }
         if( idx[0] == idx[1] ){ return nullptr; }
             return _str.slice( idx[0], idx[1] );
@@ -336,8 +336,8 @@ public: regex_t () noexcept : obj( new NODE() ) {}
     
     /*─······································································─*/
 
-    bool test( const string_t& _str, ulong s=0 ) const noexcept {
-        auto idx = search( _str, s );
+    bool test( const string_t& _str, ulong off=0 ) const noexcept {
+        auto idx = search( _str, off );
         if( idx == nullptr )  { return 0; }
         if( idx[0] == idx[1] ){ return 0; }
                                 return 1;

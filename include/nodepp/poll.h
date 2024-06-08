@@ -38,7 +38,6 @@
 #ifdef NODEPP_NO_POLL
 
 namespace nodepp {
-namespace { using POLLFD = struct pollfd; }
 
 class poll_t : public generator_t {
 protected:
@@ -73,7 +72,7 @@ public: poll_t() noexcept : obj( new NODE() ) {}
     /*─······································································─*/
 
     int emit () noexcept { 
-        static ulong s = 0; static POLLFD x;
+        static POLLFD x;
     gnStart 
     
         if( obj->ev.empty() ){ coEnd; }
