@@ -20,7 +20,7 @@ void server() {
 
         if( cli.method == "POST" ){
 
-            if( cli.headers["content-length"].empty() ){
+            if( cli.headers["Content-Length"].empty() ){
                 cli.write_header( 404, header_t({
                     { "content-type", "text/plain" }
                 }));
