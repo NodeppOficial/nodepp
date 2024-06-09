@@ -130,7 +130,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
         socket_t sk = socket_t(); 
                  sk.IPPROTO = IPPROTO_TCP;
                  sk.socket( dns::lookup(host), port );
-                 sk.set_sockopt( obj->agent );
+                 sk.set_sockopt( self->obj->agent );
 
         if( sk.connect() < 0 ){ _EERROR(onError,"Error while connecting TCP"); close(); return; }
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
