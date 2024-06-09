@@ -248,7 +248,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
     }
 
     int get_sockport() const noexcept { int c;
-        SOCKADDR cli; if( skt->srv==1 ) cli = skt->client_addr; else cli = skt->server_addr;
+        SOCKADDR cli; if( obj->srv==1 ) cli = obj->client_addr; else cli = obj->server_addr;
         return ntohs( ((SOCKADDR_IN*)&cli)->sin_port );
     }
     
