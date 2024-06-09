@@ -40,8 +40,8 @@ protected:
 
     void init_poll_loop( ptr_t<const tls_t>& self ) const noexcept { process::poll::add([=](){
         if( self->is_closed() ){ return -1; } if( self->obj->poll.emit() != -1 ) { auto x = self->obj->poll.get_last_poll();
-            if( x[0] == 0 ){ ssocket_t cli(self->obj->ctx,x[1]); cli.set_sockopt(self->obj->agent); self->onSocket.emit(cli); self->obj->func(cli); }
-            if( x[0] == 1 ){ ssocket_t cli(self->obj->ctx,x[1]); cli.set_sockopt(self->obj->agent); self->onSocket.emit(cli); self->obj->func(cli); }
+            if( x[0] == 0 ){ ssocket_t cli(self->obj->ctx,x[1]); self->onSocket.emit(cli); self->obj->func(cli); }
+            if( x[0] == 1 ){ ssocket_t cli(self->obj->ctx,x[1]); self->onSocket.emit(cli); self->obj->func(cli); }
         #if _KERNEL == NODEPP_KERNEL_WINDOWS
             if( x[0] ==-1 ){ ::closesocket(x[1]); }
         #else
@@ -87,6 +87,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         ssocket_t *sk = new ssocket_t; 
                    sk->IPPROTO = IPPROTO_TCP;
                    sk->socket( dns::lookup(host), port );
+                   sk->set_sockopt( self->obj->agent ); 
 
         if( sk->bind()    < 0 ){ _EERROR(onError,"Error while binding TLS");   close(); delete sk; return; }
         if( sk->listen()  < 0 ){ _EERROR(onError,"Error while listening TLS"); close(); delete sk; return; }
@@ -109,7 +110,6 @@ public: tls_t() noexcept : obj( new NODE() ) {}
             elif ( self->obj->chck == true ){ self->obj->poll.push_read(_accept); coGoto(0); }
             else { ssocket_t cli( self->obj->ctx, _accept ); if( cli.is_available() ){ 
                    process::poll::add([=]( ssocket_t cli ){
-                        cli.set_sockopt( self->obj->agent ); 
                         self->onSocket.emit( cli ); 
                         self->obj->func( cli ); 
                         return -1;
@@ -139,7 +139,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         ssocket_t sk = ssocket_t(); 
                   sk.IPPROTO = IPPROTO_TCP;
                   sk.socket( dns::lookup(host), port );
-                  sk.set_sockopt( obj->agent );
+                  sk.set_sockopt( self->obj->agent );
 
         if( sk.connect() < 0 ){ 
             _EERROR(onError,"Error while connecting TLS"); 

@@ -11,9 +11,7 @@
 
 #ifndef NODEPP_ENCODER
 #define NODEPP_ENCODER
-#ifndef BASE64
 #define BASE64 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-#endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 

@@ -68,7 +68,7 @@ public: udp_t() noexcept : obj(new NODE()) {}
                  sk.SOCK    = SOCK_DGRAM;
                  sk.IPPROTO = IPPROTO_UDP;
                  sk.socket( dns::lookup(host), port );
-                 sk.set_sockopt( obj->agent );
+                 sk.set_sockopt( self->obj->agent );
         
         if( sk.bind() < 0 ){ _EERROR(onError,"Error while binding UDP"); close(); return; }
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
@@ -90,7 +90,7 @@ public: udp_t() noexcept : obj(new NODE()) {}
                  sk.SOCK    = SOCK_DGRAM;
                  sk.IPPROTO = IPPROTO_UDP;
                  sk.socket( dns::lookup(host), port );
-                 sk.set_sockopt( obj->agent );
+                 sk.set_sockopt( self->obj->agent );
     
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
         onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
