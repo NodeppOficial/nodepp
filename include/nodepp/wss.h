@@ -11,9 +11,7 @@
 
 #ifndef NODEPP_WSS
 #define NODEPP_WSS
-#ifndef SECRET
 #define SECRET "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-#endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -117,4 +115,5 @@ namespace nodepp { namespace wss {
 
 }}
 
+#undef SECRET
 #endif
