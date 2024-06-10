@@ -44,7 +44,7 @@ void onMain(){
             if(!regex::test(path::mimetype(dir),"audio|video",true) ) 
                 stream::pipe( str, cli );
 
-        } elif ( !cli.headers["Range"].empty() ) {
+        } else {
 
             array_t<string_t> range = regex::match_all(cli.headers["Range"],"\\d+",true);
             ulong rang[2]; rang[0] = string::to_ulong( range[0] );

@@ -198,6 +198,7 @@ protected:
     /*─······································································─*/
 
     int compile( const string_t& str, ptr_t<ulong>& off, ptr_t<int>& pos ) const {
+        if( str == nullptr || obj->regex == nullptr ){ return -1; }
 
         if( obj->_rep == nullptr && obj->_data != nullptr ){
             pos[0] = get_next_repeat( pos[0] );
@@ -352,11 +353,19 @@ namespace nodepp { namespace regex {
     string_t replace_all( const string_t& _str, const string_t& _reg, const string_t& _rep, bool _flg=false ){
         regex_t reg( _reg, _flg ); return reg.replace_all( _str, _rep );
     }
+
+    string_t replace_all( const string_t& _str, const regex_t& reg, const string_t& _rep ){
+        return reg.replace_all( _str, _rep );
+    }
     
     /*─······································································─*/
 
     array_t<ptr_t<ulong>> search_all( const string_t& _str, const string_t& _reg, bool _flg=false ){
         regex_t reg( _reg, _flg ); return reg.search_all( _str );
+    }
+
+    array_t<ptr_t<ulong>> search_all( const string_t& _str, const regex_t& reg ){
+        return reg.search_all( _str );
     }
     
     /*─······································································─*/
@@ -364,17 +373,29 @@ namespace nodepp { namespace regex {
     string_t replace( const string_t& _str, const string_t& _reg, const string_t& _rep, bool _flg=false ){
         regex_t reg( _reg, _flg ); return reg.replace( _str, _rep );
     }
+
+    string_t replace( const string_t& _str, const regex_t& reg, const string_t& _rep ){
+        return reg.replace( _str, _rep );
+    }
     
     /*─······································································─*/
 
     array_t<string_t> match_all( const string_t& _str, const string_t& _reg, bool _flg=false ){
         regex_t reg( _reg, _flg ); return reg.match_all( _str );
     }
+
+    array_t<string_t> match_all( const string_t& _str, const regex_t& reg ){
+        return reg.match_all( _str );
+    }
     
     /*─······································································─*/
 
     ptr_t<ulong> search( const string_t& _str, const string_t& _reg, bool _flg=false ){
         regex_t reg( _reg, _flg ); return reg.search( _str );
+    }
+
+    ptr_t<ulong> search( const string_t& _str, const regex_t& reg ){
+        return reg.search( _str );
     }
     
     /*─······································································─*/
@@ -383,10 +404,18 @@ namespace nodepp { namespace regex {
         regex_t reg( _reg, _flg ); return reg.match( _str );
     }
 
+    string_t match( const string_t& _str, const regex_t& reg ){
+        return reg.match( _str );
+    }
+
     /*─······································································─*/
 
     bool test( const string_t& _str, const string_t& _reg, bool _flg=false ){
         regex_t reg( _reg, _flg ); return reg.test( _str );
+    }
+
+    bool test( const string_t& _str, const regex_t& reg ){
+        return reg.test( _str );
     }
 
     /*─······································································─*/
@@ -399,6 +428,10 @@ namespace nodepp { namespace regex {
           if ( _reg.size() == 1 ){  return string::split( _str, _reg[0] ); }
         elif ( _reg.empty() ) { return string::split( _str, 1 ); }
         regex_t reg(_reg,_flg); return reg.split( _str ); 
+    }
+
+    array_t<string_t> split( const string_t& _str, const regex_t& reg ){ 
+        return reg.split( _str ); 
     }
 
     /*─······································································─*/
