@@ -42,6 +42,15 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+namespace { int pcb ( char *buf, int size, int rwflag, void *args ) {
+    if( args == nullptr ){ return 0; }
+    strncpy( buf, (char *)args, size );
+             buf[ size - 1 ] = '\0';
+    return strlen(buf);
+}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 namespace nodepp { namespace crypto {
 
     void start_device(){ static bool ssl=false; 
@@ -799,10 +808,10 @@ public:
         return RSA_generate_key_ex( obj->rsa, keyLen, obj->num, NULL );
     }
 
-    int write_private_key( const string_t& path ) const {
+    int write_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data() , "w"); int res = 0;
         if ( fp == nullptr ){ process::error("while writing private key"); }
-        res = PEM_write_RSAPrivateKey( fp, obj->rsa, NULL, NULL, 0, NULL, NULL);
+        res = PEM_write_RSAPrivateKey( fp, obj->rsa, NULL, NULL, 0, pcb, pass );
         fclose( fp ); return res;
     }
 
@@ -813,16 +822,16 @@ public:
         fclose( fp ); return res;
     }
 
-    void read_public_key( const string_t& path ) const {
+    void read_public_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data(), "r" );
         if ( fp == nullptr ){ process::error("while reading public key"); }
-        PEM_read_RSAPublicKey( fp, &obj->rsa, NULL, NULL ); fclose( fp );
+        PEM_read_RSAPublicKey( fp, &obj->rsa, pcb, pass ); fclose( fp );
     }
 
-    void read_private_key( const string_t& path ) const {
+    void read_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data(), "r" );
         if ( fp == nullptr ){ process::error("while reading private key"); }
-        PEM_read_RSAPrivateKey( fp, &obj->rsa, NULL, NULL ); fclose( fp );
+        PEM_read_RSAPrivateKey( fp, &obj->rsa, pcb, pass ); fclose( fp );
     }
 
     string_t public_encrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
