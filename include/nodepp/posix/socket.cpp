@@ -63,6 +63,7 @@ protected:
 
     struct DONE {
         socklen_t addrlen; bool srv=0; socklen_t len;
+        ulong recv_timeout=0; ulong send_timeout=0;
         SOCKADDR server_addr, client_addr;
     };  ptr_t<DONE> skt = new DONE();
     
@@ -85,6 +86,28 @@ public: socket_t() noexcept { _socket_::start_device(); }
     
     /*─······································································─*/
 
+    ulong set_recv_timeout( ulong time ) const noexcept { 
+        if( time == 0 ){ skt->recv_timeout = 0; return 0; }
+        skt->recv_timeout = process::millis() + time; return time; 
+    }
+
+    ulong set_send_timeout( ulong time ) const noexcept { 
+        if( time == 0 ){ skt->send_timeout = 0; return 0; }
+        skt->send_timeout = process::millis() + time; return time; 
+    }
+    
+    /*─······································································─*/
+
+    ulong get_recv_timeout() const noexcept { 
+        return skt->recv_timeout==0 ? process::millis() : skt->recv_timeout; 
+    }
+
+    ulong get_send_timeout() const noexcept { 
+        return skt->send_timeout==0 ? process::millis() : skt->send_timeout;
+    }
+    
+    /*─······································································─*/
+
     int set_recv_buff( uint en ) const noexcept { int c;
         while( is_blocked( c=setsockopt( obj->fd, SOL_SOCKET, SO_RCVBUF, (char*)&en, sizeof(en) ) ) )
              { process::next(); } return c;
@@ -92,16 +115,6 @@ public: socket_t() noexcept { _socket_::start_device(); }
 
     int set_send_buff( uint en ) const noexcept { int c;
         while( is_blocked( c=setsockopt( obj->fd, SOL_SOCKET, SO_SNDBUF, (char*)&en, sizeof(en) ) ) )
-             { process::next(); } return c;
-    }
-
-    int set_recv_timeout( uint time ) const noexcept { int c; TIMEVAL en; en.tv_sec=time; en.tv_usec=0;
-        while( is_blocked( c=setsockopt( obj->fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&en, sizeof(en) ) ) )
-             { process::next(); } return c; 
-    }
-
-    int set_send_timeout( uint time ) const noexcept { int c; TIMEVAL en; en.tv_sec=time; en.tv_usec=0;
-        while( is_blocked( c=setsockopt( obj->fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&en, sizeof(en) ) ) )
              { process::next(); } return c;
     }
 
@@ -154,16 +167,6 @@ public: socket_t() noexcept { _socket_::start_device(); }
 
     int get_send_buff() const noexcept { int c, en; socklen_t size = sizeof(en);
         while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_SNDBUF, (char*)&en, &size) ) )
-             { process::next(); } return c==0 ? en : c;
-    }
-
-    int get_recv_timeout() const noexcept { int c, en; socklen_t size = sizeof(en);
-        while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&en, &size) ) )
-             { process::next(); } return c==0 ? en : c;
-    }
-
-    int get_send_timeout() const noexcept { int c, en; socklen_t size = sizeof(en);
-        while( is_blocked( c=getsockopt(obj->fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&en, &size) ) )
              { process::next(); } return c==0 ? en : c;
     }
 
@@ -234,14 +237,14 @@ public: socket_t() noexcept { _socket_::start_device(); }
     
     /*─······································································─*/
 
-    int set_timeout( uint en ) const noexcept {
-        if( set_recv_timeout( en )<0 ){ return -1; } 
-        if( set_send_timeout( en )<0 ){ return -1; } return 1; 
-    }
+    bool is_server() const noexcept { return skt->srv; }
     
     /*─······································································─*/
 
-    bool is_server() const noexcept { return skt->srv; }
+    ulong set_timeout( ulong time ) const noexcept {
+        set_recv_timeout( time ); 
+        set_send_timeout( time ); return time;
+    }
     
     /*─······································································─*/
 
@@ -275,7 +278,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
     
     virtual ~socket_t() noexcept {
         if( obj.count() > 1 || obj->fd < 3 ){ return; } 
-        if( obj->state == -2 ){ return; } free();
+        if( obj->state ==-2 ){ return; } free();
     }
     
     /*─······································································─*/
@@ -340,8 +343,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
         return is_blocked( c=::bind( obj->fd, &skt->server_addr, skt->addrlen ) ) ? -2 : c;
     }
 
-    int _listen() const noexcept { 
-        int c=0; if( skt->srv == 0 ){ return -1; }
+    int _listen() const noexcept { int c=0; if( skt->srv == 0 ){ return -1; }
         return is_blocked( c=::listen( obj->fd, MAX_SOCKET ) ) ? -2 : c;
     }
 
@@ -366,24 +368,28 @@ public: socket_t() noexcept { _socket_::start_device(); }
     /*─······································································─*/
 
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
-        if ( is_closed() ){ return -1; } if( sx==0 ){ return 0; } if( SOCK != SOCK_DGRAM ){
+        if ( process::millis() > get_recv_timeout() || is_closed() )
+           { close(); return -1; } if ( sx==0 ) { return 0; } 
+        if ( SOCK != SOCK_DGRAM ){
             obj->feof = ::recv( obj->fd, bf, sx, 0 );
             obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
             return obj->feof;
         } else { SOCKADDR* cli; if( skt->srv==1 ) cli = &skt->client_addr; else cli = &skt->server_addr;
-            obj->feof =::recvfrom( obj->fd, bf, sx, 0, cli, &skt->len );
+            obj->feof = ::recvfrom( obj->fd, bf, sx, 0, cli, &skt->len );
             obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
             return obj->feof;
         }   return -1;
     }
     
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
-        if( is_closed() ){ return -1; } if( sx==0 ){ return 0; } if( SOCK != SOCK_DGRAM ){
-            obj->feof =::send( obj->fd, bf, sx, 0 );
+        if ( process::millis() > get_send_timeout() || is_closed() )
+           { close(); return -1; } if ( sx==0 ) { return 0; } 
+        if ( SOCK != SOCK_DGRAM ){
+            obj->feof = ::send( obj->fd, bf, sx, 0 );
             obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
             return obj->feof;
         } else { SOCKADDR* cli; if( skt->srv==1 ) cli = &skt->client_addr; else cli = &skt->server_addr;
-            obj->feof =::sendto( obj->fd, bf, sx, 0, cli, skt->len );
+            obj->feof = ::sendto( obj->fd, bf, sx, 0, cli, skt->len );
             obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
             return obj->feof;
         }   return -1;
