@@ -42,12 +42,15 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#ifndef NODEPP_PCB
+#define NODEPP_PCB
 namespace { int pcb ( char *buf, int size, int rwflag, void *args ) {
     if( args == nullptr ){ return 0; }
     strncpy( buf, (char *)args, size );
              buf[ size - 1 ] = '\0';
     return strlen(buf);
 }}
+#endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -811,7 +814,7 @@ public:
     int write_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data() , "w"); int res = 0;
         if ( fp == nullptr ){ process::error("while writing private key"); }
-        res = PEM_write_RSAPrivateKey( fp, obj->rsa, NULL, NULL, 0, pcb, pass );
+        res = PEM_write_RSAPrivateKey( fp, obj->rsa, NULL, NULL, 0, pcb, (void*)pass );
         fclose( fp ); return res;
     }
 
@@ -825,13 +828,15 @@ public:
     void read_public_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data(), "r" );
         if ( fp == nullptr ){ process::error("while reading public key"); }
-        PEM_read_RSAPublicKey( fp, &obj->rsa, pcb, pass ); fclose( fp );
+        PEM_read_RSAPublicKey( fp, &obj->rsa, pcb, (void*)pass ); 
+        fclose( fp );
     }
 
     void read_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data(), "r" );
         if ( fp == nullptr ){ process::error("while reading private key"); }
-        PEM_read_RSAPrivateKey( fp, &obj->rsa, pcb, pass ); fclose( fp );
+        PEM_read_RSAPrivateKey( fp, &obj->rsa, pcb, (void*)pass ); 
+        fclose( fp );
     }
 
     string_t public_encrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {

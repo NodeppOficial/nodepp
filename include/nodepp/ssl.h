@@ -32,12 +32,15 @@ namespace nodepp { namespace _ssl_ {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#ifndef NODEPP_PCB
+#define NODEPP_PCB
 namespace { int pcb ( char *buf, int size, int rwflag, void *args ) {
     if( args == nullptr ){ return 0; }
     strncpy( buf, (char *)args, size );
              buf[ size - 1 ] = '\0';
     return strlen(buf);
 }}
+#endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -219,7 +222,7 @@ public:
 
     void set_password( const char* pass ) const noexcept {
         SSL_CTX_set_default_passwd_cb( obj->ctx, pcb );
-        SSL_CTX_set_default_passwd_cb_userdata( obj->ctx, pass );
+        SSL_CTX_set_default_passwd_cb_userdata( obj->ctx, (void*)pass );
     }
 
     int set_hostname( const string_t& name ) const noexcept {
