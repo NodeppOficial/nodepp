@@ -256,8 +256,8 @@ namespace nodepp { namespace _zlib_ {
 
             if( cb( &str ) != Z_OK ){ 
                 string_t message = "Failed to initialize zlib for compression.";
-                process::error( inp.onError, message );
-                process::error( inp.onError, message ); coEnd;
+                _EERROR( inp.onError, message );
+                _EERROR( inp.onError, message ); coEnd;
             }
 
             while( inp.is_available() && out.is_available() ){
@@ -279,8 +279,8 @@ namespace nodepp { namespace _zlib_ {
                 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
-                    process::error( inp.onError, message );
-                    process::error( out.onError, message ); break;
+                    _EERROR( inp.onError, message );
+                    _EERROR( out.onError, message ); break;
                 }
             
             }   inflateEnd( &str ); out.close(); inp.close(); 
@@ -300,7 +300,7 @@ namespace nodepp { namespace _zlib_ {
 
             if( cb( &str ) != Z_OK ){ 
                 string_t message = "Failed to initialize zlib for compression.";
-                process::error( inp.onError, message ); coEnd;
+                _EERROR( inp.onError, message ); coEnd;
             }
 
             while( inp.is_available() ){
@@ -320,7 +320,7 @@ namespace nodepp { namespace _zlib_ {
 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
-                    process::error( inp.onError, message ); break;
+                    _EERROR( inp.onError, message ); break;
                 } 
 
             }   inflateEnd( &str ); inp.close(); 
@@ -354,8 +354,8 @@ namespace nodepp { namespace _zlib_ {
 
             if( cb( &str ) != Z_OK ){ 
                 string_t message = "Failed to initialize zlib for compression.";
-                process::error( inp.onError, message );
-                process::error( inp.onError, message ); coEnd;
+                _EERROR( inp.onError, message );
+                _EERROR( inp.onError, message ); coEnd;
             }
 
             while( inp.is_available() && out.is_available() ){
@@ -377,8 +377,8 @@ namespace nodepp { namespace _zlib_ {
 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
-                    process::error( inp.onError, message );
-                    process::error( out.onError, message ); break;
+                    _EERROR( inp.onError, message );
+                    _EERROR( out.onError, message ); break;
                 }
             
             }   deflateEnd( &str ); out.close(); inp.close(); 
@@ -398,7 +398,7 @@ namespace nodepp { namespace _zlib_ {
 
             if( cb( &str ) != Z_OK ){ 
                 string_t message = "Failed to initialize zlib for compression.";
-                process::error( inp.onError, message ); coEnd;
+                _EERROR( inp.onError, message ); coEnd;
             }
 
             while( inp.is_available() ){
@@ -418,7 +418,7 @@ namespace nodepp { namespace _zlib_ {
                 
                 if( x==Z_STREAM_END ) { break; } elif( x < 0 ){ 
                     string_t message = string::format("ZLIB: %s",str->msg);
-                    process::error( inp.onError, message ); break;
+                    _EERROR( inp.onError, message ); break;
                 } 
 
             }   deflateEnd( &str ); inp.close(); 
@@ -468,7 +468,7 @@ namespace nodepp {
     /*─······································································─*/
 
     template< class T > socket_t WSClient( const T& fetch, const string_t& key ) {
-        auto res = fetch.await(); if( !res.has_value() ) process::error( res.error().what() );
+        auto res = fetch.await(); if( !res.has_value() ) _ERROR( res.error().what() );
         auto cli = res.value();
 
         if( cli.status != 101 ){ 
@@ -485,7 +485,7 @@ namespace nodepp {
                 auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
-        if( dta != enc ){ process::error("secret key does not match"); }
+        if( dta != enc ){ _ERROR("secret key does not match"); }
             cli.stop();
         }   return cli;
 
@@ -531,7 +531,7 @@ namespace nodepp {
     /*─······································································─*/
 
     template< class T > ssocket_t WSSClient( const T& fetch, const string_t& key ) {
-        auto res = fetch.await(); if( !res.has_value() ) process::error( res.error().what() );
+        auto res = fetch.await(); if( !res.has_value() ) _ERROR( res.error().what() );
         auto cli = res.value();
 
         if( cli.status != 101 ){ 
@@ -548,7 +548,7 @@ namespace nodepp {
                 auto b64 = crypto::enc::BASE64(); b64.update(sha.get());
                 auto enc = b64.get().slice(0,-1);
 
-        if( dta != enc ){ process::error("secret key does not match"); }   
+        if( dta != enc ){ _ERROR("secret key does not match"); }   
             cli.stop();
         }   return cli;
 
