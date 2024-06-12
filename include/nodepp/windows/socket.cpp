@@ -419,8 +419,8 @@ public: socket_t() noexcept { _socket_::start_device(); }
         return is_blocked( c=::connect( obj->fd, &obj->server_addr, obj->addrlen ) ) ? -2 : c;
     }
 
-    int _bind() const noexcept { int c=0; obj->srv = 1;
-        if( process::millis() > get_conn_timeout() ){ return -1; }
+    int _bind() const noexcept {
+        if( process::millis() > get_conn_timeout() ){ return -1; } int c=0; obj->srv = 1;
         return is_blocked( c=::bind( obj->fd, &obj->server_addr, obj->addrlen ) ) ? -2 : c;
     }
 
