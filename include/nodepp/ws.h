@@ -35,14 +35,14 @@ public:
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         while((*_read_)( bf, sx )==-1 && is_available() && _read_->state>0 ){
         while((_read_->input=socket_t::_read( bf, _read_->size ))==-2 )
-              { return -2; } if( _read_->input<0 ){ close(); return; }
+              { return -2; } if( _read_->input<=0 ){ _read_->output=0; }
         }       obj->feof=_read_->output; return _read_->output;
     }
   
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
         while((*_write_)( bf, sx )==-1 && is_available() && _write_->state>0 ){
         while((_write_->input=socket_t::_write( bf, _write_->size ))==-2 )
-              { return -2; } if( _write_->input<0 ){ close(); return; }
+              { return -2; } if( _write_->input<=0 ){ _write_->output=0; }
         }       obj->feof=_write_->output; return _write_->output;
     }
 
@@ -56,6 +56,7 @@ namespace nodepp { namespace ws {
         if ( !nodepp::WSServer( (http_t) cli ) ){ return; }
         ptr_t<_file_::read> _read = new _file_::read;
         cli.onDrain.once([=](){ cli.free(); });
+        cli.set_timeout(0);
 
         server.onConnect.once([=]( ws_t cli ){
         process::poll::add([=](){
@@ -97,6 +98,7 @@ namespace nodepp { namespace ws {
 
         ws_t cli = nodepp::WSClient( http::fetch( args, opt ), key );
              cli.onDrain.once([=](){ cli.free(); }); 
+             cli.set_timeout(0);
 
         cli.onOpen.once([=](){ 
         process::poll::add([=](){

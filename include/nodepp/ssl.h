@@ -155,7 +155,7 @@ public:
     }
 
     ssl_t( const string_t& _key, const string_t& _cert, const string_t& _chain, onSNI _func ) 
-    : obj( new NODE() ) { _ssl_::start_device();
+    : obj( new NODE() ){ _ssl_::start_device();
           *this = ssl_t( _key, _cert, _chain, &_func );
     }
     

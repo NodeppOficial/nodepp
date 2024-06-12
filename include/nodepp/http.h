@@ -108,6 +108,7 @@ namespace nodepp { struct fetch_t {
     /*─······································································─*/
 
     header_t  headers;
+    ulong     timeout = 0;
     
     /*─······································································─*/
 
@@ -246,7 +247,7 @@ namespace nodepp { namespace http {
         string_t dip = uri.hostname ;
         string_t dir = uri.pathname + uri.search + uri.hash;
        
-        auto client = tcp_t ([=]( http_t cli ){ int c = 0;
+        auto client = tcp_t ([=]( http_t cli ){ int c = 0; cli.set_timeout( gfc->timeout );
             cli.write_header( gfc->method, dir, gfc->version, gfc->headers );
             cli.write_filestream( gfc->method, gfc->body, gfc->file );
             while(( c=cli.read_header() )>0 ){ process::next(); }
