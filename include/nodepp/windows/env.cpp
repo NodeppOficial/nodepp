@@ -16,11 +16,13 @@
 
 namespace nodepp { namespace { 
 
+    /*
     int CLEAR(){ LPCH environmentStrings = GetEnvironmentStrings();
         for( LPCTSTR currentVariable = environmentStrings; *currentVariable; currentVariable += lstrlen(currentVariable) + 1 ){
             SetEnvironmentVariableA( currentVariable, nullptr );
         }   FreeEnvironmentStrings( environmentStrings ); return 0;
     }
+    */
 
     string_t GET( const string_t& name ){ ptr_t<char> buffer ( UNBFF_SIZE );
         auto x = GetEnvironmentVariableA( name.c_str(), &buffer, buffer.size() );
@@ -49,7 +51,7 @@ namespace nodepp { namespace process {
 
         int remove( const string_t& name ){ return nodepp::DEL( name );  } 
 
-        int clear(){ return nodepp::CLEAR(); }
+      //int clear(){ return nodepp::CLEAR(); }
 
         int init( const string_t& path ){ try {
                 

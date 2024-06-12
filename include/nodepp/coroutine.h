@@ -119,10 +119,16 @@ struct generator_t { protected: int _state_ = 0; };
 #if defined(WINDOWS) || defined(_WIN32) || defined(_WIN64)
    #define _KERNEL NODEPP_KERNEL_WINDOWS
 #elif defined(__EMSCRIPTEN__)
-   #define _ENVIRONMENT NODEPP_ENVIRONMENT_WASM
+   #define _KERNEL NODEPP_ENVIRONMENT_WASM
 #elif defined(ARDUINO)
    #define _KERNEL NODEPP_KERNEL_ARDUINO
+#elif defined(__APPLE__)
+   #define _KERNEL NODEPP_KERNEL_POSIX
 #elif defined(__linux__)
+   #define _KERNEL NODEPP_KERNEL_POSIX
+#elif defined(__unix__)
+   #define _KERNEL NODEPP_KERNEL_POSIX
+#elif defined(__BSD__)
    #define _KERNEL NODEPP_KERNEL_POSIX
 #else
    #define _KERNEL NODEPP_KERNEL_UNKNOWN
@@ -138,6 +144,7 @@ struct generator_t { protected: int _state_ = 0; };
 #define NODEPP_OS_APPLE   4
 #define NODEPP_OS_FRBSD   3
 #define NODEPP_OS_LINUX   2
+#define NODEPP_OS_UNIX    2
 #define NODEPP_OS_ARDUINO 1
 #define NODEPP_OS_UNKNOWN 0
 
@@ -156,6 +163,8 @@ struct generator_t { protected: int _state_ = 0; };
    #define _OS NODEPP_OS_APPLE
 #elif defined(__linux__)
    #define _OS NODEPP_OS_LINUX
+#elif defined(__unix__)
+   #define _OS NODEPP_OS_UNIX
 #elif defined(ARDUINO)
    #define _OS NODEPP_OS_ARDUINO
 #else

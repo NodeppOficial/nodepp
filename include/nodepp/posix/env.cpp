@@ -22,7 +22,8 @@ namespace nodepp { namespace {
 
     int DEL( const string_t& name ){ return unsetenv( name.c_str() ); }
 
-    int CLEAR(){ return clearenv(); }
+  //int CLEAR(){ return clearenv(); }
+
 }}
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -37,7 +38,7 @@ namespace nodepp { namespace process {
 
         int remove( const string_t& name ){ return nodepp::DEL( name );  } 
 
-        int clear(){ return nodepp::CLEAR(); }
+      //int clear(){ return nodepp::CLEAR(); }
 
         int init( const string_t& path ){ try {
                 
