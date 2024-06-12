@@ -47,6 +47,7 @@ namespace nodepp {
 
 struct agent_t {
     bool  reuse_address = 1;
+    uint  conn_timeout  = 0;
     uint  recv_timeout  = 0;
     uint  send_timeout  = 0;
     ulong buffer_size   = CHUNK_SIZE;
@@ -65,6 +66,7 @@ protected:
     struct NODE {
 
         ulong recv_timeout=0; ulong send_timeout=0;
+        ulong conn_timeout=0;
         SOCKADDR server_addr, client_addr;
         int addrlen; bool srv=0; int len;
         int feof = 1;
@@ -114,23 +116,32 @@ public: socket_t() noexcept { _socket_::start_device(); }
     /*─······································································─*/
 
     ulong set_recv_timeout( ulong time ) const noexcept { 
-        if( time == 0 ){ skt->recv_timeout = 0; return 0; }
-        skt->recv_timeout = process::millis() + time; return time; 
+        if( time == 0 ){ obj->recv_timeout = 0; return 0; }
+        obj->recv_timeout = process::millis() + time; return time; 
     }
 
     ulong set_send_timeout( ulong time ) const noexcept { 
-        if( time == 0 ){ skt->send_timeout = 0; return 0; }
-        skt->send_timeout = process::millis() + time; return time; 
+        if( time == 0 ){ obj->send_timeout = 0; return 0; }
+        obj->send_timeout = process::millis() + time; return time; 
+    }
+
+    ulong set_conn_timeout( ulong time ) const noexcept { 
+        if( time == 0 ){ obj->conn_timeout = 0; return 0; }
+        obj->conn_timeout = process::millis() + time; return time; 
     }
     
     /*─······································································─*/
 
     ulong get_recv_timeout() const noexcept { 
-        return skt->recv_timeout==0 ? process::millis() : skt->recv_timeout; 
+        return obj->recv_timeout==0 ? process::millis() : obj->recv_timeout; 
     }
 
     ulong get_send_timeout() const noexcept { 
-        return skt->send_timeout==0 ? process::millis() : skt->send_timeout;
+        return obj->send_timeout==0 ? process::millis() : obj->send_timeout;
+    }
+
+    ulong get_conn_timeout() const noexcept { 
+        return obj->conn_timeout==0 ? process::millis() : obj->conn_timeout;
     }
     
     /*─······································································─*/
@@ -316,6 +327,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
 
     void set_sockopt( agent_t opt ) const noexcept { 
         set_reuse_address( opt.reuse_address );
+        set_conn_timeout ( opt.conn_timeout  );
         set_recv_timeout ( opt.recv_timeout  );
         set_send_timeout ( opt.send_timeout  );
         set_buffer_size  ( opt.buffer_size   );
@@ -331,6 +343,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
         opt.reuse_address = get_reuse_address();
         opt.recv_timeout  = get_recv_timeout();
         opt.send_timeout  = get_send_timeout();
+        opt.conn_timeout  = get_conn_timeout();
         opt.buffer_size   = get_buffer_size();
     #ifdef SO_REUSEPORT
         opt.reuse_port    = get_reuse_port();
@@ -397,20 +410,22 @@ public: socket_t() noexcept { _socket_::start_device(); }
     
     /*─······································································─*/
 
-    int _connect() const noexcept { int c=0; if( obj->srv == 1 ){ return -1; }
-        return is_blocked( c=::connect( obj->fd, &obj->server_addr, obj->addrlen ) ) ? -2 : c;
-    }
-
     int _accept() const noexcept { int c=0; if( obj->srv == 0 ){ return -1; }
         return is_blocked( c=::accept( obj->fd, &obj->server_addr, &obj->addrlen ) ) ? -2 : c;
     }
 
+    int _connect() const noexcept { int c=0;
+        if( process::millis() > get_conn_timeout() || obj->srv == 1 ){ return -1; }
+        return is_blocked( c=::connect( obj->fd, &obj->server_addr, obj->addrlen ) ) ? -2 : c;
+    }
+
     int _bind() const noexcept { int c=0; obj->srv = 1;
+        if( process::millis() > get_conn_timeout() ){ return -1; }
         return is_blocked( c=::bind( obj->fd, &obj->server_addr, obj->addrlen ) ) ? -2 : c;
     }
 
-    int _listen() const noexcept { 
-        int c=0; if( obj->srv == 0 ){ return -1; }
+    int _listen() const noexcept { int c = 0;
+        if( process::millis() > get_conn_timeout() || obj->srv == 0 ){ return -1; }
         return is_blocked( c=::listen( obj->fd, MAX_SOCKET ) ) ? -2 : c;
     }
 
