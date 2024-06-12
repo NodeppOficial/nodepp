@@ -39,8 +39,8 @@ protected:
 
     void init_poll_loop( ptr_t<const tcp_t>& self ) const noexcept { process::poll::add([=](){
         if( self->is_closed() ){ return -1; } if( self->obj->poll.emit() != -1 ) { auto x = self->obj->poll.get_last_poll();
-            if( x[0] == 0 ){ socket_t cli(x[1]); self->onSocket.emit(cli); self->obj->func(cli); }
-            if( x[0] == 1 ){ socket_t cli(x[1]); self->onSocket.emit(cli); self->obj->func(cli); }
+            if( x[0] == 0 ){ socket_t cli(x[1]); cli.set_sockopt( self->obj->agent ); self->onSocket.emit(cli); self->obj->func(cli); }
+            if( x[0] == 1 ){ socket_t cli(x[1]); cli.set_sockopt( self->obj->agent ); self->onSocket.emit(cli); self->obj->func(cli); }
         #if _KERNEL == NODEPP_KERNEL_WINDOWS
             if( x[0] ==-1 ){ ::closesocket(x[1]); }
         #else
@@ -103,6 +103,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
             elif ( self->obj->chck == true ){ self->obj->poll.push_read(_accept); coGoto(0); }
             else { socket_t cli( _accept ); if( cli.is_available() ){ 
                    process::poll::add([=]( socket_t cli ){
+                        cli.set_sockopt( self->obj->agent ); 
                         self->onSocket.emit( cli ); 
                         self->obj->func( cli ); 
                         return -1;
