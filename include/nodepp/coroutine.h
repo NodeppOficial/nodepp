@@ -121,14 +121,14 @@ struct generator_t { protected: int _state_ = 0; };
 #elif defined(ARDUINO)
    #define _KERNEL NODEPP_KERNEL_ARDUINO
 #elif defined(__EMSCRIPTEN__)
-   #define _KERNEL NODEPP_KHERNEL_WASM
+   #define _KERNEL  NODEPP_KERNEL_WASM
+#elif defined(__FreeBSD__)
+   #define _KERNEL NODEPP_KERNEL_POSIX
 #elif defined(__APPLE__)
    #define _KERNEL NODEPP_KERNEL_POSIX
 #elif defined(__linux__)
    #define _KERNEL NODEPP_KERNEL_POSIX
 #elif defined(__unix__)
-   #define _KERNEL NODEPP_KERNEL_POSIX
-#elif defined(__BSD__)
    #define _KERNEL NODEPP_KERNEL_POSIX
 #else
    #define _KERNEL NODEPP_KERNEL_UNKNOWN
