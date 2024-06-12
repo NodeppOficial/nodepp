@@ -149,16 +149,16 @@ namespace nodepp { namespace encoder { namespace utf16 {
 
     string_t to_utf8( ptr_t<char16_t> inp ){ 
         if ( inp.empty() ){ return nullptr; } string_t res;
-        for( ulong x=0; inp[x] != 0; ++x ){ char16_t ch = inp[x];
+        for( ulong x=0; x<inp.size(); ++x ){  char16_t ch = inp[x];
         if ( ch <= 0x7F ) {
             res.push(type::cast<char>(ch));
         } elif ( ch <= 0x7FF ) {
-            res.push(type::cast<char>(0xC0|( ch >> 6)));
-            res.push(type::cast<char>(0x80|( ch & 0x3F)));
+            res.push(type::cast<char>(( ch >> 6)   | 0xC0));
+            res.push(type::cast<char>(( ch & 0x3F) | 0x80));
         } else {
-            res.push(type::cast<char>(0xE0|( ch >> 12)));
-            res.push(type::cast<char>(0x80|((ch >> 6) & 0x3F)));
-            res.push(type::cast<char>(0x80|( ch & 0x3F)));
+            res.push(type::cast<char>(( ch >>  12) | 0xE0));
+            res.push(type::cast<char>(((ch >>   6) & 0x3F) | 0x80));
+            res.push(type::cast<char>(((ch & 0x3F) | 0x80)));
         }
         }   return res;
     }
@@ -179,7 +179,7 @@ namespace nodepp { namespace encoder { namespace utf32 {
 
     string_t to_utf8( ptr_t<char32_t> inp ){ 
         if ( inp.empty() ){ return nullptr; } string_t res;
-        for( ulong x=0; inp[x] != 0; ++x ){ char32_t ch = inp[x];
+        for( ulong x=0; x<inp.size(); ++x ){  char32_t ch = inp[x];
         if ( ch <= 0x7F ) {
             res.push(type::cast<char>(ch));
         } elif ( ch <= 0x7FF ) {
@@ -201,7 +201,7 @@ namespace nodepp { namespace encoder { namespace utf32 {
     ptr_t<char16_t> to_utf16( ptr_t<char32_t> inp ){
         ptr_t<char16_t> res = ptr_t<char16_t>( (inp.size()+1) * sizeof(char16_t), 0 );
 
-        ulong x = 0; while( inp[x] != 0 ) {
+        ulong x = 0; while( x<inp.size() ) {
             if( inp[x] < 0x10000 ) {
                 res[x] = type::cast<char16_t>( inp[x] );
             } else {
