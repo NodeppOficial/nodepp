@@ -14,8 +14,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-namespace nodepp { template<class U, class V>
-class map_t { 
+namespace nodepp { template<class U, class V> class map_t { 
 protected:
 
     using T = type::pair< U, V >;
@@ -77,6 +76,8 @@ public:
     }
 
     /*─······································································─*/
+
+    ulong    size() const noexcept { return obj->queue.size(); }
 
     ptr_t<T> data() const noexcept { return obj->queue.data(); }
     
