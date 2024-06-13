@@ -126,6 +126,10 @@ public:    observer_t() noexcept {}
     
     /*─······································································─*/
 
+    void size() const noexcept { return node.size(); }
+    
+    /*─······································································─*/
+
     void clear( string_t name ) const noexcept { 
         for( ulong x=0; x<node.size(); x++ ){
         if ( node[x].first == name )
