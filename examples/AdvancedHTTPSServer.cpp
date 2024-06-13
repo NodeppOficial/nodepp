@@ -35,11 +35,11 @@ void onMain(){
 
         if( cli.headers["Range"].empty() ){
 
-            cli.write_header( 200, {{
+            cli.write_header( 200, header_t({
                 { "Content-Length", string::to_string(str.size()) },
             //  { "Cache-Control", "public, max-age=3600" },
                 { "Content-Type",   path::mimetype(dir) }
-            }});
+            }));
 
             if(!regex::test(path::mimetype(dir),"audio|video",true) ) 
                 stream::pipe( str, cli );
@@ -50,11 +50,11 @@ void onMain(){
             ulong rang[2]; rang[0] = string::to_ulong( range[0] );
                   rang[1] = min( rang[0]+CHUNK_MB(10), str.size()-1 );
 
-            cli.write_header( 206, {{
+            cli.write_header( 206, header_t({
                 { "Content-Range", string::format("bytes %lu-%lu/%lu",rang[0],rang[1],str.size()) },
                 { "Content-Type",  path::mimetype(dir) }, 
                 { "Accept-Range", "bytes" }
-            }});
+            }));
             
             str.set_range( rang[0], rang[1] );
             stream::pipe( str, cli );

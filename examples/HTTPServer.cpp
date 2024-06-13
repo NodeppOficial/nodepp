@@ -14,9 +14,9 @@ void onMain(){
 
         console::log( cli.path, cli.get_fd() );
         
-        cli.write_header( 200, {{
+        cli.write_header( 200, header_t({
             { "content-type", "text/html" }
-        }});
+        }));
         
         cli.write( date::fulltime() );
         cli.close();
