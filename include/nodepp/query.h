@@ -25,8 +25,8 @@ namespace nodepp {
 
     namespace query {
 
-        query_t parse( string_t data ){ query_t null;
-            if ( data.empty() || data[0] != '?' ){ return null; }
+        query_t parse( string_t data ){
+            if ( data.empty() || data[0] != '?' ){ return query_t(); } query_t null;
                  data.shift(); auto args = string::split( data, '&' );
             for( auto x : args ){ 
                  auto y = regex::match_all( x, "[^=]+" );
