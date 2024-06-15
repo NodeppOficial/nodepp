@@ -85,11 +85,17 @@ public:
     
     /*─······································································─*/
 
+    template< class... T >
+    void clear( const T&... args ) const noexcept { erase( args... ); }
+    
+    /*─······································································─*/
+
     void erase() const noexcept { obj->queue.erase(); }
 
     void erase( const U& id ) const noexcept {
          obj->queue.erase( obj->queue.index_of([&]( T arg ){ return arg.first == id; }) );
     }
+
 
 };}
 

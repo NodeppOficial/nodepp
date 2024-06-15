@@ -32,114 +32,113 @@ private:
     using T = NODE_<U,V,E>;
     using P = type::pair<U,V>;
 
-protected: array_t<T> node;
-public:    observer_t() noexcept {}
-
-    template< class... O >
-    observer_t( const P& argc, const O&... args ) noexcept {
-        node = array_t<T>( (ulong) sizeof...(args)+1 );
-        ulong x = 0; iterator::map([&]( P arg ){
-            node[x].second = arg.second;
-            node[x].first  = arg.first;  x++;
-        }, argc, args... );
-    }
+public: observer_t() noexcept {} queue_t<T> node;
     
     /*─······································································─*/
 
     template< ulong N >
     observer_t& operator=( const P (&args) [N] ) noexcept {
-        node = array_t<T>( N ); for( ulong x=N; x--; ){ 
-        node[x].second = args[x].second; 
-        node[x].first  = args[x].first;
-    } return *this; }
+        node.clear(); ulong x=N; while( x-->0 ){
+            T item; memset( &item, sizeof(T), 0 );
+            item.second = args[x].second;
+            item.first  = args[x].first;
+            node.push(item);
+        }   return *this; 
+    }
 
     template< ulong N >
-    observer_t ( const P (&args) [N] ) noexcept { 
-        node = array_t<T>( N ); for( ulong x=N; x--; ){ 
-        node[x].second = args[x].second;
-        node[x].first  = args[x].first; 
-    }}
+    observer_t ( const P (&args) [N] ) noexcept {
+        node.clear(); ulong x=N; while( x-->0 ){
+            T item; memset( &item, sizeof(T), 0 );
+            item.second = args[x].second;
+            item.first  = args[x].first;
+            node.push(item);
+        }
+    }
     
     /*─······································································─*/
 
     void off( void* address ) const noexcept { 
-        if( !address ){ return; }
-        *((int*)address) = -1; 
+        if( !address ){ return; } *((int*)address) = -1; 
     }
 
     template< class F >
     void* once( const U& name, F func ) const noexcept {
-        for( ulong x=0; x<node.size(); x++ ){
-        if ( node[x].first == name )
-             return node[x].third.once( func );
-        }    return nullptr;
+        auto n = node.first(); while( n!=nullptr ){
+        if ( n->data.first == name ){
+             return n->data.third.once( func );
+        }    n = n->next; } return nullptr;
     }
 
     template< class F >
     void* on( const U& name, F func ) const noexcept {
-        for( ulong x=0; x<node.size(); x++ ){
-        if ( node[x].first == name )
-             return node[x].third.on( func );
-        }    return nullptr;
+        auto n = node.first(); while( n!=nullptr ){
+        if ( n->data.first == name ){
+             return n->data.third.on( func );
+        }    n = n->next; } return nullptr;
     }
     
     /*─······································································─*/
     
     void set( function_t<observer_t,observer_t> func ) const {
-        observer_t obj = func( *this ); for( auto x : obj )
-            this->set( x.first, x.second );
+        observer_t obj = func( *this ); 
+        auto   n = obj.node.first();
+        while( n!=nullptr ){ 
+            this->set( n->data.first, n->data.second );
+            n = n->next;
+        }
     }
     
     /*─······································································─*/
 
     template< class F >
     void set( const U& name, const F& value ) const {
-        for( ulong x=0; x<node.size(); x++ ){
-         if( node[x].first == name ){
-             node[x].third.emit( node[x].second, value );
-             node[x].second = value; return;
-        }}   process::error("field not found:",name);
+        auto n = node.first(); while( n!=nullptr ){
+        if ( n->data.first == name ){
+             n->data.third.emit( n->data.second, value );
+             n->data.second = value; return;
+        }    n = n->next; }   
+             process::error("field not found:",name);
     }
     
     /*─······································································─*/
     
     template< class V, ulong N >
     void set( const V (&args) [N] ) const {
-         for( ulong x=0; x<N; x++ )
+         for( ulong x=0; x<N; x++ ){
               this->set( args[x].first, args[x].second );
+         }
     }
 
     /*─······································································─*/
 
     const V get( const U& name ) const {
-        for( ulong x=0; x<node.size(); x++ ){
-        if ( node[x].first == name )
-             return node[x].second;
-        }    process::error( "field not found:", name ); 
+        auto n = node.first(); while( n!=nullptr ){
+        if ( n->data.first == name ){
+             return n->data.second;
+        }    n = n->next; }   
+             process::error( "field not found:", name ); 
              return (const V)(0);
     }
-
-    /*─······································································─*/
-
-    const T* begin() const noexcept { return node.begin(); }
-    const T*   end() const noexcept { return node.end();   }
     
     /*─······································································─*/
 
-    void size() const noexcept { return node.size(); }
+    ulong size() const noexcept { return node.size(); }
     
     /*─······································································─*/
 
     void clear( string_t name ) const noexcept { 
-        for( ulong x=0; x<node.size(); x++ ){
-        if ( node[x].first == name )
-           { node[x].third.clear(); }
-        }
+        auto n = node.first(); while( n!=nullptr ){
+        if ( n->data.first == name ){
+             n->data.third.clear();
+        }    n = n->next; }
     }
 
     void clear() const noexcept { 
-        for( ulong x=0; x<node.size(); x++ )
-           { node[x].third.clear(); }
+        auto n = node.first(); while( n!=nullptr ){
+             n->data.third.clear();
+             n = n->next;
+        }
     }
     
     /*─······································································─*/
