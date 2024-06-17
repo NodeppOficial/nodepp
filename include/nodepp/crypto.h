@@ -797,18 +797,16 @@ protected:
     
 public:
 
-    rsa_t() : obj( new NODE() ) {
+    rsa_t( int keylen=2048 ) : obj( new NODE() ) {
         crypto::start_device();
         obj->rsa   = RSA_new();
         obj->num   =  BN_new();
+        obj->len   = keylen; 
         obj->state = 1;
         if ( !obj->num || !obj->rsa )
            { process::error("creating rsa object"); }
-    }
-
-    int generate_key( int keyLen=2048 ) const noexcept {
-               obj->len = keyLen; BN_set_word( obj->num, RSA_F4 );
-        return RSA_generate_key_ex( obj->rsa, keyLen, obj->num, NULL );
+        BN_set_word( obj->num, RSA_F4 );
+        RSA_generate_key_ex( obj->rsa, keylen, obj->num, NULL );
     }
 
     int write_private_key( const string_t& path, const char* pass=NULL ) const {
@@ -980,20 +978,20 @@ public:
         return { (char*) &sgn, (ulong) len };
     }
 
-    int verify( const string_t& msg, const string_t& sgn ) const noexcept {
-        return DSA_verify( 0, (uchar*)msg.data(), msg.size(), (uchar*)sgn.data(), sgn.size(), obj->dsa );
+    bool verify( const string_t& msg, const string_t& sgn ) const noexcept {
+         return DSA_verify( 0, (uchar*)msg.data(), msg.size(), (uchar*)sgn.data(), sgn.size(), obj->dsa )>0;
     }
 
-    void read_private_key( const string_t& path ) const {
+    void read_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen(path.data(),"r");
         if ( fp == nullptr ) process::error(" while reading private key");
-        obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, nullptr, nullptr );
+        obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, pcb, (void*)pass );
     }
 
-    void read_public_key( const string_t& path ) const {
+    void read_public_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen(path.data(),"r");
         if ( fp == nullptr ) process::error(" while reading public key");
-        obj->dsa = PEM_read_DSA_PUBKEY( fp, &obj->dsa, nullptr, nullptr );
+        obj->dsa = PEM_read_DSA_PUBKEY( fp, &obj->dsa, pcb, (void*)pass );
     }
 
     void write_private_key( const string_t& path ) const {
@@ -1003,10 +1001,10 @@ public:
            { fclose( fp ); process::error("while writting the private key"); } fclose( fp );
     }
 
-    void write_public_key( const string_t& path ) const {
+    void write_public_key( const string_t& path, const char* pass=NULL ) const {
         if( obj->state != 1 ){ return; } FILE* fp = fopen( path.data(), "w" );
         if ( fp == nullptr ) { process::error("while creating file"); }
-        if (!PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, nullptr, nullptr ) )
+        if (!PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, pcb, (void*)pass ) )
            { fclose( fp ); process::error("while writting the public key"); } fclose( fp );
     }
 
@@ -1355,30 +1353,14 @@ namespace crypto { namespace ecdsa { //openssl ecparam -list_curves
     
     /*─······································································─*/
 
-namespace crypto { namespace dh {
-    
-    class DH : public dh_t { public: template< class... T >
-          DH ( const T&... args ) : dh_t ( args... ) {}
-    };
-
-}}
-    
-    /*─······································································─*/
-
-namespace crypto { namespace rsa {
-    
-    class RSA : public rsa_t { public: template< class... T >
-          RSA ( const T&... args ) : rsa_t ( args... ) {}
-    };
-
-}}
-    
-    /*─······································································─*/
-
-namespace crypto { namespace dsa {
+namespace crypto { namespace sign {
     
     class DSA : public dsa_t { public: template< class... T >
           DSA ( const T&... args ) : dsa_t ( args... ) {}
+    };
+    
+    class DH : public dh_t { public: template< class... T >
+          DH ( const T&... args ) : dh_t ( args... ) {}
     };
 
 }}
