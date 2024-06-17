@@ -791,7 +791,7 @@ public:
     }
 
     bool verify( const string_t& hex, const string_t& sgn ) const noexcept {
-         return hex == sgn;
+         return sign( hex ) == sgn;
     }
 
 };

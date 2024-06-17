@@ -9,20 +9,10 @@ void onMain(){
     crypto::sign::DH key1, key2, key3;
 
     auto skey1 = key1.get_public_key();
-    auto skey2 = key2.get_public_key();
-    auto skey3 = key3.get_public_key();
-
-    auto sign1 = key2.sign( skey1 );
-    auto sign2 = key1.sign( skey2 );
-    auto sign3 = key3.sign( skey3 );
+    auto sign1 = key1.sign( skey1 );
 
     console::log( sign1 );
-    console::log( sign2 );
 
-    console::log( "verified", key1.verify( sign1, sign2 ) );
-    console::log( "verified", key2.verify( sign2, sign1 ) );
-
-    console::log( "verified", key1.verify( sign3, sign2 ) );
-    console::log( "verified", key2.verify( sign3, sign1 ) );
+    console::log( "verified", key1.verify( skey1, sign2 ) );
 
 }
