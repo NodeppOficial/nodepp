@@ -36,6 +36,7 @@
 
 #include <openssl/ec.h>
 #include <openssl/bn.h>
+#include <openssl/rand.h>
 #include <openssl/ecdh.h>
 #include <openssl/ecdsa.h>
 #include <openssl/obj_mac.h>
@@ -98,6 +99,10 @@ protected:
         int  state;
     };  ptr_t<NODE> obj = new NODE();
 
+    string_t hex() const noexcept { 
+        free(); return { (char*) &obj->buff, obj->length }; 
+    }
+
 public:
 
     template< class T >
@@ -117,14 +122,6 @@ public:
         EVP_DigestUpdate( obj->ctx, (uchar*) msg.data(), msg.size() );
     }
 
-    string_t get() const noexcept { 
-        free(); return { (char*) &obj->buff, obj->length }; 
-    }
-
-    string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() );
-    }
-
     void free() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
         EVP_DigestFinal_ex( obj->ctx, &obj->buff, &obj->length );
@@ -134,6 +131,10 @@ public:
     bool is_available() const noexcept { return obj->state == 1; }
 
     bool is_closed() const noexcept { return obj->state == 0; }
+
+    string_t get() const noexcept { 
+        return crypto::buff2hex( this->hex() );
+    }
 
     void close() const noexcept { free(); } 
 
@@ -150,6 +151,10 @@ protected:
         uint length;
         int  state;
     };  ptr_t<NODE> obj;
+
+    string_t hex() const noexcept { 
+        free(); return { (char*) &obj->buff, obj->length }; 
+    }
 
 public:
 
@@ -170,18 +175,14 @@ public:
         HMAC_Update( obj->ctx, (uchar*) msg.data(), msg.size() ); 
     }
 
-    string_t get() const noexcept { 
-        free(); return { (char*) &obj->buff, obj->length }; 
-    }
-
-    string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() );
-    }
-
     void free() const noexcept {
         if( obj->state == 0 ){ return; } obj->state = 0;
         HMAC_Final( obj->ctx, &obj->buff, &obj->length ); 
         HMAC_CTX_free( obj->ctx ); //EVP_cleanup();
+    }
+
+    string_t get() const noexcept { 
+        return crypto::buff2hex( this->hex() );
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -204,6 +205,8 @@ protected:
         int state, len;
     };  ptr_t<NODE> obj;
 
+    string_t hex() const noexcept { free(); return obj->buff; }
+
 public:
 
     event_t<string_t> onData;
@@ -213,8 +216,8 @@ public:
     encrypt_t( const string_t& iv, const string_t& key, const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
-        obj->ctx   = EVP_CIPHER_CTX_new(); 
-        obj->state = 1; 
+        obj->ctx   =    EVP_CIPHER_CTX_new(); 
+        obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx ); 
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
            { process::error("cant initializate encrypt_t"); }
     }
@@ -223,9 +226,10 @@ public:
     encrypt_t( const string_t& key, const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
-        obj->ctx   = EVP_CIPHER_CTX_new(); 
-        obj->state = 1; 
-        if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*) "" ) )
+        obj->ctx   =       EVP_CIPHER_CTX_new(); 
+        obj->state = 1;    EVP_CIPHER_CTX_init( obj->ctx );
+        auto iv = ptr_t<uchar>( EVP_MAX_IV_LENGTH ); RAND_bytes( &iv, EVP_MAX_IV_LENGTH );
+        if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), &iv ) )
            { process::error("cant initializate encrypt_t"); }
     }
 
@@ -238,13 +242,7 @@ public:
     
     virtual ~encrypt_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
-    string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() ); 
-    }
-
-    string_t get() const noexcept { 
-        free(); return obj->buff; 
-    }
+    string_t get() const noexcept { return crypto::buff2hex( this->hex() ); }
 
     void free() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
@@ -284,8 +282,8 @@ public:
     decrypt_t( const string_t& iv, const string_t& key, const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
-        obj->ctx   = EVP_CIPHER_CTX_new(); 
-        obj->state = 1;
+        obj->ctx   =    EVP_CIPHER_CTX_new(); 
+        obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
            { process::error("cant initializate decrypt_t"); }
     }
@@ -294,14 +292,16 @@ public:
     decrypt_t( const string_t& key, const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
-        obj->ctx   = EVP_CIPHER_CTX_new(); 
-        obj->state = 1;
-        if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"" ) )
+        obj->ctx   =    EVP_CIPHER_CTX_new(); 
+        obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
+        auto iv = ptr_t<uchar>( EVP_MAX_IV_LENGTH ); RAND_bytes( &iv, EVP_MAX_IV_LENGTH );
+        if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), &iv ) )
            { process::error("cant initializate decrypt_t"); }
     }
 
-    void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
-        EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size());
+    void update( const string_t& msg ) const noexcept { 
+        if( obj->state != 1 ){ return; } auto data = crypto::hex2buff( msg );
+        EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)data.data(), data.size());
         if ( obj->len > 0 ) { if ( onData.empty() ) {
                  obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
         } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
@@ -309,13 +309,7 @@ public:
     
     virtual ~decrypt_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
-    string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() ); 
-    }
-
-    string_t get() const noexcept { 
-        free(); return obj->buff; 
-    }
+    string_t get() const noexcept { free(); return obj->buff; }
 
     void free() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
@@ -370,13 +364,7 @@ public:
         } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
     }
 
-    string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() ); 
-    }
-
-    string_t get() const noexcept { 
-        free(); return obj->buff; 
-    }
+    string_t get() const noexcept { free(); return obj->buff; }
 
     void free() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
@@ -419,6 +407,8 @@ public:
     
     virtual ~encoder_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
+    string_t get() const noexcept { free(); return obj->buff; }
+
     void update( const string_t& msg ) const noexcept { 
         if( obj->state != 1 ){ return; }
 
@@ -434,14 +424,6 @@ public:
                 obj->buff.unshift( obj->chr[0] );
         }
 
-    }
-
-    string_t get() const noexcept { 
-        free(); return obj->buff; 
-    }
-
-    string_t get_hex() const noexcept {  
-        return crypto::buff2hex( this->get() );
     }
 
     void free() const noexcept { 
@@ -494,13 +476,7 @@ public:
         } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
     }
 
-    string_t get() const noexcept { 
-        free(); return obj->buff; 
-    }
-
-    string_t get_hex() const noexcept {  
-        return crypto::buff2hex( this->get() );
-    }
+    string_t get() const noexcept { free(); return obj->buff; }
 
     void free() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
@@ -562,13 +538,7 @@ public:
         } else { onData.emit( string_t( (char*) &out, out.size() ) ); }
     }
 
-    string_t get() const noexcept { 
-        free(); return obj->buff; 
-    }
-
-    string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() );
-    }
+    string_t get() const noexcept { free(); return obj->buff; }
 
     void free() const noexcept { 
         if( obj->state == 1 ){ return; } obj->state = 0;
@@ -585,92 +555,7 @@ public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-class ecdh_t {
-protected:
-
-    struct NODE {
-        EC_POINT *pub_key  = nullptr;
-        BIGNUM   *priv_key = nullptr;
-        EC_KEY   *key_pair = nullptr;
-        int       state;
-    };  ptr_t<NODE> obj;
-    
-public:
-
-    template< class T >
-    ecdh_t( const string_t& key, const T& type ) noexcept 
-    :  obj( new NODE() ) { crypto::start_device();
-        obj->state = 1;
-
-        obj->key_pair = EC_KEY_new_by_curve_name(type);
-                        EC_KEY_generate_key( obj->key_pair );
-
-        obj->priv_key = (BIGNUM*) BN_new(); 
-        BN_hex2bn( &obj->priv_key, key.data() );
-        EC_KEY_set_private_key( obj->key_pair, obj->priv_key );
-
-        const EC_POINT* pub_key = EC_KEY_get0_public_key( obj->key_pair );
-        obj->pub_key = EC_POINT_dup(pub_key, EC_KEY_get0_group(obj->key_pair));
-    }
-
-    template< class T >
-    ecdh_t( const T& type ) noexcept 
-    :  obj( new NODE() ) { crypto::start_device();
-        obj->state = 1;
-
-        obj->key_pair = EC_KEY_new_by_curve_name(type);
-                        EC_KEY_generate_key( obj->key_pair );
-
-        obj->priv_key = (BIGNUM*) BN_new(); 
-        BN_rand( obj->priv_key, sizeof(int), -1, 0 );
-        EC_KEY_set_private_key( obj->key_pair, obj->priv_key );
-
-        const EC_POINT* pub_key = EC_KEY_get0_public_key( obj->key_pair );
-        obj->pub_key = EC_POINT_dup(pub_key,EC_KEY_get0_group(obj->key_pair));
-    }
-    
-    virtual ~ecdh_t() noexcept { if( obj.count()>1 ){ return; } free(); }
-
-    string_t get_public_key() const noexcept { 
-        if( obj->state != 1 ){ return nullptr; } uchar *key = NULL;
-        int len = i2o_ECPublicKey( obj->key_pair , &key );
-        return { (char*) &key, (ulong) len };
-    }
-
-    string_t get_public_key_hex() const noexcept {
-        if( obj->state != 1 ){ return nullptr; }
-        return crypto::buff2hex( this->get_public_key() );
-    }
-
-    string_t get_private_key() const noexcept { 
-        if( obj->state != 1 ){ return nullptr; } uchar *key = NULL;
-        int len = i2d_ECPrivateKey( obj->key_pair , &key ); 
-        return { (char*) &key, (ulong) len };
-    }
-
-    string_t get_private_key_hex() const noexcept {
-        if( obj->state != 1 ){ return nullptr; }
-        return crypto::buff2hex( this->get_private_key() );
-    }
-
-    void free() const noexcept { 
-        if( obj->state == 0 ){ return; } obj->state = 0;
-        if( obj->priv_key != nullptr ) BN_free( obj->priv_key );
-    //  if( obj->key_pair != nullptr ) EC_KEY_free( obj->key_pair );
-        if( obj->pub_key  != nullptr ) EC_POINT_free( obj->pub_key );
-    }
-
-    bool is_available() const noexcept { return obj->state == 1; }
-
-    bool is_closed() const noexcept { return obj->state == 0; }
-
-    void close() const noexcept { free(); } 
-
-};
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-class ecdsa_t {
+class ec_t {
 protected:
 
     struct NODE {
@@ -684,7 +569,7 @@ protected:
 public:
 
     template< class T >
-    ecdsa_t( const string_t& key, const T& type ) noexcept 
+    ec_t( const string_t& key, const T& type ) noexcept 
     :   obj( new NODE() ) { crypto::start_device();
         obj->state = 1;
 
@@ -702,7 +587,7 @@ public:
     }
 
     template< class T >
-    ecdsa_t( const T& type ) noexcept 
+    ec_t( const T& type ) noexcept 
     :   obj( new NODE() ) { crypto::start_device();
         obj->state = 1;
 
@@ -716,19 +601,9 @@ public:
         obj->priv_key = (BIGNUM*)  EC_KEY_get0_private_key( obj->key_pair );
     }
     
-    virtual ~ecdsa_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+    virtual ~ec_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
-    string_t get_public_key( uint x = 0 ) const noexcept {
-        if( obj->state != 1 ){ return nullptr; }
-        return crypto::hex2buff( get_public_key_hex(x) );
-    }
-
-    string_t get_private_key() const noexcept {
-        if( obj->state != 1 ){ return nullptr; }
-        return crypto::hex2buff( get_private_key_hex() );
-    }
-
-    string_t get_public_key_hex( uint x = 0 ) const noexcept { 
+    string_t get_public_key( uint x = 0 ) const noexcept { 
         if( obj->state != 1 ){ return nullptr; }
         point_conversion_form_t y; switch( x ){
             case 0:  y = POINT_CONVERSION_HYBRID;       break;
@@ -737,7 +612,7 @@ public:
         }   return EC_POINT_point2hex( obj->key_group, obj->pub_key, y, nullptr );
     }
 
-    string_t get_private_key_hex() const noexcept { return BN_bn2hex( obj->priv_key ); }
+    string_t get_private_key() const noexcept { return BN_bn2hex( obj->priv_key ); }
 
     void free() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
@@ -815,27 +690,27 @@ public:
         if ( msg.empty() || obj->state ==0 ){ return nullptr; }
         ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' );
         int c = RSA_public_encrypt( msg.size(), (uchar*)msg.data(), &out, obj->rsa, padding );
-        return string_t( (char*)& out, (ulong)c );
+        return crypto::buff2hex( string_t( (char*)& out, (ulong)c ) );
     }
 
     string_t private_encrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
         if( msg.empty() || obj->state ==0 ){ return nullptr; }
         ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' );
         int c = RSA_private_encrypt( msg.size(), (uchar*)msg.data(), &out, obj->rsa, padding );
-        return string_t( (char*)& out, (ulong)c );
+        return crypto::buff2hex( string_t( (char*)& out, (ulong)c ) );
     }
 
     string_t public_decrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
         if( msg.empty() || obj->state == 0 ){ return nullptr; }
-        ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' );
-        int c = RSA_public_decrypt( msg.size(), (uchar*)msg.data(), &out, obj->rsa, padding );
+        ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' ); auto gsm = crypto::hex2buff( msg );
+        int c = RSA_public_decrypt( gsm.size(), (uchar*)gsm.data(), &out, obj->rsa, padding );
         return string_t( (char*)& out, (ulong)c );
     }
 
     string_t private_decrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
         if( msg.empty() || obj->state == 0 ){ return nullptr; }
-        ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' );
-        int c = RSA_private_decrypt( msg.size(), (uchar*)msg.data(), &out, obj->rsa, padding );
+        ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' ); auto gsm = crypto::hex2buff( msg );
+        int c = RSA_private_decrypt( gsm.size(), (uchar*)gsm.data(), &out, obj->rsa, padding );
         return string_t( (char*)& out, (ulong)c );
     }
 
@@ -911,14 +786,14 @@ public:
 
     string_t sign( const string_t& hex ) const noexcept {
         if( obj->state != 1 ){ return nullptr; } 
-        ptr_t<uchar> shared ( DH_size( obj->dh ) );
+        ptr_t<uchar> shared( DH_size( obj->dh ) );
                   BN_hex2bn( &obj->k, hex.data() );
         int len = DH_compute_key( &shared, obj->k, obj->dh );
-        return string_t( (char*) &shared, (ulong) len );
+        return crypto::buff2hex( string_t( (char*) &shared, (ulong) len ) );
     }
 
     bool verify( const string_t& hex, const string_t& sgn ) const noexcept {
-         auto data = sign( hex ); return data == sgn;
+         return hex == sgn;
     }
 
 };
@@ -947,14 +822,16 @@ public:
 
     virtual ~dsa_t() noexcept { if( obj.count() > 1 ){ return; } free(); }
 
-    string_t sign( const string_t& msg ) const noexcept {
-        if( obj->state != 1 ){ return nullptr; } ptr_t<uchar> sgn( DSA_size(obj->dsa) ); uint len;
-        DSA_sign( 0, (uchar*)msg.data(), msg.size(), &sgn, &len, obj->dsa );
-        return { (char*) &sgn, (ulong) len };
+    bool verify( const string_t& msg, const string_t& sgn ) const noexcept { 
+         if( obj->state != 1 ){ return false; } auto ngs = crypto::hex2buff( sgn ); 
+         return DSA_verify( 0, (uchar*)msg.data(), msg.size(), (uchar*)ngs.data(), ngs.size(), obj->dsa )>0;
     }
 
-    bool verify( const string_t& msg, const string_t& sgn ) const noexcept {
-         return DSA_verify( 0, (uchar*)msg.data(), msg.size(), (uchar*)sgn.data(), sgn.size(), obj->dsa )>0;
+    string_t sign( const string_t& msg ) const noexcept {
+        if( obj->state != 1 ){ return nullptr; }
+        ptr_t<uchar> sgn( DSA_size(obj->dsa) );  uint len;
+        DSA_sign( 0, (uchar*)msg.data(), msg.size(), &sgn, &len, obj->dsa );
+        return crypto::buff2hex( string_t( (char*) &sgn, (ulong) len ) );
     }
 
     void read_private_key( const string_t& path, const char* pass=NULL ) const {
@@ -1095,7 +972,7 @@ namespace crypto { namespace hmac {
     
     /*─······································································─*/
 
-namespace crypto { namespace enc {
+namespace crypto { namespace encrypt {
     
     class AES_128_CBC : public encrypt_t { public: template< class... T >
           AES_128_CBC( const T&... args ) : encrypt_t( args..., EVP_aes_128_cbc() ) {}
@@ -1149,7 +1026,7 @@ namespace crypto { namespace enc {
     
     /*─······································································─*/
 
-namespace crypto { namespace dec {
+namespace crypto { namespace decrypt {
     
     class AES_128_CBC : public decrypt_t { public: template< class... T >
           AES_128_CBC( const T&... args ) : decrypt_t( args..., EVP_aes_128_cbc() ) {}
@@ -1203,7 +1080,7 @@ namespace crypto { namespace dec {
     
     /*─······································································─*/
 
-namespace crypto { namespace enc {
+namespace crypto { namespace encode {
 
     class BASE58 : public encoder_t { public:
           BASE58 () : encoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
@@ -1229,7 +1106,7 @@ namespace crypto { namespace enc {
     
     /*─······································································─*/
 
-namespace crypto { namespace dec {
+namespace crypto { namespace decode {
 
     class BASE58 : public decoder_t { public:
           BASE58 () : decoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
@@ -1255,68 +1132,44 @@ namespace crypto { namespace dec {
     
     /*─······································································─*/
 
-namespace crypto { namespace ecdh { //openssl ecparam -list_curves
+namespace crypto { namespace curve { //openssl ecparam -list_curves
     
-    class SECP128R1 : public ecdh_t { public: template< class... T >
-          SECP128R1( const T&... args ) noexcept : ecdh_t( args..., NID_secp128r1 ) {}
+    class PRIME256V1: public ec_t { public: template< class... T >
+          PRIME256V1( const T&... args ) noexcept : ec_t( args..., NID_X9_62_prime256v1 ) {}
     };
     
-    class SECP128R2 : public ecdh_t { public: template< class... T >
-          SECP128R2( const T&... args ) noexcept : ecdh_t( args..., NID_secp128r2 ) {}
-    };
-
-    /*─······································································─*/
-    
-    class SECP160R1 : public ecdh_t { public: template< class... T >
-          SECP160R1( const T&... args ) noexcept : ecdh_t( args..., NID_secp160r1 ) {}
-    };
-    
-    class SECP160R2 : public ecdh_t { public: template< class... T >
-          SECP160R2( const T&... args ) noexcept : ecdh_t( args..., NID_secp160r2 ) {}
-    };
-    
-    class SECP160K1 : public ecdh_t { public: template< class... T >
-          SECP160K1( const T&... args ) noexcept : ecdh_t( args..., NID_secp160k1 ) {}
+    class PRIME192V1 : public ec_t { public: template< class... T >
+          PRIME192V1( const T&... args ) noexcept : ec_t( args..., NID_X9_62_prime192v1 ) {}
     };
 
     /*─······································································─*/
     
-    class SECP256K1 : public ecdh_t { public: template< class... T >
-          SECP256K1( const T&... args ) noexcept : ecdh_t( args..., NID_secp256k1 ) {}
-    };
-
-}}
-    
-    /*─······································································─*/
-
-namespace crypto { namespace ecdsa { //openssl ecparam -list_curves
-    
-    class SECP128R1 : public ecdsa_t { public: template< class... T >
-          SECP128R1( const T&... args ) noexcept : ecdsa_t( args..., NID_secp128r1 ) {}
+    class SECP128R1 : public ec_t { public: template< class... T >
+          SECP128R1( const T&... args ) noexcept : ec_t( args..., NID_secp128r1 ) {}
     };
     
-    class SECP128R2 : public ecdsa_t { public: template< class... T >
-          SECP128R2( const T&... args ) noexcept : ecdsa_t( args..., NID_secp128r2 ) {}
+    class SECP128R2 : public ec_t { public: template< class... T >
+          SECP128R2( const T&... args ) noexcept : ec_t( args..., NID_secp128r2 ) {}
     };
 
     /*─······································································─*/
     
-    class SECP160R1 : public ecdsa_t { public: template< class... T >
-          SECP160R1( const T&... args ) noexcept : ecdsa_t( args..., NID_secp160r1 ) {}
+    class SECP160R1 : public ec_t { public: template< class... T >
+          SECP160R1( const T&... args ) noexcept : ec_t( args..., NID_secp160r1 ) {}
     };
     
-    class SECP160R2 : public ecdsa_t { public: template< class... T >
-          SECP160R2( const T&... args ) noexcept : ecdsa_t( args..., NID_secp160r2 ) {}
+    class SECP160R2 : public ec_t { public: template< class... T >
+          SECP160R2( const T&... args ) noexcept : ec_t( args..., NID_secp160r2 ) {}
     };
     
-    class SECP160K1 : public ecdsa_t { public: template< class... T >
-          SECP160K1( const T&... args ) noexcept : ecdsa_t( args..., NID_secp160k1 ) {}
+    class SECP160K1 : public ec_t { public: template< class... T >
+          SECP160K1( const T&... args ) noexcept : ec_t( args..., NID_secp160k1 ) {}
     };
 
     /*─······································································─*/
     
-    class SECP256K1 : public ecdsa_t { public: template< class... T >
-          SECP256K1( const T&... args ) noexcept : ecdsa_t( args..., NID_secp256k1 ) {}
+    class SECP256K1 : public ec_t { public: template< class... T >
+          SECP256K1( const T&... args ) noexcept : ec_t( args..., NID_secp256k1 ) {}
     };
 
 }}

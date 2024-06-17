@@ -6,7 +6,7 @@ using namespace nodepp;
 
 void encrypt() {
 
-     auto encr = crypto::enc::AES_256_CBC( "1234567890" );
+     auto encr = crypto::encrypt::AES_256_CBC( "1234567890" );
      auto fint = fs::readable( "/PATH/TO/FILE/A" );
      auto fout = fs::writable( "/PATH/TO/FILE/B" );
 
@@ -20,7 +20,7 @@ void encrypt() {
 
 void decrypt(){
 
-     auto encr = crypto::dec::AES_256_CBC( "1234567890" );
+     auto encr = crypto::decrypt::AES_256_CBC( "1234567890" );
      auto fint = fs::readable( "/PATH/TO/FILE/B" );
      auto fout = fs::writable( "/PATH/TO/FILE/C" );
 
