@@ -228,8 +228,7 @@ public:
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   =       EVP_CIPHER_CTX_new(); 
         obj->state = 1;    EVP_CIPHER_CTX_init( obj->ctx );
-        auto iv = ptr_t<uchar>( EVP_MAX_IV_LENGTH ); RAND_bytes( &iv, EVP_MAX_IV_LENGTH );
-        if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), &iv ) )
+        if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"" ) )
            { process::error("cant initializate encrypt_t"); }
     }
 
@@ -294,8 +293,7 @@ public:
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
-        auto iv = ptr_t<uchar>( EVP_MAX_IV_LENGTH ); RAND_bytes( &iv, EVP_MAX_IV_LENGTH );
-        if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), &iv ) )
+        if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"" ) )
            { process::error("cant initializate decrypt_t"); }
     }
 
