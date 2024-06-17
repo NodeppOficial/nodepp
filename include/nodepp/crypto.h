@@ -110,6 +110,8 @@ public:
            { process::error("cant initializate hash_t"); }
     }
 
+    virtual ~hash_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
     void update( const string_t& msg ) const noexcept { 
         if( obj->state != 1 ){ return; }
         EVP_DigestUpdate( obj->ctx, (uchar*) msg.data(), msg.size() );
@@ -135,10 +137,6 @@ public:
 
     void close() const noexcept { free(); } 
 
-    virtual ~hash_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
 };
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -164,6 +162,8 @@ public:
         if ( !obj->ctx || !HMAC_Init_ex( obj->ctx, key.data(), key.size(), type, nullptr ) )
            { process::error("cant initializate hmac_t"); }
     }
+    
+    virtual ~hmac_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( const string_t& msg ) const noexcept { 
         if( obj->state != 1 ){ return; }
@@ -189,11 +189,7 @@ public:
     bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { free(); } 
-    
-    virtual ~hmac_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
+
 };
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -239,13 +235,15 @@ public:
                  obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
         } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
     }
+    
+    virtual ~encrypt_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    string_t get_hex() const noexcept { 
+        return crypto::buff2hex( this->get() ); 
+    }
 
     string_t get() const noexcept { 
         free(); return obj->buff; 
-    }
-
-    string_t get_hex() const noexcept { 
-        return crypto::buff2hex( this->get() );
     }
 
     void free() const noexcept { 
@@ -262,11 +260,6 @@ public:
     bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { free(); } 
-    
-    virtual ~encrypt_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
 
 };
 
@@ -313,13 +306,15 @@ public:
                  obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
         } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
     }
+    
+    virtual ~decrypt_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    string_t get_hex() const noexcept { 
+        return crypto::buff2hex( this->get() ); 
+    }
 
     string_t get() const noexcept { 
         free(); return obj->buff; 
-    }
-
-    string_t get_hex() const noexcept {  
-        return crypto::buff2hex( this->get() );
     }
 
     void free() const noexcept { 
@@ -336,11 +331,6 @@ public:
     bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { free(); } 
-    
-    virtual ~decrypt_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
 
 };
 
@@ -370,6 +360,8 @@ public:
            { process::error("cant initializate base64 encoder"); }
         EVP_EncodeInit( obj->ctx );
     }
+    
+    virtual ~enc_base64_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_EncodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
@@ -378,12 +370,12 @@ public:
         } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
     }
 
-    string_t get() const noexcept { 
-        free(); return obj->buff; 
+    string_t get_hex() const noexcept { 
+        return crypto::buff2hex( this->get() ); 
     }
 
-    string_t get_hex() const noexcept {  
-        return crypto::buff2hex( this->get() );
+    string_t get() const noexcept { 
+        free(); return obj->buff; 
     }
 
     void free() const noexcept { 
@@ -400,11 +392,6 @@ public:
     bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { free(); } 
-    
-    virtual ~enc_base64_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
 
 };
 
@@ -429,6 +416,8 @@ public:
         if ( !obj->bn )
            { process::error("cant initializate encoder"); }
     }
+    
+    virtual ~encoder_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( const string_t& msg ) const noexcept { 
         if( obj->state != 1 ){ return; }
@@ -465,12 +454,7 @@ public:
 
     bool is_closed() const noexcept { return obj->state == 0; }
 
-    void close() const noexcept { free(); }  
-    
-    virtual ~encoder_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
+    void close() const noexcept { free(); }
 
 };
 
@@ -500,6 +484,8 @@ public:
            { process::error("cant initializate base64 decoder"); }
         EVP_DecodeInit( obj->ctx );
     }
+    
+    virtual ~dec_base64_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
         EVP_DecodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)msg.data(), msg.size()); 
@@ -530,11 +516,6 @@ public:
     bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { free(); } 
-    
-    virtual ~dec_base64_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
 
 };
 
@@ -562,6 +543,8 @@ public:
         if ( !obj->bn )
            { process::error("cant initializate decoder"); }
     }
+    
+    virtual ~decoder_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( const string_t& msg ) const { 
         if( obj->state != 1 ){ return; }
@@ -597,11 +580,6 @@ public:
     bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { free(); } 
-    
-    virtual ~decoder_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
 
 };
 
@@ -650,26 +628,28 @@ public:
         const EC_POINT* pub_key = EC_KEY_get0_public_key( obj->key_pair );
         obj->pub_key = EC_POINT_dup(pub_key,EC_KEY_get0_group(obj->key_pair));
     }
+    
+    virtual ~ecdh_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     string_t get_public_key() const noexcept { 
-        if( obj->state != 1 ){ return ""; } uchar *key = NULL;
+        if( obj->state != 1 ){ return nullptr; } uchar *key = NULL;
         int len = i2o_ECPublicKey( obj->key_pair , &key );
         return { (char*) &key, (ulong) len };
     }
 
     string_t get_public_key_hex() const noexcept {
-        if( obj->state != 1 ){ return ""; }
+        if( obj->state != 1 ){ return nullptr; }
         return crypto::buff2hex( this->get_public_key() );
     }
 
     string_t get_private_key() const noexcept { 
-        if( obj->state != 1 ){ return ""; } uchar *key = NULL;
+        if( obj->state != 1 ){ return nullptr; } uchar *key = NULL;
         int len = i2d_ECPrivateKey( obj->key_pair , &key ); 
         return { (char*) &key, (ulong) len };
     }
 
     string_t get_private_key_hex() const noexcept {
-        if( obj->state != 1 ){ return ""; }
+        if( obj->state != 1 ){ return nullptr; }
         return crypto::buff2hex( this->get_private_key() );
     }
 
@@ -685,11 +665,6 @@ public:
     bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { free(); } 
-    
-    virtual ~ecdh_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
 
 };
 
@@ -740,19 +715,21 @@ public:
         obj->pub_key  = (EC_POINT*) EC_KEY_get0_public_key( obj->key_pair );
         obj->priv_key = (BIGNUM*)  EC_KEY_get0_private_key( obj->key_pair );
     }
+    
+    virtual ~ecdsa_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     string_t get_public_key( uint x = 0 ) const noexcept {
-        if( obj->state != 1 ){ return ""; }
+        if( obj->state != 1 ){ return nullptr; }
         return crypto::hex2buff( get_public_key_hex(x) );
     }
 
     string_t get_private_key() const noexcept {
-        if( obj->state != 1 ){ return ""; }
+        if( obj->state != 1 ){ return nullptr; }
         return crypto::hex2buff( get_private_key_hex() );
     }
 
     string_t get_public_key_hex( uint x = 0 ) const noexcept { 
-        if( obj->state != 1 ){ return ""; }
+        if( obj->state != 1 ){ return nullptr; }
         point_conversion_form_t y; switch( x ){
             case 0:  y = POINT_CONVERSION_HYBRID;       break;
             case 1:  y = POINT_CONVERSION_COMPRESSED;   break;
@@ -775,11 +752,6 @@ public:
     bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { free(); } 
-    
-    virtual ~ecdsa_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
 
 };
 
@@ -791,7 +763,7 @@ protected:
     struct NODE {
         RSA*    rsa = nullptr;
         BIGNUM* num = nullptr;
-        ulong   len = 0;
+        ulong   len;
         int   state;
     };  ptr_t<NODE> obj;
     
@@ -808,6 +780,8 @@ public:
         BN_set_word( obj->num, RSA_F4 );
         RSA_generate_key_ex( obj->rsa, keylen, obj->num, NULL );
     }
+
+    virtual ~rsa_t() noexcept { if( obj.count() > 1 ){ return; } free(); }
 
     int write_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data() , "w"); int res = 0;
@@ -878,8 +852,6 @@ public:
         if( obj->num != nullptr )  BN_free( obj->num );
     }
     
-    virtual ~rsa_t() noexcept { free(); }
-
 };
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -889,24 +861,26 @@ protected:
 
     struct NODE {
         DH* dh;
-        BIGNUM* g;
-        BIGNUM* k;
         int state;
+        BIGNUM *k;
     };  ptr_t<NODE> obj;
 
 public:
 
-    dh_t() : obj( new NODE() ) {
+    dh_t( int len=512 ) : obj( new NODE() ) {
         crypto::start_device();
         obj->dh    = DH_new(); 
-        obj->g     = BN_new();
         obj->k     = BN_new();
         obj->state = 1;
-        if( !obj->dh || !obj->g )
+        if( !obj->dh || !obj->k )
           { process::error( "creating new dh" ); }
+        if( !DH_generate_parameters_ex( obj->dh, len, DH_GENERATOR_2, NULL ) )
+          { process::error( "while generating dh parameters" ); }
         if( !DH_generate_key( obj->dh ) )
-          { process::error( "while generating dh params" ); }
+          { process::error( "while generating dh key" ); }
     }
+
+    virtual ~dh_t() noexcept { if( obj.count() > 1 ){ return; } free(); }
 
     int set_public_key( const string_t& key ) const noexcept {
         if( obj->state != 1 ){ return 0; }
@@ -921,31 +895,30 @@ public:
     }
 
     string_t get_private_key() const noexcept {
-        if( obj->state != 1 ){ return ""; } 
+        if( obj->state != 1 ){ return nullptr; } 
         return BN_bn2hex( DH_get0_priv_key( obj->dh ) );
     }
 
     string_t get_public_key() const noexcept {
-        if( obj->state != 1 ){ return ""; } 
+        if( obj->state != 1 ){ return nullptr; } 
         return BN_bn2hex( DH_get0_pub_key( obj->dh ) );
-    }
-
-    int check() const noexcept {
-        if( obj->state != 1 ){ return 0; } 
-        return DH_check( obj->dh, NULL );
-    }
-
-    string_t compute_key( const string_t& key ) const noexcept {
-        if( obj->state != 1 ){ return ""; } 
-        ptr_t<uchar> shared ( DH_size( obj->dh ) );
-                  BN_hex2bn( &obj->k, key.data() );
-        int len = DH_compute_key( &shared, obj->k, obj->dh );
-        return string_t( (char*) &shared, (ulong) len );
     }
 
     void free() const noexcept {
         if( obj->state == 0 ){ return; } obj->state = 0;
-        DH_free( obj->dh ); BN_free( obj->k ); BN_free( obj->g );
+        DH_free( obj->dh ); BN_free( obj->k );
+    }
+
+    string_t sign( const string_t& hex ) const noexcept {
+        if( obj->state != 1 ){ return nullptr; } 
+        ptr_t<uchar> shared ( DH_size( obj->dh ) );
+                  BN_hex2bn( &obj->k, hex.data() );
+        int len = DH_compute_key( &shared, obj->k, obj->dh );
+        return string_t( (char*) &shared, (ulong) len );
+    }
+
+    bool verify( const string_t& hex, const string_t& sgn ) const noexcept {
+         auto data = sign( hex ); return data == sgn;
     }
 
 };
@@ -957,8 +930,8 @@ protected:
 
     struct NODE {
         DSA    *dsa = nullptr;
-        uint    len = 512;
         int     state;
+        uint    len;
     };  ptr_t<NODE> obj;
     
 public:
@@ -972,8 +945,10 @@ public:
           { process::error("while generating DSA key"); }
     }
 
+    virtual ~dsa_t() noexcept { if( obj.count() > 1 ){ return; } free(); }
+
     string_t sign( const string_t& msg ) const noexcept {
-        if( obj->state != 1 ){ return ""; } ptr_t<uchar> sgn( DSA_size(obj->dsa) ); uint len;
+        if( obj->state != 1 ){ return nullptr; } ptr_t<uchar> sgn( DSA_size(obj->dsa) ); uint len;
         DSA_sign( 0, (uchar*)msg.data(), msg.size(), &sgn, &len, obj->dsa );
         return { (char*) &sgn, (ulong) len };
     }
@@ -1019,11 +994,6 @@ public:
 
     void close() const noexcept { free(); } 
     
-    virtual ~dsa_t() noexcept { 
-        if( obj.count()>1 ){ return; } 
-            free();
-    }
-
 };}
 
 #endif
