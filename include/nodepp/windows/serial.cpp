@@ -18,7 +18,7 @@ protected:
 
 	int set_baud_rate( const string_t& path, uint baud ) const noexcept {
 		if( path.empty() || baud == 0 ) { return -1; }
-		return ::system( string::format("MODE %s:%u",(char*)path,baud).data() );
+		return ::system( string::format("MODE %s:%u,N,8,1",(char*)path,baud).data() );
 	}
 
 public: serial_t() noexcept : file_t() {}
