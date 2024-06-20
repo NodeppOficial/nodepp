@@ -112,7 +112,7 @@ public:
         obj->ctx   = EVP_MD_CTX_new();
         obj->state = 1;
         if ( !obj->ctx || !EVP_DigestInit_ex( obj->ctx, type, NULL ) )
-           { process::error("cant initializate hash_t"); }
+           { process::error("can't initializate hash_t"); }
     }
 
     virtual ~hash_t() noexcept { if( obj.count()>1 ){ return; } free(); }
@@ -165,7 +165,7 @@ public:
         obj->ctx   = HMAC_CTX_new(); 
         obj->state = 1;
         if ( !obj->ctx || !HMAC_Init_ex( obj->ctx, key.data(), key.size(), type, nullptr ) )
-           { process::error("cant initializate hmac_t"); }
+           { process::error("can't initializate hmac_t"); }
     }
     
     virtual ~hmac_t() noexcept { if( obj.count()>1 ){ return; } free(); }
@@ -219,7 +219,7 @@ public:
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx ); 
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
-           { process::error("cant initializate encrypt_t"); }
+           { process::error("can't initializate encrypt_t"); }
     }
 
     template< class T >
@@ -228,8 +228,18 @@ public:
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   =       EVP_CIPHER_CTX_new(); 
         obj->state = 1;    EVP_CIPHER_CTX_init( obj->ctx );
-        if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"" ) )
-           { process::error("cant initializate encrypt_t"); }
+        if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"\0" ) )
+           { process::error("can't initializate encrypt_t"); }
+    }
+
+    template< class T >
+    encrypt_t( const T& type ) 
+    :     obj( new NODE() ) { crypto::start_device();
+        obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
+        obj->ctx   =       EVP_CIPHER_CTX_new(); 
+        obj->state = 1;    EVP_CIPHER_CTX_init( obj->ctx );
+        if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)"\0", (uchar*)"\0" ) )
+           { process::error("can't initializate encrypt_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { if( obj->state != 1 ){ return; }
@@ -284,7 +294,7 @@ public:
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
-           { process::error("cant initializate decrypt_t"); }
+           { process::error("can't initializate decrypt_t"); }
     }
 
     template< class T >
@@ -293,8 +303,18 @@ public:
         obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
-        if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"" ) )
-           { process::error("cant initializate decrypt_t"); }
+        if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"\0" ) )
+           { process::error("can't initializate decrypt_t"); }
+    }
+
+    template< class T >
+    decrypt_t( const T& type ) 
+    :     obj( new NODE() ) { crypto::start_device();
+        obj->bff   = ptr_t<uchar>(UNBFF_SIZE,'\0');
+        obj->ctx   =    EVP_CIPHER_CTX_new(); 
+        obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
+        if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)"\0", (uchar*)"\0" ) )
+           { process::error("can't initializate decrypt_t"); }
     }
 
     void update( const string_t& msg ) const noexcept { 
@@ -349,7 +369,7 @@ public:
         obj->ctx   = EVP_ENCODE_CTX_new();
         obj->state = 1;
         if ( !obj->ctx )
-           { process::error("cant initializate base64 encoder"); }
+           { process::error("can't initializate base64 encoder"); }
         EVP_EncodeInit( obj->ctx );
     }
     
@@ -400,7 +420,7 @@ public:
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
-           { process::error("cant initializate encoder"); }
+           { process::error("can't initializate encoder"); }
     }
     
     virtual ~encoder_t() noexcept { if( obj.count()>1 ){ return; } free(); }
@@ -461,7 +481,7 @@ public:
         obj->ctx   = EVP_ENCODE_CTX_new();
         obj->state = 1; 
         if ( !obj->ctx )
-           { process::error("cant initializate base64 decoder"); }
+           { process::error("can't initializate base64 decoder"); }
         EVP_DecodeInit( obj->ctx );
     }
     
@@ -515,7 +535,7 @@ public:
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
-           { process::error("cant initializate decoder"); }
+           { process::error("can't initializate decoder"); }
     }
     
     virtual ~decoder_t() noexcept { if( obj.count()>1 ){ return; } free(); }
@@ -1000,6 +1020,38 @@ namespace crypto { namespace encrypt {
 
     /*─······································································─*/
     
+    class TRIPLE_DES_CFB : public encrypt_t { public: template< class... T >
+          TRIPLE_DES_CFB ( const T&... args ) : encrypt_t( args..., EVP_des_ede3_cfb() ) {}
+    };
+    
+    class TRIPLE_DES_CBC : public encrypt_t { public: template< class... T >
+          TRIPLE_DES_CBC ( const T&... args ) : encrypt_t( args..., EVP_des_ede3_cbc() ) {}
+    };
+    
+    class TRIPLE_DES_ECB : public encrypt_t { public: template< class... T >
+          TRIPLE_DES_ECB ( const T&... args ) : encrypt_t( args..., EVP_des_ede3_ecb() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class DES_EDE_CFB : public encrypt_t { public: template< class... T >
+          DES_EDE_CFB ( const T&... args ) : encrypt_t( args..., EVP_des_ede_cfb() ) {}
+    };
+    
+    class DES_EDE_CBC : public encrypt_t { public: template< class... T >
+          DES_EDE_CBC ( const T&... args ) : encrypt_t( args..., EVP_des_ede_cbc() ) {}
+    };
+    
+    class DES_EDE_ECB : public encrypt_t { public: template< class... T >
+          DES_EDE_ECB ( const T&... args ) : encrypt_t( args..., EVP_des_ede_ecb() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class DES_CFB : public encrypt_t { public: template< class... T >
+          DES_CFB ( const T&... args ) : encrypt_t( args..., EVP_des_cfb() ) {}
+    };
+    
     class DES_CBC : public encrypt_t { public: template< class... T >
           DES_CBC ( const T&... args ) : encrypt_t( args..., EVP_des_cbc() ) {}
     };
@@ -1053,6 +1105,38 @@ namespace crypto { namespace decrypt {
     };
 
     /*─······································································─*/
+    
+    class TRIPLE_DES_CFB : public decrypt_t { public: template< class... T >
+          TRIPLE_DES_CFB ( const T&... args ) : decrypt_t( args..., EVP_des_ede3_cfb() ) {}
+    };
+    
+    class TRIPLE_DES_CBC : public decrypt_t { public: template< class... T >
+          TRIPLE_DES_CBC ( const T&... args ) : decrypt_t( args..., EVP_des_ede3_cbc() ) {}
+    };
+    
+    class TRIPLE_DES_ECB : public decrypt_t { public: template< class... T >
+          TRIPLE_DES_ECB ( const T&... args ) : decrypt_t( args..., EVP_des_ede3_ecb() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class DES_EDE_CFB : public decrypt_t { public: template< class... T >
+          DES_EDE_CFB ( const T&... args ) : decrypt_t( args..., EVP_des_ede_cfb() ) {}
+    };
+    
+    class DES_EDE_CBC : public decrypt_t { public: template< class... T >
+          DES_EDE_CBC ( const T&... args ) : decrypt_t( args..., EVP_des_ede_cbc() ) {}
+    };
+    
+    class DES_EDE_ECB : public decrypt_t { public: template< class... T >
+          DES_EDE_ECB ( const T&... args ) : decrypt_t( args..., EVP_des_ede_ecb() ) {}
+    };
+
+    /*─······································································─*/
+    
+    class DES_CFB : public decrypt_t { public: template< class... T >
+          DES_CFB ( const T&... args ) : decrypt_t( args..., EVP_des_cfb() ) {}
+    };
     
     class DES_CBC : public decrypt_t { public: template< class... T >
           DES_CBC ( const T&... args ) : decrypt_t( args..., EVP_des_cbc() ) {}
