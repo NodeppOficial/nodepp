@@ -16,6 +16,7 @@
 
 #include "object.h"
 #include "regex.h"
+#include "map.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -202,6 +203,19 @@ namespace nodepp { namespace json {
     string_t stringify( const object_t& obj ){ json_t json; return json.stringify( obj ); }
     object_t     parse( const string_t& str ){ json_t json; return json.parse( str );     }
 }} 
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp { namespace json {
+
+    template<class T, class V>
+    string_t stringify( const map_t<T,V>& map ){
+        object_t obj; for( auto &x: map.data() ){
+            obj[ x.first ] = x.second;
+        }   return stringify( obj );
+    }
+
+}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
