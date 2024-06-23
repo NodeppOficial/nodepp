@@ -123,6 +123,8 @@ public: observer_t() noexcept {} queue_t<T> node;
     
     /*─······································································─*/
 
+    bool empty() const noexcept { return node.empty(); }
+
     ulong size() const noexcept { return node.size(); }
     
     /*─······································································─*/
