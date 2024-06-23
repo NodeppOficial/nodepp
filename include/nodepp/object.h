@@ -148,6 +148,20 @@ public:
 
     int get_type_id() const noexcept { return obj->type; }
 
+    /*─······································································─*/
+
+    bool empty() const noexcept { 
+        if( obj->type == 21 ){ 
+            auto   mem = obj->mem.as<ARRAY>();
+            return mem.empty();
+        } elif( obj->type == 20 ) {
+            auto   mem = obj->mem.as<QUEUE>();
+            return mem.empty();
+        }   return false;
+    }
+
+    /*─······································································─*/
+
     ulong size() const noexcept { 
         if( obj->type == 21 ){ 
             auto   mem = obj->mem.as<ARRAY>();
