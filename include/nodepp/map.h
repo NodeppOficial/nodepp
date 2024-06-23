@@ -77,6 +77,8 @@ public:
 
     /*─······································································─*/
 
+    bool    empty() const noexcept { return obj->queue.empty(); }
+
     ulong    size() const noexcept { return obj->queue.size(); }
 
     ptr_t<T> data() const noexcept { return obj->queue.data(); }
