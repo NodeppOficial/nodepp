@@ -436,7 +436,8 @@ namespace nodepp { namespace _zlib_ {
 
 #if !defined(GENERATOR_WS) && defined(NODEPP_WS) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_WS
-    #include "crypto.h"
+    #include "encoder.h"
+    #include "crypto.h" 
 namespace nodepp { 
 
     bool WSServer( http_t cli ) {
@@ -448,15 +449,8 @@ namespace nodepp {
         if( !cli.headers["Sec-Websocket-Key"].empty() ){
 
             string_t sec = cli.headers["Sec-Websocket-Key"];
-            string_t key = sec + SECRET;
-
-                auto sha = crypto::hash::SHA1();
-                auto b64 = crypto::encode::BASE64(); 
-
-                     sha.update(key);
-                     b64.update( crypto::hex2buff(sha.get()) );
-
-                auto enc = b64.get().slice(0,-1);
+                auto sha = crypto::hash::SHA1(); sha.update( sec + SECRET );
+            string_t enc = encoder::base64::get( crypto::hex2buff( sha.get() ) );
 
             cli.write_header( 101, {{
                 { "Sec-Websocket-Accept", enc },
@@ -471,7 +465,7 @@ namespace nodepp {
     
     /*─······································································─*/
 
-    template< class T > socket_t WSClient( const T& fetch, const string_t& key ) {
+    template< class T > socket_t WSClient( const T& fetch, const string_t& sec ) {
         auto res = fetch.await(); if( !res.has_value() ) _ERROR( res.error().what() );
         auto cli = res.value();
 
@@ -483,15 +477,8 @@ namespace nodepp {
         if(!cli.headers["Sec-Websocket-Accept"].empty() ){
 
             string_t dta = cli.headers["Sec-Websocket-Accept"];
-            string_t sec = key + SECRET;
-
-                auto sha = crypto::hash::SHA1();
-                auto b64 = crypto::encode::BASE64(); 
-
-                     sha.update(key);
-                     b64.update( crypto::hex2buff(sha.get()) );
-                     
-                auto enc = b64.get().slice(0,-1);
+                auto sha = crypto::hash::SHA1(); sha.update( sec + SECRET );
+            string_t enc = encoder::base64::get( crypto::hex2buff( sha.get() ) );
 
         if( dta != enc ){ _ERROR("secret key does not match"); }
             cli.stop();
@@ -519,15 +506,8 @@ namespace nodepp {
         if( !cli.headers["Sec-Websocket-Key"].empty() ){
 
             string_t sec = cli.headers["Sec-Websocket-Key"];
-            string_t key = sec + SECRET;
-
-                auto sha = crypto::hash::SHA1();
-                auto b64 = crypto::encode::BASE64(); 
-
-                     sha.update(key);
-                     b64.update( crypto::hex2buff(sha.get()) );
-                     
-                auto enc = b64.get().slice(0,-1);
+                auto sha = crypto::hash::SHA1(); sha.update( sec + SECRET );
+            string_t enc = encoder::base64::get( crypto::hex2buff( sha.get() ) );
 
             cli.write_header( 101, {{
                 { "Sec-Websocket-Accept", enc },
@@ -542,7 +522,7 @@ namespace nodepp {
     
     /*─······································································─*/
 
-    template< class T > ssocket_t WSSClient( const T& fetch, const string_t& key ) {
+    template< class T > ssocket_t WSSClient( const T& fetch, const string_t& sec ) {
         auto res = fetch.await(); if( !res.has_value() ) _ERROR( res.error().what() );
         auto cli = res.value();
 
@@ -554,15 +534,8 @@ namespace nodepp {
         if(!cli.headers["Sec-Websocket-Accept"].empty() ){
 
             string_t dta = cli.headers["Sec-Websocket-Accept"];
-            string_t sec = key + SECRET;
-
-                auto sha = crypto::hash::SHA1();
-                auto b64 = crypto::encode::BASE64(); 
-
-                     sha.update(key);
-                     b64.update( crypto::hex2buff(sha.get()) );
-                     
-                auto enc = b64.get().slice(0,-1);
+                auto sha = crypto::hash::SHA1(); sha.update( sec + SECRET );
+            string_t enc = encoder::base64::get( crypto::hex2buff( sha.get() ) );
 
         if( dta != enc ){ _ERROR("secret key does not match"); }   
             cli.stop();

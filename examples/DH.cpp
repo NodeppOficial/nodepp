@@ -13,6 +13,6 @@ void onMain(){
 
     console::log( sign1 );
 
-    console::log( "verified", key1.verify( skey1, sign2 ) );
+    console::log( "verified", key1.verify( skey1, sign1 ) );
 
 }

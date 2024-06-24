@@ -110,12 +110,13 @@ public: queue_t() noexcept {}
     
     /*─······································································─*/
 
-    bool empty() const noexcept { return queue == nullptr ? 1 : size() <= 0; }
+    bool empty() const noexcept { return size() <= 0; }
 
     ulong size() const noexcept {
            if( queue == nullptr ){ return 0; } 
                auto n = &queue; ulong i = 0; 
-        while( n != nullptr ){ i++; n = n->next; } return i;
+        while( n != nullptr ){ i++; n = n->next; } 
+        return i;
     }
     
     /*─······································································─*/

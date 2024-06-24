@@ -96,7 +96,7 @@ protected:
         ptr_t<uchar> buff;
         EVP_MD_CTX* ctx;
         uint length;
-        int  state;
+        bool state = 0;
     };  ptr_t<NODE> obj = new NODE();
 
     string_t hex() const noexcept { 
@@ -149,7 +149,7 @@ protected:
         ptr_t<uchar> buff;
         HMAC_CTX* ctx; 
         uint length;
-        int  state;
+        bool state = 0;
     };  ptr_t<NODE> obj;
 
     string_t hex() const noexcept { 
@@ -202,7 +202,8 @@ protected:
         EVP_CIPHER_CTX* ctx;
         ptr_t<uchar> bff;
         string_t buff;
-        int state, len;
+        bool state = 0;
+        int  len;
     };  ptr_t<NODE> obj;
 
     string_t hex() const noexcept { free(); return obj->buff; }
@@ -278,8 +279,9 @@ protected:
     struct NODE {
         EVP_CIPHER_CTX* ctx; 
         ptr_t<uchar> bff;
-        int state, len;
         string_t buff;
+        bool state = 0; 
+        int  len;
     };  ptr_t<NODE> obj;
     
 public:
@@ -354,8 +356,9 @@ protected:
     struct NODE {
         EVP_ENCODE_CTX* ctx; 
         ptr_t<uchar> bff;
-        int state, len;
         string_t buff;
+        bool state = 0;
+        int  len;
     };  ptr_t<NODE> obj;
     
 public:
@@ -410,7 +413,7 @@ protected:
         BIGNUM* bn;
         string_t chr;
         string_t buff;
-        int      state;
+        bool     state = 0;
     };  ptr_t<NODE> obj;
 
 public:
@@ -466,8 +469,9 @@ protected:
     struct NODE {
         EVP_ENCODE_CTX* ctx; 
         ptr_t<uchar> bff;
-        int state, len;
         string_t buff;
+        bool state = 0; 
+        int  len;
     };  ptr_t<NODE> obj;
 
 public:
@@ -522,7 +526,7 @@ protected:
         BIGNUM* bn;
         string_t chr;
         string_t buff;
-        int      state;
+        bool     state = 0;
     };  ptr_t<NODE> obj;
 
 public:
@@ -581,7 +585,7 @@ protected:
         EC_POINT *pub_key   = nullptr;
         BIGNUM   *priv_key  = nullptr;
         EC_KEY   *key_pair  = nullptr;
-        int       state;
+        bool      state = 0;
     };  ptr_t<NODE> obj;
     
 public:
@@ -657,7 +661,7 @@ protected:
         RSA*    rsa = nullptr;
         BIGNUM* num = nullptr;
         ulong   len;
-        int   state;
+        bool  state = 0;
     };  ptr_t<NODE> obj;
     
 public:
@@ -719,14 +723,14 @@ public:
     }
 
     string_t public_decrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
-        if( msg.empty() || obj->state == 0 ){ return nullptr; }
+        if( msg.empty() || obj->state ==0 ){ return nullptr; }
         ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' ); auto gsm = crypto::hex2buff( msg );
         int c = RSA_public_decrypt( gsm.size(), (uchar*)gsm.data(), &out, obj->rsa, padding );
         return string_t( (char*)& out, (ulong)c );
     }
 
     string_t private_decrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
-        if( msg.empty() || obj->state == 0 ){ return nullptr; }
+        if( msg.empty() || obj->state ==0 ){ return nullptr; }
         ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' ); auto gsm = crypto::hex2buff( msg );
         int c = RSA_private_decrypt( gsm.size(), (uchar*)gsm.data(), &out, obj->rsa, padding );
         return string_t( (char*)& out, (ulong)c );
@@ -753,9 +757,9 @@ class dh_t {
 protected:
 
     struct NODE {
-        DH* dh;
-        int state;
         BIGNUM *k;
+        DH     *dh;
+        bool state = 0;
     };  ptr_t<NODE> obj;
 
 public:
@@ -823,7 +827,7 @@ protected:
 
     struct NODE {
         DSA    *dsa = nullptr;
-        int     state;
+        bool    state = 0;
         uint    len;
     };  ptr_t<NODE> obj;
     

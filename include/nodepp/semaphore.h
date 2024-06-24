@@ -30,10 +30,10 @@ public:
     
     /*─······································································─*/
 
-    void wait( uchar count ) const noexcept { goto check;
-
-        loop: worker::yield();
+    void wait( uchar count ) const noexcept { 
         
+        goto check; loop: worker::yield();
+
         check:
             obj->mutex.lock(); 
             if( obj->ctx >= obj.count() ) obj->ctx = 0;

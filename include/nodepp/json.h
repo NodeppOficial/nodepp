@@ -209,6 +209,13 @@ namespace nodepp { namespace json {
 namespace nodepp { namespace json {
 
     template<class T, class V>
+    object_t parse( const map_t<T,V>& map ){
+        object_t obj; for( auto &x: map.data() ){
+            obj[ x.first ] = x.second;
+        }   return obj;
+    }
+
+    template<class T, class V>
     string_t stringify( const map_t<T,V>& map ){
         object_t obj; for( auto &x: map.data() ){
             obj[ x.first ] = x.second;

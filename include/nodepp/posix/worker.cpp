@@ -35,17 +35,15 @@ protected:
     struct NODE {
         function_t<int>* cb;
         ptr_t<bool> out;
-        int state =0;
+        bool state=0;
         pthread_t id;
-        int mode  =0;
     };  ptr_t<NODE> obj;
 
 public: worker_t() noexcept : obj( new NODE ) {}
 
     virtual ~worker_t() noexcept {
         if( obj.count() > 1 ){ return; } 
-        if( obj->state == 0 ){ return; } 
-    //      free();
+        if( obj->state == 0 ){ return; } // free();
     }
     
     /*─······································································─*/
@@ -75,7 +73,7 @@ public: worker_t() noexcept : obj( new NODE ) {}
 
     int run() const noexcept { if( obj->state == 1 ){ return 0; } obj->state = 1;
         auto pth = pthread_create( &obj->id, NULL, &sfunc, (void*)obj->cb );
-        if( !pth ) { process::threads++; } pthread_detach( obj->id );
+        if( !pth ){ process::threads++; pthread_detach( obj->id ); }
         return pth != 0 ? -1 : 0;
     }
 

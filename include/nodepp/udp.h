@@ -50,8 +50,9 @@ public: udp_t() noexcept : obj(new NODE()) {}
     
     /*─······································································─*/
     
-    void     close() const noexcept { if( obj->state<0 ){ return; } obj->state=-1; onClose.emit(); }
-    bool is_closed() const noexcept { return obj == nullptr ? 1 : obj->state < 0; }
+    void     close() const noexcept { if( obj->state<=0 ){ return; } obj->state=-1; onClose.emit(); }
+    
+    bool is_closed() const noexcept { return obj == nullptr ? 1 : obj->state <= 0; }
     
     /*─······································································─*/
 

@@ -37,7 +37,7 @@ protected:
         function_t<int>* cb;
         ptr_t<int>      out;
         HANDLE       thread;
-        int         state=0;
+        bool        state=0;
     };  ptr_t<NODE> obj;
 
 public: worker_t() noexcept : obj( new NODE ) {}

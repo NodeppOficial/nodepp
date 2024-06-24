@@ -34,7 +34,7 @@ protected:
 
     struct NODE {
         void*  addr = nullptr;
-        int    state= 0;
+        bool   state= 0;
         HANDLE fd;
     };  ptr_t<NODE> mutex;
 

@@ -56,7 +56,7 @@ namespace nodepp { namespace process {
         while( !process::empty() ){
                 process::next();
                 onSIGNEXT.emit();
-        }
+        }  
     }
 
 }}

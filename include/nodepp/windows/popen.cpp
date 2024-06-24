@@ -88,9 +88,9 @@ public:
         array_t<const char*> arg; array_t<const char*> env; bool y=0;
 
         for ( auto x : args ) {
-           if ( x != nullptr && !y ) arg.push( x.get() );
-         elif ( x != nullptr &&  y ) env.push( x.get() );
-         else   y =! y;
+          if( x != nullptr && !y ) arg.push( x.get() );
+        elif( x != nullptr &&  y ) env.push( x.get() );
+        else  y =! y;
         }
         
         _init_( path, arg, env );
@@ -103,6 +103,10 @@ public:
         if ( exitCode == STILL_ACTIVE ) { return true; }
         }    return false;
     }
+
+    bool is_available() const noexcept { return is_closed() == false; }
+
+    bool is_closed() const noexcept { return obj->state <= 0; }
 
     int get_fd() const noexcept { return obj->fd; }
 

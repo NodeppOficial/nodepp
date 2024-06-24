@@ -33,7 +33,7 @@ protected:
 
     struct NODE {
         void* addr = nullptr;
-        int   state= 0;
+        bool  state= 0;
         pthread_mutex_t fd;
     };  ptr_t<NODE> mutex;
 
@@ -42,23 +42,21 @@ public:
     mutex_t() : mutex( new NODE() ) {
         if( pthread_mutex_init(&mutex->fd,NULL) != 0 )
           { process::error("Cant Start Mutex"); }
-            mutex->addr = nullptr;
-            mutex->state= 1;
+            mutex->addr=nullptr; mutex->state=1;
     }
 
     virtual ~mutex_t() noexcept {
         if( mutex->state== 0 )          { return;   }
         if( mutex->addr == (void*)this ){ unlock(); }
-        if( mutex.count() > 1 )         { return;   }
-            free();
+        if( mutex.count() > 1 )         { return;   } free();
     }
     
     /*─······································································─*/
 
     void free() const noexcept {
-         if( mutex->state == 0 ){ return; }
-             mutex->state =  0;
-         pthread_mutex_destroy(&mutex->fd);
+        if( mutex->state == 0 ){ return; }
+            mutex->state =  0;
+        pthread_mutex_destroy(&mutex->fd);
     }
     
     /*─······································································─*/
@@ -66,13 +64,13 @@ public:
     void unlock() const noexcept { 
         while( pthread_mutex_unlock(&mutex->fd)!=0 )
              { worker::yield(); } 
-               mutex->addr = nullptr;
+        mutex->addr = nullptr;
     }
 
     void lock() const noexcept { 
         while( pthread_mutex_lock(&mutex->fd)!=0 )
              { worker::yield(); } 
-               mutex->addr = (void*)this;
+        mutex->addr = (void*)this;
     }
 
 };}

@@ -116,6 +116,10 @@ public:
         }    return false;
     }
 
+    bool is_available() const noexcept { return is_closed() == false; }
+
+    bool is_closed() const noexcept { return obj->state <= 0; }
+
     int get_fd()    const noexcept { return obj->fd; }
 
     /*─······································································─*/

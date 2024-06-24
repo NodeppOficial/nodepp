@@ -155,7 +155,7 @@ namespace nodepp { namespace process {
         process::task::empty() && 
         process::poll::empty() && 
         process::loop::empty() && 
-        process::threads < 1 
+        process::threads <= 0 
     );}
 
     /*─······································································─*/
@@ -179,13 +179,11 @@ namespace nodepp { namespace process {
     coStart
 
         while( x != 0 ){
-        if( !process::task::empty() ){ process::task::next(); coNext; x--; }
-        if( !process::loop::empty() ){ process::loop::next(); coNext; x--; }
-        if( !process::poll::empty() ){ process::poll::next(); coNext; x--; }  
-             process::delay( TIMEOUT );
-        } x =process::size();
-
-        if( x == 0 ){ process::delay( TIMEOUT ); coGoto(0); }
+          if( !process::task::empty() ){ process::task::next(); }
+        elif( !process::loop::empty() ){ process::loop::next(); }
+        elif( !process::poll::empty() ){ process::poll::next(); }
+               process::delay( TIMEOUT ); coNext; x--;
+        }  x = process::size();
 
     coStop
     }
