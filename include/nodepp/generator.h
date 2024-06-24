@@ -494,6 +494,7 @@ namespace nodepp {
 
 #if !defined(GENERATOR_WSS) && defined(NODEPP_WSS) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_WSS
+    #include "encoder.h"
     #include "crypto.h"
 namespace nodepp {
     
