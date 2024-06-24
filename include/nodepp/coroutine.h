@@ -91,14 +91,20 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 struct generator_t { protected: int _state_ = 0; };
 
-#define ullong  unsigned long long int
-#define ulong   unsigned long int
-#define llong   long long int
-#define ldouble long double
 
-#define ushort  unsigned short
+#ifndef _SYS_TYPES_H_
+#define _SYS_TYPES_H_
+
 #define uchar   unsigned char
 #define uint    unsigned int
+
+#endif
+
+#define ullong  unsigned long long int
+#define ulong   unsigned long int
+#define ushort  unsigned short
+#define llong   long long int
+#define ldouble long double
 #define wchar   wchar_t
 
 /*────────────────────────────────────────────────────────────────────────────*/
