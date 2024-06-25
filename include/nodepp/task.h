@@ -178,11 +178,9 @@ namespace nodepp { namespace process {
         static int x = 0; process::delay( TIMEOUT ); 
     coStart
 
-        while( x != 0 ){
-          if( !process::task::empty() ){ process::task::next(); coNext; }
-          if( !process::loop::empty() ){ process::loop::next(); coNext; }
-          if( !process::poll::empty() ){ process::poll::next(); coNext; } x--;
-        }  x = process::size();
+        if( !process::task::empty() ){ process::task::next(); coNext; }
+        if( !process::loop::empty() ){ process::loop::next(); coNext; }
+        if( !process::poll::empty() ){ process::poll::next(); coNext; }
 
     coStop
     }
