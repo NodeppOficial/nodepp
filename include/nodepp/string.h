@@ -159,7 +159,7 @@ public:
     bool operator==( const string_t& oth ) const noexcept { return compare( oth ) == 0; }
     bool operator!=( const string_t& oth ) const noexcept { return compare( oth ) != 0; }
     
-    char& operator[]( ulong n ) const noexcept { return buffer[n]; }
+    char& operator[]( ulong n ) const noexcept { return buffer[n%size()]; }
     
     /*─······································································─*/
 

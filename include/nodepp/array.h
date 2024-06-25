@@ -101,7 +101,7 @@ public: array_t() noexcept {};
     bool operator==( const array_t& oth ) const noexcept { return compare( oth ) == 0; }
     bool operator!=( const array_t& oth ) const noexcept { return compare( oth ) != 0; }
 
-    T& operator[]( ulong n ) const noexcept { return buffer[n]; }
+    T& operator[]( ulong n ) const noexcept { return buffer[n%size()]; }
     
     /*─······································································─*/
 

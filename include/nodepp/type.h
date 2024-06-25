@@ -362,9 +362,9 @@ namespace nodepp { namespace type {
     template< typename T, ulong N > 
     struct list { T buffer[N];
 
-        const T  operator []( ulong i ) const noexcept { return       buffer[i]; }
-        explicit operator bool()        const noexcept { return (bool)buffer;    }
-        const T* operator &()           const noexcept { return       buffer;    }
+        const T  operator []( ulong i ) const noexcept { return       buffer[i%N]; }
+        explicit operator bool()        const noexcept { return (bool)buffer;      }
+        const T* operator &()           const noexcept { return       buffer;      }
 
         /*─······································································─*/
 
