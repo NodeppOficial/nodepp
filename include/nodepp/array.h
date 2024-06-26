@@ -101,7 +101,7 @@ public: array_t() noexcept {};
     bool operator==( const array_t& oth ) const noexcept { return compare( oth ) == 0; }
     bool operator!=( const array_t& oth ) const noexcept { return compare( oth ) != 0; }
 
-    T& operator[]( ulong n ) const noexcept { return buffer[n%size()]; }
+    T& operator[]( ulong n ) const noexcept { return buffer[n]; }
     
     /*─······································································─*/
 
@@ -348,9 +348,11 @@ public: array_t() noexcept {};
 	    auto r = get_splice_range( start, end );
          if( r == nullptr ){ return nullptr; } 
 
-        auto n_buffer = ptr_t<T>(r[2]); for( ulong x=r[0],y=0; x<=r[1]; x++ )
-           { n_buffer[y++] = buffer[x]; }
+        auto n_buffer = ptr_t<T>(r[2]); 
+
+        for( ulong x=r[0],y=0; x<=r[1]; x++ ){ n_buffer[y++]=buffer[x]; }
         erase( r[0], r[0]+end ); insert( r[0], value ); return n_buffer;
+
     }
     
     /*─······································································─*/

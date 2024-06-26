@@ -20,9 +20,9 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define _EERROR( EV, ... ) if ( EV.empty() ){ console::error(__VA_ARGS__); } \
-                           else EV.emit( except_t(__VA_ARGS__) );
-#define _ERROR( ... )      throw except_t (__VA_ARGS__);
+#define _EERROR( EV, ... ) if( EV.empty() ){ console::error(__VA_ARGS__); } \
+                           else { EV.emit( except_t(__VA_ARGS__) ); }
+#define _ERROR( ... )      throw except_t (__VA_ARGS__)
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -55,6 +55,14 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#define CHUNK_TB( VALUE ) ( 1024 * 1024 * 1024 * 1024 * VALUE )
+#define CHUNK_GB( VALUE ) ( 1024 * 1024 * 1024 * VALUE )
+#define CHUNK_MB( VALUE ) ( 1024 * 1024 * VALUE )
+#define CHUNK_KB( VALUE ) ( 1024 * VALUE )
+#define CHUNK_B ( VALUE ) ( VALUE )
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #define GENERATOR(NAME) struct NAME : public generator_t
 #define gnStart { switch(_state_) { case 0:;
 #define gnStop  } _state_ = 0; return -1; }
@@ -68,14 +76,6 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 #define _FILE_  __FILE__
 #define _LINE_  __LINE__
 #define _TIME_  __TIME__
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
-#define CHUNK_TB( VALUE ) ( 1024 * 1024 * 1024 * 1024 * VALUE )
-#define CHUNK_GB( VALUE ) ( 1024 * 1024 * 1024 * VALUE )
-#define CHUNK_MB( VALUE ) ( 1024 * 1024 * VALUE )
-#define CHUNK_KB( VALUE ) ( 1024 * VALUE )
-#define CHUNK_B ( VALUE ) ( VALUE )
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -177,11 +177,11 @@ struct generator_t { protected: int _state_ = 0; };
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define NODEPP_ARCH_CPU_64   4
-#define NODEPP_ARCH_CPU_32   3
-#define NODEPP_ARCH_ARM_64   2
-#define NODEPP_ARCH_ARM_32   1
-#define NODEPP_ARCH_UNKNOWN  0
+#define NODEPP_ARCH_CPU_64  4
+#define NODEPP_ARCH_CPU_32  3
+#define NODEPP_ARCH_ARM_64  2
+#define NODEPP_ARCH_ARM_32  1
+#define NODEPP_ARCH_UNKNOWN 0
 
 #ifndef       _ARCH
 #if defined(__GNUC__)
@@ -240,10 +240,10 @@ struct generator_t { protected: int _state_ = 0; };
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define NODEPP_POLL_WPOLL  3
-#define NODEPP_POLL_KPOLL  2
-#define NODEPP_POLL_EPOLL  1
-#define NODEPP_POLL_POLL   0
+#define NODEPP_POLL_WPOLL 3
+#define NODEPP_POLL_KPOLL 2
+#define NODEPP_POLL_EPOLL 1
+#define NODEPP_POLL_POLL  0
 
 #ifndef    _POLL
 #if   _OS == NODEPP_OS_WINDOWS

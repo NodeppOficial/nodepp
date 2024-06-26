@@ -28,6 +28,7 @@ namespace nodepp { namespace conio {
     /*─······································································─*/
 
     int perr( const string_t& args ){ return fprintf( stderr, "%s", args.c_str() ); }
+    
     int pout( const string_t& args ){ return fprintf( stdout, "%s", args.c_str() ); }
 
     template< class V, class... T >

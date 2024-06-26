@@ -25,7 +25,8 @@ protected:
 public:
 
     virtual ~except_t() noexcept { 
-        if( obj == nullptr ){ return; }
+        if( obj.count() > 1 )   { return; }
+        if( obj->ev == nullptr ){ return; }
    	    process::onSIGERR.off( obj->ev );
     }
 
@@ -35,8 +36,7 @@ public:
 
     template< class T, class = typename type::enable_if<type::is_class<T>::value,T>::type >
     except_t( const T& except_type ) noexcept : obj(new NODE()) {
-        obj->msg = except_type.what();
-        auto inp = type::bind( this ); 
+        obj->msg = except_type.what(); auto inp = type::bind( this ); 
         obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
     }
 
@@ -44,16 +44,14 @@ public:
 
     template< class... T >
     except_t( const T&... msg ) noexcept : obj(new NODE()) {
-        obj->msg = string::join( " ", msg... );
-        auto inp = type::bind( this ); 
+        obj->msg = string::join( " ", msg... ); auto inp = type::bind( this ); 
         obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
     }
 
     /*─······································································─*/
 
     except_t( const string_t& msg ) noexcept : obj(new NODE()) {
-        obj->msg = msg;
-        auto inp = type::bind( this ); 
+        obj->msg = msg; auto inp = type::bind( this ); 
         obj->ev  = process::onSIGERR.once([=]( ... ){ inp->print(); });
     }
 

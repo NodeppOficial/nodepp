@@ -17,13 +17,18 @@
 ## Features
 
 - **C++11 | C++14 | C++17 | c++20 | c++23** Compatible
+- Allows writing **C++** code as if writing in **NodeJS** or **Javascript**
+- Adds a high-level abstraction layer to simplify **C++** application development
+- Compatible with several platforms like **Windows | Linux | macOS | freeBSD**
+- Supports **Coroutines**, which allows running multiple tasks concurrently on a single thread
+
+## Baterieas Included
+
 - Includes a **build-in JSON** parser / stringify system
 - Includes a **build-in RegExp** engine for processing text strings
-- Allows writing **C++** code as if writing in **NodeJS** or **Javascript**
-- Compatible with several platforms like **Windows | Linux | macOS | freeBSD**
-- Adds a high-level abstraction layer to simplify **C++** application development
+- Includes a **build-in System** that make every object **Async Task** safety 
+- Includes a **Smart Pointer** base **Garbage Collector** to avoid **Memory Leaks**
 - Includes an **Event Loop** that can handle multiple events and tasks on a single thread
-- Supports **Coroutines**, which allows running multiple tasks concurrently on a single thread
 - Includes support for **TCP | TLS | UDP | HTTP | WS** making it easy to create networked applications
 - Includes Support for **Poll | Epoll | Kqueue | WSAPoll** making it easy to handle multiple file descriptors
 
@@ -31,7 +36,8 @@
 - 🐧: `g++ -o main main.cpp -I ./include ; ./main`
 - 🪟: `g++ -o main main.cpp -I ./include -lws2_32 ; ./main`
 
-## Hello world
+## Examples
+### Hello world
 ```cpp
 #include <nodepp/nodepp.h>
 
@@ -42,8 +48,36 @@ void onMain() {
 }
 ```
 
-## Examples
-- Examples : [here](https://github.com/NodeppOficial/Nodepp/tree/main/examples)
+### HTTP Server
+```cpp
+#include <nodepp/nodepp.h>
+#include <nodepp/http.h>
+#include <nodepp/date.h>
+
+using namespace nodepp;
+
+void onMain(){
+
+    auto server = http::server([=]( http_t cli ){ 
+
+        console::log( cli.path, cli.get_fd() );
+        
+        cli.write_header( 200, header_t({
+            { "content-type", "text/html" }
+        }));
+        
+        cli.write( date::fulltime() );
+        cli.close(); // optional | GC automaticaly close unused sockets
+
+    });
+
+    server.listen( "localhost", 8000, [=]( socket_t server ){
+        console::log("server started at http://localhost:8000");
+    });
+
+}
+``` 
+### More Examples [here](https://github.com/NodeppOficial/Nodepp/tree/main/examples)
 
 ## FAQ
 - reddit : [/r/Cplusplus/](https://www.reddit.com/r/Cplusplus/comments/19e2kw3/write_asynchronous_code_with_c_nodepp/)

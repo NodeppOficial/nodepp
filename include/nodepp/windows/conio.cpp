@@ -29,6 +29,7 @@ namespace nodepp { namespace conio { WORD attr = 0, dflt = 7;
     /*─······································································─*/
 
     int perr( const string_t& args ){ return fprintf( stderr, "%s", args.c_str() ); }
+    
     int pout( const string_t& args ){ return fprintf( stdout, "%s", args.c_str() ); }
 
     template< class V, class... T >

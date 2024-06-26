@@ -53,10 +53,15 @@ namespace nodepp { namespace process {
 
       //int clear(){ return nodepp::CLEAR(); }
 
-        int init( const string_t& path ){ try {
+        int init( const string_t& path ){
                 
             FILE* v = fopen( path.c_str(), "r" ); 
             string_t s; bool nr = 0; bool pr = 0;
+
+            if( v == nullptr ){ 
+               _ERROR( "such file of directory not found" );
+                return -1; 
+            }
             
             array_t<string_t> env ( 2 ); 
             function_t<void> lb([&](){ 
@@ -66,9 +71,9 @@ namespace nodepp { namespace process {
 
             while( !feof(v) ){ int c = fgetc( v );
 
-                if( c=='"' ){ pr=!pr; continue; }
-
+                if( c=='"' ){ pr=!pr;continue; }
                 if( c==' ' && !pr ){ continue; }
+
                 if( c=='#' && !pr ){ nr=1; continue; }
                 if( c==';' && !pr ){ nr=1; continue; }
 
@@ -78,7 +83,6 @@ namespace nodepp { namespace process {
 
                 if( !nr ) s.push(c);
             }   fclose(v); return  1;
-            } catch(...) { return -1; }
         };
 
     }
