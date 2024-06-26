@@ -130,74 +130,55 @@ public:
     
     /*─······································································─*/
 
-    void set_time( const bool& UTC=false ) const noexcept {  
-        if( UTC ) obj->info = gmtime( &obj->time ); 
-        else      obj->info = localtime( &obj->time );
-    }
-    
-    /*─······································································─*/
-
-    void set_time( const time_t& stamp, const bool& UTC=false ) const noexcept {  
-                  obj->time = stamp;
-        if( UTC ) obj->info = gmtime( &obj->time ); 
-        else      obj->info = localtime( &obj->time );
-    }
-    
-    /*─······································································─*/
+    void set_time() const noexcept { obj->info = localtime( &obj->time ); }
 
     void set_time( const uint& year, const bool& UTC=false ) const noexcept { 
-        if( UTC ) obj->info = gmtime( &obj->time ); 
-        else      obj->info = localtime( &obj->time );
-        obj->info->tm_year = year; obj->time = mktime(obj->info);
+        obj->info = UTC ? localtime( &obj->time ) : gmtime( &obj->time ); 
+        obj->info->tm_year = year - 1900; obj->time = mktime(obj->info);
     }
 
     void set_time( const uint& year, const uint& month, const bool& UTC=false ) const noexcept { 
-        if( UTC ) obj->info = gmtime( &obj->time ); 
-        else      obj->info = localtime( &obj->time );
-        obj->info->tm_year = year; obj->info->tm_mon = month; 
+        obj->info = UTC ? localtime( &obj->time ) : gmtime( &obj->time ); 
+        obj->info->tm_year = year - 1900; obj->info->tm_mon = month; 
         obj->time = mktime(obj->info);
     }
 
     void set_time( const uint& year, const uint& month, const uint& day, const bool& UTC=false ) const noexcept { 
-        if( UTC ) obj->info = gmtime( &obj->time ); 
-        else      obj->info = localtime( &obj->time );
-        obj->info->tm_year = year; obj->info->tm_mon = month; 
+        obj->info = UTC ? localtime( &obj->time ) : gmtime( &obj->time ); 
+        obj->info->tm_year = year - 1900; obj->info->tm_mon = month; 
         obj->info->tm_mday = day; obj->time = mktime(obj->info);
     }
 
     void set_time( const uint& year, const uint& month, const uint& day, const uint& hour, const bool& UTC=false ) const noexcept { 
-        if( UTC ) obj->info = gmtime( &obj->time ); 
-        else      obj->info = localtime( &obj->time );
-        obj->info->tm_year = year; obj->info->tm_mon = month; 
+        obj->info = UTC ? localtime( &obj->time ) : gmtime( &obj->time ); 
+        obj->info->tm_year = year - 1900; obj->info->tm_mon = month; 
         obj->info->tm_mday = day; obj->info->tm_hour = hour; 
         obj->time = mktime(obj->info);
     }
 
     void set_time( const uint& year, const uint& month, const uint& day, const uint& hour, const uint& min, const bool& UTC=false ) const noexcept { 
-        if( UTC ) obj->info = gmtime( &obj->time ); 
-        else      obj->info = localtime( &obj->time );
-        obj->info->tm_year = year; obj->info->tm_mon = month; 
+        obj->info = UTC ? localtime( &obj->time ) : gmtime( &obj->time ); 
+        obj->info->tm_year = year - 1900; obj->info->tm_mon = month; 
         obj->info->tm_mday = day; obj->info->tm_hour = hour; 
         obj->info->tm_min = min; obj->time = mktime(obj->info);
     }
 
     void set_time( const uint& year, const uint& month, const uint& day, const uint& hour, const uint& min, const uint& sec, const bool& UTC=false ) const noexcept { 
-        if( UTC ) obj->info = gmtime( &obj->time ); 
-        else      obj->info = localtime( &obj->time );
-        obj->info->tm_year = year; obj->info->tm_mon = month; 
+        obj->info = UTC ? localtime( &obj->time ) : gmtime( &obj->time ); 
+        obj->info->tm_year = year - 1900; obj->info->tm_mon = month; 
         obj->info->tm_mday = day; obj->info->tm_hour = hour; 
         obj->info->tm_min = min; obj->info->tm_sec = sec;
         obj->time = mktime(obj->info);
     }
     
     /*─······································································─*/
-
-    void set_month( uint month ) const noexcept { obj->info->tm_mon  = month; obj->time = mktime(obj->info); }
-    void set_second( uint sec )  const noexcept { obj->info->tm_sec  = sec;   obj->time = mktime(obj->info); }
-    void set_minute( uint min )  const noexcept { obj->info->tm_min  = min;   obj->time = mktime(obj->info); }
-    void set_year( uint year )   const noexcept { obj->info->tm_year = year;  obj->time = mktime(obj->info); }
-    void set_hour( uint hour )   const noexcept { obj->info->tm_hour = hour;  obj->time = mktime(obj->info); }
-    void set_day( uint day )     const noexcept { obj->info->tm_mday = day;   obj->time = mktime(obj->info); }
+    
+    void set_year( uint year )   const noexcept { obj->info->tm_year = year-1900;obj->time = mktime(obj->info); }
+    void set_month( uint month ) const noexcept { obj->info->tm_mon  = month;    obj->time = mktime(obj->info); }
+    void set_second( uint sec )  const noexcept { obj->info->tm_sec  = sec;      obj->time = mktime(obj->info); }
+    void set_minute( uint min )  const noexcept { obj->info->tm_min  = min;      obj->time = mktime(obj->info); }
+    void set_hour( uint hour )   const noexcept { obj->info->tm_hour = hour;     obj->time = mktime(obj->info); }
+    void set_day( uint day )     const noexcept { obj->info->tm_mday = day;      obj->time = mktime(obj->info); }
 
     /*─······································································─*/
 

@@ -27,7 +27,7 @@ public:
     virtual ~debug_t() noexcept { 
         process::onSIGERR.off(obj->ev);
         if ( obj.count() == 2 ){ 
-	    console::log( obj->msg, "closed" );  
+	         console::log( obj->msg, "closed" );  
         }
     }
     
