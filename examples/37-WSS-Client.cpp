@@ -9,7 +9,7 @@ void onMain() {
 
     ssl_t ssl( "./ssl/cert.key", "./ssl/cert.crt" );
 
-    auto cli = ws::client( "wss://localhost:8000/", &ssl );
+    auto cli = wss::client( "wss://localhost:8000/", &ssl );
     
     cli.onOpen([=](){ 
         

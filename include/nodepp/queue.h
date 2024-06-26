@@ -229,9 +229,9 @@ public: queue_t() noexcept {}
                      index->prev->prev = prev;
                      prev->next = index->prev;
             } else {
-                queue->prev = new NODE( queue->data );
+                queue->prev = new NODE( value );
                 queue->prev->next = queue;
-                queue->data = value;
+                queue = queue->prev;
             }
         } else { auto prev = last();
             prev->next = new NODE( value );
