@@ -22,7 +22,7 @@
 - Compatible with several platforms like **Windows | Linux | macOS | freeBSD**
 - Supports **Coroutines**, which allows running multiple tasks concurrently on a single thread
 
-## Baterieas Included
+## Bateries Included
 
 - Includes a **build-in JSON** parser / stringify system
 - Includes a **build-in RegExp** engine for processing text strings
