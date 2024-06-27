@@ -25,7 +25,6 @@ protected:
 public:
 
     virtual ~except_t() noexcept { 
-        if( obj.count() > 1 )   { return; }
         if( obj->ev == nullptr ){ return; }
    	    process::onSIGERR.off( obj->ev );
     }
