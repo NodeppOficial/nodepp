@@ -266,7 +266,7 @@ public: queue_t() noexcept {}
 
     /*─······································································─*/
 
-    void set( ptr_t<NODE>& n ) noexcept { if ( is_item(n) ) act = n; }
+    void set( ptr_t<NODE> n ) noexcept { if ( is_item(n) ) act = n; }
 
     ptr_t<NODE> get() noexcept { return act==nullptr ? first() : act; }
 
