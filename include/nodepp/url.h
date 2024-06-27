@@ -66,6 +66,7 @@ namespace url {
 
     string_t auth( const string_t& URL ){ string_t null; 
         regex_t _a("//\\w+:\\w+@");
+        if( !regex::test( URL, "@" ) ){ return null; }
         if( !is_valid(URL) || !_a.test( URL ) ) 
           { return null; } null = _a.match( URL );
             return null.slice( 2, -1 );
