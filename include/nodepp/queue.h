@@ -220,7 +220,7 @@ public: queue_t() noexcept {}
     }
 
     void insert( ptr_t<NODE> index, const V& value ) noexcept {
-        if( empty() ){ queue = new NODE( value ); return; }
+        if( empty() ){ queue = new NODE( value ); return; } 
         if( is_item(index) ) { 
             if ( &index != &first() ) {
                 auto prev = index->prev; 
@@ -253,20 +253,20 @@ public: queue_t() noexcept {}
         erase( get( r[0] ) ); 
     }
 
-    void erase( ptr_t<NODE> x ) noexcept {
-        if( x == nullptr || empty() ){ return; }
-        if( x == act ){ next(); } if ( &x == &first() ) {
-            if ( x->next != nullptr ){ x->next->prev = nullptr; }
-                 x->prev  = nullptr; queue = x->next;
+    void erase( ptr_t<NODE> n ) noexcept {
+        if( n == nullptr || empty() ){ return; }
+        if( n == act ){ next(); } if ( &n == &first() ) {
+            if ( n->next != nullptr ){ n->next->prev = nullptr; }
+                 n->prev  = nullptr; queue = n->next;
         } else {
-            if ( x->prev != nullptr ){ x->prev->next = x->next; }
-            if ( x->next != nullptr ){ x->next->prev = x->prev; }
+            if ( n->prev != nullptr ){ n->prev->next = n->next; }
+            if ( n->next != nullptr ){ n->next->prev = n->prev; }
         }
     }
 
     /*─······································································─*/
 
-    void set( ptr_t<NODE> x ) noexcept { if ( is_item(x) ) act = x; }
+    void set( ptr_t<NODE>& n ) noexcept { if ( is_item(n) ) act = n; }
 
     ptr_t<NODE> get() noexcept { return act==nullptr ? first() : act; }
 
@@ -289,11 +289,11 @@ public: queue_t() noexcept {}
     /*─······································································─*/
     
     ptr_t<NODE> prev() noexcept { 
-        act = act != nullptr ? &act->prev : &last(); return act;
+        act = act != nullptr ? act->prev : last(); return act;
     }
     
     ptr_t<NODE> next() noexcept { 
-        act = act != nullptr ? &act->next : &first(); return act;
+        act = act != nullptr ? act->next : first(); return act;
     }
 
 };}
