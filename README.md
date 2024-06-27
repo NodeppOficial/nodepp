@@ -24,13 +24,14 @@
 
 ## Bateries Included
 
-- Includes a **build-in JSON** parser / stringify system
-- Includes a **build-in RegExp** engine for processing text strings
-- Includes a **build-in System** that make every object **Async Task** safety 
-- Includes a **Smart Pointer** base **Garbage Collector** to avoid **Memory Leaks**
-- Includes an **Event Loop** that can handle multiple events and tasks on a single thread
-- Includes support for **TCP | TLS | UDP | HTTP | WS** making it easy to create networked applications
-- Includes Support for **Poll | Epoll | Kqueue | WSAPoll** making it easy to handle multiple file descriptors
+- Include a **build-in JSON** parser / stringify system.
+- Include a **build-in RegExp** engine for processing text strings.
+- Include a **build-in System** that make every object **Async Task** safety.
+- Include a **Smart Pointer** base **Garbage Collector** to avoid **Memory Leaks**.
+- Include support for **Reactive Programming** based on **Events** and **Observers**.
+- Include an **Event Loop** that can handle multiple events and tasks on a single thread.
+- Include support for **TCP | TLS | UDP | HTTP | WS** making it easy to create networked applications.
+- Include Support for **Poll | Epoll | Kqueue | WSAPoll** making it easy to handle multiple file descriptors.
 
 ## Build & Run
 - 🐧: `g++ -o main main.cpp -I ./include ; ./main`
