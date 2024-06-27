@@ -24,7 +24,7 @@ protected:
         explicit operator V(){ return data; }
     };
 
-    ptr_t<NODE> queue; NODE *act = nullptr;
+    ptr_t<NODE> queue; ptr_t<NODE> act;
 
     ptr_t<ulong> get_slice_range( long x, long y ) const noexcept {
         
