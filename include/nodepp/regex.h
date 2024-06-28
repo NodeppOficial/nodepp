@@ -135,17 +135,17 @@ protected:
         DONE:
 
             if( (ulong) pos[1] >= str.size() ){
-                  if( pos[2] >=obj->_rep[0] ){ goto CLSE; } 
-                  goto FAIL;
+                if( pos[0] <= obj->regex.last() && obj->regex[pos[0]] != '$' ){ goto FAIL; }
+                if( pos[2] >= obj->_rep[0] ){ goto CLSE; } goto FAIL;
             } elif( pos[2] == 0 && obj->_rep[0] == 0 ){
-                  goto SKIP;
+                goto SKIP;
             } elif( obj->_rep[1] ==-1 ){
-                  if( pos[2] >=obj->_rep[0] ){ goto SKIP; } goto FAIL;
+                if( pos[2] >=obj->_rep[0] ){ goto SKIP; } goto FAIL;
             } elif( obj->_rep[1] != 0 ) {
-                  if( pos[2] > obj->_rep[1] ){ goto NEXT; }
-                elif( pos[2] >=obj->_rep[0] ){ goto NEXT; } goto FAIL;
+                if( pos[2] > obj->_rep[1] ){ goto NEXT; }
+              elif( pos[2] >=obj->_rep[0] ){ goto NEXT; } goto FAIL;
             } else {
-                  if( pos[2] >=obj->_rep[0] ){ goto NEXT; } goto FAIL;
+                if( pos[2] >=obj->_rep[0] ){ goto NEXT; } goto FAIL;
             }
 
         CLSE: pos[2] = 0; return -2;
@@ -245,7 +245,7 @@ protected:
                 obj->_data = string::to_string(obj->regex[pos[0]]);
             }   obj->_rep  = nullptr;
 
-        } while( (ulong)pos[0]++<=obj->regex.size() && (ulong)pos[0]<=obj->regex.size() );
+        } while( (ulong)++pos[0]<=obj->regex.size() );
 
         obj->_data=nullptr; obj->_rep=nullptr;
     coStop

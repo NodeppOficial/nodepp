@@ -85,29 +85,29 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         if( dns::lookup(host).empty() ){ _EERROR(onError,"dns couldn't get ip"); close(); return; }
             auto self = type::bind( this );
         
-        ssocket_t *sk = new ssocket_t; 
-                   sk->IPPROTO = IPPROTO_TCP;
-                   sk->socket( dns::lookup(host), port );
-                   sk->set_sockopt( self->obj->agent ); 
+        auto sk = ssocket_t(); 
+             sk.IPPROTO = IPPROTO_TCP;
+             sk.socket( dns::lookup(host), port );
+             sk.set_sockopt( self->obj->agent ); 
 
-        if( sk->bind()    < 0 ){ _EERROR(onError,"Error while binding TLS");   close(); delete sk; return; }
-        if( sk->listen()  < 0 ){ _EERROR(onError,"Error while listening TLS"); close(); delete sk; return; }
+        if( sk.bind()    < 0 ){ _EERROR(onError,"Error while binding TLS");   close(); sk.free(); return; }
+        if( sk.listen()  < 0 ){ _EERROR(onError,"Error while listening TLS"); close(); sk.free(); return; }
         if( obj->chck == true ){ init_poll_loop( self ); }
 
-        onOpen.emit(*sk); if( cb != nullptr ){ (*cb)(*sk); } 
+        onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); } 
         
         process::task::add([=](){
             static int _accept = 0; 
         coStart
 
-            while( sk != nullptr ){ _accept = sk->_accept();
-                if( self->is_closed() || !sk->is_available() )
+            while( !sk.is_closed() ){ _accept = sk._accept();
+                if( self->is_closed() || !sk.is_available() )
                   { break; } elif ( _accept != -2 )
                   { break; } coYield(1);
             }
             
             if( _accept == -1 ){ _EERROR(self->onError,"Error while accepting TLS"); coGoto(2); }
-            elif ( !sk->is_available() || self->is_closed() ){ coGoto(2); }
+            elif ( !sk.is_available() || self->is_closed() ){ coGoto(2); }
             elif ( self->obj->chck == true ){ self->obj->poll.push_read(_accept); coGoto(0); }
             else { ssocket_t cli( self->obj->ctx, _accept ); if( cli.is_available() ){ 
                    process::poll::add([=]( ssocket_t cli ){
@@ -118,7 +118,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
                    }, cli );
             } coGoto(0); } 
 
-            coYield(2); self->close(); delete sk; 
+            coYield(2); self->close(); sk.free(); 
             
         coStop
         });
