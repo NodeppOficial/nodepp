@@ -12,7 +12,16 @@ void onMain(){
     console::log( str );
 
     console::log( "-- --" );
-    console::log( str.slice( 1, 3 ) );
+    console::log( arr.slice( 0, 2 ) );
+
+    console::log( "-- --" );
+    console::log( arr.slice( 3 ) );
+
+    console::log( "-- --" );
+    console::log( arr.slice( -3 ) );
+
+    console::log( "-- --" );
+    console::log( arr.splice( 1, 3, { 1, 2, 3 } ) );
 
     console::log( "-- --" );
     console::log( str.splice( 1, 3, "abc" ) );

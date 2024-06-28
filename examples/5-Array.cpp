@@ -15,7 +15,13 @@ void onMain(){
     console::log( arr.join(" ") );
 
     console::log( "-- --" );
-    console::log( arr.slice( 1, 3 ).join(" ") );
+    console::log( arr.slice( 0, 2 ).join(" ") );
+
+    console::log( "-- --" );
+    console::log( arr.slice( 3 ).join(" ") );
+
+    console::log( "-- --" );
+    console::log( arr.slice( -3 ).join(" ") );
 
     console::log( "-- --" );
     console::log( arr.splice( 1, 3, { 1, 2, 3 } ).join(" ") );

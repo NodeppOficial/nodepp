@@ -24,7 +24,7 @@ protected:
         
         if( empty() || x == y ){ return nullptr; } if( y>0 ){ y--; }
 
-        if( x < 0 ){ x = last() + x; } if( (ulong)x > last() ){ return nullptr; }
+        if( x < 0 ){ x = size() + x; } if( (ulong)x > last() ){ return nullptr; }
         if( y < 0 ){ y = last() + y; } if( (ulong)y > last() ){ y = last(); } 
                                        if( y < x )            { return nullptr; }
 
