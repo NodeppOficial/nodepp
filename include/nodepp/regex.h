@@ -221,7 +221,7 @@ protected:
                  auto npos = get_next_key( pos[0] );
             if ( npos < 0 )
                { _ERROR(string::format( "regex: %d %c", pos[0], obj->regex[pos[0]] )); } 
-                 obj->_data = obj->regex.slice( pos[0],npos ); pos[0] = npos;
+                 obj->_data = obj->regex.slice( pos[0], npos ); pos[0] = npos;
             }
 
             elif( obj->regex[pos[0]] == '|' ){ break; }
@@ -263,7 +263,7 @@ public: regex_t () noexcept : obj( new NODE() ) {}
 
         for( auto &x: get_next_regex() ){
              ptr_t<int> pos ({ x, off, 0 }); res[0] = off; res[1] = off;
-             while( compile( _str, res, pos )==1 ){}
+             while( compile( _str, res, pos )==1 ){ /*process::next();*/ }
                 if( res[0] != res[1] ){ break; }
         }
 

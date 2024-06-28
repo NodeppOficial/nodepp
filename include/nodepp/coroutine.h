@@ -83,7 +83,7 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 #define CHUNK_SIZE 65536
 #define SSL_SIZE   16384
 #define UNBFF_SIZE 4096
-#define TIMEOUT    3
+#define TIMEOUT    1
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
