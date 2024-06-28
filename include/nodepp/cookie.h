@@ -29,9 +29,9 @@ namespace nodepp {
             if ( data.empty() ){ return cookie_t(); } cookie_t res;
                  auto args = string::split( data, ';' );
             for( auto x : args ){ 
-                 auto y = regex::match_all( x, "[^=]+" );
-                 if ( y.size() != 2 ){ continue; }
-                 res[ y[0].to_slugify() ] = y[1].to_slugify();
+                 auto y = regex::search( x,"[^=]+");
+                 if ( y == nullptr ){ continue; }
+                 res[ x.slice(y[0],y[1]) ] = x.slice(y[1]+1);
             }    return res;
         }
         
