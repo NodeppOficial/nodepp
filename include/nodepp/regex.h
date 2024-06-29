@@ -135,7 +135,19 @@ protected:
         DONE:
 
             if( (ulong) pos[1] >= str.size() ){
-                if( pos[0] <= obj->regex.last() && obj->regex[pos[0]] != '$' ){ goto FAIL; }
+                if( pos[0] <= obj->regex.last() && 
+                 !( obj->regex[pos[0]] == '$'   || 
+                    obj->regex[pos[0]] == '*'   || 
+                    obj->regex[pos[0]] == '+'   ||
+                    obj->regex[pos[0]] == '?'   ||
+                    obj->regex[pos[0]] == '|'   ||
+                    obj->regex[pos[0]] == '{'   ||
+                    obj->regex[pos[0]] == '}'   ||
+                    obj->regex[pos[0]] == '['   ||
+                    obj->regex[pos[0]] == ']'   ||
+                    obj->regex[pos[0]] == '('   ||
+                    obj->regex[pos[0]] == ')'
+                )){ goto FAIL; }
                 if( pos[2] >= obj->_rep[0] ){ goto CLSE; } goto FAIL;
             } elif( pos[2] == 0 && obj->_rep[0] == 0 ){
                 goto SKIP;
