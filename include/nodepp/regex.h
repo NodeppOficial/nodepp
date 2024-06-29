@@ -105,12 +105,12 @@ protected:
                 elif ( x == 1 && list.some([&]( char itm ){ return _str_ == itm; }))
                      { off[1]++; goto LESS; } goto DONE;
 
-            } elif( (uchar) obj->_data[0] == '\0' ) {
+            } elif( (uchar) obj->_data[0] == 0x00 ) {
                                  goto CLSE;
-            } elif( (uchar) obj->_data[0] <= '\2' ) {
+            } elif( (uchar) obj->_data[0] <= 0x02 ) {
                 if( compile_flg( obj->_data[0], str, pos[1] ) )
                   { goto SKIP; } goto DONE;
-            } elif( (uchar) obj->_data[0] <= '\13' ) {
+            } elif( (uchar) obj->_data[0] <= 0x0c ) {
                 if( compile_cmd( obj->_data[0], str, pos[1] ) )
                   { off[1]++; goto LESS; } 
                               goto DONE;
@@ -170,22 +170,23 @@ protected:
     /*─······································································─*/
 
     bool compile_cmd( char& flg, string_t& data, int pos ) const noexcept { 
-          if( flg == '\3'  &&  ( pos==0||(ulong)pos>=data.size()-1) ){ return true; } 
-        elif( flg == '\4'  && !( pos==0||(ulong)pos>=data.size()-1) ){ return true; }
-        elif( flg == '\5'  &&  string::is_alnum( data[pos] ) )       { return true; }
-        elif( flg == '\6'  &&  string::is_digit( data[pos] ) )       { return true; }
-        elif( flg == '\7'  &&  string::is_space( data[pos] ) )       { return true; }
-        elif( flg == '\10' && !string::is_alnum( data[pos] ) )       { return true; }
-        elif( flg == '\11' && !string::is_digit( data[pos] ) )       { return true; }
-        elif( flg == '\12' && !string::is_space( data[pos] ) )       { return true; } 
-        elif( flg == '\13' )                                         { return true; } return false;
+          if( flg == 0x03 &&  ( pos==0||(ulong)pos>=data.size()-1) ){ return true; } 
+        elif( flg == 0x04 && !( pos==0||(ulong)pos>=data.size()-1) ){ return true; }
+        elif( flg == 0x05 &&  string::is_alnum( data[pos] ) )       { return true; }
+        elif( flg == 0x06 &&  string::is_digit( data[pos] ) )       { return true; }
+        elif( flg == 0x07 &&  string::is_space( data[pos] ) )       { return true; }
+        elif( flg == 0x08 && !string::is_alnum( data[pos] ) )       { return true; }
+        elif( flg == 0x0e && !string::is_digit( data[pos] ) )       { return true; }
+        elif( flg == 0x0b && !string::is_space( data[pos] ) )       { return true; } 
+        elif( flg == 0x0c )                                         { return true; } 
+        else{ return data[pos] == flg; } return false;
     }
     
     /*─······································································─*/
 
     bool compile_flg( char& flg, string_t& data, int pos ) const noexcept {
-          if( flg == '\1' && ((ulong)pos >= data.size()-1) ){ return true; }
-        elif( flg == '\2' &&         pos == 0 )             { return true; } return false;
+          if( flg == 0x01 && ((ulong)pos >= data.size()-1) ){ return true; }
+        elif( flg == 0x02 &&         pos == 0 )             { return true; } return false;
     }
     
     /*─······································································─*/
@@ -237,19 +238,19 @@ protected:
             }
 
             elif( obj->regex[pos[0]] == '|' ){ break; }
-            elif( obj->regex[pos[0]] == '$' ){ obj->_data = "\1";  }
-            elif( obj->regex[pos[0]] == '^' ){ obj->_data = "\2";  }
-            elif( obj->regex[pos[0]] == '.' ){ obj->_data = "\13"; }
+            elif( obj->regex[pos[0]] == '$' ){ obj->_data.clear(); obj->_data.push( (char) 0x01 ); }
+            elif( obj->regex[pos[0]] == '^' ){ obj->_data.clear(); obj->_data.push( (char) 0x02 ); }
+            elif( obj->regex[pos[0]] == '.' ){ obj->_data.clear(); obj->_data.push( (char) 0x0c ); }
 
             elif( obj->regex[pos[0]] == '\\' ){ pos[0]++; 
-              if( obj->regex[pos[0]] == 'b'  ){ obj->_data = "\3";  }
-            elif( obj->regex[pos[0]] == 'B'  ){ obj->_data = "\4";  }
-            elif( obj->regex[pos[0]] == 'w'  ){ obj->_data = "\5";  }
-            elif( obj->regex[pos[0]] == 'd'  ){ obj->_data = "\6";  }
-            elif( obj->regex[pos[0]] == 's'  ){ obj->_data = "\7";  }
-            elif( obj->regex[pos[0]] == 'W'  ){ obj->_data = "\10"; }
-            elif( obj->regex[pos[0]] == 'D'  ){ obj->_data = "\11"; }
-            elif( obj->regex[pos[0]] == 'S'  ){ obj->_data = "\12"; }
+              if( obj->regex[pos[0]] == 'b'  ){ obj->_data.clear(); obj->_data.push( (char) 0x03 ); }
+            elif( obj->regex[pos[0]] == 'B'  ){ obj->_data.clear(); obj->_data.push( (char) 0x04 ); }
+            elif( obj->regex[pos[0]] == 'w'  ){ obj->_data.clear(); obj->_data.push( (char) 0x05 ); }
+            elif( obj->regex[pos[0]] == 'd'  ){ obj->_data.clear(); obj->_data.push( (char) 0x06 ); }
+            elif( obj->regex[pos[0]] == 's'  ){ obj->_data.clear(); obj->_data.push( (char) 0x07 ); }
+            elif( obj->regex[pos[0]] == 'W'  ){ obj->_data.clear(); obj->_data.push( (char) 0x08 ); }
+            elif( obj->regex[pos[0]] == 'D'  ){ obj->_data.clear(); obj->_data.push( (char) 0x0e ); }
+            elif( obj->regex[pos[0]] == 'S'  ){ obj->_data.clear(); obj->_data.push( (char) 0x0b ); }
             else{ obj->_data = string::to_string(obj->regex[pos[0]]); } 
             }
 
