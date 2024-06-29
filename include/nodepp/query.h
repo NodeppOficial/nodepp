@@ -31,7 +31,8 @@ namespace nodepp {
             for( auto x : args ){ 
                  auto y = regex::search( x,"[^=]+");
                  if ( y == nullptr ){ continue; }
-                 res[ x.slice(y[0],y[1]) ] = x.slice(y[1]+1);
+                 auto name = regex::replace( x.slice(y[0],y[1]), "\\s+", "" );
+                 res[ name ] = x.slice(y[1]+1);
             }    return res;
         }
         
