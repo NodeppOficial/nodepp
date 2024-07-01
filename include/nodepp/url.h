@@ -14,6 +14,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#include "encoder.h"
 #include "query.h"
 #include "regex.h"
 
@@ -51,6 +52,17 @@ namespace url {
 
     bool is_valid( const string_t& URL ){
         return regex::test( URL, "^\\w+://([^.]+)", 1 );
+    }
+
+    /*.........................................................................*/
+
+    string_t normalize ( string_t& msg ) { string_t res = msg;
+        while( regex::test( res, "%[a-z0-9]{2}", true ) ){
+            auto data = regex::match( res, "%[a-z0-9]{2}", true );
+            auto hex  = encoder::hex::set( data.slice(1) );
+            auto y    = string_t( (char*)&hex,hex.size() );
+            res = regex::replace_all( res, data, y );
+        }   return res;
     }
     
     /*─······································································─*/
