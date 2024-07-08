@@ -18,6 +18,7 @@ namespace nodepp { class regex_t {
 protected:
 
     struct NODE {
+        array_t<string_t> memory;
         string_t regex, _data; 
         ptr_t<int> _rep;
         bool i;
@@ -40,7 +41,7 @@ protected:
     int get_next_key( ulong _pos ) const noexcept {
         uchar k=0; while( _pos < obj->regex.size() ){
 
-            switch( obj->regex[_pos] ){
+            switch( obj->regex[_pos] ){  case '\\': _pos++;break;
                 case '[': k += 1; break; case ']': k -= 1; break; 
                 case '(': k += 2; break; case ')': k -= 2; break;
                 case '{': k += 3; break; case '}': k -= 3; break;
@@ -93,6 +94,7 @@ protected:
                   if ( idx == nullptr ){ goto DONE; }
                 else { pos[1]+= idx[1]-idx[0]-1;
                        off[1]+= idx[1]-idx[0];
+                       store_mem( str, idx );
                        goto LESS; 
                      }
             } elif( (uchar) obj->_data[0] == '[' ) {
@@ -110,7 +112,7 @@ protected:
             } elif( (uchar) obj->_data[0] <= 0x02 ) {
                 if( compile_flg( obj->_data[0], str, pos[1] ) )
                   { goto SKIP; } goto DONE;
-            } elif( (uchar) obj->_data[0] <= 0x0c ) {
+            } elif( (uchar) obj->_data[0] <= 0x0f ) {
                 if( compile_cmd( obj->_data[0], str, pos[1] ) )
                   { off[1]++; goto LESS; } 
                               goto DONE;
@@ -178,7 +180,8 @@ protected:
         elif( flg == 0x08 && !string::is_alnum( data[pos] ) )       { return true; }
         elif( flg == 0x0e && !string::is_digit( data[pos] ) )       { return true; }
         elif( flg == 0x0b && !string::is_space( data[pos] ) )       { return true; } 
-        elif( flg == 0x0c )                                         { return true; } 
+        elif( flg == 0x0c )                                         { return true; }
+        elif( flg == 0x0f )                   { return obj->_data[1] == data[pos]; }
         else{ return data[pos] == flg; } return false;
     }
     
@@ -210,6 +213,13 @@ protected:
     
     /*─······································································─*/
 
+    void store_mem( string_t& data, ptr_t<ulong>& pos ) const noexcept {
+        if( pos == nullptr ){ return; }
+        obj->memory.push( data.slice( pos[0], pos[1] ) );
+    }
+    
+    /*─······································································─*/
+
     int compile( const string_t& str, ptr_t<ulong>& off, ptr_t<int>& pos ) const {
         if( str == nullptr || obj->regex == nullptr ){ return -1; }
 
@@ -223,7 +233,6 @@ protected:
         }}
 
     coStart
-
         do { coNext;
 
               if( obj->regex[pos[0]] == ']' || obj->regex[pos[0]] == '{' ||
@@ -242,7 +251,8 @@ protected:
             elif( obj->regex[pos[0]] == '^' ){ obj->_data.clear(); obj->_data.push( (char) 0x02 ); }
             elif( obj->regex[pos[0]] == '.' ){ obj->_data.clear(); obj->_data.push( (char) 0x0c ); }
 
-            elif( obj->regex[pos[0]] == '\\' ){ pos[0]++; 
+            elif( obj->regex[pos[0]] == '\\' ){ pos[0]++;
+                                                obj->_data.clear(); obj->_data.push( (char) 0x0f );
               if( obj->regex[pos[0]] == 'b'  ){ obj->_data.clear(); obj->_data.push( (char) 0x03 ); }
             elif( obj->regex[pos[0]] == 'B'  ){ obj->_data.clear(); obj->_data.push( (char) 0x04 ); }
             elif( obj->regex[pos[0]] == 'w'  ){ obj->_data.clear(); obj->_data.push( (char) 0x05 ); }
@@ -251,7 +261,7 @@ protected:
             elif( obj->regex[pos[0]] == 'W'  ){ obj->_data.clear(); obj->_data.push( (char) 0x08 ); }
             elif( obj->regex[pos[0]] == 'D'  ){ obj->_data.clear(); obj->_data.push( (char) 0x0e ); }
             elif( obj->regex[pos[0]] == 'S'  ){ obj->_data.clear(); obj->_data.push( (char) 0x0b ); }
-            else{ obj->_data = string::to_string(obj->regex[pos[0]]); } 
+            else{ obj->_data += string::to_string(obj->regex[pos[0]]); } 
             }
 
             else {
@@ -268,6 +278,12 @@ public: regex_t () noexcept : obj( new NODE() ) {}
 
     regex_t ( const string_t& reg, bool icase=false ) noexcept : obj( new NODE() )
             { obj->i = icase; obj->regex = reg; }
+    
+    /*─······································································─*/
+
+    ptr_t<string_t> get_memory() const noexcept {
+        return obj->memory.ptr();
+    }
     
     /*─······································································─*/
 
