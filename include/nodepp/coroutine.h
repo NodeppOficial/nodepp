@@ -79,7 +79,8 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define MAX_SOCKET SOMAXCONN
+#define MAX_SOCKET FD_SETSIZE
+#define MAX_FILENO FD_SETSIZE
 #define CHUNK_SIZE 65536
 #define SSL_SIZE   16384
 #define UNBFF_SIZE 4096
@@ -88,7 +89,6 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #define typeof(DATA) (string_t){ typeid( DATA ).name() }
-
 struct generator_t { protected: int _state_ = 0; };
 
 #define ullong  unsigned long long int
@@ -106,7 +106,7 @@ struct generator_t { protected: int _state_ = 0; };
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define forEach( ITEM, CB ) for( auto& x : ITEM ){ CB( x ); }
+#define forEach( X, ITEM ) for( auto& X : ITEM )
 #define forEver() for (;;)
 #define elif else if
 
