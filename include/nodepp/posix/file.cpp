@@ -193,14 +193,16 @@ public: file_t() noexcept {}
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } if( sx==0 ){ return 0; }
         obj->feof = ::read( obj->fd, bf, sx );
-        obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
+        obj->feof = is_blocked(obj->feof) ?-2 : obj->feof;
+        if( obj->feof <= 0 && obj->feof != -2 ){ close(); } 
         return obj->feof;
     }
 
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
         if( is_closed() ){ return -1; } if( sx==0 ){ return 0; }
         obj->feof = ::write( obj->fd, bf, sx );
-        obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
+        obj->feof = is_blocked(obj->feof) ?-2 : obj->feof;
+        if( obj->feof <= 0 && obj->feof != -2 ){ close(); }
         return obj->feof;
     }
 

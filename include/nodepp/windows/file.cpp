@@ -181,6 +181,7 @@ public: file_t() noexcept {}
         if( is_closed() ){ return -1; } if( sx==0 ){ return 0; } DWORD c = 0; 
         obj->feof = ReadFile( obj->fd, bf, sx, &c, &obj->ov );
         obj->feof = is_blocked( obj->feof, c ) ? -2 : c;
+        if( obj->feof <= 0 && obj->feof != -2 ){ close(); }
         return obj->feof;
     }
 
@@ -188,6 +189,7 @@ public: file_t() noexcept {}
         if( is_closed() ){ return -1; } if( sx==0 ){ return 0; } DWORD c = 0; 
         obj->feof = WriteFile( obj->fd, bf, sx, &c, &obj->ov );
         obj->feof = is_blocked( obj->feof, c ) ? -2 : c;
+        if( obj->feof <= 0 && obj->feof != -2 ){ close(); }
         return obj->feof;
     }
     

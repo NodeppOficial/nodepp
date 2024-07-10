@@ -388,11 +388,13 @@ public: socket_t() noexcept { _socket_::start_device(); }
            { close(); return -1; } if ( sx==0 ) { return 0; } 
         if ( SOCK != SOCK_DGRAM ){
             obj->feof = ::recv( obj->fd, bf, sx, 0 );
-            obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
+            obj->feof = is_blocked(obj->feof) ?-2 : obj->feof;
+            if( obj->feof <= 0 && obj->feof != -2 ){ close(); }
             return obj->feof;
         } else { SOCKADDR* cli; if( skt->srv==1 ) cli = &skt->client_addr; else cli = &skt->server_addr;
             obj->feof = ::recvfrom( obj->fd, bf, sx, 0, cli, &skt->len );
-            obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
+            obj->feof = is_blocked(obj->feof) ?-2 : obj->feof;
+            if( obj->feof <= 0 && obj->feof != -2 ){ close(); }
             return obj->feof;
         }   return -1;
     }
@@ -402,11 +404,13 @@ public: socket_t() noexcept { _socket_::start_device(); }
            { close(); return -1; } if ( sx==0 ) { return 0; } 
         if ( SOCK != SOCK_DGRAM ){
             obj->feof = ::send( obj->fd, bf, sx, 0 );
-            obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
+            obj->feof = is_blocked(obj->feof) ?-2 : obj->feof;
+            if( obj->feof <= 0 && obj->feof != -2 ){ close(); }
             return obj->feof;
         } else { SOCKADDR* cli; if( skt->srv==1 ) cli = &skt->client_addr; else cli = &skt->server_addr;
             obj->feof = ::sendto( obj->fd, bf, sx, 0, cli, skt->len );
-            obj->feof = is_blocked(obj->feof) ? -2 : obj->feof;
+            obj->feof = is_blocked(obj->feof) ?-2 : obj->feof;
+            if( obj->feof <= 0 && obj->feof != -2 ){ close(); }
             return obj->feof;
         }   return -1;
     } 

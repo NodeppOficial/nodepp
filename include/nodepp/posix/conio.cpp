@@ -68,7 +68,7 @@ namespace nodepp { namespace conio {
     int undescore(){ return pout("\033[4m"); }
     int inverse(){ return pout("\033[7m"); }
     int reset(){ return pout("\033[0m"); }
-    int clear(){ return pout("\033c"); }
+    int clear(){ return pout("\033c\n"); }
 
     /*─······································································─*/
 
