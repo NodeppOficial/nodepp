@@ -360,7 +360,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
 
     int _listen() const noexcept { int c = 0;
         if( process::millis() > get_conn_timeout() || skt->srv == 0 ){ return -1; }
-        return is_blocked( c=::listen( obj->fd, MAX_SOCKET ) ) ? -2 : c;
+        return is_blocked( c=::listen( obj->fd, MAX_FILENO ) ) ? -2 : c;
     }
 
     /*─······································································─*/
