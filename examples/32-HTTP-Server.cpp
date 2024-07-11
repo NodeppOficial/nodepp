@@ -41,7 +41,8 @@ void onMain(){
         } else {
 
             array_t<string_t> range = regex::match_all(cli.headers["Range"],"\\d+",true);
-            ulong rang[2]; rang[0] = string::to_ulong( range[0] );
+            ulong rang[3]; rang[0] = string::to_ulong( range[0] );
+                  rang[2] = min( rang[0]+CHUNK_MB(10), str.size() );
                   rang[1] = min( rang[0]+CHUNK_MB(10), str.size()-1 );
 
             cli.write_header( 206, header_t({
@@ -50,7 +51,7 @@ void onMain(){
                 { "Accept-Range", "bytes" }
             }));
 
-            str.set_range( rang[0], rang[1] );
+            str.set_range( rang[0], rang[2] );
             stream::pipe( str, cli );
 
         }
