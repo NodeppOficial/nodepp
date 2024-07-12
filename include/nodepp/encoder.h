@@ -97,7 +97,7 @@ namespace nodepp { namespace encoder { namespace bin {
 
     template< class T >
     T set( const ptr_t<bool>& num ){ T res = 0;
-         if ( num.empty() ){ return res; }
+        if  ( num.empty() ){ return res; }
         for ( auto x : num ){
               res = res << 1 | ( x & 1 );
         }     return res;
@@ -125,11 +125,10 @@ namespace nodepp { namespace encoder { namespace hex {
     }
 
     template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
-    string_t get( T num ){ 
-        string_t out; while( num != 0 ){
+    string_t get( T num ){ string_t out; do {
              auto p = type::cast<uchar>( num & (T)(0xf) );
-             out.push( BASE8[p] ); num >>= 4;
-        }    return out;
+             out.unshift( BASE8[p] ); num >>= 4;
+        } while( num != 0 ); return out;
     }
 
     template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
