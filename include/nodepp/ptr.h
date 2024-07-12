@@ -66,7 +66,10 @@ public:
     
     /*─······································································─*/
 
-    T& operator[]( ulong i ) const noexcept { return value_[i%size()]; }
+    T& operator[]( ulong i ) const noexcept { 
+        return size()==0 ? value_[i] : 
+               value_[ i%size() ]; 
+    }
     
     /*─······································································─*/
 
