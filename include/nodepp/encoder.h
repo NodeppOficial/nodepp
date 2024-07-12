@@ -11,6 +11,7 @@
 
 #ifndef NODEPP_ENCODER
 #define NODEPP_ENCODER
+#define BASE8  "0123456789abcdef"
 #define BASE64 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -124,14 +125,16 @@ namespace nodepp { namespace encoder { namespace hex {
     }
 
     template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
-    string_t get( T num ){ ptr_t<char> out ( sizeof(num), 0 );
-        int x = sprintf( &out, "%x", num ); 
-        return { &out, (ulong)x };
+    string_t get( T num ){ 
+        string_t out; while( num != 0 ){
+             auto p = type::cast<uchar>( num & (T)(0xf) );
+             out.push( BASE8[p] ); num >>= 4;
+        }    return out;
     }
 
     template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
     T set( string_t num ){ if ( num.empty() ){ return 0; } 
-        T out = 0; for ( auto c: num ){    out  = out << 4;
+        T out = 0; for ( auto c: num ){    out  = out<<4;
               if ( c >= '0' && c <= '9' ){ out |= c - '0'     ; } 
             elif ( c >= 'a' && c <= 'f' ){ out |= c - 'a' + 10; } 
             elif ( c >= 'A' && c <= 'F' ){ out |= c - 'A' + 10; } 
@@ -278,4 +281,5 @@ namespace nodepp { namespace encoder { namespace base64 {
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #undef BASE64
+#undef BASE8
 #endif
