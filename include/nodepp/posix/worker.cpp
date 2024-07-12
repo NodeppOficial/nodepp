@@ -20,7 +20,10 @@ namespace nodepp { namespace {
 
     void* sfunc( void* arg ){
         auto cb = (function_t<int>*) arg;
-        while((*cb)() >= 0 ){ worker::yield(); }
+        while((*cb)() >= 0 ){ 
+            worker::yield(); 
+            worker::delay( TIMEOUT );    
+        }
         mtx.lock(); process::threads--; mtx.unlock();
         delete cb; worker::exit(); return nullptr;
     }
