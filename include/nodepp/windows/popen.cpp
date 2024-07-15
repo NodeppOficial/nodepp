@@ -53,7 +53,7 @@ protected:
         obj->fd = ::CreateProcess( NULL, cmd.data(), NULL, NULL, 1, 0, dta, NULL, &obj->si, &obj->pi );
         WaitForSingleObject( obj->pi.hProcess, 0 ); WaitForSingleObject( obj->pi.hThread, 0 );
 
-        if ( obj->fd > 0 ){ // Parent process
+        if ( obj->fd != 0 ){ // Parent process
             obj->std_input  = { fda[1] };
             obj->std_output = { fdb[0] };
             obj->std_error  = { fdc[0] };
@@ -137,18 +137,6 @@ public:
             auto self = type::bind( this );
             onExit([=](){ self->free(); });
 
-        if( process::is_child() ){
-
-        process::task::add([=](){
-            if(!self->std_input().is_available() ){ self->close(); return -1; }
-            if((*_read1)(&self->std_input())==1 ) { return  1; }
-            if(  _read1->state <= 0 )             { return  1; }
-            self->onData.emit(_read1->data);    
-            self->onDout.emit(_read1->data);        return  1;
-        });
-
-        } else {
-
         process::task::add([=](){
             if(!self->std_output().is_available() ){ self->close(); return -1; }
             if((*_read1)(&self->std_output())==1 ) { return  1; }
@@ -160,12 +148,10 @@ public:
         process::task::add([=](){
             if(!self->std_error().is_available() ){ self->close(); return -1; }
             if((*_read2)(&self->std_error())==1 ) { return  1; }
-            if(  _read2->state <= 0  )            { return  1; }
+            if(  _read2->state <= 0 )             { return  1; }
             self->onData.emit(_read2->data);   
             self->onDerr.emit(_read2->data);        return  1;
         });
-
-        }
 
     }
     

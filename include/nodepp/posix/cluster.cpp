@@ -74,17 +74,16 @@ public:
     
     virtual ~cluster_t() noexcept { 
         if( obj.count() > 1 ){ return; } 
-        if( obj->state == 0 ){ return; }
-        //  free();
+        if( obj->state == 0 ){ return; } // free();
     }
 
     cluster_t( const initializer_t<string_t>& args ) : obj( new NODE() ) {
         array_t<const char*> arg; array_t<const char*> env; bool y=0;
 
         for ( auto x : args ) {
-           if ( x != nullptr && !y ) arg.push( x.c_str() );
-         elif ( x != nullptr &&  y ) env.push( x.c_str() );
-         else   y =! y;
+          if( x != nullptr && !y ) arg.push( x.c_str() );
+        elif( x != nullptr &&  y ) env.push( x.c_str() );
+        else  y =! y;
         }
         
         _init_( arg, env );

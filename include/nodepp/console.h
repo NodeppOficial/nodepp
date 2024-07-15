@@ -53,7 +53,7 @@ namespace nodepp { namespace console {
     template< class... T >
     int error( const T&... args ){ 
         conio::error("ERROR: "); 
-        return log( args... ); 
+        return err( args... ); 
     }
 
     template< class... T >

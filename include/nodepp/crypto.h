@@ -11,6 +11,7 @@
 
 #ifndef NODEPP_CRYPTO
 #define NODEPP_CRYPTO
+#define CRYPTO_SIZE 6144
 #define OPENSSL_API_COMPAT 0x10100000L
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -214,7 +215,7 @@ public:
     template< class T >
     encrypt_t( const string_t& iv, const string_t& key, const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CHUNK_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx ); 
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
@@ -224,7 +225,7 @@ public:
     template< class T >
     encrypt_t( const string_t& key, const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CHUNK_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
         obj->ctx   =       EVP_CIPHER_CTX_new(); 
         obj->state = 1;    EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"\0" ) )
@@ -234,7 +235,7 @@ public:
     template< class T >
     encrypt_t( const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
-        obj->bff   =       ptr_t<uchar>(CHUNK_SIZE,'\0');
+        obj->bff   =       ptr_t<uchar>(CRYPTO_SIZE,'\0');
         obj->ctx   =       EVP_CIPHER_CTX_new(); 
         obj->state = 1;    EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)"\0", (uchar*)"\0" ) )
@@ -242,8 +243,8 @@ public:
     }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ string_t data = msg.splice( 0, UNBFF_SIZE );
-            EVP_EncryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)data.get(), data.size() );
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, UNBFF_SIZE );
+            EVP_EncryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)tmp.get(), tmp.size() );
             if ( obj->len > 0 ) { if ( onData.empty() ) {
                      obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
             } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
@@ -290,9 +291,8 @@ public:
     event_t<>         onClose;
 
     template< class T >
-    decrypt_t( const string_t& iv, const string_t& key, const T& type ) 
-    :     obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CHUNK_SIZE,'\0');
+    decrypt_t( const string_t& iv, const string_t& key, const T& type ) : obj( new NODE() ) { crypto::start_device();
+        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
@@ -300,9 +300,8 @@ public:
     }
 
     template< class T >
-    decrypt_t( const string_t& key, const T& type ) 
-    :     obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CHUNK_SIZE,'\0');
+    decrypt_t( const string_t& key, const T& type ) : obj( new NODE() ) { crypto::start_device();
+        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"\0" ) )
@@ -310,9 +309,8 @@ public:
     }
 
     template< class T >
-    decrypt_t( const T& type ) 
-    :     obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CHUNK_SIZE,'\0');
+    decrypt_t( const T& type ) : obj( new NODE() ) { crypto::start_device();
+        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)"\0", (uchar*)"\0" ) )
@@ -320,8 +318,8 @@ public:
     }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ auto data = msg.splice( 0, UNBFF_SIZE );
-            EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)data.get(), data.size());
+        while( !msg.empty() ){ auto tmp = msg.splice( 0, UNBFF_SIZE );
+            EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)tmp.get(), tmp.size());
             if ( obj->len > 0 ) { if ( onData.empty() ) {
                      obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
             } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
@@ -368,7 +366,7 @@ public:
     event_t<>         onClose;
 
     enc_base64_t(): obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CHUNK_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
         obj->ctx   = EVP_ENCODE_CTX_new();
         obj->state = 1;
         if ( obj->ctx == nullptr )
@@ -379,8 +377,8 @@ public:
     virtual ~enc_base64_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ string_t data = msg.splice( 0, UNBFF_SIZE );
-            EVP_EncodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)data.get(), data.size()); 
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, UNBFF_SIZE );
+            EVP_EncodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)tmp.get(), tmp.size());
             if ( obj->len > 0 ) { if ( onData.empty() ) {
                      obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
             } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
@@ -420,8 +418,7 @@ protected:
 
 public:
 
-    encoder_t( const string_t& chr ) 
-    :     obj( new NODE() ) { crypto::start_device();
+    encoder_t( const string_t& chr ) : obj( new NODE() ) { crypto::start_device();
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
@@ -481,9 +478,8 @@ public:
     event_t<string_t> onData;
     event_t<>         onClose;
 
-    dec_base64_t() 
-    :        obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CHUNK_SIZE,'\0');
+    dec_base64_t() : obj( new NODE() ) { crypto::start_device();
+        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
         obj->ctx   = EVP_ENCODE_CTX_new();
         obj->state = 1; 
         if ( !obj->ctx )
@@ -494,8 +490,8 @@ public:
     virtual ~dec_base64_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ string_t data = msg.splice( 0, UNBFF_SIZE );
-            EVP_DecodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)data.get(), data.size()); 
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, UNBFF_SIZE );
+            EVP_DecodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)tmp.get(), tmp.size()); 
             if ( obj->len > 0 ) { if ( onData.empty() ) {
                      obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
             } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
@@ -538,8 +534,7 @@ public:
     event_t<string_t> onData;
     event_t<>         onClose;
 
-    decoder_t( const string_t& chr ) 
-    :     obj( new NODE() ) { crypto::start_device();
+    decoder_t( const string_t& chr ) : obj( new NODE() ) { crypto::start_device();
         obj->state = 1; obj->chr = chr; 
         obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
@@ -581,6 +576,112 @@ public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+class rsa_t {
+protected:
+
+    struct NODE {
+        RSA*    rsa = nullptr;
+        BIGNUM* num = nullptr;
+        ptr_t<uchar> bff;
+        bool  state = 0;
+    };  ptr_t<NODE> obj;
+    
+public:
+
+    rsa_t() : obj( new NODE() ) {
+        crypto::start_device();
+        obj->rsa   = RSA_new();
+        obj->num   =  BN_new();
+        obj->state = 1;
+        if ( !obj->num || !obj->rsa )
+           { process::error("creating rsa object"); }
+    }
+
+    virtual ~rsa_t() noexcept { if( obj.count() > 1 ){ return; } free(); }
+
+    int generate_keys( uint len=2048 ) const noexcept {
+        len = clamp( len, 1024u, 4098u ); BN_set_word( obj->num, RSA_F4 );
+        int c = RSA_generate_key_ex( obj->rsa, len, obj->num, NULL );
+        obj->bff.resize( RSA_size(obj->rsa) ); return c;
+    }
+
+    int write_private_key( const string_t& path, const char* pass=NULL ) const {
+        FILE* fp = fopen( path.data() , "w"); int res = 0;
+        if ( fp == nullptr ){ process::error("while writing private key"); }
+        res = PEM_write_RSAPrivateKey( fp, obj->rsa, NULL, NULL, 0, pcb, (void*)pass );
+        fclose( fp ); return res;
+    }
+
+    int write_public_key( const string_t& path ) const {
+        FILE* fp = fopen( path.data() , "w"); int res = 0;
+        if ( fp == nullptr ){ process::error("while writing public key"); }
+        res = PEM_write_RSAPublicKey( fp, obj->rsa );
+        fclose( fp ); return res;
+    }
+
+    void read_public_key( const string_t& path, const char* pass=NULL ) const {
+        FILE* fp = fopen( path.data(), "r" );
+        if ( fp == nullptr ){ process::error("while reading public key"); }
+        PEM_read_RSAPublicKey( fp, &obj->rsa, pcb, (void*)pass ); 
+        fclose( fp ); obj->bff.resize(RSA_size(obj->rsa));
+    }
+
+    void read_private_key( const string_t& path, const char* pass=NULL ) const {
+        FILE* fp = fopen( path.data(), "r" );
+        if ( fp == nullptr ){ process::error("while reading private key"); }
+        PEM_read_RSAPrivateKey( fp, &obj->rsa, pcb, (void*)pass ); 
+        fclose( fp ); obj->bff.resize(RSA_size(obj->rsa));
+    }
+
+    string_t public_encrypt( string_t msg, int padding=RSA_PKCS1_PADDING ) const {
+        if ( msg.empty() || obj->state ==0 ){ return nullptr; }
+        string_t data; while( !msg.empty() ){ auto tmp = msg.splice( 0, obj->bff.size()-42 );
+            int c = RSA_public_encrypt( tmp.size(), (uchar*)tmp.data(), &obj->bff, obj->rsa, padding );
+            data += string_t( (char*) &obj->bff, (ulong)c );
+        }   return data;
+    }
+
+    string_t private_encrypt( string_t msg, int padding=RSA_PKCS1_PADDING ) const {
+        if( msg.empty() || obj->state ==0 ){ return nullptr; }
+        string_t data; while( !msg.empty() ){ auto tmp = msg.splice( 0, obj->bff.size()-42 );
+            int c = RSA_private_encrypt( tmp.size(), (uchar*)tmp.data(), &obj->bff, obj->rsa, padding );
+            data += string_t( (char*) &obj->bff, (ulong)c );
+        }   return data;
+    }
+
+    string_t public_decrypt( string_t msg, int padding=RSA_PKCS1_PADDING ) const {
+        if( msg.empty() || obj->state ==0 ){ return nullptr; }
+        string_t data; while( !msg.empty() ){ auto tmp = msg.splice( 0, obj->bff.size() );
+            int c = RSA_public_decrypt( tmp.size(), (uchar*)tmp.data(), &obj->bff, obj->rsa, padding );
+            data += string_t( (char*) &obj->bff, (ulong)c );
+        }   return data;
+    }
+
+    string_t private_decrypt( string_t msg, int padding=RSA_PKCS1_PADDING ) const {
+        if( msg.empty() || obj->state ==0 ){ return nullptr; }
+        string_t data; while( !msg.empty() ){ auto tmp = msg.splice( 0, obj->bff.size() );
+            int c = RSA_private_decrypt( tmp.size(), (uchar*)tmp.data(), &obj->bff, obj->rsa, padding );
+            data += string_t( (char*) &obj->bff, (ulong)c );
+        }   return data;
+    }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
+
+    void close() const noexcept { free(); } 
+
+    void free() const noexcept { 
+        if( obj.count() > 1 ){ return; } 
+        if( obj->state == 0 ){ return; } obj->state =0;
+        if( obj->rsa != nullptr ) RSA_free( obj->rsa );
+        if( obj->num != nullptr )  BN_free( obj->num );
+    }
+    
+};
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 class ec_t {
 protected:
 
@@ -595,8 +696,7 @@ protected:
 public:
 
     template< class T >
-    ec_t( const string_t& key, const T& type ) noexcept 
-    :   obj( new NODE() ) { crypto::start_device();
+    ec_t( const string_t& key, const T& type ) noexcept : obj( new NODE() ) { crypto::start_device();
         obj->state = 1;
 
         obj->key_pair  = EC_KEY_new_by_curve_name(type);
@@ -609,7 +709,6 @@ public:
         obj->pub_key = (EC_POINT*) EC_POINT_new( obj->key_group );
         EC_POINT_mul( obj->key_group, obj->pub_key, obj->priv_key, nullptr, nullptr, nullptr );
         EC_KEY_set_public_key( obj->key_pair, obj->pub_key );
-
     }
 
     template< class T >
@@ -658,105 +757,6 @@ public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-class rsa_t {
-protected:
-
-    struct NODE {
-        RSA*    rsa = nullptr;
-        BIGNUM* num = nullptr;
-        ulong   len;
-        bool  state = 0;
-    };  ptr_t<NODE> obj;
-    
-public:
-
-    rsa_t( int keylen=2048 ) : obj( new NODE() ) {
-        crypto::start_device();
-        obj->rsa   = RSA_new();
-        obj->num   =  BN_new();
-        obj->len   = keylen; 
-        obj->state = 1;
-        if ( !obj->num || !obj->rsa )
-           { process::error("creating rsa object"); }
-        BN_set_word( obj->num, RSA_F4 );
-        RSA_generate_key_ex( obj->rsa, keylen, obj->num, NULL );
-    }
-
-    virtual ~rsa_t() noexcept { if( obj.count() > 1 ){ return; } free(); }
-
-    int write_private_key( const string_t& path, const char* pass=NULL ) const {
-        FILE* fp = fopen( path.data() , "w"); int res = 0;
-        if ( fp == nullptr ){ process::error("while writing private key"); }
-        res = PEM_write_RSAPrivateKey( fp, obj->rsa, NULL, NULL, 0, pcb, (void*)pass );
-        fclose( fp ); return res;
-    }
-
-    int write_public_key( const string_t& path ) const {
-        FILE* fp = fopen( path.data() , "w"); int res = 0;
-        if ( fp == nullptr ){ process::error("while writing public key"); }
-        res = PEM_write_RSAPublicKey( fp, obj->rsa );
-        fclose( fp ); return res;
-    }
-
-    void read_public_key( const string_t& path, const char* pass=NULL ) const {
-        FILE* fp = fopen( path.data(), "r" );
-        if ( fp == nullptr ){ process::error("while reading public key"); }
-        PEM_read_RSAPublicKey( fp, &obj->rsa, pcb, (void*)pass ); 
-        fclose( fp );
-    }
-
-    void read_private_key( const string_t& path, const char* pass=NULL ) const {
-        FILE* fp = fopen( path.data(), "r" );
-        if ( fp == nullptr ){ process::error("while reading private key"); }
-        PEM_read_RSAPrivateKey( fp, &obj->rsa, pcb, (void*)pass ); 
-        fclose( fp );
-    }
-
-    string_t public_encrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
-        if ( msg.empty() || obj->state ==0 ){ return nullptr; }
-        ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' );
-        int c = RSA_public_encrypt( msg.size(), (uchar*)msg.data(), &out, obj->rsa, padding );
-        return crypto::buff2hex( string_t( (char*)& out, (ulong)c ) );
-    }
-
-    string_t private_encrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
-        if( msg.empty() || obj->state ==0 ){ return nullptr; }
-        ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' );
-        int c = RSA_private_encrypt( msg.size(), (uchar*)msg.data(), &out, obj->rsa, padding );
-        return crypto::buff2hex( string_t( (char*)& out, (ulong)c ) );
-    }
-
-    string_t public_decrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
-        if( msg.empty() || obj->state ==0 ){ return nullptr; }
-        ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' ); auto gsm = crypto::hex2buff( msg );
-        int c = RSA_public_decrypt( gsm.size(), (uchar*)gsm.data(), &out, obj->rsa, padding );
-        return string_t( (char*)& out, (ulong)c );
-    }
-
-    string_t private_decrypt( const string_t& msg, int padding=RSA_PKCS1_PADDING ) const {
-        if( msg.empty() || obj->state ==0 ){ return nullptr; }
-        ptr_t<uchar> out ( RSA_size( obj->rsa ), '\0' ); auto gsm = crypto::hex2buff( msg );
-        int c = RSA_private_decrypt( gsm.size(), (uchar*)gsm.data(), &out, obj->rsa, padding );
-        return string_t( (char*)& out, (ulong)c );
-    }
-
-    bool is_available() const noexcept { return obj->state == 1; }
-
-    bool is_closed() const noexcept { return obj->state == 0; }
-
-    void close() const noexcept { free(); } 
-
-    void free() const noexcept { 
-        if( obj.count() > 1 ){ return; } 
-        if( obj->state == 0 ){ return; } obj->state =0;
-        if( obj->rsa != nullptr ) RSA_free( obj->rsa );
-        if( obj->num != nullptr )  BN_free( obj->num );
-    }
-    
-};
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 class dh_t {
 protected:
 
@@ -768,20 +768,22 @@ protected:
 
 public:
 
-    dh_t( int len=512 ) : obj( new NODE() ) {
+    dh_t() : obj( new NODE() ) {
         crypto::start_device();
         obj->dh    = DH_new(); 
         obj->k     = BN_new();
         obj->state = 1;
         if( !obj->dh || !obj->k )
           { process::error( "creating new dh" ); }
-        if( !DH_generate_parameters_ex( obj->dh, len, DH_GENERATOR_2, NULL ) )
-          { process::error( "while generating dh parameters" ); }
-        if( !DH_generate_key( obj->dh ) )
-          { process::error( "while generating dh key" ); }
     }
 
     virtual ~dh_t() noexcept { if( obj.count() > 1 ){ return; } free(); }
+
+    int generate_keys( int len=512 ) const noexcept {
+        if( !DH_generate_parameters_ex( obj->dh, len, DH_GENERATOR_2, NULL ) )
+          { return -1; } if( !DH_generate_key( obj->dh ) )
+          { return -1; } return 1;
+    }
 
     int set_public_key( const string_t& key ) const noexcept {
         if( obj->state != 1 ){ return 0; }
@@ -810,16 +812,17 @@ public:
         DH_free( obj->dh ); BN_free( obj->k );
     }
 
-    string_t sign( const string_t& hex ) const noexcept {
-        if( obj->state != 1 ){ return nullptr; } 
-        ptr_t<uchar> shared( DH_size( obj->dh ) );
-                  BN_hex2bn( &obj->k, hex.data() );
-        int len = DH_compute_key( &shared, obj->k, obj->dh );
-        return crypto::buff2hex( string_t( (char*) &shared, (ulong) len ) );
+    bool verify( const string_t& hex, const string_t& sgn ) const {
+         return sign( hex ) == sgn;
     }
 
-    bool verify( const string_t& hex, const string_t& sgn ) const noexcept {
-         return sign( hex ) == sgn;
+    string_t sign( const string_t& hex ) const {
+        if( obj->state != 1 ){ return nullptr; } 
+        ptr_t<uchar> shared( DH_size( obj->dh ) );
+        if( !BN_hex2bn( &obj->k,hex.data() ) )
+          { process::error( "invalid key" ); }
+        int len = DH_compute_key( &shared, obj->k, obj->dh );
+        return crypto::buff2hex( string_t( (char*) &shared, (ulong) len ) );
     }
 
 };
@@ -832,21 +835,21 @@ protected:
     struct NODE {
         DSA    *dsa = nullptr;
         bool    state = 0;
-        uint    len;
     };  ptr_t<NODE> obj;
     
 public:
 
-    dsa_t( uint size=512 ) 
-    : obj( new NODE() ) { crypto::start_device();
-        obj->state = 1; obj->len = size; obj->dsa = DSA_new(); 
-        if(!DSA_generate_parameters_ex( obj->dsa, obj->len, NULL, 0, NULL, NULL, NULL ) )
-          { process::error("while generating DSA parameters"); }
-        if(!DSA_generate_key( obj->dsa ) )
-          { process::error("while generating DSA key"); }
+    dsa_t(): obj( new NODE() ) { crypto::start_device();
+        obj->state = 1; obj->dsa = DSA_new(); 
     }
 
     virtual ~dsa_t() noexcept { if( obj.count() > 1 ){ return; } free(); }
+
+    int generate_keys( uint len=512 ) const noexcept {
+        if(!DSA_generate_parameters_ex( obj->dsa, len, NULL, 0, NULL, NULL, NULL ) )
+          { return -1; } if(!DSA_generate_key( obj->dsa ) )
+          { return -1; } return 1;
+    }
 
     bool verify( const string_t& msg, const string_t& sgn ) const noexcept { 
          if( obj->state != 1 ){ return false; } auto ngs = crypto::hex2buff( sgn ); 
@@ -855,8 +858,8 @@ public:
 
     string_t sign( const string_t& msg ) const noexcept {
         if( obj->state != 1 ){ return nullptr; }
-        ptr_t<uchar> sgn( DSA_size(obj->dsa) );  uint len;
-        DSA_sign( 0, (uchar*)msg.data(), msg.size(), &sgn, &len, obj->dsa );
+        ptr_t<uchar> sgn( DSA_size(obj->dsa) ); uint len;
+        DSA_sign( 0,(uchar*)msg.data(), msg.size(),&sgn, &len, obj->dsa );
         return crypto::buff2hex( string_t( (char*) &sgn, (ulong) len ) );
     }
 
@@ -1279,4 +1282,6 @@ namespace crypto { namespace sign {
 }}
 
 }
+
+#undef CRYPTO_SIZE
 #endif

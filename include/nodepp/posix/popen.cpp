@@ -65,8 +65,7 @@ public:
 
     virtual ~popen_t() noexcept {
         if( obj.count() > 1 ){ return; } 
-        if( obj->state == 0 ){ return; }
-        //  free();
+        if( obj->state == 0 ){ return; } // free();
     }
 
     template< class... T >
@@ -74,9 +73,9 @@ public:
         array_t<const char*> arg; array_t<const char*> env; bool y=0;
 
         for ( auto x : args ) {
-           if ( x != nullptr && !y ) arg.push( x.c_str() );
-         elif ( x != nullptr &&  y ) env.push( x.c_str() );
-         else   y =! y;
+          if( x != nullptr && !y ) arg.push( x.c_str() );
+        elif( x != nullptr &&  y ) env.push( x.c_str() );
+        else  y =! y;
         }
         
         _init_( path, arg, env );
@@ -119,22 +118,10 @@ public:
             auto self = type::bind( this );
             onExit([=](){ self->free(); });
 
-        if( process::is_child() ){
-
-        process::task::add([=](){
-            if(!self->std_input().is_available() ){ self->close(); return -1; }
-            if((*_read1)(&self->std_input())==1 ) { return  1; }
-            if(  _read1->state <= 0  )           { return  1; }
-            self->onData.emit(_read1->data);    
-            self->onDout.emit(_read1->data);        return  1;
-        });
-
-        } else {
-
         process::task::add([=](){
             if(!self->std_output().is_available() ){ self->close(); return -1; }
             if((*_read1)(&self->std_output())==1 ) { return  1; }
-            if(  _read1->state <= 0 )             { return  1; }
+            if(  _read1->state <= 0 )              { return  1; }
             self->onData.emit(_read1->data);    
             self->onDout.emit(_read1->data);         return  1;
         });
@@ -142,12 +129,10 @@ public:
         process::task::add([=](){
             if(!self->std_error().is_available() ){ self->close(); return -1; }
             if((*_read2)(&self->std_error())==1 ) { return  1; }
-            if(  _read2->state <= 0 )            { return  1; }
+            if(  _read2->state <= 0 )             { return  1; }
             self->onData.emit(_read2->data);   
             self->onDerr.emit(_read2->data);        return  1;
         });
-
-        }
 
     }
     

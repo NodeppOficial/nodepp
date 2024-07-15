@@ -60,7 +60,7 @@ protected:
         obj->fd = ::CreateProcess( NULL, cmd.data(), NULL, NULL, 1, 0, dta, NULL, &obj->si, &obj->pi );
         WaitForSingleObject( obj->pi.hProcess, 0 ); WaitForSingleObject( obj->pi.hThread, 0 );
 
-        if ( obj->fd > 0 ){ // Parent process
+        if ( obj->fd != 0 ){ // Parent process
             obj->input  = { fda[1] };
             obj->output = { fdb[0] };
             obj->error  = { fdc[0] };
@@ -87,17 +87,16 @@ public:
     
     virtual ~cluster_t() noexcept { 
         if( obj.count() > 1 ){ return; } 
-        if( obj->state == 0 ){ return; }
-        //  free();
+        if( obj->state == 0 ){ return; } // free();
     }
 
     cluster_t( const initializer_t<string_t>& args ) : obj( new NODE() ) {
         array_t<const char*> arg; array_t<const char*> env; bool y=0;
 
         for ( auto x : args ) {
-           if ( x != nullptr && !y ) arg.push( x.c_str() );
-         elif ( x != nullptr &&  y ) env.push( x.c_str() );
-         else   y =! y;
+          if( x != nullptr && !y ) arg.push( x.c_str() );
+        elif( x != nullptr &&  y ) env.push( x.c_str() );
+        else  y =! y;
         }
         
         _init_( arg, env );

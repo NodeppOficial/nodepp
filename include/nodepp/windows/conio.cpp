@@ -111,7 +111,7 @@ namespace nodepp { namespace conio { WORD attr = 0, dflt = 7;
     
     /*─······································································─*/
 
-    int error( const char* msg ){ foreground( C_RED    | C_BOLD ); return log( msg ); }
+    int error( const char* msg ){ foreground( C_RED    | C_BOLD ); return err( msg ); }
     int  info( const char* msg ){ foreground( C_CYAN   | C_BOLD ); return log( msg ); }
     int  done( const char* msg ){ foreground( C_GREEN  | C_BOLD ); return log( msg ); }
     int  warn( const char* msg ){ foreground( C_YELLOW | C_BOLD ); return log( msg ); }

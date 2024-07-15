@@ -14,7 +14,7 @@ BOOL APIENTRY CreatePipe(
     DWORD dwWriteMode
 ){
 
-    if ( nSize == 0 ) { nSize = 4096; }
+    if ( nSize == 0 ) { nSize = CHUNK_SIZE; }
     CHAR PipeNameBuffer[ MAX_PATH ];
 
     sprintf( PipeNameBuffer, "\\\\.\\Pipe\\RemoteNodepp.%08x.%08x",
