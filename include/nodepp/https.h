@@ -51,12 +51,12 @@ public:
     /*─······································································─*/
 
     int read_header() noexcept {
+        if( !is_available() ){ return -1; }
         static array_t<string_t> init; 
         string_t base, line, a, b;
         int idx;
     gnStart
 
-        if( !is_available() )                        coEnd;
         base = read_line(); protocol = "HTTPS";
         if( !regex::test( base,"HTTP/\\d\\.\\d" ) )  coEnd; 
 
