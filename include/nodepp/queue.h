@@ -261,6 +261,7 @@ public: queue_t() noexcept {}
     }
 
     void erase( NODE* n ) noexcept {
+        if( is_item(n) == false )    { return; }
         if( n == nullptr || empty() ){ return; }
         if( n == act ){ next(); } if ( n == first() ) {
             if ( n->next != nullptr ){ n->next->prev = nullptr; }
