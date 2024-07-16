@@ -18,7 +18,7 @@ void onMain(){
 
     }, &ssl ); wss::server( server );
 
-    server.onConnect([]( ws_t cli ){
+    server.onConnect([=]( wss_t cli ){
 
         console::log("connected");
 

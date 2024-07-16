@@ -16,7 +16,7 @@ void onMain(){
 
     }); ws::server( server );
 
-    server.onConnect([]( ws_t cli ){
+    server.onConnect([=]( ws_t cli ){
 
         console::log("connected");
 
