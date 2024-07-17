@@ -27,6 +27,13 @@ namespace nodepp { namespace stream {
     
     /*─······································································─*/
     
+    template< class... T >
+    void duplex( const T&... inp ){ _stream_::duplex arg;
+        process::poll::add( arg, inp... );
+    }
+    
+    /*─······································································─*/
+    
     file_t pipe( const string_t& path, const string_t& mode ){
         auto inp = file_t( path, mode ); _stream_::pipe arg;
         process::poll::add( arg, inp );  return inp;

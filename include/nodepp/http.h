@@ -123,13 +123,12 @@ namespace nodepp { struct fetch_t {
 namespace nodepp { class http_t : public socket_t, public generator_t {
 protected:
 
-    bool      has_header=0;
     string_t  version;
     
 public:
 
+    uint      status=200;
     header_t  headers;
-    int       status;
     query_t   query;
 
     string_t  protocol;
@@ -159,10 +158,10 @@ public:
     gnStart
 
         base = read_line(); protocol = "HTTP";
-        if( !regex::test( base,"HTTP/\\d\\.\\d" ) )   coEnd; 
+        if( !regex::test( base,"HTTP/\\d\\.\\d" ) ) coEnd; 
 
-        init = regex::split( base, "\\s+" );         coNext;
-        if( init.size() < 4 )                         coEnd;
+        init = regex::split( base, "\\s+" );       coNext;
+        if( init.size() < 4 )                       coEnd;
 
         if( !regex::test( init[1], "^\\d+" ) ) {
             auto idx = init[1].index_of([]( char x ){ return x=='?'; });
@@ -179,7 +178,7 @@ public:
             string_t host =headers["Host"].empty() ? "localhost:xxxx" : headers["Host"];
             url     = string::format( "http://%s%s%s", (char*)host, (char*)path, (char*)search );
         } else {
-            version = init[0]; status = string::to_int(init[1]);
+            version = init[0]; status = string::to_uint(init[1]);
         }   coNext;
 
         do {  line = read_line(); idx = line.index_of([]( char x ){ return x==':'; });
@@ -192,17 +191,7 @@ public:
     
     /*─······································································─*/
 
-    void write_header( uint status, const header_t& headers ) noexcept {
-        if ( has_header == 1 ){ return; } has_header = 1;
-        string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::_get_http_status(status));
-        for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
-                                      res += "\r\n"; write( res ); if( method == "HEAD" ){ close(); }
-    }
-    
-    /*─······································································─*/
-
-    void write_header( const string_t& method, const string_t& path, const string_t& version, const header_t& headers ) noexcept { 
-        if ( has_header == 1 ){ return; } has_header = 1;
+    void write_header( const string_t& method, const string_t& path, const string_t& version, const header_t& headers ) const noexcept { 
         string_t res; res += string::format("%s %s %s\r\n",(char*)method,(char*)path,(char*)version);
         for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
                                       res += "\r\n"; write( res );
@@ -210,12 +199,23 @@ public:
     
     /*─······································································─*/
 
-    void write_filestream( const string_t& method, const string_t& body, const file_t& file ){
-        if ( method != "POST" ){ return; }
-        if ( body.empty() && !file.is_available() ){ write("\r\n"); return; }
-        if (!body.empty() ){ write( body ); return; } while( file.is_available() ){ 
-            string_t s = file.read(); if( s.empty() ){ break; } write( s ); 
-        }
+    void write_header( uint status, const header_t& headers ) const noexcept {
+        string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::_get_http_status(status));
+        for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
+                                      res += "\r\n"; write( res ); if( method == "HEAD" ){ close(); }
+    }
+    
+    /*─······································································─*/
+
+    void write_filestream( const string_t& method, const string_t& body, const file_t& file ) const noexcept {
+        if ( method != "POST" || ( body.empty() && !file.is_available() ) ){ return; } 
+        if (!body.empty() ){ 
+            write( string::format( "Content-Length: %s\r\n", string::to_string(body.size()).get() ) );
+            write( body ); goto END; 
+        } else {
+            write( string::format( "Content-Length: %s\r\n", string::to_string(file.size()).get() ) );
+            while( file.is_available() ) { write( file.read() ); } 
+        }   END:; write("\r\n");
     }
 
 };}

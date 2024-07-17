@@ -26,9 +26,10 @@ public: any_t() noexcept {};
     
     /*─······································································─*/
 
-    bool has_value() const noexcept { return any_ptr.empty(); }
+    uint type_size() const noexcept { return any_sz ==nullptr ? 0 : *any_sz; }
+    bool     empty() const noexcept { return type_size() ==0; }
+    bool has_value() const noexcept { return type_size() !=0; }
     ulong    count() const noexcept { return any_ptr.count(); }
-    bool     empty() const noexcept { return any_ptr.null(); }
     
     /*─······································································─*/
 

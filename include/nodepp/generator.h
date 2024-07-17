@@ -160,6 +160,42 @@ namespace nodepp { namespace _file_ {
     #define  GENERATOR_STREAM 
 namespace nodepp { namespace _stream_ {
 
+    GENERATOR( duplex ){ 
+    private:
+
+        _file_::write _write1, _write2;
+        _file_::read  _read1 , _read2;
+
+    public:
+
+        template< class T, class V > gnEmit( const T& inp, const V& out ){
+        gnStart inp.onPipe.emit(); out.onPipe.emit(); coYield(1);
+
+            while( inp.is_available() && out.is_available() ){
+            while( _read1(&inp) ==1 )            { coGoto(2); }
+               if( _read1.state <=0 )            { break;  }
+            while( _write1(&out,_read1.data)==1 ){ coNext; }
+               if( _write1.state<=0 )            { break;  }
+                    inp.onData.emit( _read1.data );
+            }       inp.close(); out.close();
+            
+            coEnd; coYield(2);
+
+            while( inp.is_available() && out.is_available() ){
+            while( _read2(&out) ==1 )            { coGoto(1); }
+               if( _read2.state <=0 )            { break;  }
+            while( _write2(&inp,_read2.data)==1 ){ coNext; }
+               if( _write2.state<=0 )            { break;  }
+                    out.onData.emit( _read2.data );
+            }       out.close(); inp.close();
+
+        gnStop
+        }
+
+    };
+    
+    /*─······································································─*/
+
     GENERATOR( pipe ){ 
     private:
 

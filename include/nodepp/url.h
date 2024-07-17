@@ -193,27 +193,27 @@ namespace url {
     
     /*─······································································─*/
 
-    string_t format( url_t* URL=nullptr ){ string_t _url; 
+    string_t format( url_t& obj ){ string_t _url; 
 
-        if( URL == nullptr ){ return _url; }
-
-        if( !URL->href.empty() ){ return URL->href; }
-
-        if( !URL->origin.empty() ){ _url += URL->origin; }
-        else { 
-            _url += URL->protocol + "//";
-            _url += URL->auth + "@";
-            _url += URL->host;
+        if( !obj.origin.empty() ){ 
+            _url += obj.origin; 
+        } else { 
+            _url += obj.protocol + "//";
+            _url += obj.auth + "@";
+            _url += obj.host;
         }
 
-        if( !URL->path.empty() ){ _url += URL->path; }
-        else {
-            _url += URL->pathname; 
-            _url += URL->search;
+        if( !obj.path.empty() ){ 
+            _url += obj.path; 
+        } else {
+            _url += obj.pathname; 
+            _url += obj.search;
         } 
 
-        if( !URL->hash.empty() ){ _url += URL->hash; }
-        return _url;
+        if( !obj.hash.empty() ){ _url += obj.hash; }
+
+        return is_valid(_url) ? _url : 
+               is_valid(obj.href) ? obj.href : "";
     }
 
 }

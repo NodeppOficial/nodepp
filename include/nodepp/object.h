@@ -100,6 +100,8 @@ public:
 
     bool has_value() const noexcept { return obj->mem.has_value(); }
 
+    uint type_size() const noexcept { return obj->mem.type_size(); }
+
     template< class U > 
     U as() const { 
         if ( get_type_id() < 20 && get_type_id() > 21 &&
