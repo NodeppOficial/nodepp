@@ -177,6 +177,7 @@ namespace nodepp { namespace process {
     int next(){ 
         static int x = 0; process::delay( TIMEOUT ); 
     coStart
+        srand( time( NULL ) );
 
         if( !process::task::empty() ){ process::task::next(); coNext; }
         if( !process::loop::empty() ){ process::loop::next(); coNext; }
