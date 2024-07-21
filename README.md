@@ -84,6 +84,7 @@ void onMain(){
 - 🔗: [Serialport arduino using Nodepp](https://github.com/EDBCREPO/Arduino_PC)
 
 ## Compatibility
+- 🔗: [NodePP for Window | Linux | Mac | Bsd ](https://github.com/NodeppOficial/nodepp)
 - 🔗: [NodePP for Arduino UNO](https://github.com/NodeppOficial/nodepp-arduino)
 
 ## FAQ
