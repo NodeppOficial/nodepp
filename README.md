@@ -83,9 +83,8 @@ void onMain(){
 - 🔗: [Draw on your PC using your smartphone](https://github.com/ScreenDraw/PCDraw)
 - 🔗: [Serialport arduino using Nodepp](https://github.com/EDBCREPO/Arduino_PC)
 
-## Compatibility With Embedded Devices
-Nodepp is also compatible with embedded devices like Arduino or Esp32
-- 🔗: https://github.com/NodeppOficial/nodepp-arduino
+## Compatibility
+- 🔗: [NodePP for Arduino UNO](https://github.com/NodeppOficial/nodepp-arduino)
 
 ## FAQ
 - reddit : [/r/Cplusplus/](https://www.reddit.com/r/Cplusplus/comments/19e2kw3/write_asynchronous_code_with_c_nodepp/)
