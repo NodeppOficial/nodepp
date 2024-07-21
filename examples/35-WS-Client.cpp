@@ -8,6 +8,7 @@ using namespace nodepp;
 void onMain() {
 
     auto cli = ws::client( "ws://localhost:8000/" );
+    auto cin = fs::std_input();
     
     cli.onOpen([=](){ 
         
@@ -31,5 +32,7 @@ void onMain() {
     cli.onError([=]( except_t err ){
         console::log(err);
     });
+
+    stream::pipe( cin );
 
 }

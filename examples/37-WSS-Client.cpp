@@ -10,6 +10,7 @@ void onMain() {
     ssl_t ssl( "./ssl/cert.key", "./ssl/cert.crt" );
 
     auto cli = wss::client( "wss://localhost:8000/", &ssl );
+    auto cin = fs::std_input();
     
     cli.onOpen([=](){ 
         
@@ -33,5 +34,7 @@ void onMain() {
     cli.onError([=]( except_t err ){
         console::log(err);
     });
+
+    stream::pipe( cin );
 
 }
