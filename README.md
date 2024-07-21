@@ -91,8 +91,9 @@ void onMain(){
 
 ## Compatibility
 - 🔗: [NodePP for Window | Linux | Mac | Bsd ](https://github.com/NodeppOficial/nodepp)
-- 🔗: [NodePP for Arduino UNO](https://github.com/NodeppOficial/nodepp-arduino)
-
+- 🔗: [NodePP for Arduino](https://github.com/NodeppOficial/nodepp-arduino)
+- 🔗: NodePP for WASM ( Coming Soon )
+ 
 ## FAQ
 - reddit : [/r/Cplusplus/](https://www.reddit.com/r/Cplusplus/comments/19e2kw3/write_asynchronous_code_with_c_nodepp/)
   
