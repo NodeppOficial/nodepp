@@ -78,11 +78,16 @@ void onMain(){
 ### More Examples [here](https://github.com/NodeppOficial/Nodepp/tree/main/examples)
 
 ## Projects made with NodePP
+- 🔗: [Simulate Keyboard/Mouse Inputs in Windows | Linux | Mac ](https://github.com/NodeppOficial/nodepp-input)
 - 🔗: [Simulating WebSocker With Pure Http and Nodepp](https://github.com/ConvoOfficial/HTTPSocket)
-- 🔗: [A Simple ExpressJS Implementation in NodePP](https://github.com/NodeppOficial/nodepp-express)
-- 🔗: [A Simple Inverse Proxy made with Nodepp](https://github.com/NodeppOficial/nodepp-nginx)
 - 🔗: [Draw on your PC using your smartphone](https://github.com/ScreenDraw/PCDraw)
-- 🔗: [Serialport arduino using Nodepp](https://github.com/EDBCREPO/Arduino_PC)
+- 🔗: [Slow loris algorithm made with Nodepp](https://github.com/NodeppOficial/nodepp-slory)
+- 🔗: [A ExpressJS Implementation in NodePP](https://github.com/NodeppOficial/nodepp-express)
+- 🔗: [A Async Redis Client with NodePP](https://github.com/NodeppOficial/nodepp-redis)
+- 🔗: [A Inverse Proxy made with Nodepp](https://github.com/NodeppOficial/nodepp-nginx)
+- 🔗: [A Tor HTTP/s Client with NodePP](https://github.com/NodeppOficial/nodepp-tor-client)
+- 🔗: [A JWT inplementation for NodePP](https://github.com/NodeppOficial/nodepp-jwt)
+- 🔗: [Serial Port arduino using Nodepp](https://github.com/EDBCREPO/Arduino_PC)
 
 ## Compatibility
 - 🔗: [NodePP for Window | Linux | Mac | Bsd ](https://github.com/NodeppOficial/nodepp)
