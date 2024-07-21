@@ -77,6 +77,16 @@ void onMain(){
 ``` 
 ### More Examples [here](https://github.com/NodeppOficial/Nodepp/tree/main/examples)
 
+## Projects made with NodePP
+- 🔗: https://github.com/NodeppOficial/nodepp-express
+- 🔗: https://github.com/ConvoOfficial/HTTPSocket
+- 🔗: https://github.com/EDBCREPO/Arduino_PC
+- 🔗: https://github.com/ScreenDraw/PCDraw
+
+## Compatibility With Embedded Devices
+Nodepp is also compatible with embedded devices like Arduino or Esp32
+- 🔗: https://github.com/NodeppOficial/nodepp-arduino
+
 ## FAQ
 - reddit : [/r/Cplusplus/](https://www.reddit.com/r/Cplusplus/comments/19e2kw3/write_asynchronous_code_with_c_nodepp/)
   
