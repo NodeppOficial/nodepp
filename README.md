@@ -78,10 +78,10 @@ void onMain(){
 ### More Examples [here](https://github.com/NodeppOficial/Nodepp/tree/main/examples)
 
 ## Projects made with NodePP
-- 🔗: https://github.com/NodeppOficial/nodepp-express
-- 🔗: https://github.com/ConvoOfficial/HTTPSocket
-- 🔗: https://github.com/EDBCREPO/Arduino_PC
-- 🔗: https://github.com/ScreenDraw/PCDraw
+- 🔗: [Simulating WebSocker With Pure Http and Nodepp](https://github.com/ConvoOfficial/HTTPSocket)
+- 🔗: [A Simple ExpressJS Implementation in NodePP](https://github.com/NodeppOficial/nodepp-express)
+- 🔗: [Draw on your PC using your smartphone](https://github.com/ScreenDraw/PCDraw)
+- 🔗: [Serialport arduino using Nodepp](https://github.com/EDBCREPO/Arduino_PC)
 
 ## Compatibility With Embedded Devices
 Nodepp is also compatible with embedded devices like Arduino or Esp32
