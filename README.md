@@ -85,7 +85,7 @@ void onMain(){
 - 🔗: [A ExpressJS Implementation in NodePP](https://github.com/NodeppOficial/nodepp-express)
 - 🔗: [A Async Redis Client with NodePP](https://github.com/NodeppOficial/nodepp-redis)
 - 🔗: [A Inverse Proxy made with Nodepp](https://github.com/NodeppOficial/nodepp-nginx)
-- 🔗: [A Tor HTTP/s Client with NodePP](https://github.com/NodeppOficial/nodepp-tor-client)
+- 🔗: [A Tor HTTP/s Client with NodePP](https://github.com/NodeppOficial/nodepp-torify)
 - 🔗: [A JWT inplementation for NodePP](https://github.com/NodeppOficial/nodepp-jwt)
 - 🔗: [Serial Port arduino using Nodepp](https://github.com/EDBCREPO/Arduino_PC)
 
