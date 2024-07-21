@@ -80,6 +80,7 @@ void onMain(){
 ## Projects made with NodePP
 - 🔗: [Simulating WebSocker With Pure Http and Nodepp](https://github.com/ConvoOfficial/HTTPSocket)
 - 🔗: [A Simple ExpressJS Implementation in NodePP](https://github.com/NodeppOficial/nodepp-express)
+- 🔗: [A Simple Inverse Proxy made with Nodepp](https://github.com/NodeppOficial/nodepp-nginx)
 - 🔗: [Draw on your PC using your smartphone](https://github.com/ScreenDraw/PCDraw)
 - 🔗: [Serialport arduino using Nodepp](https://github.com/EDBCREPO/Arduino_PC)
 
