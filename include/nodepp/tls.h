@@ -90,9 +90,9 @@ public: tls_t() noexcept : obj( new NODE() ) {}
              sk.socket( dns::lookup(host), port );
              sk.set_sockopt( self->obj->agent ); 
 
-        if( sk.bind()    < 0 ){ _EERROR(onError,"Error while binding TLS");   close(); sk.free(); return; }
-        if( sk.listen()  < 0 ){ _EERROR(onError,"Error while listening TLS"); close(); sk.free(); return; }
-        if( obj->chck == true ){ init_poll_loop( self ); }
+        if( sk.bind()   < 0 ){ _EERROR(onError,"Error while binding TLS");   close(); sk.free(); return; }
+        if( sk.listen() < 0 ){ _EERROR(onError,"Error while listening TLS"); close(); sk.free(); return; }
+        if( obj->chck )      { init_poll_loop( self ); }
 
         onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); } 
         
@@ -108,15 +108,11 @@ public: tls_t() noexcept : obj( new NODE() ) {}
             
             if( _accept == -1 ){ _EERROR(self->onError,"Error while accepting TLS"); coGoto(2); }
             elif ( !sk.is_available() || self->is_closed() ){ coGoto(2); }
-            elif ( self->obj->chck == true ){ self->obj->poll.push_read(_accept); coGoto(0); }
-            else { ssocket_t cli( self->obj->ctx, _accept ); if( cli.is_available() ){ 
-                   process::poll::add([=]( ssocket_t cli ){
-                        cli.set_sockopt( self->obj->agent ); 
-                        self->onSocket.emit( cli ); 
-                        self->obj->func( cli ); 
-                        return -1;
-                   }, cli );
-            } coGoto(0); } 
+            elif ( self->obj->chck ){ self->obj->poll.push_read(_accept); coGoto(0); }
+            else { ssocket_t cli( self->obj->ctx, _accept ); 
+                   _poll_::poll task; cli.set_sockopt( self->obj->agent );
+                   process::poll::add( task, cli, self, self->obj->func );
+            coGoto(0); } 
 
             coYield(2); self->close(); sk.free(); 
             

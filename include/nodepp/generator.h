@@ -156,6 +156,30 @@ namespace nodepp { namespace _file_ {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#define NODEPP_GENERATOR
+
+#if !defined(GENERATOR_POLL) && defined(NODEPP_SOCKET) && defined(NODEPP_GENERATOR)
+    #define  GENERATOR_POLL
+namespace nodepp { namespace _poll_ {
+
+    GENERATOR( poll ){ public:
+
+        template< class V, class T, class U > 
+        gnEmit( V cli, T self, U cb ){
+            if( cli.is_closed() ){ return -1; }
+        gnStart coNext;
+            self->onSocket.emit( cli ); cb(cli);
+        gnStop
+        }
+
+    };
+
+}}  
+#undef NODEPP_GENERATOR
+#endif
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #if !defined(GENERATOR_STREAM) && defined(NODEPP_STREAM) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_STREAM 
 namespace nodepp { namespace _stream_ {
