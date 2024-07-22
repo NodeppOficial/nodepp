@@ -88,23 +88,6 @@ public: socket_t() noexcept { _socket_::start_device(); }
     
     /*─······································································─*/
 
-    ulong set_recv_timeout( ulong time ) const noexcept { 
-        if( time == 0 ){ skt->recv_timeout = 0; return 0; }
-        skt->recv_timeout = process::millis() + time; return time; 
-    }
-
-    ulong set_send_timeout( ulong time ) const noexcept { 
-        if( time == 0 ){ skt->send_timeout = 0; return 0; }
-        skt->send_timeout = process::millis() + time; return time; 
-    }
-
-    ulong set_conn_timeout( ulong time ) const noexcept { 
-        if( time == 0 ){ skt->conn_timeout = 0; return 0; }
-        skt->conn_timeout = process::millis() + time; return time; 
-    }
-    
-    /*─······································································─*/
-
     ulong get_recv_timeout() const noexcept { 
         return skt->recv_timeout==0 ? process::millis() : skt->recv_timeout; 
     }
@@ -115,6 +98,27 @@ public: socket_t() noexcept { _socket_::start_device(); }
 
     ulong get_conn_timeout() const noexcept { 
         return skt->conn_timeout==0 ? process::millis() : skt->conn_timeout;
+    }
+    
+    /*─······································································─*/
+
+    ulong set_conn_timeout( ulong time ) const noexcept { 
+        if( time == 0 ){ skt->conn_timeout = 0; return 0; }
+        skt->conn_timeout = process::millis() + time; return time; 
+    }
+
+    ulong set_recv_timeout( ulong time ) const noexcept { 
+        if( time == 0 ){ skt->recv_timeout = 0; return 0; }
+        TIMEVAL en; memset( &en, sizeof(en), 0 ); en.tv_sec = time / 1000; int c;
+        while( is_blocked( c=setsockopt( obj->fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&en, sizeof(en) ) ) )
+             { process::next(); } skt->recv_timeout = process::millis() + time; return time; 
+    }
+
+    ulong set_send_timeout( ulong time ) const noexcept { 
+        if( time == 0 ){ skt->send_timeout = 0; return 0; }
+        TIMEVAL en; memset( &en, sizeof(en), 0 ); en.tv_sec = time / 1000; int c;
+        while( is_blocked( c=setsockopt( obj->fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&en, sizeof(en) ) ) )
+             { process::next(); } skt->send_timeout = process::millis() + time; return time; 
     }
     
     /*─······································································─*/
