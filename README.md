@@ -78,6 +78,8 @@ void onMain(){
 ### More Examples [here](https://github.com/NodeppOficial/Nodepp/tree/main/examples)
 
 ## Projects made with NodePP
+- 🔗: [Creating the Snake Game: A Journey Through Event-Driven Programming in C++ with Nodepp and Raylib](https://medium.com/@EDBCBlog/creating-the-snake-game-a-journey-through-event-driven-programming-in-c-with-nodepp-and-raylib-eb362eb51c8b)
+- 🔗: [Create your own online multiplayer: Small, fast, and fun with Raylib, Nodepp, and Websockets!](https://medium.com/@EDBCBlog/create-your-own-online-multiplayer-small-fast-and-fun-with-raylib-nodepp-and-websockets-190f5c174094)
 - 🔗: [Simulate Keyboard/Mouse Inputs in Windows | Linux | Mac ](https://github.com/NodeppOficial/nodepp-input)
 - 🔗: [Simulating WebSocker With Pure Http and Nodepp](https://github.com/ConvoOfficial/HTTPSocket)
 - 🔗: [Draw on your PC using your smartphone](https://github.com/ScreenDraw/PCDraw)
