@@ -264,6 +264,81 @@ public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+class cipher_t {
+protected:
+
+    struct NODE {
+        EVP_CIPHER_CTX* ctx = nullptr;
+        ptr_t<uchar> bff;
+        string_t buff;
+        bool state =0;
+        int    len =0;
+    };  ptr_t<NODE> obj;
+
+public:
+
+    event_t<string_t> onData;
+    event_t<>         onClose;
+
+    template< class T >
+    cipher_t( const string_t& iv, const string_t& key, int mode, const T& type ) 
+    :     obj( new NODE() ) { crypto::start_device();
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
+        obj->ctx   =       EVP_CIPHER_CTX_new(); obj->state = 1; 
+        if ( !obj->ctx || !EVP_CipherInit_ex( obj->ctx, type, nullptr, (uchar*)key.data(), (uchar*)iv.data(), mode ) )
+           { process::error("can't initializate cipher_t"); }
+    }
+
+    template< class T >
+    cipher_t( const string_t& key, int mode, const T& type ) 
+    :     obj( new NODE() ) { crypto::start_device();
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
+        obj->ctx   =       EVP_CIPHER_CTX_new(); obj->state = 1; 
+        if ( !obj->ctx || !EVP_CipherInit_ex( obj->ctx, type, nullptr, (uchar*)key.data(), (uchar*)"\0", mode ) )
+           { process::error("can't initializate cipher_t"); }
+    }
+
+    template< class T >
+    cipher_t( int mode, const T& type ) 
+    :     obj( new NODE() ) { crypto::start_device();
+        obj->bff   =       ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
+        obj->ctx   =       EVP_CIPHER_CTX_new(); obj->state = 1; 
+        if ( !obj->ctx || !EVP_CipherInit_ex( obj->ctx, type, nullptr, (uchar*)"\0", (uchar*)"\0", mode ) )
+           { process::error("can't initializate cipher_t"); }
+    }
+
+    void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MIN_SIZE );
+            EVP_CipherUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)tmp.get(), tmp.size() );
+            if ( obj->len > 0 ) { if ( onData.empty() ) {
+                     obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+            } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
+        }
+    }
+
+    void free() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0;
+        EVP_CipherFinal_ex( obj->ctx, &obj->bff, &obj->len );
+        EVP_CIPHER_CTX_free( obj->ctx ); //EVP_cleanup();
+        if ( obj->len > 0 ) { if ( onData.empty() ) {
+                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
+        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); } onClose.emit(); }
+    }
+    
+    virtual ~cipher_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    string_t get() const noexcept { free(); return obj->buff; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
+
+    void close() const noexcept { free(); } 
+
+};
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 class encrypt_t {
 protected:
 
