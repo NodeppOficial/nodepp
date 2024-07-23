@@ -11,7 +11,12 @@
 
 #ifndef NODEPP_CRYPTO
 #define NODEPP_CRYPTO
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #define CRYPTO_SIZE 6144
+#define CRYPTO_MAX_SIZE 65536
+#define CRYPTO_MIN_SIZE 61440
 #define OPENSSL_API_COMPAT 0x10100000L
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -218,7 +223,7 @@ public:
 
     xor_t( const string_t& key ) 
     :     obj( new NODE() ) { // crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->state = 1;
 
         CTX item1; memset( &item1, sizeof(CTX), 0 );
@@ -229,12 +234,12 @@ public:
 
     xor_t() 
     :     obj( new NODE() ) { // crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->state = 1;
     }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_SIZE );
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MAX_SIZE );
             forEach( y, obj->ctx ){ forEach( x, tmp ){ x = x ^ y.key[y.pos]; y.pos++; }}
             if ( onData.empty() ) { obj->buff +=tmp; } else { onData.emit( tmp ); }
         }
@@ -278,7 +283,7 @@ public:
     template< class T >
     encrypt_t( const string_t& iv, const string_t& key, const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx ); 
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
@@ -288,7 +293,7 @@ public:
     template< class T >
     encrypt_t( const string_t& key, const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->ctx   =       EVP_CIPHER_CTX_new(); 
         obj->state = 1;    EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"\0" ) )
@@ -298,7 +303,7 @@ public:
     template< class T >
     encrypt_t( const T& type ) 
     :     obj( new NODE() ) { crypto::start_device();
-        obj->bff   =       ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->bff   =       ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->ctx   =       EVP_CIPHER_CTX_new(); 
         obj->state = 1;    EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_EncryptInit_ex( obj->ctx, type, NULL, (uchar*)"\0", (uchar*)"\0" ) )
@@ -306,7 +311,7 @@ public:
     }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ string_t tmp = msg.splice( 0, UNBFF_SIZE );
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MIN_SIZE );
             EVP_EncryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)tmp.get(), tmp.size() );
             if ( obj->len > 0 ) { if ( onData.empty() ) {
                      obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
@@ -355,7 +360,7 @@ public:
 
     template< class T >
     decrypt_t( const string_t& iv, const string_t& key, const T& type ) : obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)iv.data() ) )
@@ -364,7 +369,7 @@ public:
 
     template< class T >
     decrypt_t( const string_t& key, const T& type ) : obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)key.data(), (uchar*)"\0" ) )
@@ -373,7 +378,7 @@ public:
 
     template< class T >
     decrypt_t( const T& type ) : obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->ctx   =    EVP_CIPHER_CTX_new(); 
         obj->state = 1; EVP_CIPHER_CTX_init( obj->ctx );
         if ( !obj->ctx || !EVP_DecryptInit_ex( obj->ctx, type, NULL, (uchar*)"\0", (uchar*)"\0" ) )
@@ -381,7 +386,7 @@ public:
     }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ auto tmp = msg.splice( 0, UNBFF_SIZE );
+        while( !msg.empty() ){ auto tmp = msg.splice( 0, CRYPTO_MIN_SIZE );
             EVP_DecryptUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)tmp.get(), tmp.size());
             if ( obj->len > 0 ) { if ( onData.empty() ) {
                      obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
@@ -1108,36 +1113,16 @@ namespace crypto { namespace encrypt {
 
     /*─······································································─*/
     
-    class DES_EDE_CFB : public encrypt_t { public: template< class... T >
-          DES_EDE_CFB ( const T&... args ) : encrypt_t( args..., EVP_des_ede_cfb() ) {}
-    };
-    
-    class DES_EDE_CBC : public encrypt_t { public: template< class... T >
-          DES_EDE_CBC ( const T&... args ) : encrypt_t( args..., EVP_des_ede_cbc() ) {}
-    };
-    
-    class DES_EDE_ECB : public encrypt_t { public: template< class... T >
-          DES_EDE_ECB ( const T&... args ) : encrypt_t( args..., EVP_des_ede_ecb() ) {}
-    };
-
-    /*─······································································─*/
-    
     class DES_CFB : public encrypt_t { public: template< class... T >
-          DES_CFB ( const T&... args ) : encrypt_t( args..., EVP_des_cfb() ) {}
+          DES_CFB ( const T&... args ) : encrypt_t( args..., EVP_des_ede_cfb() ) {}
     };
     
     class DES_CBC : public encrypt_t { public: template< class... T >
-          DES_CBC ( const T&... args ) : encrypt_t( args..., EVP_des_cbc() ) {}
+          DES_CBC ( const T&... args ) : encrypt_t( args..., EVP_des_ede_cbc() ) {}
     };
     
     class DES_ECB : public encrypt_t { public: template< class... T >
-          DES_ECB ( const T&... args ) : encrypt_t( args..., EVP_des_ecb() ) {}
-    };
-
-    /*─······································································─*/
-    
-    class RC4 : public encrypt_t { public: template< class... T >
-          RC4 ( const T&... args ) : encrypt_t( args..., EVP_rc4() ) {}
+          DES_ECB ( const T&... args ) : encrypt_t( args..., EVP_des_ede_ecb() ) {}
     };
 
     /*─······································································─*/
@@ -1200,36 +1185,16 @@ namespace crypto { namespace decrypt {
 
     /*─······································································─*/
     
-    class DES_EDE_CFB : public decrypt_t { public: template< class... T >
-          DES_EDE_CFB ( const T&... args ) : decrypt_t( args..., EVP_des_ede_cfb() ) {}
-    };
-    
-    class DES_EDE_CBC : public decrypt_t { public: template< class... T >
-          DES_EDE_CBC ( const T&... args ) : decrypt_t( args..., EVP_des_ede_cbc() ) {}
-    };
-    
-    class DES_EDE_ECB : public decrypt_t { public: template< class... T >
-          DES_EDE_ECB ( const T&... args ) : decrypt_t( args..., EVP_des_ede_ecb() ) {}
-    };
-
-    /*─······································································─*/
-    
     class DES_CFB : public decrypt_t { public: template< class... T >
-          DES_CFB ( const T&... args ) : decrypt_t( args..., EVP_des_cfb() ) {}
+          DES_CFB ( const T&... args ) : decrypt_t( args..., EVP_des_ede_cfb() ) {}
     };
     
     class DES_CBC : public decrypt_t { public: template< class... T >
-          DES_CBC ( const T&... args ) : decrypt_t( args..., EVP_des_cbc() ) {}
+          DES_CBC ( const T&... args ) : decrypt_t( args..., EVP_des_ede_cbc() ) {}
     };
     
     class DES_ECB : public decrypt_t { public: template< class... T >
-          DES_ECB ( const T&... args ) : decrypt_t( args..., EVP_des_ecb() ) {}
-    };
-
-    /*─······································································─*/
-    
-    class RC4 : public decrypt_t { public: template< class... T >
-          RC4 ( const T&... args ) : decrypt_t( args..., EVP_rc4() ) {}
+          DES_ECB ( const T&... args ) : decrypt_t( args..., EVP_des_ede_ecb() ) {}
     };
 
     /*─······································································─*/
@@ -1358,5 +1323,7 @@ namespace crypto { namespace sign {
 
 }
 
+#undef CRYPTO_MIN_SIZE
+#undef CRYPTO_MAX_SIZE
 #undef CRYPTO_SIZE
 #endif
