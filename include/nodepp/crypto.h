@@ -196,6 +196,69 @@ public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+class xor_t {
+protected:
+
+    struct CTX {
+        string_t key;
+        ulong    pos;
+    };
+
+    struct NODE {
+        ptr_t<uchar> bff;
+        ptr_t<CTX>   ctx;
+        string_t buff;
+        bool state =0;
+    };  ptr_t<NODE> obj;
+
+public:
+
+    event_t<>         onClose;
+    event_t<string_t> onData;
+
+    xor_t( const string_t& key ) 
+    :     obj( new NODE() ) { // crypto::start_device();
+        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->state = 1;
+
+        CTX item1; memset( &item1, sizeof(CTX), 0 );
+            item1.key = key; item1.pos = 0;
+
+        obj->ctx = ptr_t<CTX> ({ item1 });
+    }
+
+    xor_t() 
+    :     obj( new NODE() ) { // crypto::start_device();
+        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
+        obj->state = 1;
+    }
+
+    void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_SIZE );
+            forEach( y, obj->ctx ){ forEach( x, tmp ){ x = x ^ y.key[y.pos]; y.pos++; }}
+            if ( onData.empty() ) { obj->buff +=tmp; } else { onData.emit( tmp ); }
+        }
+    }
+    
+    virtual ~xor_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    bool is_available() const noexcept { return obj->state == 1; }
+
+    bool is_closed() const noexcept { return obj->state == 0; }
+
+    string_t get() const noexcept { free(); return obj->buff; }
+
+    void free() const noexcept { 
+        if ( obj->state == 0 ){ return; } 
+             obj->state = 0; onClose.emit();
+    }
+
+    void close() const noexcept { free(); } 
+
+};
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 class encrypt_t {
 protected:
 
@@ -1083,6 +1146,12 @@ namespace crypto { namespace encrypt {
           RSA ( const T&... args ) : rsa_t( args... ) {}
     };
 
+    /*─······································································─*/
+    
+    class XOR : public xor_t { public: template< class... T >
+          XOR ( const T&... args ) : xor_t( args... ) {}
+    };
+
 }}
     
     /*─······································································─*/
@@ -1167,6 +1236,12 @@ namespace crypto { namespace decrypt {
 
     class RSA : public rsa_t { public: template< class... T > 
           RSA ( const T&... args ) : rsa_t( args... ) {}
+    };
+
+    /*─······································································─*/
+    
+    class XOR : public xor_t { public: template< class... T >
+          XOR ( const T&... args ) : xor_t( args... ) {}
     };
 
 }}
