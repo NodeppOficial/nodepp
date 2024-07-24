@@ -74,13 +74,13 @@ public:
             }
 
             method  = init[0]; if( version.empty() ) version = init[2];
-            string_t host =headers["Host"].empty() ? "localhost:xxxx" : headers["Host"];
+            string_t host =headers["Host"].empty() ? "localhost" : headers["Host"];
             url     = string::format( "https://%s%s%s", (char*)host, (char*)path, (char*)search );
         } else {
             version = init[0]; status = string::to_uint(init[1]);
         }   coNext;
 
-        do { line = read_line(); idx = line.index_of([]( char x ){ return x==':'; });
+        do {  line = read_line(); idx = line.index_of([]( char x ){ return x==':'; });
             if( idx < 0 ){ break; } a = line.slice( 0,idx ).to_capital_case();
                                     b = line.slice( idx+2, -2 ); headers[a]=b;
         } while ( true ); coSet(0); return 0;
@@ -93,7 +93,7 @@ public:
     void write_header( const string_t& method, const string_t& path, const string_t& version, const header_t& headers ) const noexcept {
         string_t res; res += string::format("%s %s %s\r\n",(char*)method,(char*)path,(char*)version);
         for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
-        if ( method != "POST" ){ res += "\r\n"; } write( res ); if( method == "HEAD" ){ close(); }
+                                      res += "\r\n"; write( res ); if( method == "HEAD" ){ close(); }
     }
     
     /*─······································································─*/
@@ -101,18 +101,15 @@ public:
     void write_header( uint status, const header_t& headers ) const noexcept {
         string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::_get_http_status(status));
         for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
-        if ( method != "POST" ){ res += "\r\n"; } write( res ); if( method == "HEAD" ){ close(); }
+                                      res += "\r\n"; write( res ); if( method == "HEAD" ){ close(); }
     }
     
     /*─······································································─*/
 
     void write_filestream( const string_t& method, const string_t& body, const file_t& file ) const noexcept {
         if ( method != "POST" || ( body.empty() && !file.is_available() ) ){ return; }
-        if (!body.empty() ){ 
-            write( body ); goto END; 
-        } else {
-            while( file.is_available() ) { write( file.read() ); } 
-        }   END:; write("\r\n");
+        if ( body.empty() ){ while( file.is_available() ) { write( file.read() ); } }
+       else{ write( body ); }
     }
 
 };}

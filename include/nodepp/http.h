@@ -114,7 +114,7 @@ namespace nodepp { struct fetch_t {
 
     string_t     url ;
     string_t  method = "GET";
-    string_t version = "HTTP/1.0";
+    string_t version = "HTTP/1.1";
     
 };}
 
@@ -175,7 +175,7 @@ public:
             }
 
             method  = init[0]; if( version.empty() ) version = init[2];
-            string_t host =headers["Host"].empty() ? "localhost:xxxx" : headers["Host"];
+            string_t host =headers["Host"].empty() ? "localhost" : headers["Host"];
             url     = string::format( "http://%s%s%s", (char*)host, (char*)path, (char*)search );
         } else {
             version = init[0]; status = string::to_uint(init[1]);
@@ -209,11 +209,8 @@ public:
 
     void write_filestream( const string_t& method, const string_t& body, const file_t& file ) const noexcept {
         if ( method != "POST" || ( body.empty() && !file.is_available() ) ){ return; } 
-        if (!body.empty() ){ 
-            write( body ); goto END; 
-        } else {
-            while( file.is_available() ) { write( file.read() ); } 
-        }   END:; write("\r\n");
+        if ( body.empty() ){ while( file.is_available() ) { write( file.read() ); } }
+       else{ write( body ); }
     }
 
 };}
@@ -227,7 +224,7 @@ namespace nodepp { namespace http {
             while(( c=cli.read_header() ) == 1 )
                  { process::next(); }
             if( c==0 ){ cb( cli ); }
-            else{ cli.close(); }
+            else { cli.close(); }
         }, opt ); 
     }
     
