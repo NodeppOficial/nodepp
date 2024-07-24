@@ -97,7 +97,7 @@ void onMain(){
 - 🔗: NodePP for WASM ( Coming Soon )
  
 ## FAQ
-- reddit : [/r/Cplusplus/](https://www.reddit.com/r/Cplusplus/comments/19e2kw3/write_asynchronous_code_with_c_nodepp/)
+- reddit : [/r/Nodepp/](https://www.reddit.com/r/Nodepp/comments/1eaq1pu/faq_ask_anything_about_nodepp/)
   
 ## Contribution
 
