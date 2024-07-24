@@ -114,7 +114,7 @@ namespace nodepp { struct fetch_t {
 
     string_t     url ;
     string_t  method = "GET";
-    string_t version = "HTTP/1.1";
+    string_t version = "HTTP/1.0";
     
 };}
 
