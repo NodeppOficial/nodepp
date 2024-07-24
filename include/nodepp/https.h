@@ -109,10 +109,8 @@ public:
     void write_filestream( const string_t& method, const string_t& body, const file_t& file ) const noexcept {
         if ( method != "POST" || ( body.empty() && !file.is_available() ) ){ return; }
         if (!body.empty() ){ 
-            write( string::format( "Content-Length: %s\r\n", string::to_string(body.size()).get() ) );
             write( body ); goto END; 
         } else {
-            write( string::format( "Content-Length: %s\r\n", string::to_string(file.size()).get() ) );
             while( file.is_available() ) { write( file.read() ); } 
         }   END:; write("\r\n");
     }
