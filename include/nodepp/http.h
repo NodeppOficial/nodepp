@@ -191,28 +191,31 @@ public:
     
     /*─······································································─*/
 
-    void write_header( const string_t& method, const string_t& path, const string_t& version, const header_t& headers, const ptr_t<fetch_t>& gfc ) const noexcept { 
+    void write_header( const string_t& method, const string_t& path, const string_t& version, const header_t& headers ) const noexcept { 
         string_t res; res += string::format("%s %s %s\r\n",(char*)method,(char*)path,(char*)version);
-        for( auto x:headers.data() ) { res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
-        if ( !gfc->body.empty() )    { res += string::format("Content-Length: %lu\r\n",gfc->body.size()); goto END; }
-      elif ( !gfc->file.is_closed() ){ res += string::format("Content-Length: %lu\r\n",gfc->file.size()); goto END; }
-                                 END:; res += "\r\n"; write( res ); if( method == "HEAD" ){ close(); }
+        for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
+        if ( method != "POST" )     { res += "\r\n"; } write( res ); if( method == "HEAD" ){ close(); }
     }
     
     /*─······································································─*/
 
     void write_header( uint status, const header_t& headers ) const noexcept {
         string_t res; res += string::format("%s %u %s\r\n",(char*)version,status,(char*)HTTP_NODEPP::_get_http_status(status));
-        for( auto x:headers.data() ) { res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
-                                 END:; res += "\r\n"; write( res ); if( method == "HEAD" ){ close(); }
+        for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
+                                      res += "\r\n"; write( res ); if( method == "HEAD" ){ close(); }
     }
     
     /*─······································································─*/
 
     void write_filestream( const string_t& method, const string_t& body, const file_t& file ) const noexcept {
-        if ( method != "POST" || ( body.empty() && !file.is_available() ) ){ return; } 
-        if ( body.empty() ){ while( file.is_available() ) { write( file.read() ); } }
-       else{ write( body ); }
+        if ( method != "POST" || ( body.empty() && file.is_closed() ) ){ write("\r\n"); return; } 
+        if ( file.is_closed() != false ){ 
+             write( string::format("Content-Length: %lu\r\n\r\n",file.size()) );
+             while( file.is_available() ) { write( file.read() ); } } return;
+        if ( body.empty() != false ){ 
+             write( string::format("Content-Length: %lu\r\n\r\n",body.size()) );
+             write( body ); return;
+        }
     }
 
 };}
@@ -244,7 +247,7 @@ namespace nodepp { namespace http {
         string_t dir = uri.pathname + uri.search + uri.hash;
        
         auto client = tcp_t ([=]( http_t cli ){ int c = 0; cli.set_timeout( gfc->timeout );
-            cli.write_header( gfc->method, dir, gfc->version, gfc->headers, gfc );
+            cli.write_header( gfc->method, dir, gfc->version, gfc->headers );
             cli.write_filestream( gfc->method, gfc->body, gfc->file );
             while(( c=cli.read_header() )>0 ){ process::next(); }
             if( c==0 ){ res( cli ); return; } else { 
