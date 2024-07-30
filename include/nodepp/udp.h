@@ -73,7 +73,7 @@ public: udp_t() noexcept : obj(new NODE()) {}
         
         if( sk.bind() < 0 ){ _EERROR(onError,"Error while binding UDP"); close(); return; }
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
-        onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
+        onSocket.emit(sk); onOpen.emit(sk); sk.onOpen.emit(); obj->func(sk);
     }
 
     void listen( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 
@@ -94,7 +94,7 @@ public: udp_t() noexcept : obj(new NODE()) {}
                  sk.set_sockopt( self->obj->agent );
     
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
-        onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk);
+        onSocket.emit(sk); onOpen.emit(sk); sk.onOpen.emit(); obj->func(sk);
     }
 
     void connect( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 

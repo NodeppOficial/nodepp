@@ -153,7 +153,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         }
 
         if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
-        onOpen.emit(sk); sk.onOpen.emit(); onSocket.emit(sk); obj->func(sk); 
+        onSocket.emit(sk); onOpen.emit(sk); sk.onOpen.emit(); obj->func(sk); 
     }
 
     void connect( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 
