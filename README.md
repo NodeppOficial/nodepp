@@ -46,6 +46,35 @@ void onMain() {
 }
 ```
 
+### HTTP Client
+```cpp
+#include <nodepp/nodepp.h>
+#include <nodepp/http.h>
+
+using namespace nodepp;
+
+void onMain(){
+
+    fetch_t args;
+            args.method = "GET";
+            args.url = "http://www.google.com/";
+            args.headers = header_t({
+                { "Host", url::host(args.url) }
+            });
+
+    http::fetch( args )
+
+    .then([]( http_t cli ){
+        console::log( stream::await( cli ) );
+    })
+
+    .fail([]( except_t err ){
+        console::error( err );
+    });
+
+}
+```
+
 ### HTTP Server
 ```cpp
 #include <nodepp/nodepp.h>
@@ -74,7 +103,8 @@ void onMain(){
     });
 
 }
-``` 
+```
+
 ### More Examples [here](https://github.com/NodeppOficial/Nodepp/tree/main/examples)
 
 ## Projects made with NodePP
