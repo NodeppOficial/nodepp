@@ -34,7 +34,7 @@ public:
     
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         while((*_read_)( bf, sx )==-1 && is_available() && _read_->state>0 ){
-        while((_read_->input=ssocket_t::_read( bf, _read_->size ))==-2 )
+        while((_read_->input=ssocket_t::_read( bf, _read_->size )) == -2 )
               { return -2; } if( _read_->input<=0 ){ _read_->output=0; }
         }       obj->feof=_read_->output; return _read_->output;
     }
@@ -100,8 +100,7 @@ namespace nodepp { namespace wss {
               cli.onDrain.once([=](){ cli.free(); });
               cli.set_timeout(0);
 
-        cli.onOpen.once([=](){
-        process::poll::add([=](){
+        cli.onOpen.once([=](){ process::poll::add([=](){
             if(!cli.is_available() )    { cli.close(); return -1; }
             if((*_read)(&cli)==1 )      { return 1; }
             if(  _read->state<=0 )      { return 1; }

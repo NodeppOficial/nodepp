@@ -28,21 +28,21 @@ public:
     ptr_t<_ws_::read>  _read_  = new _ws_::read();
 
     template< class... T > 
-    ws_t( const T&... args ) : socket_t(args...) {}
+    ws_t( const T&... args ) noexcept : socket_t(args...) {}
 
     /*─······································································─*/
     
     virtual int _read( char* bf, const ulong& sx ) const noexcept {
         while((*_read_)( bf, sx )==-1 && is_available() && _read_->state>0 ){
-        while((_read_->input=socket_t::_read( bf, _read_->size ))==-2 )
-              { return -2; } if( _read_->input<=0 ){ _read_->output=0; }
+        while((_read_->input=socket_t::_read( bf, _read_->size )) ==-2 )
+              { return -2; } if( _read_->input<=0 ){ _read_->output=-1; }
         }       obj->feof=_read_->output; return _read_->output;
     }
   
     virtual int _write( char* bf, const ulong& sx ) const noexcept {
         while((*_write_)( bf, sx )==-1 && is_available() && _write_->state>0 ){
         while((_write_->input=socket_t::_write( bf, _write_->size ))==-2 )
-              { return -2; } if( _write_->input<=0 ){ _write_->output=0; }
+              { return -2; } if( _write_->input<=0 ){ _write_->output=-1; }
         }       obj->feof=_write_->output; return _write_->output;
     }
 
@@ -100,8 +100,7 @@ namespace nodepp { namespace ws {
              cli.onDrain.once([=](){ cli.free(); }); 
              cli.set_timeout(0);
 
-        cli.onOpen.once([=](){ 
-        process::poll::add([=](){
+        cli.onOpen.once([=](){ process::poll::add([=](){
             if(!cli.is_available() )    { cli.close(); return -1; }
             if((*_read)(&cli)==1 )      { return 1; }
             if(  _read->state<=0 )      { return 1; }

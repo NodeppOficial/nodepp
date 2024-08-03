@@ -91,7 +91,7 @@ namespace nodepp { namespace _file_ {
 
         if( data.empty() ) do {
             state=str->_read( str->get_buffer_data(), min(d,size) );
-        if( true /* state==-2 */ ){ coNext; } } while ( state==-2 );
+        if( state==-2 ){ coNext; } } while ( state==-2 );
         
         if( state > 0 ){
             data  = string_t( str->get_buffer_data(), (ulong) state );
@@ -119,7 +119,7 @@ namespace nodepp { namespace _file_ {
         if( b.empty() ){ b = msg; }
         
         do { do { state=str->_write( b.data()+data, b.size()-data );
-             if ( true /* state==-2 */ )    { coNext;        }
+             if ( state==-2 ){ coNext; }
         } while ( state==-2 ); if( state>0 ){ data += state; }
         } while ( state>=0 && data<b.size() ); b.clear();
 
@@ -720,16 +720,16 @@ namespace _ws_ {
         /*------*/
 
         for( int x=0; x<input && frame.MSK ; x++ )
-           { bf[x] = bf[x] ^ frame.KEY[key]; key++; key%=4; }
+           { bf[x]= bf[x]^frame.KEY[key]; key++; }
 
              len += input; output = input;
              size-= input; input  = 0;
 
-        if ( size == 0 ){ size = 2; input = 0; coGoto(0); }
+        if ( size == 0 ){ size=2; coGoto(0); }
 
         /*------*/
 
-        coGoto(2);
+    coGoto(2);
     gnStop
     }};
 
@@ -757,34 +757,34 @@ namespace _ws_ {
         /*------*/
 
         size=hdr.size();input=0;output=0;
-        memmove( bf, hdr.data( ), size ); 
+        memcpy( bf, hdr.data( ), size ); 
 
         /*------*/
 
         do{ if( input > 0 ){
             output += input; size -= input;
         if( size == 0 ){ break; }
-            memmove( bf,bf+input,sx-input );
+            memcpy( bf,bf+input,sx-input );
         }   coSet(1); return -1; coYield(1); 
         }   while(1);
 
         /*------*/
 
         size=brr.size();input=0;output=0;
-        memmove( bf, brr.data( ), size ); 
+        memcpy( bf, brr.data( ), size ); 
 
         /*------*/
 
         do{ if( input > 0 ){
             output += input; size -= input;
         if( size == 0 ){ break; }
-            memmove( bf,bf+input,sx-input );
+            memcpy( bf,bf+input,sx-input );
         }   coSet(2); return -1; coYield(2); 
         }   while(1);
 
         /*------*/
 
-        coGoto(0);
+    coGoto(0);
     gnStop
     }};
 
