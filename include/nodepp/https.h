@@ -107,7 +107,7 @@ public:
     /*─······································································─*/
 
     void write_filestream( const string_t& method, const string_t& body, const file_t& file ) const noexcept {
-        if ( method != "POST" || ( body.empty() && file.is_closed() ) ){ write("\r\n"); return; } 
+        if ( method != "POST" ) { return; } if ( body.empty() && file.is_closed() ){ write("\r\n"); return; } 
         if ( file.is_closed() != false ){ 
              write( string::format("Content-Length: %lu\r\n\r\n",file.size()) );
              while( file.is_available() ) { write( file.read() ); } } return;
