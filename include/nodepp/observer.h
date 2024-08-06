@@ -39,7 +39,7 @@ public: observer_t() noexcept {} queue_t<T> node;
     template< ulong N >
     observer_t& operator=( const P (&args) [N] ) noexcept {
         node.clear(); ulong x=N; while( x-->0 ){
-            T item; memset( &item, sizeof(T), 0 );
+            T item; memset( &item, 0, sizeof(T) );
             item.second = args[x].second;
             item.first  = args[x].first;
             node.push(item);
@@ -49,7 +49,7 @@ public: observer_t() noexcept {} queue_t<T> node;
     template< ulong N >
     observer_t ( const P (&args) [N] ) noexcept {
         node.clear(); ulong x=N; while( x-->0 ){
-            T item; memset( &item, sizeof(T), 0 );
+            T item; memset( &item, 0, sizeof(T) );
             item.second = args[x].second;
             item.first  = args[x].first;
             node.push(item);

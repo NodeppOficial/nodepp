@@ -226,7 +226,7 @@ public:
         obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->state = 1;
 
-        CTX item1; memset( &item1, sizeof(CTX), 0 );
+        CTX item1; memset( &item1, 0, sizeof(CTX) );
             item1.key = key; item1.pos = 0;
 
         obj->ctx = ptr_t<CTX> ({ item1 });
