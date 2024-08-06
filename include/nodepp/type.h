@@ -298,12 +298,12 @@ namespace nodepp { namespace type {
 
     /*─······································································─*/
 
-    template<typename T> struct is_virtually_constructible {
+    template<typename T> struct is_trivially_constructible {
         static constexpr bool value = __is_trivially_constructible(T);
     };
 
     template<typename T> struct is_trivially_destructible {
-        static constexpr bool value = __is_trivially_destructible(T);
+        static constexpr bool value = __has_trivial_destructor(T);
     };
 
     template<typename T> struct is_virtually_destructible {
@@ -312,6 +312,10 @@ namespace nodepp { namespace type {
 
     template<typename T> struct is_trivially_copiable {
         static constexpr bool value = __is_trivially_copyable(T);
+    };
+
+    template<typename T> struct is_trivially_assigned {
+        static constexpr bool value = __has_trivial_assign(T);
     };
 
     template<typename T, typename V> struct is_trivially_assignable {
