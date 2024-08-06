@@ -96,24 +96,6 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define typeof(DATA) (string_t){ typeid( DATA ).name() }
-struct generator_t { protected: int _state_ = 0; };
-
-#define ullong  unsigned long long int
-#define ulong   unsigned long int
-#define uchar   unsigned char
-#define llong   long long int
-#define ldouble long double
-#define wchar   wchar_t
-
-#ifndef _SYS_TYPES_H_
-#define _SYS_TYPES_H_
-#define ushort  unsigned short
-#define uint    unsigned int
-#endif
-
-/*────────────────────────────────────────────────────────────────────────────*/
-
 #define forEach( X, ITEM ) for( auto& X : ITEM )
 #define forEver() for (;;)
 #define elif else if
@@ -263,8 +245,26 @@ struct generator_t { protected: int _state_ = 0; };
 #elif _OS == NODEPP_OS_LINUX
    #define _POLL NODEPP_POLL_EPOLL
 #else
-   #define _POLL NODEPP_POLL
+   #define _POLL NODEPP_POLL_POLL
 #endif
+#endif
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+#define typeof(DATA) (string_t){ typeid( DATA ).name() }
+struct generator_t { protected: int _state_ = 0; };
+
+#define ullong  unsigned long long int
+#define ulong   unsigned long int
+#define uchar   unsigned char
+#define llong   long long int
+#define ldouble long double
+#define wchar   wchar_t
+
+#if !defined(_SYS_TYPES_H_) || _OS == NODEPP_OS_ANDROID
+#define _SYS_TYPES_H_
+#define ushort  unsigned short
+#define uint    unsigned int
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
