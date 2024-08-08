@@ -137,7 +137,7 @@ protected:
         DONE:
 
             if( (ulong) pos[1] >= str.size() ){
-                if( pos[0] <= obj->regex.last() && 
+            if( (ulong) pos[0] <= obj->regex.last() && 
                  !( obj->regex[pos[0]] == '$'   || 
                     obj->regex[pos[0]] == '*'   || 
                     obj->regex[pos[0]] == '+'   ||
