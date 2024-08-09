@@ -86,7 +86,7 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #ifndef TIMEOUT
-#define TIMEOUT 10
+#define TIMEOUT 1
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/

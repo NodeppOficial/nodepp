@@ -175,7 +175,7 @@ namespace nodepp { namespace process {
     /*─······································································─*/
 
     int next(){ 
-        static int x = 0; process::delay( TIMEOUT ); 
+        static int x = 0;
     coStart
         srand( time( NULL ) );
 
@@ -183,6 +183,7 @@ namespace nodepp { namespace process {
         if( !process::loop::empty() ){ process::loop::next(); coNext; }
         if( !process::poll::empty() ){ process::poll::next(); coNext; }
 
+        process::delay( TIMEOUT ); 
     coStop
     }
 
