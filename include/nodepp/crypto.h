@@ -748,6 +748,34 @@ public:
         obj->bff.resize( RSA_size(obj->rsa) ); return c;
     }
 
+    void read_private_key_from_memory( const string_t& key, const char* pass=NULL ) const {
+        BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
+        PEM_read_bio_RSAPrivateKey( bo, &obj->rsa, pcb, (void*)pass );
+        BIO_free(bo);
+    }
+
+    void read_public_key_from_memory( const string_t& key, const char* pass=NULL ) const {
+        BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
+        PEM_read_bio_RSAPublicKey( bo, &obj->rsa, pcb, (void*)pass ); 
+        BIO_free(bo);
+    }
+
+    string_t write_private_key_to_memory( const char* pass=NULL ) const {
+        BIO* bo = BIO_new( BIO_s_mem() ); char* data;
+        PEM_write_bio_RSAPrivateKey( bo, obj->rsa, NULL, NULL, 0, pcb, (void*)pass );
+        long len = BIO_get_mem_data( bo, &data );
+        string_t res ( data, len );
+        BIO_free(bo); return res;
+    }
+
+    string_t write_public_key_to_memory() const {
+        BIO* bo = BIO_new( BIO_s_mem() ); char* data;
+        PEM_write_bio_RSAPublicKey( bo, obj->rsa );
+        long len = BIO_get_mem_data( bo, &data );
+        string_t res ( data, len );
+        BIO_free(bo); return res;
+    }
+
     int write_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data() , "w"); int res = 0;
         if ( fp == nullptr ){ process::error("while writing private key"); }
@@ -1004,6 +1032,34 @@ public:
         ptr_t<uchar> sgn( DSA_size(obj->dsa) ); uint len;
         DSA_sign( 0,(uchar*)msg.data(), msg.size(),&sgn, &len, obj->dsa );
         return crypto::buff2hex( string_t( (char*) &sgn, (ulong) len ) );
+    }
+
+    void read_private_key_from_memory( const string_t& key, const char* pass=NULL ) const {
+        BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
+        PEM_read_bio_DSAPrivateKey( bo, &obj->dsa, pcb, (void*)pass );
+        BIO_free(bo);
+    }
+
+    void read_public_key_from_memory( const string_t& key, const char* pass=NULL ) const {
+        BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
+        PEM_read_bio_DSA_PUBKEY( bo, &obj->dsa, pcb, (void*)pass ); 
+        BIO_free(bo);
+    }
+
+    string_t write_private_key_to_memory( const char* pass=NULL ) const {
+        BIO* bo = BIO_new( BIO_s_mem() ); char* data;
+        PEM_write_bio_DSAPrivateKey( bo, obj->dsa, NULL, NULL, 0, pcb, (void*)pass );
+        long len = BIO_get_mem_data( bo, &data );
+        string_t res ( data, len );
+        BIO_free(bo); return res;
+    }
+
+    string_t write_public_key_to_memory() const {
+        BIO* bo = BIO_new( BIO_s_mem() ); char* data;
+        PEM_write_bio_DSA_PUBKEY( bo, obj->dsa );
+        long len = BIO_get_mem_data( bo, &data );
+        string_t res ( data, len );
+        BIO_free(bo); return res;
     }
 
     void read_private_key( const string_t& path, const char* pass=NULL ) const {
