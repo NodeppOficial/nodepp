@@ -32,7 +32,7 @@ namespace nodepp { namespace process {
 
     ulong seconds(){
         TIMEVAL now; gettimeofday(&now, NULL);
-        return now.tv_sec;
+        return now.tv_sec + now.tv_usec / 1000000;
     }
 
 }}
