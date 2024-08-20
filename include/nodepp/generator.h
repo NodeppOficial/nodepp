@@ -128,6 +128,32 @@ namespace nodepp { namespace _file_ {
 
     /*─······································································─*/
 
+    GENERATOR( until ){ 
+    private:
+        _file_::read _read;
+        string_t     s;
+
+    public: 
+        string_t  data ;  
+        ulong     state; 
+
+    template< class T > gnEmit( T* str, char ch ){
+    gnStart state=1; s.clear(); data.clear(); str->flush();
+
+        while( str->is_available() ){
+        while( _read(str) == 1 ){ coNext; }
+           if( _read.state<= 0 ){ break; } state = 1; s += _read.data; 
+          for( auto &x: s )     { if( x == ch ){ break; } state++; }
+           if( state<=s.size() ){ break; }
+        }      str->set_borrow(s);
+
+        data = str->get_borrow().splice( 0, state );
+    
+    gnStop
+    }};
+
+    /*─······································································─*/
+
     GENERATOR( line ){ 
     private:
         _file_::read _read;

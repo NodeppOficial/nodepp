@@ -165,6 +165,13 @@ public: file_t() noexcept {}
 
     char read_char() const noexcept { return read(1)[0]; }
 
+    string_t read_until( char ch ) const noexcept {
+        auto gen = nodepp::_file_::until();
+        while( gen( this, ch ) == 1 )
+             { process::next(); }
+        return gen.data;
+    }
+
     string_t read_line() const noexcept {
         auto gen = nodepp::_file_::line();
         while( gen( this ) == 1 )
