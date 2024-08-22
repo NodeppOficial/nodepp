@@ -51,12 +51,12 @@
 
 #ifndef NODEPP_PCB
 #define NODEPP_PCB
-namespace { int pcb ( char *buf, int size, int rwflag, void *args ) {
-    if( args == nullptr ){ return 0; }
-    strncpy( buf, (char *)args, size );
+int _$_ ( char *buf, int size, int rwflag, void *args ) {
+    if( args == nullptr || rwflag != 1 ){ return -1; }
+    strncpy( buf, (char*)args, size );
              buf[ size - 1 ] = '\0';
     return strlen(buf);
-}}
+}
 #endif
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -758,21 +758,21 @@ public:
 
     void read_private_key_from_memory( const string_t& key, const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
-        if( !PEM_read_bio_RSAPrivateKey( bo, &obj->rsa, pcb, (void*)pass ) ){
+        if( !PEM_read_bio_RSAPrivateKey( bo, &obj->rsa, &_$_, (void*)pass ) ){
             BIO_free(bo); process::error( "Invalid RSA Key" );
         }   BIO_free(bo); obj->bff.resize(RSA_size(obj->rsa));
     }
 
     void read_public_key_from_memory( const string_t& key, const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
-        if( !PEM_read_bio_RSAPublicKey( bo, &obj->rsa, pcb, (void*)pass ) ){
+        if( !PEM_read_bio_RSAPublicKey( bo, &obj->rsa, &_$_, (void*)pass ) ){
             BIO_free(bo); process::error( "Invalid RSA Key" );
         }   BIO_free(bo); obj->bff.resize(RSA_size(obj->rsa));
     }
 
     string_t write_private_key_to_memory( const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); char* data;
-        PEM_write_bio_RSAPrivateKey( bo, obj->rsa, NULL, NULL, 0, pcb, (void*)pass );
+        PEM_write_bio_RSAPrivateKey( bo, obj->rsa, NULL, NULL, 0, &_$_, (void*)pass );
         long len = BIO_get_mem_data( bo, &data );
         string_t res ( data, len );
         BIO_free(bo); return res;
@@ -789,7 +789,7 @@ public:
     int write_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data() , "w"); int res = 0;
         if ( fp == nullptr ){ process::error("while writing private key"); }
-        res = PEM_write_RSAPrivateKey( fp, obj->rsa, NULL, NULL, 0, pcb, (void*)pass );
+        res = PEM_write_RSAPrivateKey( fp, obj->rsa, NULL, NULL, 0, &_$_, (void*)pass );
         fclose( fp ); return res;
     }
 
@@ -803,7 +803,7 @@ public:
     void read_public_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data(), "r" );
         if( fp == nullptr ){ process::error("while reading public key"); }
-        if( !PEM_read_RSAPublicKey( fp, &obj->rsa, pcb, (void*)pass ) ){
+        if( !PEM_read_RSAPublicKey( fp, &obj->rsa, &_$_, (void*)pass ) ){
             fclose( fp ); process::error( "Invalid RSA Key" );
         }   fclose( fp ); obj->bff.resize(RSA_size(obj->rsa));
     }
@@ -811,7 +811,7 @@ public:
     void read_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data(), "r" );
         if( fp == nullptr ){ process::error("while reading private key"); }
-        if( !PEM_read_RSAPrivateKey( fp, &obj->rsa, pcb, (void*)pass ) ){
+        if( !PEM_read_RSAPrivateKey( fp, &obj->rsa, &_$_, (void*)pass ) ){
             fclose( fp ); process::error( "Invalid RSA Key" );
         }   fclose( fp ); obj->bff.resize(RSA_size(obj->rsa));
     }
@@ -1048,21 +1048,19 @@ public:
 
     void read_private_key_from_memory( const string_t& key, const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
-        if( !PEM_read_bio_DSAPrivateKey( bo, &obj->dsa, pcb, (void*)pass ) ){
-            BIO_free(bo); process::error( "Invalid DSA Key" );
-        }   BIO_free(bo);
+        if( !PEM_read_bio_DSAPrivateKey( bo, &obj->dsa, &_$_, (void*)pass ) )
+          { BIO_free(bo); process::error( "Invalid DSA Key" ); } BIO_free(bo);
     }
 
     void read_public_key_from_memory( const string_t& key, const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
-        if( !PEM_read_bio_DSA_PUBKEY( bo, &obj->dsa, pcb, (void*)pass ) ){
-            BIO_free(bo); process::error( "Invalid DSA Key" );
-        }   BIO_free(bo);
+        if( !PEM_read_bio_DSA_PUBKEY( bo, &obj->dsa, &_$_, (void*)pass ) )
+          { BIO_free(bo); process::error( "Invalid DSA Key" ); } BIO_free(bo);
     }
 
     string_t write_private_key_to_memory( const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); char* data;
-        PEM_write_bio_DSAPrivateKey( bo, obj->dsa, NULL, NULL, 0, pcb, (void*)pass );
+        PEM_write_bio_DSAPrivateKey( bo, obj->dsa, NULL, NULL, 0, &_$_, (void*)pass );
         long len = BIO_get_mem_data( bo, &data );
         string_t res ( data, len );
         BIO_free(bo); return res;
@@ -1079,7 +1077,7 @@ public:
     void read_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen(path.data(),"r");
         if ( fp == nullptr ){ process::error(" while reading private key"); }
-        obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, pcb, (void*)pass );
+        obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, &_$_, (void*)pass );
         if ( obj->dsa == nullptr )
            { fclose(fp); process::error( "Invalid DSA Key" ); } fclose(fp); 
     }
@@ -1087,7 +1085,7 @@ public:
     void read_public_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen(path.data(),"r");
         if ( fp == nullptr ){ process::error(" while reading public key"); }
-        obj->dsa = PEM_read_DSA_PUBKEY( fp, &obj->dsa, pcb, (void*)pass );
+        obj->dsa = PEM_read_DSA_PUBKEY( fp, &obj->dsa, &_$_, (void*)pass );
         if ( obj->dsa == nullptr )
            { fclose(fp); process::error( "Invalid DSA Key" ); } fclose(fp);  
     }
@@ -1102,7 +1100,7 @@ public:
     void write_public_key( const string_t& path, const char* pass=NULL ) const {
         if( obj->state != 1 ){ return; } FILE* fp = fopen( path.data(), "w" );
         if ( fp == nullptr ) { process::error("while creating file"); }
-        if (!PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, pcb, (void*)pass ) )
+        if (!PEM_write_DSAPrivateKey( fp, obj->dsa, nullptr, nullptr, 0, &_$_, (void*)pass ) )
            { fclose( fp ); process::error("while writting the public key"); } fclose( fp );
     }
 
