@@ -123,9 +123,12 @@ public:
 
     virtual ~hash_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
-    void update( const string_t& msg ) const noexcept { 
+    void update( string_t msg ) const noexcept { 
         if( obj->state != 1 ){ return; }
-        EVP_DigestUpdate( obj->ctx, (uchar*) msg.data(), msg.size() );
+        while( !msg.empty() ){ 
+            string_t tmp = msg.splice( 0, CRYPTO_MIN_SIZE );
+            EVP_DigestUpdate( obj->ctx, (uchar*) tmp.data(), tmp.size() );
+        }
     }
 
     void free() const noexcept { 
@@ -176,9 +179,12 @@ public:
     
     virtual ~hmac_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
-    void update( const string_t& msg ) const noexcept { 
+    void update( string_t msg ) const noexcept { 
         if( obj->state != 1 ){ return; }
-        HMAC_Update( obj->ctx, (uchar*) msg.data(), msg.size() ); 
+        while( !msg.empty() ){ 
+            string_t tmp = msg.splice( 0, CRYPTO_MIN_SIZE );
+            HMAC_Update( obj->ctx, (uchar*) tmp.data(), tmp.size() ); 
+        }
     }
 
     void free() const noexcept {
@@ -556,7 +562,7 @@ protected:
         string_t chr;
         string_t buff;
         bool    state =0;
-        BIGNUM* bn =nullptr;
+        BIGNUM* bn = nullptr;
     };  ptr_t<NODE> obj;
 
 public:
@@ -591,8 +597,9 @@ public:
 
     void free() const noexcept { 
         if( obj->state == 0 ){ return; }
+        if( obj->bn != nullptr ){ BN_clear_free( obj->bn ); }
             obj->state  = 0;
-        BN_clear_free( obj->bn );
+        
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -706,7 +713,8 @@ public:
 
     void free() const noexcept { 
         if( obj->state == 1 ){ return; } obj->state = 0;
-         BN_clear_free( obj->bn ); onClose.emit();
+        if( obj->bn != nullptr ){ BN_clear_free( obj->bn ); }
+            onClose.emit();
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -750,14 +758,16 @@ public:
 
     void read_private_key_from_memory( const string_t& key, const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
-        PEM_read_bio_RSAPrivateKey( bo, &obj->rsa, pcb, (void*)pass );
-        BIO_free(bo);
+        if( !PEM_read_bio_RSAPrivateKey( bo, &obj->rsa, pcb, (void*)pass ) ){
+            BIO_free(bo); process::error( "Invalid RSA Key" );
+        }   BIO_free(bo); obj->bff.resize(RSA_size(obj->rsa));
     }
 
     void read_public_key_from_memory( const string_t& key, const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
-        PEM_read_bio_RSAPublicKey( bo, &obj->rsa, pcb, (void*)pass ); 
-        BIO_free(bo);
+        if( !PEM_read_bio_RSAPublicKey( bo, &obj->rsa, pcb, (void*)pass ) ){
+            BIO_free(bo); process::error( "Invalid RSA Key" );
+        }   BIO_free(bo); obj->bff.resize(RSA_size(obj->rsa));
     }
 
     string_t write_private_key_to_memory( const char* pass=NULL ) const {
@@ -792,20 +802,22 @@ public:
 
     void read_public_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data(), "r" );
-        if ( fp == nullptr ){ process::error("while reading public key"); }
-        PEM_read_RSAPublicKey( fp, &obj->rsa, pcb, (void*)pass ); 
-        fclose( fp ); obj->bff.resize(RSA_size(obj->rsa));
+        if( fp == nullptr ){ process::error("while reading public key"); }
+        if( !PEM_read_RSAPublicKey( fp, &obj->rsa, pcb, (void*)pass ) ){
+            fclose( fp ); process::error( "Invalid RSA Key" );
+        }   fclose( fp ); obj->bff.resize(RSA_size(obj->rsa));
     }
 
     void read_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen( path.data(), "r" );
-        if ( fp == nullptr ){ process::error("while reading private key"); }
-        PEM_read_RSAPrivateKey( fp, &obj->rsa, pcb, (void*)pass ); 
-        fclose( fp ); obj->bff.resize(RSA_size(obj->rsa));
+        if( fp == nullptr ){ process::error("while reading private key"); }
+        if( !PEM_read_RSAPrivateKey( fp, &obj->rsa, pcb, (void*)pass ) ){
+            fclose( fp ); process::error( "Invalid RSA Key" );
+        }   fclose( fp ); obj->bff.resize(RSA_size(obj->rsa));
     }
 
     string_t public_encrypt( string_t msg, int padding=RSA_PKCS1_PADDING ) const {
-        if ( msg.empty() || obj->state ==0 ){ return nullptr; }
+        if ( msg.empty() || obj->state ==0 || obj->rsa == nullptr ){ return nullptr; }
         string_t data; while( !msg.empty() ){ auto tmp = msg.splice( 0, obj->bff.size()-42 );
             int c = RSA_public_encrypt( tmp.size(), (uchar*)tmp.data(), &obj->bff, obj->rsa, padding );
             data += string_t( (char*) &obj->bff, (ulong)c );
@@ -813,7 +825,7 @@ public:
     }
 
     string_t private_encrypt( string_t msg, int padding=RSA_PKCS1_PADDING ) const {
-        if( msg.empty() || obj->state ==0 ){ return nullptr; }
+        if( msg.empty() || obj->state ==0 || obj->rsa == nullptr ){ return nullptr; }
         string_t data; while( !msg.empty() ){ auto tmp = msg.splice( 0, obj->bff.size()-42 );
             int c = RSA_private_encrypt( tmp.size(), (uchar*)tmp.data(), &obj->bff, obj->rsa, padding );
             data += string_t( (char*) &obj->bff, (ulong)c );
@@ -821,7 +833,7 @@ public:
     }
 
     string_t public_decrypt( string_t msg, int padding=RSA_PKCS1_PADDING ) const {
-        if( msg.empty() || obj->state ==0 ){ return nullptr; }
+        if( msg.empty() || obj->state ==0 || obj->rsa == nullptr ){ return nullptr; }
         string_t data; while( !msg.empty() ){ auto tmp = msg.splice( 0, obj->bff.size() );
             int c = RSA_public_decrypt( tmp.size(), (uchar*)tmp.data(), &obj->bff, obj->rsa, padding );
             data += string_t( (char*) &obj->bff, (ulong)c );
@@ -829,7 +841,7 @@ public:
     }
 
     string_t private_decrypt( string_t msg, int padding=RSA_PKCS1_PADDING ) const {
-        if( msg.empty() || obj->state ==0 ){ return nullptr; }
+        if( msg.empty() || obj->state ==0 || obj->rsa == nullptr ){ return nullptr; }
         string_t data; while( !msg.empty() ){ auto tmp = msg.splice( 0, obj->bff.size() );
             int c = RSA_private_decrypt( tmp.size(), (uchar*)tmp.data(), &obj->bff, obj->rsa, padding );
             data += string_t( (char*) &obj->bff, (ulong)c );
@@ -843,10 +855,9 @@ public:
     void close() const noexcept { free(); } 
 
     void free() const noexcept { 
-        if( obj.count() > 1 ){ return; } 
         if( obj->state == 0 ){ return; } obj->state =0;
-        if( obj->rsa != nullptr ) RSA_free( obj->rsa );
-        if( obj->num != nullptr )  BN_free( obj->num );
+        if( obj->num != nullptr ){ BN_free( obj->num ); }
+        if( obj->rsa != nullptr ){ RSA_free( obj->rsa ); }
     }
     
 };
@@ -912,10 +923,10 @@ public:
 
     void free() const noexcept { 
         if( obj->state == 0 ){ return; } obj->state = 0;
-        if( obj->priv_key  != nullptr ) BN_free( obj->priv_key );
-    //  if( obj->key_pair  != nullptr ) EC_KEY_free( obj->key_pair );
-        if( obj->pub_key   != nullptr ) EC_POINT_free( obj->pub_key );
-        if( obj->key_group != nullptr ) EC_GROUP_free( obj->key_group );
+        if( obj->priv_key  != nullptr ){ BN_free( obj->priv_key ); }
+    //  if( obj->key_pair  != nullptr ){ EC_KEY_free( obj->key_pair ); }
+        if( obj->pub_key   != nullptr ){ EC_POINT_free( obj->pub_key ); }
+        if( obj->key_group != nullptr ){ EC_GROUP_free( obj->key_group ); }
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
@@ -932,8 +943,8 @@ class dh_t {
 protected:
 
     struct NODE {
-        BIGNUM *k;
-        DH     *dh;
+        DH     *dh = nullptr;
+        BIGNUM *k  = nullptr;
         bool state = 0;
     };  ptr_t<NODE> obj;
 
@@ -980,7 +991,8 @@ public:
 
     void free() const noexcept {
         if( obj->state == 0 ){ return; } obj->state = 0;
-        DH_free( obj->dh ); BN_free( obj->k );
+        if( obj->dh != nullptr ){ DH_free( obj->dh ); }
+        if( obj->k  != nullptr ){ BN_free( obj->k ); }
     }
 
     bool verify( const string_t& hex, const string_t& sgn ) const {
@@ -1023,12 +1035,12 @@ public:
     }
 
     bool verify( const string_t& msg, const string_t& sgn ) const noexcept { 
-         if( obj->state != 1 ){ return false; } auto ngs = crypto::hex2buff( sgn ); 
+         if( obj->state != 1 || obj->dsa == nullptr ){ return false; } auto ngs = crypto::hex2buff( sgn ); 
          return DSA_verify( 0, (uchar*)msg.data(), msg.size(), (uchar*)ngs.data(), ngs.size(), obj->dsa )>0;
     }
 
     string_t sign( const string_t& msg ) const noexcept {
-        if( obj->state != 1 ){ return nullptr; }
+        if( obj->state != 1 || obj->dsa == nullptr ){ return nullptr; }
         ptr_t<uchar> sgn( DSA_size(obj->dsa) ); uint len;
         DSA_sign( 0,(uchar*)msg.data(), msg.size(),&sgn, &len, obj->dsa );
         return crypto::buff2hex( string_t( (char*) &sgn, (ulong) len ) );
@@ -1036,14 +1048,16 @@ public:
 
     void read_private_key_from_memory( const string_t& key, const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
-        PEM_read_bio_DSAPrivateKey( bo, &obj->dsa, pcb, (void*)pass );
-        BIO_free(bo);
+        if( !PEM_read_bio_DSAPrivateKey( bo, &obj->dsa, pcb, (void*)pass ) ){
+            BIO_free(bo); process::error( "Invalid DSA Key" );
+        }   BIO_free(bo);
     }
 
     void read_public_key_from_memory( const string_t& key, const char* pass=NULL ) const {
         BIO* bo = BIO_new( BIO_s_mem() ); BIO_write( bo, key.get(), key.size() );
-        PEM_read_bio_DSA_PUBKEY( bo, &obj->dsa, pcb, (void*)pass ); 
-        BIO_free(bo);
+        if( !PEM_read_bio_DSA_PUBKEY( bo, &obj->dsa, pcb, (void*)pass ) ){
+            BIO_free(bo); process::error( "Invalid DSA Key" );
+        }   BIO_free(bo);
     }
 
     string_t write_private_key_to_memory( const char* pass=NULL ) const {
@@ -1064,14 +1078,18 @@ public:
 
     void read_private_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen(path.data(),"r");
-        if ( fp == nullptr ) process::error(" while reading private key");
+        if ( fp == nullptr ){ process::error(" while reading private key"); }
         obj->dsa = PEM_read_DSAPrivateKey( fp, &obj->dsa, pcb, (void*)pass );
+        if ( obj->dsa == nullptr )
+           { fclose(fp); process::error( "Invalid DSA Key" ); } fclose(fp); 
     }
 
     void read_public_key( const string_t& path, const char* pass=NULL ) const {
         FILE* fp = fopen(path.data(),"r");
-        if ( fp == nullptr ) process::error(" while reading public key");
+        if ( fp == nullptr ){ process::error(" while reading public key"); }
         obj->dsa = PEM_read_DSA_PUBKEY( fp, &obj->dsa, pcb, (void*)pass );
+        if ( obj->dsa == nullptr )
+           { fclose(fp); process::error( "Invalid DSA Key" ); } fclose(fp);  
     }
 
     void write_private_key( const string_t& path ) const {
