@@ -11,13 +11,14 @@
 
 #ifndef NODEPP_CRYPTO
 #define NODEPP_CRYPTO
+#define OPENSSL_API_COMPAT 0x10100000L
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #define CRYPTO_SIZE 6144
 #define CRYPTO_MAX_SIZE 65536
 #define CRYPTO_MIN_SIZE 61440
-#define OPENSSL_API_COMPAT 0x10100000L
+#define CRYPTO_BASE64 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -498,56 +499,72 @@ public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-class enc_base64_t {
+class base64_encoder_t {
 protected:
 
+    struct CTX {
+        int pos1, pos2;
+        ulong     size;
+    };
+
     struct NODE {
-        EVP_ENCODE_CTX* ctx = nullptr; 
         ptr_t<uchar> bff;
+        ptr_t<CTX>   ctx;
         string_t buff;
         bool state =0;
-        int    len =0;
     };  ptr_t<NODE> obj;
-    
+
 public:
 
-    event_t<string_t> onData;
     event_t<>         onClose;
+    event_t<string_t> onData;
 
-    enc_base64_t(): obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
-        obj->ctx   = EVP_ENCODE_CTX_new();
-        obj->state = 1;
-        if ( obj->ctx == nullptr )
-           { process::error("can't initializate base64 encoder"); }
-        EVP_EncodeInit( obj->ctx );
+    ~base64_encoder_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    base64_encoder_t() noexcept : obj( new NODE() ) {
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
+        obj->state = 1; 
+
+        CTX item1; memset( &item1, 0, sizeof(CTX) );
+            item1.pos1 = 0; item1.pos2 =-6; 
+            item1.size = 0;
+
+        obj->ctx = type::bind( item1 );
     }
-    
-    virtual ~enc_base64_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ string_t tmp = msg.splice( 0, UNBFF_SIZE );
-            EVP_EncodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)tmp.get(), tmp.size());
-            if ( obj->len > 0 ) { if ( onData.empty() ) {
-                     obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
-            } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MAX_SIZE );
+            string_t out;
+
+            forEach ( x, tmp ) {
+
+                obj->ctx->pos1 = ( obj->ctx->pos1 << 8 ) + x; 
+                obj->ctx->pos2 += 8;
+
+                while ( obj->ctx->pos2 >= 0 ) {
+                    out.push(CRYPTO_BASE64[(obj->ctx->pos1>>obj->ctx->pos2)&0x3F]);
+                    obj->ctx->pos2 -= 6;
+                }
+
+            }   obj->ctx->size += out.size();
+
+            if ( onData.empty() ) { obj->buff += out; } else { onData.emit( out ); }
         }
     }
 
-    string_t get() const noexcept { free(); return obj->buff; }
-
     void free() const noexcept { 
-        if( obj->state == 0 ){ return; } obj->state = 0;
-        EVP_EncodeFinal( obj->ctx, &obj->bff, &obj->len ); 
-        EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
-        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); } onClose.emit(); }
+        if ( obj->state == 0 ){ return; } string_t out; obj->state = 0; 
+        if ( obj->ctx->pos2>-6 ){ out.push(CRYPTO_BASE64[((obj->ctx->pos1<<8)>>(obj->ctx->pos2+8))&0x3F]); }
+
+        while ( ( out.size() + obj->ctx->size ) % 4 ){ out.push('='); } 
+        if ( onData.empty() ) { obj->buff += out; } else { onData.emit( out ); } onClose.emit();
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
 
     bool is_closed() const noexcept { return obj->state == 0; }
+
+    string_t get() const noexcept { free(); return obj->buff; }
 
     void close() const noexcept { free(); } 
 
@@ -612,56 +629,72 @@ public:
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-class dec_base64_t {
+class base64_decoder_t {
 protected:
 
+    struct CTX {
+        int pos1, pos2;
+        ulong     size;
+        int    T [255];
+    };
+
     struct NODE {
-        EVP_ENCODE_CTX* ctx = nullptr; 
         ptr_t<uchar> bff;
+        ptr_t<CTX>   ctx;
         string_t buff;
-        bool state =0; 
-        int    len =0;
+        bool state =0;
     };  ptr_t<NODE> obj;
 
 public:
 
-    event_t<string_t> onData;
     event_t<>         onClose;
+    event_t<string_t> onData;
 
-    dec_base64_t() : obj( new NODE() ) { crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_SIZE,'\0');
-        obj->ctx   = EVP_ENCODE_CTX_new();
+    ~base64_decoder_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    base64_decoder_t() noexcept : obj( new NODE() ) {
+        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
         obj->state = 1; 
-        if ( !obj->ctx )
-           { process::error("can't initializate base64 decoder"); }
-        EVP_DecodeInit( obj->ctx );
+
+        CTX item1; memset( &item1, 0, sizeof(CTX) );
+            item1.pos1 = 0; item1.pos2 =-8; 
+            item1.size = 0;
+
+        obj->ctx = type::bind( item1 );
     }
-    
-    virtual ~dec_base64_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ string_t tmp = msg.splice( 0, UNBFF_SIZE );
-            EVP_DecodeUpdate( obj->ctx, &obj->bff, &obj->len, (uchar*)tmp.get(), tmp.size()); 
-            if ( obj->len > 0 ) { if ( onData.empty() ) {
-                     obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
-            } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); }}
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MAX_SIZE ), out; 
+            for ( int x=0; x<64; x++ ){ obj->ctx->T[CRYPTO_BASE64[x]] = x; }
+
+            forEach ( x, tmp ) {
+
+                if ( obj->ctx->T[x]==-1 ){ break; }
+
+                obj->ctx->pos1 = ( obj->ctx->pos1 << 6 ) + obj->ctx->T[x]; 
+                obj->ctx->pos2 += 6;
+
+                if ( obj->ctx->pos2 >= 0 ) {
+                    out.push(char((obj->ctx->pos1>>obj->ctx->pos2)&0xFF));
+                    obj->ctx->pos2 -= 8;
+                }
+
+            }   obj->ctx->size += out.size();
+
+            if ( onData.empty() ) { obj->buff += out; } else { onData.emit( out ); }
         }
     }
 
-    string_t get() const noexcept { free(); return obj->buff; }
-
     void free() const noexcept { 
-        if( obj->state == 0 ){ return; } obj->state = 0;
-        EVP_DecodeFinal( obj->ctx, &obj->bff, &obj->len ); 
-        EVP_ENCODE_CTX_free( obj->ctx ); //EVP_cleanup();
-        if ( obj->len > 0 ) { if ( onData.empty() ) {
-                 obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
-        } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); } onClose.emit(); }
+        if ( obj->state == 0 ){ return; } 
+             obj->state =  0; onClose.emit();
     }
 
     bool is_available() const noexcept { return obj->state == 1; }
 
     bool is_closed() const noexcept { return obj->state == 0; }
+
+    string_t get() const noexcept { free(); return obj->buff; }
 
     void close() const noexcept { free(); } 
 
@@ -1360,7 +1393,7 @@ namespace crypto { namespace decrypt {
     
     /*─······································································─*/
 
-namespace crypto { namespace encode {
+namespace crypto { namespace encoder {
 
     class BASE58 : public encoder_t { public:
           BASE58 () : encoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
@@ -1378,15 +1411,15 @@ namespace crypto { namespace encode {
           BASE4 () : encoder_t( "123" ){}
     };
 
-    class BASE64 : public enc_base64_t { public:
-          BASE64 () : enc_base64_t() {}
+    class BASE64 : public base64_encoder_t { public:
+          BASE64 () : base64_encoder_t() {}
     };
 
 }}
     
     /*─······································································─*/
 
-namespace crypto { namespace decode {
+namespace crypto { namespace decoder {
 
     class BASE58 : public decoder_t { public:
           BASE58 () : decoder_t( "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" ) {}
@@ -1404,8 +1437,8 @@ namespace crypto { namespace decode {
           BASE4 () : decoder_t( "123" ){}
     };
 
-    class BASE64 : public dec_base64_t { public:
-          BASE64 () : dec_base64_t() {}
+    class BASE64 : public base64_decoder_t { public:
+          BASE64 () : base64_decoder_t() {}
     };
 
 }}
@@ -1472,5 +1505,6 @@ namespace crypto { namespace sign {
 
 #undef CRYPTO_MIN_SIZE
 #undef CRYPTO_MAX_SIZE
+#undef CRYPTO_BASE64
 #undef CRYPTO_SIZE
 #endif
