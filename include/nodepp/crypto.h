@@ -70,18 +70,22 @@ namespace nodepp { namespace crypto {
         }   ssl = true;
     }
 
-    string_t buff2hex( const string_t& inp ){
-        string_t out; for( auto x : inp ){
-            out += string::format( "%02x", (uchar)x );
-        }   return out;
+    string_t hex2buff( const string_t& inp ){
+        ptr_t<char> bff( ceil( inp.size() / 2 ) ); ulong len = 0;
+        auto x = inp; while( !x.empty() ){
+            auto y = x.splice(0,2); char ch=0;
+            string::parse( y, "%02x", &ch );
+            bff[len] = ch; len++;
+        }   return string_t( &bff, len );
     }
 
-    string_t hex2buff( const string_t& inp ){
-        auto x = inp; string_t out; while( !x.empty() ){
-            auto y = x.splice(0,2); char ch=0;
-            string::parse(y,"%02x",&ch);
-            out.push( ch );
-        }   return out;
+    string_t buff2hex( const string_t& inp ){
+        ptr_t<char> bff ( inp.size() * 2 ); ulong len = 0;
+        forEach( x, inp ){ 
+            auto data = string::format( "%02x", (uchar)x );
+            bff[len] = data[0]; bff[len+1] = data[1];
+            len += 2;
+        }   return string_t( &bff, len );
     }
 
     string_t genkey( const string_t& alph, int x=32 ) { 
@@ -217,10 +221,9 @@ protected:
     };
 
     struct NODE {
-        ptr_t<uchar> bff;
-        ptr_t<CTX>   ctx;
-        string_t buff;
-        bool state =0;
+        ptr_t<CTX>  ctx;
+        string_t   buff;
+        bool    state=0;
     };  ptr_t<NODE> obj;
 
 public:
@@ -228,9 +231,7 @@ public:
     event_t<>         onClose;
     event_t<string_t> onData;
 
-    xor_t( const string_t& key ) 
-    :     obj( new NODE() ) { // crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
+    xor_t( const string_t& key ) noexcept: obj( new NODE() ) {
         obj->state = 1;
 
         CTX item1; memset( &item1, 0, sizeof(CTX) );
@@ -239,15 +240,14 @@ public:
         obj->ctx = ptr_t<CTX> ({ item1 });
     }
 
-    xor_t() 
-    :     obj( new NODE() ) { // crypto::start_device();
-        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
+    xor_t() noexcept : obj( new NODE() ) { 
         obj->state = 1;
     }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
         while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MAX_SIZE );
             forEach( y, obj->ctx ){ forEach( x, tmp ){ x = x ^ y.key[y.pos]; y.pos++; }}
+            if ( tmp.empty() ){ return; }
             if ( onData.empty() ) { obj->buff +=tmp; } else { onData.emit( tmp ); }
         }
     }
@@ -505,13 +505,14 @@ protected:
     struct CTX {
         int pos1, pos2;
         ulong     size;
+        ulong     len;
     };
 
     struct NODE {
-        ptr_t<uchar> bff;
-        ptr_t<CTX>   ctx;
-        string_t buff;
-        bool state =0;
+        ptr_t<char> bff;
+        ptr_t<CTX>  ctx;
+        string_t   buff;
+        bool    state=0;
     };  ptr_t<NODE> obj;
 
 public:
@@ -522,41 +523,45 @@ public:
     ~base64_encoder_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     base64_encoder_t() noexcept : obj( new NODE() ) {
-        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
-        obj->state = 1; 
+        obj->state = 1; obj->bff = ptr_t<char>( CRYPTO_SIZE*2, '\0' );
 
         CTX item1; memset( &item1, 0, sizeof(CTX) );
             item1.pos1 = 0; item1.pos2 =-6; 
-            item1.size = 0;
+            item1.size = 0; item1.len  = 0;
 
         obj->ctx = type::bind( item1 );
     }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MAX_SIZE );
-            string_t out;
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_SIZE );
+            string_t out; obj->ctx->len = 0; forEach ( x, tmp ) {
 
-            forEach ( x, tmp ) {
+                obj->ctx->pos1 = ( obj->ctx->pos1 << 8 ) + x; obj->ctx->pos2 += 8;
 
-                obj->ctx->pos1 = ( obj->ctx->pos1 << 8 ) + x; 
-                obj->ctx->pos2 += 8;
-
-                while ( obj->ctx->pos2 >= 0 ) {
-                    out.push(CRYPTO_BASE64[(obj->ctx->pos1>>obj->ctx->pos2)&0x3F]);
-                    obj->ctx->pos2 -= 6;
+                while ( obj->ctx->pos2 >= 0 ) { 
+                    obj->bff[obj->ctx->len] = CRYPTO_BASE64[(obj->ctx->pos1>>obj->ctx->pos2)&0x3F];
+                    obj->ctx->pos2 -= 6; obj->ctx->len++;
                 }
 
-            }   obj->ctx->size += out.size();
+            }   obj->ctx->size += obj->ctx->len; out = string_t( &obj->bff, obj->ctx->len );
 
+            if ( obj->ctx->len == 0 ){ return; }
             if ( onData.empty() ) { obj->buff += out; } else { onData.emit( out ); }
         }
     }
 
-    void free() const noexcept { 
-        if ( obj->state == 0 ){ return; } string_t out; obj->state = 0; 
-        if ( obj->ctx->pos2>-6 ){ out.push(CRYPTO_BASE64[((obj->ctx->pos1<<8)>>(obj->ctx->pos2+8))&0x3F]); }
+    void free() const noexcept { if ( obj->state == 0 ){ return; } 
+        string_t out; obj->state = 0; obj->ctx->len = 0;
 
-        while ( ( out.size() + obj->ctx->size ) % 4 ){ out.push('='); } 
+        if ( obj->ctx->pos2 > -6 ){ 
+            obj->bff[obj->ctx->len] = CRYPTO_BASE64[((obj->ctx->pos1<<8)>>(obj->ctx->pos2+8))&0x3F];
+            obj->ctx->len++; 
+        } while ( ( obj->ctx->len + obj->ctx->size ) % 4 ){ 
+            obj->bff[obj->ctx->len] = '='; 
+            obj->ctx->len++;
+        } 
+
+        obj->ctx->size += obj->ctx->len; out = string_t( &obj->bff, obj->ctx->len );
         if ( onData.empty() ) { obj->buff += out; } else { onData.emit( out ); } onClose.emit();
     }
 
@@ -635,14 +640,15 @@ protected:
     struct CTX {
         int pos1, pos2;
         ulong     size;
+        ulong      len;
         int    T [255];
     };
 
     struct NODE {
-        ptr_t<uchar> bff;
-        ptr_t<CTX>   ctx;
-        string_t buff;
-        bool state =0;
+        ptr_t<char> bff;
+        ptr_t<CTX>  ctx;
+        string_t   buff;
+        bool    state=0;
     };  ptr_t<NODE> obj;
 
 public:
@@ -653,34 +659,32 @@ public:
     ~base64_decoder_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     base64_decoder_t() noexcept : obj( new NODE() ) {
-        obj->bff   = ptr_t<uchar>(CRYPTO_MAX_SIZE,'\0');
-        obj->state = 1; 
+        obj->state = 1; obj->bff = ptr_t<char>( CRYPTO_SIZE*2, '\0' );
 
         CTX item1; memset( &item1, 0, sizeof(CTX) );
             item1.pos1 = 0; item1.pos2 =-8; 
-            item1.size = 0;
+            item1.size = 0; item1.len  = 0;
 
         obj->ctx = type::bind( item1 );
     }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
-        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MAX_SIZE ), out; 
-            for ( int x=0; x<64; x++ ){ obj->ctx->T[CRYPTO_BASE64[x]] = x; }
+        while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_SIZE ); 
+            for ( int x=0; x<64; x++ ){ obj->ctx->T[CRYPTO_BASE64[x]]=x; }
 
-            forEach ( x, tmp ) {
-
+            string_t out; obj->ctx->len = 0; forEach ( x, tmp ) {
                 if ( obj->ctx->T[x]==-1 ){ break; }
 
-                obj->ctx->pos1 = ( obj->ctx->pos1 << 6 ) + obj->ctx->T[x]; 
-                obj->ctx->pos2 += 6;
+                obj->ctx->pos1 = ( obj->ctx->pos1 << 6 ) + obj->ctx->T[x]; obj->ctx->pos2 += 6;
 
                 if ( obj->ctx->pos2 >= 0 ) {
-                    out.push(char((obj->ctx->pos1>>obj->ctx->pos2)&0xFF));
-                    obj->ctx->pos2 -= 8;
+                    obj->bff[obj->ctx->len] = char((obj->ctx->pos1>>obj->ctx->pos2)&0xFF);
+                    obj->ctx->pos2 -= 8; obj->ctx->len++;
                 }
 
-            }   obj->ctx->size += out.size();
+            }   obj->ctx->size += obj->ctx->len; out = string_t( &obj->bff, obj->ctx->len );
 
+            if ( obj->ctx->len == 0 ){ return; }
             if ( onData.empty() ) { obj->buff += out; } else { onData.emit( out ); }
         }
     }
@@ -718,8 +722,7 @@ public:
     event_t<>         onClose;
 
     decoder_t( const string_t& chr ) : obj( new NODE() ) { crypto::start_device();
-        obj->state = 1; obj->chr = chr; 
-        obj->bn = (BIGNUM*) BN_new();
+        obj->state = 1; obj->chr = chr; obj->bn = (BIGNUM*) BN_new();
         if ( !obj->bn )
            { process::error("can't initializate decoder"); }
     }
