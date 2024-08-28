@@ -746,7 +746,7 @@ namespace _ws_ {
         /*------*/
 
         for( int x=0; x<input && frame.MSK ; x++ )
-           { bf[x]= bf[x]^frame.KEY[key]; key++; }
+           { bf[x]= bf[x]^frame.KEY[key]; key++; key %= 4; }
 
              len += input; output = input;
              size-= input; input  = 0;
