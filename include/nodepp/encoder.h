@@ -20,6 +20,24 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+namespace nodepp { namespace encoder { namespace key {
+
+    string_t generate( const string_t& alph, int x=32 ) { 
+        string_t data ( (ulong)x, '\0' ); while( x --> 0 ){
+            data[x] = alph[ rand() % ( alph.size() - 1 ) ];
+        }   return data;
+    }
+
+    string_t generate( int x=32 ) { 
+        string_t data ( (ulong)x, '\0' ); while( x --> 0 ){
+            data[x] = (char)( rand() % 0xFF );
+        }   return data;
+    }
+
+}}}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 namespace nodepp { namespace encoder {
     
     ulong hash( const string_t& key, int tableSize ) {
@@ -39,8 +57,28 @@ namespace nodepp { namespace encoder {
     /*─······································································─*/
 
     ulong hash( int key, int tableSize ) { return key % tableSize; }
-
+    
 }}
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+namespace nodepp { namespace encoder { namespace XOR {
+
+    string_t get( string_t data, const string_t& key ){
+        auto  tmp = data.copy();
+        ulong pos = 0; forEach( x, tmp ) {
+            x = x ^ key[pos]; pos++;
+        }   return tmp;
+    }
+
+    string_t set( string_t data, const string_t& key ){
+        auto  tmp = data.copy();
+        ulong pos = 0; forEach( x, tmp ) {
+            x = x ^ key[pos]; pos++;
+        }   return tmp;
+    }
+
+}}}
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
