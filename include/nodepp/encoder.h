@@ -68,6 +68,7 @@ namespace nodepp { namespace encoder { namespace XOR {
         auto  tmp = data.copy();
         ulong pos = 0; forEach( x, tmp ) {
             x = x ^ key[pos]; pos++;
+            pos %= key.size();
         }   return tmp;
     }
 
@@ -75,6 +76,7 @@ namespace nodepp { namespace encoder { namespace XOR {
         auto  tmp = data.copy();
         ulong pos = 0; forEach( x, tmp ) {
             x = x ^ key[pos]; pos++;
+            pos %= key.size();
         }   return tmp;
     }
 

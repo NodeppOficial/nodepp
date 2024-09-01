@@ -246,8 +246,10 @@ public:
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
         while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MAX_SIZE );
-            forEach( y, obj->ctx ){ forEach( x, tmp ){ x = x ^ y.key[y.pos]; y.pos++; }}
-            if ( tmp.empty() ){ return; }
+            forEach( y, obj->ctx ){ forEach( x, tmp ){ 
+                x = x ^ y.key[y.pos]; y.pos++; 
+                y.pos %= y.key.size();
+            }} if ( tmp.empty() ){ return; }
             if ( onData.empty() ) { obj->buff +=tmp; } else { onData.emit( tmp ); }
         }
     }
