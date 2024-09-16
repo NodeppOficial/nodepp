@@ -3,13 +3,15 @@
 **Nodepp** is an innovative open source project that aims to make it easier to create applications in **C++**. This project introduces a high-level abstraction layer that allows developers to write **C++** code in a way that is similar to how they would write code in **NodeJS**. With **Nodepp**, developers can leverage the advantages of the **C++** language while benefiting from the ease of use and flexibility that **NodeJS** offers. This unique combination of features makes **Nodepp** a powerful tool for creating high-performance and scalable applications. Additionally, since it is an open source project, anyone can contribute and improve **Nodepp** to fit their specific needs.
 
 ## Dependencies
-- **Openssl**
-    - 🪟: `pacman -S mingw-w64-ucrt-x86_64-openssl`
-    - 🐧: `sudo apt install libssl-dev`
+```bash
+# Openssl
+    🪟: pacman -S mingw-w64-ucrt-x86_64-openssl
+    🐧: sudo apt install libssl-dev
 
-- **Zlib**  
-    - 🪟: `pacman -S mingw-w64-ucrt-x86_64-zlib`
-    - 🐧: `sudo apt install zlib1g-dev`
+# Zlib
+    🪟: pacman -S mingw-w64-ucrt-x86_64-zlib
+    🐧: sudo apt install zlib1g-dev
+```
 
 ## Features
 
