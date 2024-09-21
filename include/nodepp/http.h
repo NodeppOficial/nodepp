@@ -127,7 +127,7 @@ protected:
 
     string_t get_line() noexcept { 
         auto data = this->read(); auto pos = regex::search( data, "\n" );
-        if( pos == nullptr ){ return "\n"; }
+        if( pos == nullptr ){ return "\r\n"; }
         auto res = data.splice( 0, pos[1] );
         this->set_borrow( data );return res;
     }
