@@ -140,18 +140,25 @@ public: tls_t() noexcept : obj( new NODE() ) {}
                   sk.socket( dns::lookup(host), port );
                   sk.set_sockopt( self->obj->agent );
 
+        sk.ssl = new ssl_t( obj->ctx, sk.get_fd() ); 
+        sk.ssl->set_hostname( host );
+
         process::add([=](){
         coStart
 
             while( sk._connect() == -2 ){ coNext; } 
 
             if( sk._connect() < 0 ){ 
-                _EERROR(self->onError,"Error while connecting TCP"); 
+                _EERROR(self->onError,"Error while connecting TLS"); 
                 self->close(); coEnd; 
             }
 
-            sk.ssl = new ssl_t( self->obj->ctx, sk.get_fd() ); 
-            sk.ssl->set_hostname( host );
+            while( sk.ssl->_connect() == -2 ){ coNext; }
+
+            if( sk.ssl->connect() <= 0 ){ 
+                _EERROR(onError,"Error while handshaking TLS");
+                self->close(); coEnd; 
+            }
             
             sk.onClose.on([=](){ self->close(); }); sk.onOpen.emit(); 
             self->onSocket.emit( sk ); self->onOpen.emit( sk ); 
