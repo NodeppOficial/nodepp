@@ -155,7 +155,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
 
             while( sk.ssl->_connect() == -2 ){ coNext; }
 
-            if( sk.ssl->connect() <= 0 ){ 
+            if( sk.ssl->_connect() <= 0 ){ 
                 _EERROR(onError,"Error while handshaking TLS");
                 self->close(); coEnd; 
             }
