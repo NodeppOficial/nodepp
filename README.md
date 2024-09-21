@@ -33,8 +33,10 @@
 - 📌: Include Support for **Poll | Epoll | Kqueue | WSAPoll** making it easy to handle multiple file descriptors.
 
 ## Build & Run
-- 🐧: `g++ -o main main.cpp -I ./include ; ./main`
-- 🪟: `g++ -o main main.cpp -I ./include -lws2_32 ; ./main`
+```bash
+🐧: g++ -o main main.cpp -I ./include ; ./main
+🪟: g++ -o main main.cpp -I ./include -lws2_32 ; ./main
+```
 
 ## Examples
 ### Hello world
