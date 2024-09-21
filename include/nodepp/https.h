@@ -23,6 +23,13 @@ namespace nodepp { class https_t : public ssocket_t, public generator_t {
 protected:
 
     string_t  version;
+
+    string_t get_line() noexcept { 
+        auto data = this->read(); auto pos = regex::search( data, "\n" );
+        if( pos == nullptr ){ return "\n"; }
+        auto res = data.splice( 0, pos[1] );
+        this->set_borrow( data );return res;
+    }
     
 public:
 
@@ -56,7 +63,7 @@ public:
         int idx;
     gnStart
 
-        base = read_line(); protocol = "HTTPS";
+        base = get_line(); protocol = "HTTPS";
         if( !regex::test( base,"HTTP/\\d\\.\\d" ) ) coEnd; 
 
         init = regex::split( base, "\\s+" );       coNext;
@@ -80,7 +87,7 @@ public:
             version = init[0]; status = string::to_uint(init[1]);
         }   coNext;
 
-        do {  line = read_line(); idx = line.index_of([]( char x ){ return x==':'; });
+        do {   line = get_line(); idx = line.index_of([]( char x ){ return x==':'; });
             if( idx < 0 ){ break; } a = line.slice( 0,idx ).to_capital_case();
                                     b = line.slice( idx+2, -2 ); headers[a]=b;
         } while ( true ); coSet(0); return 0;
