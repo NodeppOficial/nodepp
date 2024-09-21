@@ -121,18 +121,33 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
     /*─······································································─*/
 
     void connect( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
-        if( obj->state == 1 ){ return; } obj->state = 1; auto self = type::bind( this );
-        if( dns::lookup(host).empty() )
+        if( obj->state == 1 ){ return; } obj->state = 1; if( dns::lookup(host).empty() )
           { _EERROR(onError,"dns couldn't get ip"); close(); return; }
+        
+        auto self = type::bind( this );
 
         socket_t sk = socket_t(); 
                  sk.IPPROTO = IPPROTO_TCP;
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( self->obj->agent );
 
-        if( sk.connect() < 0 ){ _EERROR(onError,"Error while connecting TCP"); close(); return; }
-        if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
-        onSocket.emit(sk); onOpen.emit(sk); sk.onOpen.emit(); obj->func(sk);
+        process::add([=](){
+        coStart
+
+            while( sk._connect() == -2 ){ coNext; } 
+
+            if( sk._connect() < 0 ){ 
+                _EERROR(self->onError,"Error while connecting TCP"); 
+                self->close(); coEnd; 
+            }
+            
+            sk.onClose.on([=](){ self->close(); }); sk.onOpen.emit(); 
+            self->onSocket.emit( sk ); self->onOpen.emit( sk ); 
+            if( cb != nullptr ){(*cb)(sk);} self->obj->func(sk);
+
+        coStop
+        });
+
     }
 
     void connect( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 
