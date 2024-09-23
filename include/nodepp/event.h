@@ -17,8 +17,7 @@
 namespace nodepp { template< class... A > class event_t { 
 protected:
 
-    using NODE = function_t<bool,A...>;
-    ptr_t<queue_t<NODE>> obj;
+    using NODE = function_t<bool,A...>; ptr_t<queue_t<NODE>> obj;
 
 public: event_t() noexcept : obj( new queue_t<NODE>() ) {}
     
