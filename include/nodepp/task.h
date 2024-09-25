@@ -27,8 +27,7 @@ namespace task {
     bool empty(){ return queue.empty(); }
 
     void clear( void* address ){ 
-        if( address == nullptr )       { return; }
-        if( *((bool*)( address )) > 1 ){ return; }
+        if( address == nullptr ){ return; }
             *((bool*)( address )) = 0; 
     }
 
@@ -68,8 +67,7 @@ namespace loop {
     bool empty(){ return queue.empty(); }
 
     void clear( void* address ){ 
-        if( address == nullptr )       { return; }
-        if( *((bool*)( address )) > 1 ){ return; }
+        if( address == nullptr ){ return; }
             *((bool*)( address )) = 0; 
     }
 
@@ -109,8 +107,7 @@ namespace poll {
     bool empty(){ return queue.empty(); }
 
     void clear( void* address ){ 
-        if( address == nullptr )       { return; }
-        if( *((bool*)( address )) > 1 ){ return; }
+        if( address == nullptr ){ return; }
             *((bool*)( address )) = 0; 
     }
 
@@ -157,8 +154,7 @@ namespace nodepp { namespace process {
     /*─······································································─*/
 
     void clear( void* address ){ 
-        if( address == nullptr )       { return; }
-        if( *((bool*)( address )) > 1 ){ return; }
+        if( address == nullptr ){ return; }
             *((bool*)( address )) = 0; 
     }
     
