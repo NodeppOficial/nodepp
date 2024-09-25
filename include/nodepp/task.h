@@ -26,7 +26,11 @@ namespace task {
 
     bool empty(){ return queue.empty(); }
 
-    void clear( void* address ){ *((bool*)( address )) = 0; }
+    void clear( void* address ){ 
+        if( address == nullptr )       { return; }
+        if( *((bool*)( address )) > 1 ){ return; }
+            *((bool*)( address )) = 0; 
+    }
 
     template< class T, class... V >
     void* add( T cb, const V&... arg ){ 
@@ -63,7 +67,11 @@ namespace loop {
 
     bool empty(){ return queue.empty(); }
 
-    void clear( void* address ){ *((bool*)( address )) = 0; }
+    void clear( void* address ){ 
+        if( address == nullptr )       { return; }
+        if( *((bool*)( address )) > 1 ){ return; }
+            *((bool*)( address )) = 0; 
+    }
 
     template< class T, class... V >
     void* add( T cb, const V&... arg ){ 
@@ -100,7 +108,11 @@ namespace poll {
 
     bool empty(){ return queue.empty(); }
 
-    void clear( void* address ){ *((bool*)( address )) = 0; }
+    void clear( void* address ){ 
+        if( address == nullptr )       { return; }
+        if( *((bool*)( address )) > 1 ){ return; }
+            *((bool*)( address )) = 0; 
+    }
 
     template< class T, class... V >
     void* add( T cb, const V&... arg ){ 
@@ -144,9 +156,10 @@ namespace nodepp { namespace process {
     
     /*─······································································─*/
 
-    void clear( void* address ){
-         if( !address ){ return; }
-         *((bool*)address) = 0;
+    void clear( void* address ){ 
+        if( address == nullptr )       { return; }
+        if( *((bool*)( address )) > 1 ){ return; }
+            *((bool*)( address )) = 0; 
     }
     
     /*─······································································─*/
