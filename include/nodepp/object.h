@@ -49,12 +49,12 @@ namespace nodepp { namespace {
     template<>          struct obj_type_id<char*>            { static constexpr int value = 0x0000 | 18; };
 
     template< class T >          struct obj_type_id<T*>      { static constexpr int value = 0xf000 | obj_type_id<T>::value; };
-    template< class T, ulong N > struct obj_type_id<T[N]>    { static constexpr int value = 0xf100 | obj_type_id<T>::value; };
-    template< class T > struct obj_type_id<initializer_t<T>> { static constexpr int value = 0xf300 | obj_type_id<T>::value; };
-    template< class T > struct obj_type_id<ptr_t<T>>         { static constexpr int value = 0xf400 | obj_type_id<T>::value; };
-    template< class T > struct obj_type_id<queue_t<T>>       { static constexpr int value = 0xf600 | obj_type_id<T>::value; };
+    template< class T, ulong N > struct obj_type_id<T[N]>    { static constexpr int value = 0xf200 | obj_type_id<T>::value; };
+    template< class T > struct obj_type_id<initializer_t<T>> { static constexpr int value = 0xf400 | obj_type_id<T>::value; };
+    template< class T > struct obj_type_id<ptr_t<T>>         { static constexpr int value = 0xf600 | obj_type_id<T>::value; };
+    template< class T > struct obj_type_id<queue_t<T>>       { static constexpr int value = 0xf800 | obj_type_id<T>::value; };
 
-    template< class T > struct obj_type_id<array_t<T>>       { static constexpr int value = 0xf700 | obj_type_id<T>::value; };
+    template< class T > struct obj_type_id<array_t<T>>       { static constexpr int value = 0xfA00 | obj_type_id<T>::value; };
 
 }}
 

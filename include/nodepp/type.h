@@ -42,6 +42,11 @@ namespace nodepp { namespace type {
     
     /*─······································································─*/
 
+    template <typename T, typename U> struct is_different : true_type {};
+    template <typename T> struct is_different<T, T> : false_type {};
+    
+    /*─······································································─*/
+
     template <typename T> struct is_pointer : false_type {};
     template <typename T> struct is_pointer<T*> : true_type {};
         
