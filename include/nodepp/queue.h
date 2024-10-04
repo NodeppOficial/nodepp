@@ -101,6 +101,25 @@ public: queue_t() noexcept {}
     
     /*─······································································─*/
 
+    void sort( function_t<bool,V,V> func ) noexcept {
+        queue_t<V> n_buffer;
+
+        auto x = this->first(); while( x != nullptr ){
+        auto n = n_buffer.first();
+
+            while( n!=nullptr ){ if( !func( x->data, n->data ) )
+                 { n = n->next; continue; } break;
+            }
+
+            V item; memmove( &item, &x->data, sizeof(V) );
+            n_buffer.insert( n, item ); x = x->next;
+        }
+
+       *this = n_buffer;
+    }
+    
+    /*─······································································─*/
+
     virtual ~queue_t() noexcept { 
         if( queue.count() > 1 )
           { return; } clear(); 

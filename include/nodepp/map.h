@@ -71,6 +71,20 @@ public:
 
     /*─······································································─*/
 
+    bool has( const U& id ) const noexcept {
+        auto x = obj->queue.first(); 
+        
+        while( !id.empty() && x != nullptr ){
+            if ( x->data.first == id )
+               { return true; } 
+            else x = x->next; 
+        }
+
+        return false;
+    }
+
+    /*─······································································─*/
+
     void map( function_t<void,T&> callback ) const noexcept {
          obj->queue.map( callback );
     }

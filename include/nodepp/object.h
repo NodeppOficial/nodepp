@@ -131,6 +131,21 @@ public:
         return mem.last()->data.second;
     }
 
+    bool has( const string_t& name ) const noexcept {
+        if( !has_value() || obj->type != 20  )
+          { obj->mem=QUEUE(); obj->type= 20; }
+
+        auto mem = type::cast<QUEUE>(obj->mem);
+        auto x   = mem.first();
+
+        while( x != nullptr ){
+           if( x->data.first == string::to_string(name) )
+             { return true; } x = x->next;
+        }
+
+        return false;
+    }
+
     /*─······································································─*/
 
     object_t& operator[]( const ulong& idx ) const {
@@ -138,6 +153,14 @@ public:
           { process::error("item is empty"); }
         auto mem = type::cast<ARRAY>(obj->mem);
         return mem[idx];
+    }
+
+    /*─······································································─*/
+
+    bool has( const ulong& idx ) const {
+        if( !has_value() )   { return false; }
+        auto mem = type::cast<ARRAY>(obj->mem);
+        return mem.size() >= idx;
     }
 
     /*─······································································─*/
