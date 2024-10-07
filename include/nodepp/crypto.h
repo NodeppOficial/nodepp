@@ -38,6 +38,7 @@
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <openssl/err.h>
+#include <openssl/x509.h>
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
@@ -760,6 +761,89 @@ public:
     bool is_closed() const noexcept { return obj->state == 0; }
 
     void close() const noexcept { free(); } 
+
+};
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
+class X509_t {
+protected:
+
+    struct NODE {
+        X509_NAME* name = nullptr;
+        BIGNUM* num= nullptr;
+        X509*  ctx = nullptr;
+        RSA*   rsa = nullptr;
+        bool  state= 0;
+    };  ptr_t<NODE> obj;
+
+public:
+
+    X509_t( uint rsa_size=2048 ) : obj( new NODE() ) { crypto::start_device();
+        obj->ctx = X509_new(); obj->name = X509_NAME_new();  
+        obj->rsa = RSA_new(); obj->num = BN_new();
+        
+        BN_set_word( obj->num, RSA_F4 );
+        RSA_generate_key_ex( obj->rsa, rsa_size, obj->num, NULL ); 
+
+        obj->state = 1; if( !obj->ctx || obj->rsa ) 
+        { process::error("can't initializate X509_t"); }
+
+    }
+
+   ~X509_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    void generate( string_t _name, ulong _time=31536000L ) const {
+
+        X509_set_version( obj->ctx, 2 ); ASN1_INTEGER_set( X509_get_serialNumber(obj->ctx), 1 );
+
+        if( _time != 0 ){
+            X509_gmtime_adj( X509_get_notBefore(obj->ctx), 0 );
+            X509_gmtime_adj( X509_get_notAfter(obj->ctx), _time );
+        }
+
+        X509_set_pubkey( obj->ctx, EVP_PKEY_new() ); EVP_PKEY_assign_RSA( X509_get_pubkey(obj->ctx), obj->rsa );
+        X509_NAME_add_entry_by_txt( obj->name, "CN", MBSTRING_ASC, type::cast<uchar>(_name.get()), -1, -1, 0);
+        X509_set_subject_name( obj->ctx, obj->name ); X509_set_issuer_name( obj->ctx, obj->name );
+
+        if( !X509_sign( obj->ctx, EVP_PKEY_new(), EVP_sha256() ) )
+          { process::error("can't generate X509 certificates"); }
+
+    }
+
+    string_t write_private_key_to_memory( const char* pass=NULL ) const {
+        BIO* bo = BIO_new( BIO_s_mem() ); char* data;
+        PEM_write_bio_RSAPrivateKey( bo, obj->rsa, NULL, NULL, 0, &_$_, (void*)pass );
+        long len = BIO_get_mem_data( bo, &data ); string_t res ( data, len );
+        BIO_free(bo); return res;
+    }
+
+    string_t write_certificate_to_memory() const {
+        BIO* bo = BIO_new( BIO_s_mem() ); char* data;
+        PEM_write_bio_X509( bo, obj->ctx );
+        long len = BIO_get_mem_data( bo, &data );
+        string_t res ( data, len );
+        BIO_free(bo); return res;
+    }
+
+    void write_private_key( const string_t& path, const char* pass=NULL ) const {
+        auto fp = fopen( path.get(), "w"); PEM_write_RSAPrivateKey( 
+            fp, obj->rsa, NULL, NULL, 0, &_$_, (void*)pass 
+        ); fclose( fp );
+    }
+
+    void write_certificate( const string_t& path ) const {
+        auto fp = fopen( path.get(), "w");
+        PEM_write_X509( fp, obj->ctx );
+        fclose( fp );
+    }
+
+    void free() const noexcept { 
+        if( obj->state == 0 ){ return; } obj->state = 0; 
+        if( obj->num != nullptr ){ BN_free( obj->num ); }
+        if( obj->ctx != nullptr ){ X509_free( obj->ctx ); }
+        if( obj->name!= nullptr ){ X509_NAME_free( obj->name ); }
+    }
 
 };
 
