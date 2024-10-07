@@ -35,10 +35,9 @@ public: event_t() noexcept : obj( new queue_t<NODE>() ) {}
 
     void emit( const A&... args ) const noexcept {
         auto x = obj->first(); while( x != nullptr ){
-        auto y = x->next; switch( x->data( args... ) ){
-            case  0: obj->erase(x); break;
-            case  1:                break;
-        } x = y; }
+        auto y = x->next; 
+            if( !x->data( args... ) ){ obj->erase(x); }
+        x = y; }
     }
     
     /*─······································································─*/
