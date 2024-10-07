@@ -130,7 +130,7 @@ public:
 
 namespace nodepp { namespace https {
 
-    template< class T > tls_t server( T cb, ssl_t* ctx, agent_t* opt=nullptr ){
+    template< class T > tls_t server( T cb, const ssl_t* ctx, agent_t* opt=nullptr ){
         return tls_t([=]( https_t cli ){ int c=0;
             while(( c=cli.read_header() ) == 1 )
                  { process::next(); }
@@ -141,7 +141,7 @@ namespace nodepp { namespace https {
     
     /*─······································································─*/
     
-    promise_t<https_t,except_t> fetch ( const fetch_t& cfg, ssl_t* ctx, agent_t* opt=nullptr ) { 
+    promise_t<https_t,except_t> fetch ( const fetch_t& cfg, const ssl_t* ctx, agent_t* opt=nullptr ) { 
         if( ctx == nullptr ) process::error( "Invalid SSL Context" );
            auto agn = type::bind( opt==nullptr?agent_t():*opt ); 
            auto gfc = type::bind( cfg );

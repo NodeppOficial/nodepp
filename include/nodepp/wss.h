@@ -74,14 +74,14 @@ namespace nodepp { namespace wss {
 
     /*─······································································─*/
 
-    tls_t server( ssl_t* ctx, agent_t* opt=nullptr ){
+    tls_t server( const ssl_t* ctx, agent_t* opt=nullptr ){
         auto server = https::server( [=]( https_t /*unused*/ ){}, ctx, opt );
                         wss::server( server ); return server;     
     }
 
     /*─······································································─*/
 
-    wss_t client( const string_t& url, ssl_t* ctx, agent_t* opt=nullptr ){
+    wss_t client( const string_t& url, const ssl_t* ctx, agent_t* opt=nullptr ){
 
         string_t hsh = crypto::genkey("abcdefghiABCDEFGHI0123456789",22);
         string_t key = string::format("%s==",hsh.data());

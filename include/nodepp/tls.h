@@ -60,7 +60,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
     
     /*─······································································─*/
 
-    tls_t( decltype(NODE::func) _func, ssl_t* xtc, agent_t* opt=nullptr )
+    tls_t( decltype(NODE::func) _func, const ssl_t* xtc, agent_t* opt=nullptr )
     : obj( new NODE() ){ 
     if( xtc == nullptr ) process::error("Invalid SSL Contenx");
         obj->agent = opt==nullptr ? agent_t():*opt; 
@@ -198,7 +198,7 @@ namespace tls {
 
     /*─······································································─*/
 
-    tls_t server( ssl_t* ctx, agent_t* opt=nullptr ){
+    tls_t server( const ssl_t* ctx, agent_t* opt=nullptr ){
         auto server = tls_t( [=]( ssocket_t /*unused*/ ){}, ctx, opt );
         tls::server( server ); return server; 
     }
@@ -220,7 +220,7 @@ namespace tls {
 
     /*─······································································─*/
 
-    tls_t client( ssl_t* ctx, agent_t* opt=nullptr ){
+    tls_t client( const ssl_t* ctx, agent_t* opt=nullptr ){
         auto client = tls_t( [=]( ssocket_t /*unused*/ ){}, ctx, opt );
         tls::client( client ); return client; 
     }
