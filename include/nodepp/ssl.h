@@ -16,7 +16,7 @@
 /*────────────────────────────────────────────────────────────────────────────*/
 
 #include <openssl/ssl.h>
-#include <openssl/err.h>
+#include "crypto.h"
 #include "fs.h"
 
 /*────────────────────────────────────────────────────────────────────────────*/
@@ -52,12 +52,11 @@ protected:
     struct NODE {
         int          tpy = SSL_FILETYPE_PEM;
         string_t     key, crt, cha;
-        EVP_PKEY*    pkey= nullptr;
-        X509*        x509= nullptr;
         SSL_CTX*     ctx = nullptr;
         SSL*         ssl = nullptr;
         bool         srv = 0;
         bool         cnn = 0;
+        ptr_t<X509_t>cert;
         ptr_t<onSNI> fnc;
     };  ptr_t<NODE>  obj;
     
@@ -90,10 +89,10 @@ protected:
         if( !crt.empty() && x==1 ){ x=SSL_CTX_use_certificate_file      ( ctx, (char*)crt, obj->tpy ); }
         if( !key.empty() && x==1 ){ x=SSL_CTX_use_PrivateKey_file       ( ctx, (char*)key, obj->tpy ); }
 
-        if( obj->x509 != nullptr && obj->pkey != nullptr && x==1 ){
-        if( !SSL_CTX_use_certificate(ctx,obj->x509) || !ctx){ x == 0; goto DONE; }
-        if( !SSL_CTX_use_PrivateKey(ctx,obj->pkey) )        { x == 0; goto DONE; } 
-        if( !SSL_CTX_check_private_key(ctx) )               { x == 0; goto DONE; }
+        if( obj->cert != nullptr && x==1 ){
+        if( !SSL_CTX_use_certificate(ctx,obj->cert->get_cert()) || !ctx ){ x == 0; goto DONE; }
+        if( !SSL_CTX_use_RSAPrivateKey(ctx,obj->cert->get_prv()) )       { x == 0; goto DONE; } 
+        if( !SSL_CTX_check_private_key(ctx) )                            { x == 0; goto DONE; }
         } else { x == 0; }
         
         DONE:; return x==1 ? 1 : -1;
@@ -192,8 +191,8 @@ public:
 
     ssl_t( onSNI* _func=nullptr ) 
     : obj( new NODE() ) { _ssl_::start_device(); 
-        obj->x509 = X509_new(); obj->pkey = EVP_PKEY_new();
-        if( _func != nullptr ){ obj->fnc = new onSNI(*_func); }
+        obj->cert = new X509_t(); obj->cert->generate( "Nodepp", "Nodepp", "Nodepp" );
+        if( _func != nullptr ){ obj->fnc  = new onSNI(*_func); }
     }
 
     ssl_t( onSNI _func ) 
@@ -315,8 +314,6 @@ public:
             return;
         } if ( obj->ctx != nullptr ){
             SSL_CTX_free(obj->ctx);
-        } if ( obj->x509 != nullptr ){
-            X509_free( obj->x509 );
         }
     }
     

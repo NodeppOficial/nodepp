@@ -129,6 +129,8 @@ public:
 
     virtual ~hash_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
+    EVP_MD_CTX* get_fd() const noexcept { return obj->ctx; }
+
     void update( string_t msg ) const noexcept { 
         if( obj->state != 1 ){ return; }
         while( !msg.empty() ){ 
@@ -184,6 +186,8 @@ public:
     }
     
     virtual ~hmac_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    HMAC_CTX* get_fd() const noexcept { return obj->ctx; }
 
     void update( string_t msg ) const noexcept { 
         if( obj->state != 1 ){ return; }
@@ -241,9 +245,9 @@ public:
         obj->ctx = ptr_t<CTX> ({ item1 });
     }
 
-    xor_t() noexcept : obj( new NODE() ) { 
-        obj->state = 1;
-    }
+    xor_t() noexcept : obj( new NODE() ) { obj->state = 0; }
+    
+    virtual ~xor_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
         while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MAX_SIZE );
@@ -254,8 +258,6 @@ public:
             if ( onData.empty() ) { obj->buff +=tmp; } else { onData.emit( tmp ); }
         }
     }
-    
-    virtual ~xor_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     bool is_available() const noexcept { return obj->state == 1; }
 
@@ -316,6 +318,10 @@ public:
         if ( !obj->ctx || !EVP_CipherInit_ex( obj->ctx, type, nullptr, (uchar*)"\0", (uchar*)"\0", mode ) )
            { process::error("can't initializate cipher_t"); }
     }
+    
+    virtual ~cipher_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    EVP_CIPHER_CTX* get_fd() const noexcept { return obj->ctx; }
 
     void update( string_t msg ) const noexcept { if( obj->state != 1 ){ return; }
         while( !msg.empty() ){ string_t tmp = msg.splice( 0, CRYPTO_MIN_SIZE );
@@ -334,8 +340,6 @@ public:
                  obj->buff += string_t( (char*)&obj->bff, (ulong) obj->len );
         } else { onData.emit( string_t( (char*)&obj->bff, (ulong) obj->len ) ); } onClose.emit(); }
     }
-    
-    virtual ~cipher_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
     bool is_available() const noexcept { return obj->state == 1; }
 
@@ -405,6 +409,8 @@ public:
     }
     
     virtual ~encrypt_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    EVP_CIPHER_CTX* get_fd() const noexcept { return obj->ctx; }
 
     string_t get() const noexcept { free(); return obj->buff; }
 
@@ -480,6 +486,8 @@ public:
     }
     
     virtual ~decrypt_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+
+    EVP_CIPHER_CTX* get_fd() const noexcept { return obj->ctx; }
 
     string_t get() const noexcept { free(); return obj->buff; }
 
@@ -771,6 +779,7 @@ protected:
 
     struct NODE {
         X509_NAME* name = nullptr;
+        EVP_PKEY*  pkey = nullptr;
         BIGNUM* num= nullptr;
         X509*  ctx = nullptr;
         RSA*   rsa = nullptr;
@@ -782,31 +791,41 @@ public:
     X509_t( uint rsa_size=2048 ) : obj( new NODE() ) { crypto::start_device();
         obj->ctx = X509_new(); obj->name = X509_NAME_new();  
         obj->rsa = RSA_new(); obj->num = BN_new();
+        obj->pkey= EVP_PKEY_new();
         
         BN_set_word( obj->num, RSA_F4 );
         RSA_generate_key_ex( obj->rsa, rsa_size, obj->num, NULL ); 
 
-        obj->state = 1; if( !obj->ctx || obj->rsa ) 
+        obj->state = 1; if( !obj->ctx || !obj->rsa ) 
         { process::error("can't initializate X509_t"); }
 
     }
 
-   ~X509_t() noexcept { if( obj.count()>1 ){ return; } free(); }
+    virtual ~X509_t() noexcept { if( obj.count()>1 ){ return; } free(); }
 
-    void generate( string_t _name, ulong _time=31536000L ) const {
+    EVP_PKEY* get_pub()  const noexcept { return obj->pkey; }
+
+    X509*     get_cert() const noexcept { return obj->ctx; }
+
+    RSA*      get_prv()  const noexcept { return obj->rsa; }
+
+    void generate( string_t _name, string_t _contry, string_t _organization, ulong _time=31536000L ) const {
 
         X509_set_version( obj->ctx, 2 ); ASN1_INTEGER_set( X509_get_serialNumber(obj->ctx), 1 );
+        
+        X509_NAME_add_entry_by_txt( obj->name, "O",  MBSTRING_ASC, (uchar*) _organization.get(), -1, -1, 0);
+        X509_NAME_add_entry_by_txt( obj->name, "C",  MBSTRING_ASC, (uchar*) _contry.get(), -1, -1, 0);
+        X509_NAME_add_entry_by_txt( obj->name, "CN", MBSTRING_ASC, (uchar*) _name.get(), -1, -1, 0);
+        X509_set_subject_name( obj->ctx, obj->name ); X509_set_issuer_name( obj->ctx, obj->name );
 
         if( _time != 0 ){
             X509_gmtime_adj( X509_get_notBefore(obj->ctx), 0 );
             X509_gmtime_adj( X509_get_notAfter(obj->ctx), _time );
         }
 
-        X509_set_pubkey( obj->ctx, EVP_PKEY_new() ); EVP_PKEY_assign_RSA( X509_get_pubkey(obj->ctx), obj->rsa );
-        X509_NAME_add_entry_by_txt( obj->name, "CN", MBSTRING_ASC, type::cast<uchar>(_name.get()), -1, -1, 0);
-        X509_set_subject_name( obj->ctx, obj->name ); X509_set_issuer_name( obj->ctx, obj->name );
+        EVP_PKEY_assign_RSA( obj->pkey, obj->rsa ); X509_set_pubkey( obj->ctx, obj->pkey );
 
-        if( !X509_sign( obj->ctx, EVP_PKEY_new(), EVP_sha256() ) )
+        if( !X509_sign( obj->ctx, obj->pkey, EVP_sha256() ) )
           { process::error("can't generate X509 certificates"); }
 
     }
@@ -842,6 +861,7 @@ public:
         if( obj->state == 0 ){ return; } obj->state = 0; 
         if( obj->num != nullptr ){ BN_free( obj->num ); }
         if( obj->ctx != nullptr ){ X509_free( obj->ctx ); }
+        if( obj->pkey!= nullptr ){ EVP_PKEY_free( obj->pkey ); }
         if( obj->name!= nullptr ){ X509_NAME_free( obj->name ); }
     }
 
@@ -871,6 +891,8 @@ public:
     }
 
     virtual ~rsa_t() noexcept { if( obj.count() > 1 ){ return; } free(); }
+
+    RSA* get_fd() const noexcept { return obj->rsa; }
 
     int generate_keys( uint len=2048 ) const noexcept {
         len = clamp( len, 1024u, 4098u ); BN_set_word( obj->num, RSA_F4 );
@@ -1589,6 +1611,18 @@ namespace crypto { namespace sign {
     };
 
 }}
+    
+    /*─······································································─*/
+
+namespace crypto { namespace certificate {
+
+    class X509 : public X509_t { public: template< class... T > 
+          X509 ( const T&... args ) : X509_t ( args... ) {}
+    };
+
+}}
+  
+    /*─······································································─*/
 
 }
 
