@@ -112,23 +112,17 @@ void onMain(){
 ### More Examples [here](https://github.com/NodeppOficial/Nodepp/tree/main/examples)
 
 ## Projects made with NodePP
-- 🔗: [Creating the Snake Game: A Journey Through Event-Driven Programming in C++ with Nodepp and Raylib](https://medium.com/@EDBCBlog/creating-the-snake-game-a-journey-through-event-driven-programming-in-c-with-nodepp-and-raylib-eb362eb51c8b)
-- 🔗: [Create your own online multiplayer: Small, fast, and fun with Raylib, Nodepp, and Websockets!](https://medium.com/@EDBCBlog/create-your-own-online-multiplayer-small-fast-and-fun-with-raylib-nodepp-and-websockets-190f5c174094)
-- 🔗: [Simulate Keyboard/Mouse Inputs in Windows | Linux | Mac ](https://github.com/NodeppOficial/nodepp-input)
-- 🔗: [Simulating WebSocker With Pure Http and Nodepp](https://github.com/ConvoOfficial/HTTPSocket)
 - 🔗: [Draw on your PC using your smartphone](https://github.com/ScreenDraw/PCDraw)
-- 🔗: [Slow loris algorithm made with Nodepp](https://github.com/NodeppOficial/nodepp-slory)
-- 🔗: [A ExpressJS Implementation in NodePP](https://github.com/NodeppOficial/nodepp-express)
-- 🔗: [A Async Redis Client with NodePP](https://github.com/NodeppOficial/nodepp-redis)
-- 🔗: [A Inverse Proxy made with Nodepp](https://github.com/NodeppOficial/nodepp-nginx)
-- 🔗: [A Tor HTTP/s Client with NodePP](https://github.com/NodeppOficial/nodepp-torify)
-- 🔗: [A JWT inplementation for NodePP](https://github.com/NodeppOficial/nodepp-jwt)
+- 🔗: [Simple multiplayer Game With Raylib](https://medium.com/@EDBCBlog/create-your-own-online-multiplayer-small-fast-and-fun-with-raylib-nodepp-and-websockets-190f5c174094)
+- 🔗: [Cursed Luna - A simple Raylib Game](https://github.com/EDBCREPO/Space-Shocker)
 - 🔗: [Serial Port arduino using Nodepp](https://github.com/EDBCREPO/Arduino_PC)
+
+Check out some articles on [Medium](https://medium.com/@EDBCBlog)
 
 ## Compatibility
 - 🔗: [NodePP for Window | Linux | Mac | Bsd ](https://github.com/NodeppOficial/nodepp)
 - 🔗: [NodePP for Arduino](https://github.com/NodeppOficial/nodepp-arduino)
-- 🔗: NodePP for WASM ( Coming Soon )
+- 🔗: [Nodepp for WASM](https://github.com/NodeppOficial/nodepp-wasm)
  
 ## FAQ
 - reddit : [/r/Nodepp/](https://www.reddit.com/r/Nodepp/comments/1eaq1pu/faq_ask_anything_about_nodepp/)
