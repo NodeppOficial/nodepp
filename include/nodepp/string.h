@@ -229,10 +229,6 @@ public:
         ulong n=size(); while( n-->0 ){ if( func((*this)[n]) ) erase(n); } return (*this);
     }
 
-    string_t copy() const noexcept { auto n_buffer = string::buffer(size());
-        ulong n=first(); for( auto x : *this ){ n_buffer[n]=x; n++; } return n_buffer;
-    }
-
     string_t reverse() const noexcept { auto n_buffer = copy();
         ulong n=size(); for( auto& x : *this ){ n--; n_buffer[n]=x; } return n_buffer;
     }
@@ -240,6 +236,8 @@ public:
     string_t replace( function_t<bool,char> func, char targ ) const noexcept {
         for( auto& x : *this ){ if(func(x)) x=targ; } return (*this); 
     }
+
+    string_t copy() const noexcept { return buffer.copy(); }
 
     /*─······································································─*/
 

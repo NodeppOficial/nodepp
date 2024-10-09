@@ -171,10 +171,6 @@ public: array_t() noexcept {};
         ulong n=size(); while( n-->0 ){ if( func((*this)[n]) ) erase(n); } return (*this);
     }
 
-    array_t copy() const noexcept { auto n_buffer = ptr_t<T>(size());
-        ulong n=first(); for( auto& x : *this ){ n_buffer[n]=x; n++; } return n_buffer;
-    }
-
     array_t reverse() const noexcept { auto n_buffer = ptr_t<T>(size());
         ulong n=last(); for( auto& x : *this ){ n_buffer[n]=x; n--; } return n_buffer;
     }
@@ -182,6 +178,8 @@ public: array_t() noexcept {};
     array_t replace( function_t<bool,T> func, const T& targ ) const noexcept {
         for( auto& x : *this ){ if(func(x)) x=targ; } return (*this); 
     }
+
+    string_t copy() const noexcept { return buffer.copy(); }
     
     /*─······································································─*/
 
