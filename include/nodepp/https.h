@@ -97,10 +97,10 @@ public:
     
     /*─······································································─*/
 
-    void write_header( const string_t& method, const string_t& path, const string_t& version, const header_t& headers ) const noexcept {
+    void write_header( const string_t& method, const string_t& path, const string_t& version, const header_t& headers, bool b ) const noexcept {
         string_t res; res += string::format("%s %s %s\r\n",(char*)method,(char*)path,(char*)version);
         for( auto x:headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
-        if ( method != "POST" )     { res += "\r\n"; } write( res ); if( method == "HEAD" ){ close(); }
+        if ( !b )                   { res += "\r\n"; } write( res ); if( method == "HEAD" ){ close(); }
     }
     
     /*─······································································─*/
@@ -113,8 +113,8 @@ public:
     
     /*─······································································─*/
 
-    void write_filestream( const string_t& method, const string_t& body, const file_t& file ) const noexcept {
-        if ( method != "POST" ) { return; } if ( body.empty() && file.is_closed() ){ write("\r\n"); return; } 
+    void write_filestream( const string_t& body, const file_t& file, bool b ) const noexcept {
+        if ( !b ) { write("\r\n"); return; } 
         if ( file.is_closed() != false ){ 
              write( string::format("Content-Length: %lu\r\n\r\n",file.size()) );
              while( file.is_available() ) { write( file.read() ); } } return;
@@ -154,14 +154,17 @@ namespace nodepp { namespace https {
         string_t dip = uri.hostname ;
         string_t dir = uri.pathname + uri.search + uri.hash;
        
-        auto client = tls_t ([=]( https_t cli ){ int c = 0; cli.set_timeout( gfc->timeout );
-            cli.write_header( gfc->method, dir, gfc->version, gfc->headers );
-            cli.write_filestream( gfc->method, gfc->body, gfc->file );
+        auto client = tls_t ([=]( https_t cli ){ cli.set_timeout( gfc->timeout );
+            int c = 0; bool b = !gfc->body.empty() || gfc->file.is_available() ;
+            cli.write_header( gfc->method, dir, gfc->version, gfc->headers, b );
+            cli.write_filestream( gfc->body, gfc->file, b );
+
             while(( c=cli.read_header() )>0 ){ process::next(); }
             if( c==0 ){ res( cli ); return; } else { 
                 rej(except_t("Could not connect to server"));
                 cli.close(); return; 
             }
+            
         }, &ssl, &agn );
 
         client.onError([=]( except_t error ){ rej(error); });
