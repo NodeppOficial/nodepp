@@ -117,7 +117,7 @@ public:
             ptr_t<_file_::read> _read2 = new _file_::read;
             auto self = type::bind( this );
         
-        onExit([=](){ self->free(); });
+        onExit([=](){ self->free(); self->onData.close(), self->onDerr.close(); });
 
         process::task::add([=](){
             if(!self->std_output().is_available() ){ self->close(); return -1; }
