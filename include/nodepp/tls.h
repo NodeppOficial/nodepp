@@ -182,8 +182,8 @@ public: tls_t() noexcept : obj( new NODE() ) {}
 namespace tls {
     
     tls_t server( const tls_t& server ){ server.onSocket([=]( ssocket_t cli ){
+        cli.onDrain.once([=](){ cli.free(); cli.onData.clear(); });
         ptr_t<_file_::read> _read = new _file_::read;
-        cli.onDrain.once([=](){ cli.free(); });
 
         server.onConnect.once([=]( ssocket_t cli ){ process::poll::add([=](){
             if(!cli.is_available() )    { cli.close(); return -1; }
@@ -208,8 +208,8 @@ namespace tls {
     /*─······································································─*/
 
     tls_t client( const tls_t& client ){ client.onOpen.once([=]( ssocket_t cli ){
+        cli.onDrain.once([=](){ cli.free(); cli.onData.clear(); });
         ptr_t<_file_::read> _read = new _file_::read;
-        cli.onDrain.once([=](){ cli.free(); });
 
         process::poll::add([=](){
             if(!cli.is_available() )    { cli.close(); return -1; }
