@@ -24,7 +24,7 @@ namespace nodepp { class wss_t : public ssocket_t {
 public:
 
     template< class... T > 
-    ws_t( const T&... args ) noexcept : socket_t( args... ), 
+    ws_t( const T&... args ) noexcept : ssocket_t( args... ), 
     _write_( new _ws_::write() ), _read_( new _ws_::read() ) {}
 
     /*─······································································─*/
