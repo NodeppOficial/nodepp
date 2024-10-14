@@ -139,6 +139,7 @@ public: array_t() noexcept {};
     /*─······································································─*/
 
     ptr_t<int> find( const array_t& data, ulong offset=0 ) const noexcept {
+        if ( data.empty() ){ return nullptr; }
         ulong x=0; int n=0; ptr_t<int> pos ({ 0, 0 });
         for( ulong i=offset; i<buffer.size(); i++ ){ 
             if ( buffer[i] == data[x] ){
