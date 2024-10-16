@@ -208,14 +208,14 @@ public:
     /*─······································································─*/
 
     void write_filestream( const string_t& body, const file_t& file, bool b ) const noexcept {
-        if ( !b ) { return; } 
-        if ( file.is_closed() != false ){ 
+        if( !b ) { goto DONE; } 
+        if( !file.is_closed() ){ 
              write( string::format("Content-Length: %lu\r\n\r\n",file.size()) );
-             while( file.is_available() ) { write( file.read() ); } } return;
-        if ( body.empty() != false ){ 
+             while( file.is_available() ) { write( file.read() ); } goto DONE; }
+        if( !body.empty() ){ 
              write( string::format("Content-Length: %lu\r\n\r\n",body.size()) );
-             write( body ); return;
-        }
+             write( body ); goto DONE; }    
+        DONE:; write("\r\n");
     }
 
 };}
