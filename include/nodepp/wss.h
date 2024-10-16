@@ -9,6 +9,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#ifndef NODEPP_WSS
 #define NODEPP_WSS
 #define SECRET "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
@@ -24,7 +25,7 @@ namespace nodepp { class wss_t : public ssocket_t {
 public:
 
     template< class... T > 
-    ws_t( const T&... args ) noexcept : ssocket_t( args... ), 
+    wss_t( const T&... args ) noexcept : ssocket_t( args... ), 
     _write_( new _ws_::write() ), _read_( new _ws_::read() ) {}
 
     /*─······································································─*/
@@ -62,7 +63,8 @@ protected:
 
 namespace nodepp { namespace wss {
 
-    tls_t server( const tls_t& server ){ server.onSocket([=]( ssocket_t cli ){
+    tls_t server( const tls_t& srv ){ srv.onSocket([=]( ssocket_t cli ){
+
         cli.onDrain.once([=](){ cli.free(); cli.onData.clear(); }); 
         ptr_t<_file_::read> _read = new _file_::read;
         cli.set_timeout(0);
@@ -92,10 +94,11 @@ namespace nodepp { namespace wss {
 
     /*─······································································─*/
 
-    tls_t client( const string_t& url, const ssl_t* ssl, agent_t* opt=nullptr ){
-    tlp_t srv ( [=]( ssocket_t /*unused*/ ){}, ssl, opt ); 
+    tls_t client( const string_t& uri, const ssl_t* ssl, agent_t* opt=nullptr ){
+    tls_t srv ( [=]( ssocket_t /*unused*/ ){}, ssl, opt ); 
         srv.connect( url::hostname(uri), url::port(uri) );
         srv.onSocket.once([=]( ssocket_t cli ){
+            
             cli.onDrain.once([=](){ cli.free(); cli.onData.clear(); });
             ptr_t<_file_::read> _read = new _file_::read;
             cli.set_timeout(0);
