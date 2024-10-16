@@ -126,7 +126,7 @@ Check out some articles on [Medium](https://medium.com/@EDBCBlog)
 - 🔗: [Nodepp for WASM](https://github.com/NodeppOficial/nodepp-wasm)
  
 ## FAQ
-- reddit : [/r/Nodepp/](https://www.reddit.com/r/Nodepp/comments/1eaq1pu/faq_ask_anything_about_nodepp/)
+- 🔗 : [/r/Nodepp/](https://www.reddit.com/r/Nodepp/comments/1eaq1pu/faq_ask_anything_about_nodepp/)
   
 ## Contribution
 
