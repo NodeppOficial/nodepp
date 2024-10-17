@@ -65,6 +65,34 @@ namespace nodepp { namespace _timer_ {
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#if !defined(GENERATOR_PROMISE) && defined(NODE_PROMISE) && defined(NODEPP_GENERATOR)
+    #define  GENERATOR_PROMISE
+namespace nodepp { namespace _promise_ {
+
+    GENERATOR( resolve ){ public:
+
+        template< class T, class U, class V > 
+        gnEmit( T func, ptr_t<bool> state, const U res, const V rej ){
+        gnStart; func( res, rej ); 
+            while( state!=nullptr && *state!=0 ) { coNext; }
+        gnStop
+        }
+
+        template< class T, class U > 
+        gnEmit( T func, ptr_t<bool> state, const U res ){
+        gnStart; func( res ); 
+            while( state!=nullptr && *state!=0 ) { coNext; }
+        gnStop
+        }
+
+    };
+
+}}  
+#undef NODEPP_GENERATOR
+#endif
+
+/*────────────────────────────────────────────────────────────────────────────*/
+
 #if !defined(GENERATOR_FILE) && defined(NODEPP_FILE) && defined(NODEPP_GENERATOR)
     #define  GENERATOR_FILE
 namespace nodepp { namespace _file_ {
