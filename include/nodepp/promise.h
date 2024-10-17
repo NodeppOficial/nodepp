@@ -26,7 +26,7 @@ namespace nodepp { namespace promise {
         function_t<void,T> res, function_t<void,V> rej
     ){  
         ptr_t<bool> state = new bool(1); _promise_::resolve task;
-        return process::task::add( task, func, state, [=]( T data ){
+        return process::task::add( task, state, func, [=]( T data ){
            if( *state != 1 ){ return; } res(data); *state = 0;
         }, [=]( V data ) {
            if( *state != 1 ){ return; } rej(data); *state = 0;
@@ -40,7 +40,7 @@ namespace nodepp { namespace promise {
         function_t<void,T> res
     ){  
         ptr_t<bool> state = new bool(1); _promise_::resolve task;
-        return process::task::add( task, func, state, [=]( T data ){
+        return process::task::add( task, state, func, [=]( T data ){
            if( *state != 1 ){ return; } res(data); *state = 0;
         } );
     }
@@ -50,9 +50,9 @@ namespace nodepp { namespace promise {
     template< class T > T await( 
         function_t<void,function_t<void,T>> func 
     ){  
-        ptr_t<bool> state = new bool(1);
-        T result; _promise_::resolve task;
-        process::await( task, func, state, [&]( T data ){
+        ptr_t<bool> state = new bool(1); T result; 
+        _promise_::resolve task;
+        process::await( task, state, func, [&]( T data ){
            if( *state != 1 ){ return; } result = data; *state = 0;
         } ); return result;
     }
@@ -62,13 +62,13 @@ namespace nodepp { namespace promise {
     template< class T, class V > expected_t<T,V> await( 
         function_t<void,function_t<void,T>,function_t<void,V>> func 
     ){   
-        ptr_t<bool> state = new bool(1);
-        expected_t<V,T> result; _promise_::resolve task;
-        process::await( task, func, state, [&]( T data ){
-            if( *state != 1 ){ return; } result = data; *state = 0;
+        ptr_t<bool> state = new bool(1); T res; V rej; bool x=0;
+        _promise_::resolve task;
+        process::await( task, state, func, [&]( T data ){
+            if( *state != 1 ){ return; } res = data; *state = 0; x=1;
         }, [&]( V data ){
-            if( *state != 1 ){ return; } result = data; *state = 0;
-        } ); return result;
+            if( *state != 1 ){ return; } rej = data; *state = 0; x=0;
+        } ); if( x ){ return res; } return rej;
     }
     
     /*─······································································─*/

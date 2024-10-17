@@ -72,14 +72,14 @@ namespace nodepp { namespace _promise_ {
     GENERATOR( resolve ){ public:
 
         template< class T, class U, class V > 
-        gnEmit( T func, ptr_t<bool> state, const U res, const V rej ){
+        gnEmit( ptr_t<bool> state, const T& func, const U& res, const V& rej ){
         gnStart; func( res, rej ); 
             while( state!=nullptr && *state!=0 ) { coNext; }
         gnStop
         }
 
         template< class T, class U > 
-        gnEmit( T func, ptr_t<bool> state, const U res ){
+        gnEmit( ptr_t<bool> state, const T& func, const U& res ){
         gnStart; func( res ); 
             while( state!=nullptr && *state!=0 ) { coNext; }
         gnStop
