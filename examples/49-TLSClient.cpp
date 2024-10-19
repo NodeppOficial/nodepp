@@ -9,7 +9,7 @@ void onMain(){
 
     auto client = tls::client( &ssl );
 
-    client.onOpen([=]( socket_t cli ){
+    client.onOpen([=]( ssocket_t cli ){
     
         cli.onData([=]( string_t data ){
             console::log( data );
