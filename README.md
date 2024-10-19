@@ -1,6 +1,8 @@
 # Nodepp
 
-**Nodepp** is an innovative open source project that aims to make it easier to create applications in **C++**. This project introduces a high-level abstraction layer that allows developers to write **C++** code in a way that is similar to how they would write code in **NodeJS**. With **Nodepp**, developers can leverage the advantages of the **C++** language while benefiting from the ease of use and flexibility that **NodeJS** offers. This unique combination of features makes **Nodepp** a powerful tool for creating high-performance and scalable applications. Additionally, since it is an open source project, anyone can contribute and improve **Nodepp** to fit their specific needs.
+Nodepp is a groundbreaking open-source project that simplifies C++ application development by bridging the gap between the language's raw power and the developer-friendly abstractions of Node.js. By providing a high-level API, Nodepp empowers developers to write C++ code in a familiar, Node.js-inspired style.
+
+One of the standout features of Nodepp is its 100% asynchronous architecture, powered by an internal Event Loop. This design efficiently manages Nodepp’s tasks, enabling you to develop scalable and concurrent applications with minimal code. Experience the power and flexibility of Nodepp as you streamline your development process and create robust applications effortlessly!
 
 ## Dependencies
 ```bash
@@ -15,11 +17,10 @@
 
 ## Features
 
-- 📌: **C++11 | C++14 | C++17 | c++20 | c++23** Compatible
-- 📌: Allows writing **C++** code as if writing in **NodeJS** or **Javascript**
-- 📌: Adds a high-level abstraction layer to simplify **C++** application development
-- 📌: Compatible with several platforms like **Windows | Linux | macOS | freeBSD**
-- 📌: Supports **Coroutines**, which allows running multiple tasks concurrently on a single thread
+- 📌: **Node.js-like API:** Write C++ code in a syntax and structure similar to Node.js, making it easier to learn and use.
+- 📌: **High-performance:** Leverage the speed and efficiency of C++ for demanding applications.
+- 📌: **Scalability:** Build applications that can handle large workloads and grow with your needs.
+- 📌: **Open-source:** Contribute to the project's development and customize it to your specific requirements.
 
 ## Bateries Included
 
