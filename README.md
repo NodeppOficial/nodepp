@@ -46,9 +46,11 @@ One of the standout features of Nodepp is its 100% asynchronous architecture, po
 
 using namespace nodepp;
 
-void onMain() {
+void onMain() { 
     console::log("Hello World!");
 }
+
+// note that we are using onMain() instead of main()
 ```
 
 ### HTTP Client
