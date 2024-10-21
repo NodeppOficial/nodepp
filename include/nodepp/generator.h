@@ -636,11 +636,16 @@ namespace nodepp { namespace _ws_ {
 
     /*─······································································─*/
 
-    string_t write_ws_frame( char* /*unused*/, const ulong& sx ){
+    string_t write_ws_frame( char* bf, const ulong& sx ){
 
         auto bfx = ptr_t<char>( 64, '\0' ); uint idx = 0;
         auto byt = encoder::bytes::get( sx ); 
-        bfx[idx] = (char) 0b10000001; idx++ ;
+
+        auto x=sx; bool b=0; while( x-->0 ){
+            if( !string::is_print(bf[x]) ){ b=1; break; }
+        }   bfx[idx] = b ? (char) 0b10000010 : (char) 0b10000001; 
+        
+        idx++;
 
         if ( sx < 126 ){ 
             bfx[idx] = (uchar)(byt[byt.size()-1]); idx++;
