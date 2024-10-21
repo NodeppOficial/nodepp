@@ -194,7 +194,8 @@ namespace nodepp { namespace process {
         if( !process::loop::empty() ){ process::loop::next(); coNext; }
         if( !process::poll::empty() ){ process::poll::next(); coNext; }
 
-        process::delay( TIMEOUT ); 
+        process::yield();
+
     coStop
     }
 
