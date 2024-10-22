@@ -606,7 +606,7 @@ namespace nodepp { namespace _ws_ {
             { "Sec-Websocket-Version", "13" }
         });
 
-        cli.write_header( "GET", url::path(url), "HTTP/1.0", header, 0 );
+        cli.write_header( "GET", url::path(url), "HTTP/1.0", header );
 
         while(( c=cli.read_header() )>0 ){ process::next(); } if( c!=0 ){
             _EERROR(cli.onError,"Could not connect to server");
