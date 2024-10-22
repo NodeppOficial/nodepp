@@ -207,6 +207,30 @@ public:
     
     /*─······································································─*/
 
+    void write_header( const ptr_t<fetch_t>& fetch, const string_t& path ) const noexcept {
+
+        bool b = !fetch->body.empty() || fetch->file.is_available(); string_t res; 
+
+        res += string::format( "%s %s %s\r\n", fetch->method.get(), path.get(), fetch->version.get() );
+        for( auto x:fetch->headers.data() ){ res += string::format("%s: %s\r\n",(char*)x.first.to_capital_case(),(char*)x.second); }
+        if ( !b )                          { res += "\r\n"; } if( fetch->method == "HEAD" ){ write( res ); close(); return; }
+        if ( !b )                          { res += "\r\n"; write( res ); return; }
+        
+        if( !fetch->file.is_closed() ) { 
+            res += string::format("Content-Length: %lu\r\n\r\n",fetch->file.size()); write( res );
+            while( fetch->file.is_available() ) { write( fetch->file.read() ); } 
+            write( "\r\n" ); return;
+        } elif( !fetch->body.empty() ) { 
+            res += string::format("Content-Length: %lu\r\n\r\n",fetch->body.size());
+            res += fetch->body; write( res ); write( "\r\n" ); return;
+        } else { 
+            write( res ); write( "\r\n" ); 
+        }
+
+    }
+    
+    /*─······································································─*/
+
     void write_filestream( const string_t& body, const file_t& file, bool b ) const noexcept {
         if( !b ) { goto DONE; } 
         if( !file.is_closed() ){ 
