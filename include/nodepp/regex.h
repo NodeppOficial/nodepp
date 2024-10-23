@@ -336,14 +336,27 @@ public: regex_t () noexcept : obj( new NODE() ) {}
             _str.splice( x[0], x[1] - x[0], _rep );
         }   return _str;
     }
-    
-    /*─······································································─*/
 
     string_t replace( string_t _str, const string_t& _rep, ulong off=0 ) const noexcept {
         auto idx = search( _str, off );
         if( idx == nullptr )  { return _str; }
         if( idx[0] == idx[1] ){ return _str; }
             _str.splice( idx[0], idx[1] - idx[0], _rep ); return _str;
+    }
+    
+    /*─······································································─*/
+
+    string_t remove_all( string_t _str ) const noexcept {
+        auto idx = search_all( _str ).reverse(); for( auto x : idx ){
+            _str.splice( x[0], x[1] - x[0] );
+        }   return _str;
+    }
+
+    string_t remove( string_t _str, ulong off=0 ) const noexcept {
+        auto idx = search( _str, off );
+        if( idx == nullptr )  { return _str; }
+        if( idx[0] == idx[1] ){ return _str; }
+            _str.splice( idx[0], idx[1] - idx[0] ); return _str;
     }
     
     /*─······································································─*/
@@ -389,6 +402,16 @@ namespace nodepp { namespace regex {
     
     /*─······································································─*/
 
+    string_t remove_all( const string_t& _str, const string_t& _reg, bool _flg=false ){
+        regex_t reg( _reg, _flg ); return reg.remove_all( _str );
+    }
+
+    string_t remove_all( const string_t& _str, const regex_t& reg ){
+        return reg.remove_all( _str );
+    }
+    
+    /*─······································································─*/
+
     array_t<ptr_t<ulong>> search_all( const string_t& _str, const string_t& _reg, bool _flg=false ){
         regex_t reg( _reg, _flg ); return reg.search_all( _str );
     }
@@ -405,6 +428,16 @@ namespace nodepp { namespace regex {
 
     string_t replace( const string_t& _str, const regex_t& reg, const string_t& _rep ){
         return reg.replace( _str, _rep );
+    }
+    
+    /*─······································································─*/
+
+    string_t remove( const string_t& _str, const string_t& _reg, bool _flg=false ){
+        regex_t reg( _reg, _flg ); return reg.remove( _str );
+    }
+
+    string_t remove( const string_t& _str, const regex_t& reg ){
+        return reg.remove( _str );
     }
     
     /*─······································································─*/
