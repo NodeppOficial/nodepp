@@ -97,12 +97,12 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         if( sk.bind()   < 0 ){ _EERROR(onError,"Error while binding TLS");   close(); sk.free(); return; }
         if( sk.listen() < 0 ){ _EERROR(onError,"Error while listening TLS"); close(); sk.free(); return; }
         if( obj->chck )      { init_poll_loop( self ); }
+
+        onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); }
         
         process::task::add([=](){
             static int _accept = 0; 
         coStart
-
-            self->onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); } coNext;
 
             while( !sk.is_closed() ){ _accept = sk._accept();
                 if( self->is_closed() || !sk.is_available() )

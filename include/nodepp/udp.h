@@ -74,11 +74,11 @@ public: udp_t() noexcept : obj(new NODE()) {}
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( self->obj->agent );
 
+        onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); }
+
         process::task::add([=](){
             int c = 0;
         coStart
-
-            self->onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); } coNext;
 
             while( (c=sk._bind())==-2 ){ coNext; } if( c < 0 ){ 
                 _EERROR(self->onError,"Error while binding UDP"); 

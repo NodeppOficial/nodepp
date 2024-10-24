@@ -90,12 +90,12 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
         if(   sk.bind() < 0 ){ _EERROR(onError,"Error while binding TCP");   close(); sk.free(); return; }
         if( sk.listen() < 0 ){ _EERROR(onError,"Error while listening TCP"); close(); sk.free(); return; }
         if( obj->chck )      { init_poll_loop( self ); }
+
+        onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); }
         
         process::task::add([=](){
             static int _accept = 0; 
         coStart
-
-            self->onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); } coNext;
 
             while( !sk.is_closed() ){ _accept = sk._accept();
                 if( self->is_closed() || !sk.is_available() )
@@ -149,7 +149,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
             
             sk.onClose.on([=](){ self->close(); }); sk.onOpen.emit(); 
             self->onSocket.emit( sk ); self->onOpen.emit( sk ); 
-            if( !cb.empty() ){(*cb)(sk);} self->obj->func(sk);
+            if( cb != nullptr ){(*cb)(sk);} self->obj->func(sk);
 
         coStop
         });
