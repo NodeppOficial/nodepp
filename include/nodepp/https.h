@@ -147,7 +147,7 @@ namespace nodepp { namespace https {
     
     promise_t<https_t,except_t> fetch ( const fetch_t& cfg, const ssl_t* ctx, agent_t* opt=nullptr ) { 
         if( ctx == nullptr ) process::error( "Invalid SSL Context" );
-           auto agn = type::bind( opt==nullptr?agent_t():*opt ); 
+           auto agn = type::bind( opt ); 
            auto gfc = type::bind( cfg );
            auto ssl = type::bind( ctx );
     return promise_t<https_t,except_t>([=]( function_t<void,https_t> res, function_t<void,except_t> rej ){

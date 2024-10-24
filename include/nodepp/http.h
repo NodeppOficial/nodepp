@@ -247,7 +247,7 @@ namespace nodepp { namespace http {
     /*─······································································─*/
 
     promise_t<http_t,except_t> fetch ( const fetch_t& cfg, agent_t* opt=nullptr ) { 
-           auto agn = type::bind( opt==nullptr?agent_t():*opt );
+           auto agn = type::bind( opt );
            auto gfc = type::bind( cfg ); 
     return promise_t<http_t,except_t>([=]( function_t<void,http_t> res, function_t<void,except_t> rej ){
 
