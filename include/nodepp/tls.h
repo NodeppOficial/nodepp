@@ -98,7 +98,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         if( sk.listen() < 0 ){ _EERROR(onError,"Error while listening TLS"); close(); sk.free(); return; }
         if( obj->chck )      { init_poll_loop( self ); }
         
-        process::add([=](){
+        process::task::add([=](){
             static int _accept = 0; 
         coStart
 
@@ -149,7 +149,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         sk.ssl = new ssl_t( obj->ctx, sk.get_fd() ); 
         sk.ssl->set_hostname( host );
 
-        process::add([=](){
+        process::task::add([=](){
         coStart
 
             while( sk._connect() == -2 ){ coNext; } 

@@ -91,7 +91,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
         if( sk.listen() < 0 ){ _EERROR(onError,"Error while listening TCP"); close(); sk.free(); return; }
         if( obj->chck )      { init_poll_loop( self ); }
         
-        process::add([=](){
+        process::task::add([=](){
             static int _accept = 0; 
         coStart
 
@@ -137,7 +137,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( self->obj->agent );
 
-        process::add([=](){
+        process::task::add([=](){
         coStart
 
             while( sk._connect() == -2 ){ coNext; } 
