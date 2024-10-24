@@ -60,20 +60,39 @@ public: udp_t() noexcept : obj(new NODE()) {}
     
     /*─······································································─*/
 
-    void listen( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
-        if( obj->state == 1 ) { return; } obj->state = 1; auto self = type::bind( this );
+    void listen( const string_t& host, int port, decltype(NODE::func)* fn=nullptr ) const noexcept {
+        if( obj->state == 1 ) { return; } obj->state = 1;
         if( dns::lookup(host).empty() )
           { _EERROR(onError,"dns couldn't get ip"); close(); return; }
-            
+        
+        ptr_t<decltype( NODE::func )> cb = ( fn == nullptr ) ? nullptr : type::bind( fn );
+        auto self = type::bind( this );
+        
         socket_t sk; 
                  sk.SOCK    = SOCK_DGRAM;
                  sk.IPPROTO = IPPROTO_UDP;
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( self->obj->agent );
-        
-        if( sk.bind() < 0 ){ _EERROR(onError,"Error while binding UDP"); close(); return; }
-        if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
-        onSocket.emit(sk); onOpen.emit(sk); sk.onOpen.emit(); obj->func(sk);
+
+        process::add([=](){
+            int c = 0;
+        coStart
+
+            self->onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); } coNext;
+
+            while( (c=sk._bind())==-2 ){ coNext; } if( c < 0 ){ 
+                _EERROR(self->onError,"Error while binding UDP"); 
+                self->close(); coEnd; 
+            }
+
+            sk.onClose.on([=](){ self->close(); }); 
+            self->onSocket.emit(sk); 
+            self->onOpen.emit(sk); 
+            sk.onOpen.emit();
+
+        coStop
+        });
+
     }
 
     void listen( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 
@@ -82,19 +101,32 @@ public: udp_t() noexcept : obj(new NODE()) {}
     
     /*─······································································─*/
 
-    void connect( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
-        if( obj->state == 1 ){ return; } obj->state = 1; auto self = type::bind( this );
+    void connect( const string_t& host, int port, decltype(NODE::func)* fn=nullptr ) const noexcept {
+        if( obj->state == 1 ){ return; } obj->state = 1;
         if( dns::lookup(host).empty() )
           { _EERROR(onError,"dns couldn't get ip"); close(); return; }
+        
+        ptr_t<decltype( NODE::func )> cb = ( fn == nullptr ) ? nullptr : type::bind( fn );
+        auto self = type::bind( this );
 
         socket_t sk; 
                  sk.SOCK    = SOCK_DGRAM;
                  sk.IPPROTO = IPPROTO_UDP;
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( self->obj->agent );
-    
-        if( cb != nullptr ){ (*cb)(sk); } sk.onClose.on([=](){ self->close(); });
-        onSocket.emit(sk); onOpen.emit(sk); sk.onOpen.emit(); obj->func(sk);
+
+        process::add([=](){
+        coStart
+
+            sk.onClose.on([=](){ self->close(); });
+     
+            self->onSocket.emit(sk); self->onOpen.emit(sk); 
+            sk.onOpen.emit(); self->obj->func(sk);
+            if( cb != nullptr ){ (*cb)(sk); }
+
+        coStop
+        });
+
     }
 
     void connect( const string_t& host, int port, decltype(NODE::func) cb ) const noexcept { 

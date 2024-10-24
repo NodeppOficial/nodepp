@@ -74,10 +74,13 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
     
     /*─······································································─*/
 
-    void listen( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
-        if( obj->state == 1 ){ return; } obj->state = 1; auto self = type::bind( this );
+    void listen( const string_t& host, int port, decltype(NODE::func)* fn=nullptr ) const noexcept {
+        if( obj->state == 1 ){ return; } obj->state = 1;
         if( dns::lookup(host).empty() ){ _EERROR(onError,"dns couldn't get ip"); close(); return; }
-
+        
+        ptr_t<decltype( NODE::func )> cb = ( fn == nullptr ) ? nullptr : type::bind( fn );
+        auto self = type::bind( this );
+    
         socket_t sk; 
                  sk.SOCK    = SOCK_STREAM;
                  sk.IPPROTO = IPPROTO_TCP;
@@ -87,12 +90,12 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
         if(   sk.bind() < 0 ){ _EERROR(onError,"Error while binding TCP");   close(); sk.free(); return; }
         if( sk.listen() < 0 ){ _EERROR(onError,"Error while listening TCP"); close(); sk.free(); return; }
         if( obj->chck )      { init_poll_loop( self ); }
-
-        onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); }
         
-        process::task::add([=](){
+        process::add([=](){
             static int _accept = 0; 
         coStart
+
+            self->onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); } coNext;
 
             while( !sk.is_closed() ){ _accept = sk._accept();
                 if( self->is_closed() || !sk.is_available() )
@@ -121,10 +124,11 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
 
     /*─······································································─*/
 
-    void connect( const string_t& host, int port, decltype(NODE::func)* cb=nullptr ) const noexcept {
+    void connect( const string_t& host, int port, decltype(NODE::func)* fn=nullptr ) const noexcept {
         if( obj->state == 1 ){ return; } obj->state = 1; if( dns::lookup(host).empty() )
           { _EERROR(onError,"dns couldn't get ip"); close(); return; }
         
+        ptr_t<decltype( NODE::func )> cb = ( fn == nullptr ) ? nullptr : type::bind( fn );
         auto self = type::bind( this );
 
         socket_t sk;
@@ -145,7 +149,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
             
             sk.onClose.on([=](){ self->close(); }); sk.onOpen.emit(); 
             self->onSocket.emit( sk ); self->onOpen.emit( sk ); 
-            if( cb != nullptr ){(*cb)(sk);} self->obj->func(sk);
+            if( !cb.empty() ){(*cb)(sk);} self->obj->func(sk);
 
         coStop
         });
