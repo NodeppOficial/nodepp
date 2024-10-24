@@ -78,7 +78,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
         if( obj->state == 1 ){ return; } obj->state = 1;
         if( dns::lookup(host).empty() ){ _EERROR(onError,"dns couldn't get ip"); close(); return; }
         
-        ptr_t<decltype( NODE::func )> cb = ( fn == nullptr ) ? nullptr : type::bind( fn );
+        ptr_t<decltype( NODE::func )> cb = type::bind( fn );
         auto self = type::bind( this );
     
         socket_t sk; 
@@ -128,7 +128,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
         if( obj->state == 1 ){ return; } obj->state = 1; if( dns::lookup(host).empty() )
           { _EERROR(onError,"dns couldn't get ip"); close(); return; }
         
-        ptr_t<decltype( NODE::func )> cb = ( fn == nullptr ) ? nullptr : type::bind( fn );
+        ptr_t<decltype( NODE::func )> cb = type::bind( fn );
         auto self = type::bind( this );
 
         socket_t sk;

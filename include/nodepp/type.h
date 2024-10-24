@@ -396,13 +396,13 @@ namespace nodepp { namespace type {
 
 namespace nodepp { namespace type {
 
-    template< class T, class V > T* cast( ptr_t<V>& object ){ return ( T* )( object ); }
-    template< class T, class V > T* cast(       V*  object ){ return ( T* )( object ); }
-    template< class T, class V > T  cast(       V   object ){ return ( T  )( object ); }
+    template< class T, class V > T* cast( ptr_t<V>& object ){ if( object==nullptr ){ return nullptr; } return ( T* )( object ); }
+    template< class T, class V > T* cast(       V*  object ){ if( object==nullptr ){ return nullptr; } return ( T* )( object ); }
+    template< class T, class V > T  cast(       V   object ){ return ( T )( object ); }
 
-    template<class T> ptr_t<T>      bind( ptr_t<T>& object ){ return    object.copy(); }
-    template<class T> ptr_t<T>      bind(       T*  object ){ return new T( *object ); }
-    template<class T> ptr_t<T>      bind(       T   object ){ return new T(  object ); }
+    template<class T> ptr_t<T>      bind( ptr_t<T>& object ){ if( object==nullptr ){ return nullptr; } return    object.copy(); }
+    template<class T> ptr_t<T>      bind(       T*  object ){ if( object==nullptr ){ return nullptr; } return new T( *object ); }
+    template<class T> ptr_t<T>      bind(       T   object ){ return new T( object ); }
 
 }}
 

@@ -64,7 +64,8 @@ public: tls_t() noexcept : obj( new NODE() ) {}
     : obj( new NODE() ){ 
     if( xtc == nullptr ) process::error("Invalid SSL Contenx");
         obj->agent = opt==nullptr ? agent_t():*opt; 
-        obj->func  = _func; obj->ctx = *xtc; 
+        obj->ctx   = xtc==nullptr ? ssl_t():  *xtc; 
+        obj->func  = _func;
     }
 
     /*─······································································─*/
@@ -84,7 +85,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
           { _EERROR(onError,"Error Initializing SSL context"); close(); return; }
         if( dns::lookup(host).empty() ){ _EERROR(onError,"dns couldn't get ip"); close(); return; }
 
-        ptr_t<decltype( NODE::func )> cb = ( fn == nullptr ) ? nullptr : type::bind( fn );
+        ptr_t<decltype( NODE::func )> cb = type::bind( fn );
         auto self = type::bind( this );
         
         ssocket_t sk; 
@@ -136,7 +137,7 @@ public: tls_t() noexcept : obj( new NODE() ) {}
         if( dns::lookup(host).empty() )
           { _EERROR(onError,"dns couldn't get ip"); close(); return; }
 
-        ptr_t<decltype( NODE::func )> cb = ( fn == nullptr ) ? nullptr : type::bind( fn );
+        ptr_t<decltype( NODE::func )> cb = type::bind( fn );
         auto self = type::bind( this );
 
         ssocket_t sk; 
