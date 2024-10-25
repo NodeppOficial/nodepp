@@ -22,7 +22,10 @@ namespace nodepp { namespace worker {
 
     void  exit(){ pthread_exit(NULL); }
 
-    void yield(){ sched_yield(); }
+    void yield(){ 
+        delay( TIMEOUT );
+        sched_yield();
+    }
     
 }}
 

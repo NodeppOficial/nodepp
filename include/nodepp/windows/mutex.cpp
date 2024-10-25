@@ -21,9 +21,12 @@ namespace nodepp { namespace worker {
 
     int    pid(){ return GetCurrentThreadId(); }
 
-    void yield(){ SwitchToThread(); }
-
     void  exit(){ ExitThread(0); }
+
+    void yield(){ 
+        delay( TIMEOUT );
+        SwitchToThread(); 
+    }
 
 }}
 
