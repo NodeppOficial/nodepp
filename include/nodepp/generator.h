@@ -229,6 +229,7 @@ namespace nodepp { namespace _stream_ {
     public:
 
         template< class T, class V > coEmit( const T& inp, const V& out ){
+            if( inp.is_closed() || out.is_closed() ){ return -1; }
         gnStart inp.onPipe.emit(); out.onPipe.emit(); coYield(1);
 
             while( inp.is_available() && out.is_available() ){
@@ -265,6 +266,7 @@ namespace nodepp { namespace _stream_ {
     public:
 
         template< class T > coEmit( const T& inp ){
+            if( inp.is_closed() ){ return -1; }
         gnStart inp.onPipe.emit();
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; }
@@ -275,6 +277,7 @@ namespace nodepp { namespace _stream_ {
         }
 
         template< class T, class V > coEmit( const T& inp, const V& out ){
+            if( inp.is_closed() || out.is_closed() ){ return -1; }
         gnStart inp.onPipe.emit(); out.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp) ==1 )           { coNext; }
@@ -299,6 +302,7 @@ namespace nodepp { namespace _stream_ {
     public:
 
         template< class T > coEmit( const T& inp ){
+            if( inp.is_closed() ){ return -1; }
         gnStart inp.onPipe.emit();
             while( inp.is_available() ){
             while( _read(&inp)==1 ){ coNext; } 
@@ -309,6 +313,7 @@ namespace nodepp { namespace _stream_ {
         }
 
         template< class T, class V > coEmit( const T& inp, const V& out ){
+            if( inp.is_closed() || out.is_closed() ){ return -1; }
         gnStart inp.onPipe.emit(); out.onPipe.emit();
             while( inp.is_available() && out.is_available() ){
             while( _read(&inp)==1 )            { coNext; } 
@@ -366,6 +371,7 @@ namespace nodepp { namespace _zlib_ {
 
         template< class T, class V, class U >
         coEmit( const T& inp, const V& out, U cb ){
+            if( inp.is_closed() || out.is_closed() ){ return -1; }
         gnStart inp.onPipe.emit(); out.onPipe.emit();
 
             str->zfree    = Z_NULL;
@@ -410,6 +416,7 @@ namespace nodepp { namespace _zlib_ {
 
         template< class T, class U >
         coEmit( const T& inp, U cb ){
+            if( inp.is_closed() ){ return -1; }
         gnStart inp.onPipe.emit();
 
             str->zfree    = Z_NULL;
@@ -464,6 +471,7 @@ namespace nodepp { namespace _zlib_ {
 
         template< class T, class V, class U >
         coEmit( const T& inp, const V& out, U cb ){
+            if( inp.is_closed() || out.is_closed() ){ return -1; }
         gnStart inp.onPipe.emit(); out.onPipe.emit();
 
             str->zfree    = Z_NULL;
@@ -508,6 +516,7 @@ namespace nodepp { namespace _zlib_ {
 
         template< class T, class U >
         coEmit( const T& inp, U cb ){
+            if( inp.is_closed() ){ return -1; }
         gnStart inp.onPipe.emit();
 
             str->zfree    = Z_NULL;
@@ -673,7 +682,7 @@ namespace nodepp { namespace _ws_ {
             }
 
             if ( frame.MSK == 1 ){ size = 4; coNext; 
-            for( ulong x=0; x < size; x++ ){ frame.KEY[x] = bf[x]; }
+            for( ulong x=0; x<size; x++ ){ frame.KEY[x] = bf[x]; }
             }
 
         coStop
@@ -682,6 +691,7 @@ namespace nodepp { namespace _ws_ {
     public:
 
     template<class T> coEmit( T* str, char* bf, const ulong& sx ) {
+        if( str->is_closed() ){ return -1; }
         static ulong size = 0, len = 0;
     coStart;
 
@@ -689,7 +699,7 @@ namespace nodepp { namespace _ws_ {
         while( read_ws_frame( bf, size, len ) ==1 ){ len=0;
         while( str->_read_( bf, size, len ) ){ coNext; }
         }
-        
+
         /*------*/
 
         if( frame.LEN ==  0 ){ str->close(); data = 0; coEnd; }
@@ -698,10 +708,10 @@ namespace nodepp { namespace _ws_ {
 
         /*------*/
 
-        size = 0; memset( bf, 0, sx );
+        size = 0; memset( bf, 0, sx ); data = 0; len = 0;
         while( str->_read_( bf, frame.LEN, size ) ){ coNext; }
 
-        for( int x=0, key; x<size && frame.MSK ; x++ )
+        for( int x=0, key=0; x<size && frame.MSK ; x++ )
            { bf[x]= bf[x]^frame.KEY[key]; key++; key %= 4; }
 
         data = size;
@@ -751,6 +761,7 @@ namespace nodepp { namespace _ws_ {
     public:
 
     template<class T> coEmit( T* str, char* bf, const ulong& sx ) {
+        if( str->is_closed() ){ return -1; }
         static ulong size = 0;
     coStart;
     
