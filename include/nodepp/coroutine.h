@@ -14,6 +14,7 @@
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#define rand_range( A, B ) clamp( rand()%B, A, B )
 template< class T > T   min( const T& min, const T& max ){ return min < max ? min : max; }
 template< class T > T   max( const T& min, const T& max ){ return max > min ? max : min; }
 template< class T > T clamp( const T& val, const T& _min, const T& _max ){ return max( _min, min( _max, val ) ); }
@@ -77,6 +78,7 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
+#define _STRING_( _code_ ) #_code_
 #define _FUNC_  __PRETTY_FUNCTION__
 #define _NAME_  __FUNCTION__
 #define _DATE_  __DATE__
