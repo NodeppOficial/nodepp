@@ -78,8 +78,8 @@ template< class T > T clamp( const T& val, const T& _min, const T& _max ){ retur
 
 /*────────────────────────────────────────────────────────────────────────────*/
 
-#define _STRING_( _code_ ) #_code_
 #define _FUNC_  __PRETTY_FUNCTION__
+#define _STRING_(...) #__VA_ARGS__
 #define _NAME_  __FUNCTION__
 #define _DATE_  __DATE__
 #define _FILE_  __FILE__
