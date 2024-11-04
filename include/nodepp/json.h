@@ -169,29 +169,29 @@ public: json_t () noexcept = default;
             case 0x0011: return string::to_string( obj.as<ldouble>() );                          break;
             case 0x0012: result += string::format("\"%s\"",obj.as<string_t>().get());            break;
 
-            case 0xf703: do { result.push('[');
+            case 0xfA03: do { result.push('[');
                 auto data = obj.as<array_t<bool>>(); for( auto &x: data )
                 { result += string::format("\"%s\",",x ? "true":"false" ); }   
              if ( result[ result.size()-1 ] == ',' ){ result.pop(); } 
             result.push(']'); } while(0); break;
             
-            case 0xf712: return string::format("[%s]",obj.as<array_t<string_t>>().join().get()); break; 
-            case 0xf701: return string::format("[%s]",obj.as<array_t<int>>().join().get());      break;
-            case 0xf702: return string::format("[%s]",obj.as<array_t<uint>>().join().get());     break;
-            case 0xf704: return string::format("[%s]",obj.as<array_t<char>>().join().get());     break;
-            case 0xf705: return string::format("[%s]",obj.as<array_t<long>>().join().get());     break;
-            case 0xf706: return string::format("[%s]",obj.as<array_t<short>>().join().get());    break;
-            case 0xf707: return string::format("[%s]",obj.as<array_t<uchar>>().join().get());    break;
-            case 0xf708: return string::format("[%s]",obj.as<array_t<llong>>().join().get());    break;
-            case 0xf709: return string::format("[%s]",obj.as<array_t<ulong>>().join().get());    break;
-            case 0xf70a: return string::format("[%s]",obj.as<array_t<ushort>>().join().get());   break;
-            case 0xf70b: return string::format("[%s]",obj.as<array_t<ullong>>().join().get());   break;
-            case 0xf70c: return string::format("[%s]",obj.as<array_t<wchar_t>>().join().get());  break;
-            case 0xf70d: return string::format("[%s]",obj.as<array_t<char16_t>>().join().get()); break;
-            case 0xf70e: return string::format("[%s]",obj.as<array_t<char32_t>>().join().get()); break;
-            case 0xf70f: return string::format("[%s]",obj.as<array_t<float>>().join().get());    break;
-            case 0xf710: return string::format("[%s]",obj.as<array_t<double>>().join().get());   break;
-            case 0xf711: return string::format("[%s]",obj.as<array_t<ldouble>>().join().get());  break;
+            case 0xfA12: return string::format("[%s]",obj.as<array_t<string_t>>().join().get()); break; 
+            case 0xfA01: return string::format("[%s]",obj.as<array_t<int>>().join().get());      break;
+            case 0xfA02: return string::format("[%s]",obj.as<array_t<uint>>().join().get());     break;
+            case 0xfA04: return string::format("[%s]",obj.as<array_t<char>>().join().get());     break;
+            case 0xfA05: return string::format("[%s]",obj.as<array_t<long>>().join().get());     break;
+            case 0xfA06: return string::format("[%s]",obj.as<array_t<short>>().join().get());    break;
+            case 0xfA07: return string::format("[%s]",obj.as<array_t<uchar>>().join().get());    break;
+            case 0xfA08: return string::format("[%s]",obj.as<array_t<llong>>().join().get());    break;
+            case 0xfA09: return string::format("[%s]",obj.as<array_t<ulong>>().join().get());    break;
+            case 0xfA0a: return string::format("[%s]",obj.as<array_t<ushort>>().join().get());   break;
+            case 0xfA0b: return string::format("[%s]",obj.as<array_t<ullong>>().join().get());   break;
+            case 0xfA0c: return string::format("[%s]",obj.as<array_t<wchar_t>>().join().get());  break;
+            case 0xfA0d: return string::format("[%s]",obj.as<array_t<char16_t>>().join().get()); break;
+            case 0xfA0e: return string::format("[%s]",obj.as<array_t<char32_t>>().join().get()); break;
+            case 0xfA0f: return string::format("[%s]",obj.as<array_t<float>>().join().get());    break;
+            case 0xfA10: return string::format("[%s]",obj.as<array_t<double>>().join().get());   break;
+            case 0xfA11: return string::format("[%s]",obj.as<array_t<ldouble>>().join().get());  break;
 
             default: return "null"; break;
         }
