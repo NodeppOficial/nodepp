@@ -16,32 +16,13 @@
 
 namespace nodepp { namespace process {
 
-    ulong micros(){ 
-        FILETIME ft; ULARGE_INTEGER time;
-        GetSystemTimeAsFileTime(&ft);
+    struct node_time { FILETIME ft; ULARGE_INTEGER time; } _time_;
 
-        time.HighPart = ft.dwHighDateTime;
-        time.LowPart = ft.dwLowDateTime;
-        return time.QuadPart / 10;
-    }
+    ulong seconds(){ return _time_.time.QuadPart / 10000000; }
 
-    ulong millis(){
-        FILETIME ft; ULARGE_INTEGER time;
-        GetSystemTimeAsFileTime(&ft);
+    ulong millis(){ return _time_.time.QuadPart / 10000; }
 
-        time.HighPart = ft.dwHighDateTime;
-        time.LowPart = ft.dwLowDateTime;
-        return time.QuadPart / 10000;
-    }
-
-    ulong seconds(){
-        FILETIME ft; ULARGE_INTEGER time;
-        GetSystemTimeAsFileTime(&ft);
-        
-        time.HighPart = ft.dwHighDateTime;
-        time.LowPart = ft.dwLowDateTime;
-        return time.QuadPart / 10000000;
-    }
+    ulong micros(){ return _time_.time.QuadPart / 10; }
 
 }}
 
@@ -49,11 +30,15 @@ namespace nodepp { namespace process {
 
 namespace nodepp { namespace process {
 
-    void  delay( ulong time ){ ::Sleep( time ); }
-
     ulong now(){ return millis(); }
 
-    void yield(){ delay(TIMEOUT); }
+    void  delay( ulong time ){ ::Sleep( time ); }
+
+    void yield(){ GetSystemTimeAsFileTime(&_time_.ft);
+        _time_.time.HighPart = _time_.ft.dwHighDateTime;
+        _time_.time.LowPart  = _time_.ft.dwLowDateTime;
+        delay( TIMEOUT ); 
+    }
 
 }}
 
