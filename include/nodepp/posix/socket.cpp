@@ -46,9 +46,9 @@ namespace nodepp {
 
 struct agent_t {
     bool  reuse_address = 1;
-    uint  conn_timeout  = 10000;
-    uint  recv_timeout  = 120000;
-    uint  send_timeout  = 120000;
+    uint  conn_timeout  = 0; //10000
+    uint  recv_timeout  = 0; //120000
+    uint  send_timeout  = 0; //120000
     ulong buffer_size   = CHUNK_SIZE;
     bool  reuse_port    = 1;
     bool  keep_alive    = 0;
@@ -395,7 +395,7 @@ public: socket_t() noexcept { _socket_::start_device(); }
 
     virtual int __read( char* bf, const ulong& sx ) const noexcept {
         if ( process::millis() > get_recv_timeout() || is_closed() )
-           { close(); return -1; } if ( sx==0 ) { return 0; } 
+           { close(); return -1; } if ( sx==0 ) { return 0; }
         if ( SOCK != SOCK_DGRAM ){
             obj->feof = ::recv( obj->fd, bf, sx, 0 );
             obj->feof = is_blocked(obj->feof) ?-2 : obj->feof;

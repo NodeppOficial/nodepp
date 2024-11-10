@@ -74,21 +74,20 @@ public: udp_t() noexcept : obj(new NODE()) {}
                  sk.socket( dns::lookup(host), port );
                  sk.set_sockopt( self->obj->agent );
 
-        onOpen.emit(sk); if( cb != nullptr ){ (*cb)(sk); }
-
         process::task::add([=](){
             int c = 0;
         coStart
 
             while( (c=sk._bind())==-2 ){ coNext; } if( c < 0 ){ 
                 _EERROR(self->onError,"Error while binding UDP"); 
-                self->close(); coEnd; 
+                self->close(); sk.close(); coEnd; 
             }
 
-            sk.onClose.on([=](){ self->close(); }); 
-            self->onSocket.emit(sk); 
-            self->onOpen.emit(sk); 
+            self->onSocket.emit(sk); self->onOpen.emit(sk); 
+            sk.onClose.once([=](){ self->close(); }); 
             sk.onOpen.emit();
+
+            if( cb != nullptr ){ (*cb)(sk); }
 
         coStop
         });
@@ -117,10 +116,9 @@ public: udp_t() noexcept : obj(new NODE()) {}
 
         process::task::add([=](){
         coStart
-
-            sk.onClose.on([=](){ self->close(); });
      
             self->onSocket.emit(sk); self->onOpen.emit(sk); 
+            sk.onClose.once([=](){ self->close(); });
             sk.onOpen.emit(); self->obj->func(sk);
             if( cb != nullptr ){ (*cb)(sk); }
 

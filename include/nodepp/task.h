@@ -187,14 +187,11 @@ namespace nodepp { namespace process {
     /*─······································································─*/
 
     int next(){ 
-        static int x = 0;
     coStart
 
         if( !process::task::empty() ){ process::task::next(); coNext; }
         if( !process::loop::empty() ){ process::loop::next(); coNext; }
         if( !process::poll::empty() ){ process::poll::next(); coNext; }
-
-        process::yield();
 
     coStop
     }
