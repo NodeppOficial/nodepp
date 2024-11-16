@@ -40,6 +40,11 @@ public:
         return func_ptr->invoke(arg...); 
     }
     
+    V emit( const T&... arg ) const { 
+        if( func_ptr == nullptr ) return V();
+        return func_ptr->invoke(arg...); 
+    }
+    
 private:
 
     class func_base { public:
