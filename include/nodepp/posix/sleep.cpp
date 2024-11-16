@@ -34,9 +34,12 @@ namespace nodepp { namespace process {
 
 namespace nodepp { namespace process {
 
-    void  delay( ulong time ){ ::usleep( time * 1000 ); }
-
     ulong now(){ return millis(); }
+
+    void delay( ulong time ){ 
+        if( time == 0 ){ return; }
+        ::usleep( time * 1000 ); 
+    }
 
     void yield(){ 
         gettimeofday( &_time_, NULL );

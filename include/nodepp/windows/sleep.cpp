@@ -32,7 +32,10 @@ namespace nodepp { namespace process {
 
     ulong now(){ return millis(); }
 
-    void  delay( ulong time ){ ::Sleep( time ); }
+    void delay( ulong time ){ 
+        if( time == 0 ){ return; }
+        ::Sleep( time ); 
+    }
 
     void yield(){ GetSystemTimeAsFileTime(&_time_.ft);
         _time_.time.HighPart = _time_.ft.dwHighDateTime;
