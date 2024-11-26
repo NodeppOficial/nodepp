@@ -84,42 +84,49 @@ protected:
 
     struct NODE {
         function_t<void,function_t<void,T>,function_t<void,V>> main_func;
-        function_t<void,T> res_func; void* addr = nullptr;
-        function_t<void,V> rej_func; int state;
-    };  ptr_t<NODE> obj = new NODE();
+        void* addr = nullptr; uchar state = 0;
+    };  ptr_t<NODE> obj;
 
-    using slf = promise_t<T,V>;
+    event_t<void,T> onDone; 
+    event_t<void,V> onFail;
 
 public:
 
-    promise_t& then( const decltype(NODE::res_func)& cb ) noexcept { obj->state=2; obj->res_func = cb; return (*this); }
+    template< class U >
+    promise_t& then( const U cb ) const noexcept { obj->state=2; onDone.once(cb); return (*this); }
     
-    promise_t& fail( const decltype(NODE::rej_func)& cb ) noexcept { obj->state=2; obj->rej_func = cb; return (*this); }
+    template< class U >
+    promise_t& fail( const U cb ) const noexcept { obj->state=2; onFail.once(cb); return (*this); }
 
     /*─······································································─*/
 
-    void resolve() const noexcept { if( obj->state!=2 ){ return; } obj->state=0;
-         obj->addr = promise::resolve<T,V>( obj->main_func, obj->res_func, obj->rej_func ); 
+    void resolve() const noexcept { 
+        if( obj->state!=0 ){ return; } 
+        if( obj->state!=2 ){ return; } 
+        obj->state=0; auto self = type::bind(this);
+        obj->addr = promise::resolve<T,V>( obj->main_func, 
+            [=]( T res ){ self->onDone.emit( res ); },
+            [=]( V rej ){ self->onFail.emit( rej ); }
+        ); 
+    }
+
+    expected_t<T,V> await() const noexcept { 
+        if( obj->state==0 ){ return; } 
+        return promise::await<T,V>( obj->main_func ); 
     }
 
     /*─······································································─*/
 
-    promise_t( const decltype(NODE::main_func)& cb ) noexcept { obj->main_func = cb; obj->state = 1; }
+    void clear() const noexcept { process::clear( obj->addr ); }
 
-   ~promise_t() noexcept { if( obj.count()>1 ){ return; } resolve(); }
+public: 
 
-    promise_t() noexcept { obj->state = 0; }
+    promise_t () noexcept : obj( new NODE ) {}
 
-    /*─······································································─*/
+   ~promise_t () noexcept { if( obj.count()>1 ){ return; } resolve(); }
 
-    expected_t<T,V> await() const noexcept {
-        return promise::await<T,V>( obj->main_func );
-    }
-
-    /*─······································································─*/
-
-    void clear() const noexcept {
-        process::clear( obj->addr );
+    promise_t ( const decltype(NODE::main_func)& cb ) noexcept : obj( new NODE ) { 
+        obj->main_func = cb; obj->state = 1; 
     }
 
 };}
