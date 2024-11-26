@@ -111,7 +111,6 @@ public:
     }
 
     expected_t<T,V> await() const noexcept { 
-        if( obj->state==0 ){ return; } 
         return promise::await<T,V>( obj->main_func ); 
     }
 
