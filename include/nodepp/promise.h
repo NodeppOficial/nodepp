@@ -87,8 +87,8 @@ protected:
         void* addr = nullptr; uchar state = 0;
     };  ptr_t<NODE> obj;
 
-    event_t<void,T> onDone; 
-    event_t<void,V> onFail;
+    event_t<T> onDone; 
+    event_t<V> onFail;
 
 public:
 
