@@ -93,15 +93,15 @@ protected:
 public:
 
     template< class U >
-    promise_t& then( const U cb ) const noexcept { obj->state=2; onDone.once(cb); return (*this); }
+    promise_t& then( const U cb ) noexcept { obj->state=2; onDone.once(cb); return (*this); }
     
     template< class U >
-    promise_t& fail( const U cb ) const noexcept { obj->state=2; onFail.once(cb); return (*this); }
+    promise_t& fail( const U cb ) noexcept { obj->state=2; onFail.once(cb); return (*this); }
 
     /*─······································································─*/
 
     void resolve() const noexcept { 
-        if( obj->state!=0 ){ return; } 
+        if( obj->state==0 ){ return; } 
         if( obj->state!=2 ){ return; } 
         obj->state=0; auto self = type::bind(this);
         obj->addr = promise::resolve<T,V>( obj->main_func, 
