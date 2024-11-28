@@ -19,17 +19,17 @@ protected:
 
 	int GETBAUD( uint baud ) const noexcept {
 		switch( baud ){
-			case 110:     return CRB_110;    break;
-			case 300:     return CRB_300;    break;
-			case 600:     return CRB_600;    break;
-			case 1200:    return CRB_1200;   break;
-			case 2400:    return CRB_2400;   break;
-			case 4800:    return CRB_4800;   break;
-			case 9600:    return CRB_9600;   break;
-			case 19200:   return CRB_19200;  break;
-			case 38400:   return CRB_38400;  break;
-			case 57600:   return CRB_57600;  break;
-			default:      return CRB_9600;   break;
+			case 110:     return CBR_110;    break;
+			case 300:     return CBR_300;    break;
+			case 600:     return CBR_600;    break;
+			case 1200:    return CBR_1200;   break;
+			case 2400:    return CBR_2400;   break;
+			case 4800:    return CBR_4800;   break;
+			case 9600:    return CBR_9600;   break;
+			case 19200:   return CBR_19200;  break;
+			case 38400:   return CBR_38400;  break;
+			case 57600:   return CBR_57600;  break;
+			default:      return CBR_9600;   break;
 		}
 	}
 
@@ -42,7 +42,7 @@ protected:
 		dcbSerialParams.Parity    = NOPARITY;
 		dcbSerialParams.StopBits  = ONESTOPBIT;
 
-		SetCommState( hSerial, &dcbSerialParams );
+		SetCommState( fd, &dcbSerialParams );
 	}
 
 public: serial_t() noexcept : file_t() {}
