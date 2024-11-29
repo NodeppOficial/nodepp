@@ -192,6 +192,7 @@ namespace nodepp { namespace process {
         if( !process::task::empty() ){ process::task::next(); coNext; }
         if( !process::loop::empty() ){ process::loop::next(); coNext; }
         if( !process::poll::empty() ){ process::poll::next(); coNext; }
+             process::yield();
 
     coStop
     }
@@ -200,7 +201,8 @@ namespace nodepp { namespace process {
 
     template< class T, class... V > 
     void await( T cb, const V&... args ){
-         while( cb( args... ) != -1 ){ next(); }
+         while( cb( args... ) != -1 )
+              { next(); }
     }
 
 }}

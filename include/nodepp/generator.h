@@ -23,7 +23,7 @@ namespace nodepp { namespace _timer_ {
         coEmit( V func, ulong time, const T&... args ){
         gnStart
             coDelay( time ); if( func(args...)<0 )
-            { coEnd; } coGoto(0); 
+                   { coEnd; } coGoto(0); 
         gnStop
         }
 
@@ -31,7 +31,7 @@ namespace nodepp { namespace _timer_ {
         coEmit( V func, ulong* time, const T&... args ){
         gnStart
             coDelay( *time ); if( func(args...)<0 )
-            { coEnd; } coGoto(0); 
+                   { coEnd; } coGoto(0); 
         gnStop
         }
 
@@ -73,15 +73,15 @@ namespace nodepp { namespace _promise_ {
 
         template< class T, class U, class V > 
         coEmit( ptr_t<bool> state, const T& func, const U& res, const V& rej ){
-        gnStart; func( res, rej ); 
-            while( state!=nullptr && *state!=0 ) { coNext; }
+        gnStart 
+            func( res, rej ); while( *state==1 ) { coNext; }
         gnStop
         }
 
         template< class T, class U > 
         coEmit( ptr_t<bool> state, const T& func, const U& res ){
-        gnStart; func( res ); 
-            while( state!=nullptr && *state!=0 ) { coNext; }
+        gnStart
+            func( res ); while( *state==1 ) { coNext; }
         gnStop
         }
 

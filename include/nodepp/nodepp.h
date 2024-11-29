@@ -36,11 +36,9 @@ namespace nodepp { namespace process {
 
     /*─······································································─*/
 
-    void stop(){ while( !process::empty() ){
-        process::yield();
-        onSIGNEXT.emit();
-        process::next();
-    }}
+    void stop(){    while( !process::empty() )
+        { onSIGNEXT.emit(); process::next(); }
+    }
 
 }}
 
@@ -52,7 +50,7 @@ namespace nodepp { namespace process {
 
 namespace nodepp { namespace process {
 
-    void start(){ process::signal::start(); }
+    void start(){ process::yield(); process::signal::start(); }
 
     void start( int argc, char** args ){
         int i=0; do {

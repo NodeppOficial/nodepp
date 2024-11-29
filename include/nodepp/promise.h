@@ -53,8 +53,8 @@ namespace nodepp { namespace promise {
         ptr_t<bool> state = new bool(1); T result; 
         _promise_::resolve task;
         process::await( task, state, func, [&]( T data ){
-           if( *state != 1 ){ return; } result = data; *state = 0;
-        } ); return result;
+            if( *state != 1 ){ return; } result = data; *state = 0;
+        }); return result;
     }
 
     /*─······································································─*/
@@ -68,7 +68,7 @@ namespace nodepp { namespace promise {
             if( *state != 1 ){ return; } res = data; *state = 0; x=1;
         }, [&]( V data ){
             if( *state != 1 ){ return; } rej = data; *state = 0; x=0;
-        } ); if( x ){ return res; } return rej;
+        }); if( x ){ return res; } return rej;
     }
     
     /*─······································································─*/
