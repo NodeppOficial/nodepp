@@ -111,7 +111,7 @@ namespace _path_ { map_t<string_t,string_t> mimetype ({
 namespace path {
 
 namespace {
-#if _KERNEL == NODEPP_KERNEL_WINDOWS
+#if false // _KERNEL == NODEPP_KERNEL_WINDOWS
     string_t sep  = "\\\\";
     string_t root = "c:\\\\";
     string_t  one = "[^\\\\]+";
