@@ -31,19 +31,19 @@ namespace nodepp { namespace fs {
     /*─······································································─*/
 
     time_t file_modification_time( const string_t& path ){ 
-        struct stat fileStat; if( stat( path.data(), &fileStat ) != 0 ) {
+        struct stat fileStat; if( stat( path.data(), &fileStat ) < 0 ) {
              process::error("Failed to get file last modification time properties");
         }    return fileStat.st_mtime;
     }
 
     time_t file_access_time( const string_t& path ){ 
-        struct stat fileStat; if( stat( path.data(), &fileStat ) != 0 ) {
+        struct stat fileStat; if( stat( path.data(), &fileStat ) < 0 ) {
              process::error("Failed to get file last access time properties");
         }    return fileStat.st_atime;
     }
 
     time_t file_creation_time( const string_t& path ){ 
-        struct stat fileStat; if( stat( path.data(), &fileStat ) != 0 ) {
+        struct stat fileStat; if( stat( path.data(), &fileStat ) < 0 ) {
              process::error("Failed to get file creation time properties");
         }    return fileStat.st_ctime;
     }
