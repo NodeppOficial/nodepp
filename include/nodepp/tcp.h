@@ -87,7 +87,7 @@ public: tcp_t() noexcept : obj( new NODE() ) {}
                  sk.socket( dns::lookup(host), port ); 
                  sk.set_sockopt( self->obj->agent );
         
-        if(   sk.bind() < 0 ){ _EERROR(onError,"Error while binding TCP");   close(); sk.free(); return; }
+        if( sk.bind()   < 0 ){ _EERROR(onError,"Error while binding TCP");   close(); sk.free(); return; }
         if( sk.listen() < 0 ){ _EERROR(onError,"Error while listening TCP"); close(); sk.free(); return; }
         if( obj->chck )      { init_poll_loop( self ); }
 

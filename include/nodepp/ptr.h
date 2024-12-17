@@ -65,6 +65,13 @@ public:
     bool operator!=( T* value )   const noexcept { return this->value_!=value; }
     
     /*─······································································─*/
+    
+    void fill( const T& c ) const noexcept {
+        if( size() != 0 ) for( auto x=begin(); x!=end(); x++ ) (*x) = c;
+        else              *value_ = c;
+    }
+    
+    /*─······································································─*/
 
     T& operator[]( ulong i ) const noexcept { 
         return size()==0 ? value_[i] : 
@@ -86,13 +93,6 @@ public:
     }
     
     /*─······································································─*/
-    
-    void fill( const T& c ) const noexcept {
-        if( size() != 0 ) for( auto x=begin(); x!=end(); x++ ) (*x) = c;
-        else              *value_ = c;
-    }
-    
-    /*─······································································─*/
 
     ptr_t copy() const noexcept {
           if( count() > 0 && size() == 0 )
@@ -110,8 +110,8 @@ public:
         if( n == 0 ){ 
             length_= new ulong( 0 ); 
             count_ = new ulong( 1 );
-            value_ = new T( c );
-        return; } else {
+            value_ = new T(c); return; 
+        } else {
             length_= new ulong( n ); 
             count_ = new ulong( 1 );
             value_ = new T[n];

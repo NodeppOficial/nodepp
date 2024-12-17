@@ -40,25 +40,25 @@ public: any_t() noexcept {};
     
     /*─······································································─*/
 
+    void free() const noexcept { any_ptr.free(); }
+
+    template< class T >
+    T as() const { return get<T>(); }
+
     template< class T >
     void set( const T& f ) noexcept { 
         any_sz  = new uint(sizeof(T));
         any_ptr = new any_impl<T>(f); 
     }
 
-    void free() const noexcept { any_ptr.free(); }
-
     template< class T >
     T get() const { 
-        T any; if( !has_value() )
+        char any [ sizeof(T)/sizeof(char) ]; if( !has_value() )
             process::error("any_t is null");
-        if( *any_sz != sizeof(T) )
+        if( *any_sz != sizeof(any)*sizeof(char) )
             process::error("any_t incompatible sizetype");
-        any_ptr->get((void*)&any); return any; 
+        any_ptr->get((void*)&any); return *(T*)(any);
     }
-
-    template< class T >
-    T as() const { return get<T>(); }
     
     /*─······································································─*/
 
@@ -80,8 +80,8 @@ private:
     class any_impl : public any_base {
     public:
         any_impl( const T& f ) noexcept : any( f ) {}
-        virtual void get( void* argc ) const noexcept { *((T*)argc) = any; }
-        virtual void set( void* argc )       noexcept { any = *((T*)argc); }
+        virtual void get( void* argc ) const noexcept { memcpy( argc, &any, sizeof(T) ); }
+        virtual void set( void* argc )       noexcept { memcpy( &any, argc, sizeof(T) ); }
     private:
         T any;
     };
