@@ -190,7 +190,7 @@ namespace {
 
     string_t basename( const string_t& path ){ 
         auto vec = regex::match_all( path, one );
-        if ( vec.empty() ){ return ""; }
+        if ( vec.empty() ){ return nullptr; }
         return vec[ vec.last() ];
     }
     
@@ -198,7 +198,7 @@ namespace {
 
     string_t basename( const string_t& path, const string_t& del ){ 
         auto vec = regex::match_all( path, one );
-        if ( vec.empty() ){ return ""; }
+        if ( vec.empty() ){ return nullptr; }
         return regex::replace( vec[ vec.last() ], del, "" );
     }
 
