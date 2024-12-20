@@ -195,7 +195,9 @@ namespace url {
 
     string_t format( url_t& obj ){ string_t _url; 
 
-        if( !obj.origin.empty() ){ 
+        if( !obj.href.empty() ){
+            _url += obj.href;
+        } elif( !obj.origin.empty() ){ 
             _url += obj.origin; 
         } else { 
             _url += obj.protocol + "//";
@@ -207,13 +209,17 @@ namespace url {
             _url += obj.path; 
         } else {
             _url += obj.pathname; 
+        }
+
+        if( !obj.search.empty() ){
             _url += obj.search;
-        } 
+        } else {
+            _url += query::format( obj.query );
+        }
 
         if( !obj.hash.empty() ){ _url += obj.hash; }
 
-        return is_valid(_url) ? _url : 
-               is_valid(obj.href) ? obj.href : "";
+        return is_valid(_url) ? _url : nullptr;
     }
 
 }
