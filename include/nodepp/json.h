@@ -59,9 +59,10 @@ protected:
         elif( data.find("false") ){ return (bool) 0; }
         elif( data.find("true")  ){ return (bool) 1; }
         elif( data.find("null")  ){ return nullptr;  }
+        elif( string::is_alpha(data[x]) ){ return  (char) data[x]; }
         elif( data.find('.')     ){ return string::to_float(data); }
-        elif( string::is_alpha( data[x] ) ){ return data; }
-        else{ return string::to_int( data ); } 
+        elif( data.size() > 9    ){ return string::to_long (data); }
+        else                      { return string::to_int( data ); } 
     }
 
     object_t get_object( ulong x, ulong y, const string_t& str ) const {
