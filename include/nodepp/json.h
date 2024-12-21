@@ -196,7 +196,7 @@ public: json_t () noexcept = default;
             case 0xfA10: return string::format("[%s]",obj.as<array_t<double>>().join().get());   break;
             case 0xfA11: return string::format("[%s]",obj.as<array_t<ldouble>>().join().get());  break;
 
-            default: return "null"; break;
+            default: return "{}"; break;
         }
 
         END:; return result;
