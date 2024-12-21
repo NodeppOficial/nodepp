@@ -70,7 +70,7 @@ protected:
     object_t get_object( ulong x, ulong y, const string_t& str ) const {
         object_t result; do { type::pair<string_t,string_t> data;
            if( string::is_space(str[x]) ){ continue; }
-           if( str[x] == '"' ){ 
+           if( str[x] == '"' ){
                auto z = get_next_sec( x, str ); 
                data.first = str.slice( x+1,z );
             while( str[x]!=':' && x<y ){ x++; }
@@ -79,7 +79,7 @@ protected:
                data.second = str.slice( x+1, w ); x=w;
                result[data.first] = get_data( data.second );
             }
-        } while( x++<y ); return result;
+        } while( x++<y ); return result.keys().empty() ? nullptr : result;
     }
 
     array_t<object_t> get_array( ulong x, ulong y, const string_t& str ) const {
