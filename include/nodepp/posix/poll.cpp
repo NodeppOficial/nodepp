@@ -47,6 +47,8 @@ public: poll_t() noexcept : obj( new NODE() ) {}
 
     /*─······································································─*/
 
+    int next () noexcept { return emit(); }
+
     int emit () noexcept { 
         static ulong s=0; static POLLFD x;
     coStart

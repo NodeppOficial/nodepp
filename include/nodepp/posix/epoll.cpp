@@ -54,6 +54,8 @@ public:
 
     /*─······································································─*/
 
+    int next () noexcept { return emit(); }
+
     int emit () noexcept { 
         static int c; static EPOLLFD x;
     coStart
