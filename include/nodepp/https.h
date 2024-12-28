@@ -152,8 +152,8 @@ namespace nodepp { namespace https {
         if( !url::is_valid( gfc->url ) ){ rej(except_t("invalid URL")); return; }
         
         url_t    uri = url::parse( gfc->url );
-        string_t dip = uri.hostname ;
         string_t dir = uri.pathname + uri.search + uri.hash;
+        string_t dip = uri.hostname ; gfc->headers["Host"] = dip;
        
         auto client = tls_t ([=]( https_t cli ){ 
             cli.set_timeout( gfc->timeout ); int c = 0; cli.write_header( gfc, dir );
