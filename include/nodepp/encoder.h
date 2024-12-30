@@ -130,7 +130,7 @@ namespace nodepp { namespace encoder { namespace bin {
 namespace nodepp { namespace encoder { namespace hex {
 
     template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
-    string_t get( T num ){ string_t out; uchar x=num; do {
+    string_t get( T num ){ string_t out = nullptr; uchar x=num; do {
              out.unshift( BASE8[x&(T)(0xf)] ); x >>= 4;
         } while( x != 0 ); return out;
     }
@@ -148,7 +148,7 @@ namespace nodepp { namespace encoder { namespace hex {
     string_t get( const ptr_t<uchar>& inp ){
         if ( inp.empty() ){ return nullptr; }
         queue_t<char> out; for( auto x : inp ){
-            for ( auto y: get(x) ){ out.push( y ); }
+            for( auto y: get(x) ){ out.push( y ); }
         }   out.push('\0'); return string_t( out.data() );
     }
 
@@ -167,21 +167,18 @@ namespace nodepp { namespace encoder { namespace hex {
 namespace nodepp { namespace encoder { namespace buffer {
 
     string_t hex2buff( const string_t& inp ){
-        if( inp.empty() ){ return nullptr; } 
-        ptr_t<char> bff( ceil(inp.size()/2) ); 
-        auto x = inp; ulong len = 0; while( !x.empty() ){
-            bff[len] = hex::set<char>( x.splice(0,2) ); len++;
-        }   return string_t( &bff, len );
+        if( inp.empty() ){ return nullptr; }
+        ptr_t<uchar> buff = hex::set(inp);
+        string_t raw ( buff.size() + 1 );
+        memcpy( raw.get(), &buff, buff.size() );
+        return raw;
     }
 
     string_t buff2hex( const string_t& inp ){
         if( inp.empty() ){ return nullptr; } 
-        ptr_t<char> bff ( inp.size()*2 );
-        ulong len = 0; forEach( x, inp ){ 
-            auto data = hex::get( x );
-            bff[len]  = data[0]; 
-            bff[len+1]= data[1];len += 2;
-        }   return string_t( &bff, len );
+        auto raw = ptr_t<uchar>( inp.size() );
+        memcpy( &raw, inp.get(), inp.size() );
+        return hex::get( raw );
     }
 
 }}}

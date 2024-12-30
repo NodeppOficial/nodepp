@@ -21,7 +21,7 @@ protected:
         array_t<string_t> memory;
         string_t regex, _data; 
         ptr_t<int> _rep;
-        bool i;
+        bool i, j=false;
     };  ptr_t<NODE> obj;
     
     /*─······································································─*/
@@ -110,10 +110,10 @@ protected:
             } elif( (uchar) obj->_data[0] == 0x00 ) {
                                  goto CLSE;
             } elif( (uchar) obj->_data[0] <= 0x02 ) {
-                if( compile_flg( obj->_data[0], str, pos[1] ) )
+                if( compile_flg( obj->_data[0], obj->j, str, pos[1] ) )
                   { goto SKIP; } goto DONE;
             } elif( (uchar) obj->_data[0] <= 0x0f ) {
-                if( compile_cmd( obj->_data[0], str, pos[1] ) )
+                if( compile_cmd( obj->_data[0], obj->j, str, pos[1] ) )
                   { off[1]++; goto LESS; } 
                               goto DONE;
             } else {
@@ -171,23 +171,25 @@ protected:
     
     /*─······································································─*/
 
-    bool compile_cmd( char& flg, string_t& data, int pos ) const noexcept { 
-          if( flg == 0x03 &&  ( pos==0||(ulong)pos>=data.size()-1) ){ return true; } 
-        elif( flg == 0x04 && !( pos==0||(ulong)pos>=data.size()-1) ){ return true; }
-        elif( flg == 0x05 &&  string::is_alnum( data[pos] ) )       { return true; }
-        elif( flg == 0x06 &&  string::is_digit( data[pos] ) )       { return true; }
-        elif( flg == 0x07 &&  string::is_space( data[pos] ) )       { return true; }
-        elif( flg == 0x08 && !string::is_alnum( data[pos] ) )       { return true; }
-        elif( flg == 0x0e && !string::is_digit( data[pos] ) )       { return true; }
-        elif( flg == 0x0b && !string::is_space( data[pos] ) )       { return true; } 
-        elif( flg == 0x0c )                                         { return true; }
-        elif( flg == 0x0f )                   { return obj->_data[1] == data[pos]; }
+    bool compile_cmd( char& flg, bool b, string_t& data, int pos ) const noexcept { 
+          if( flg == 0x03 &&  b &&  ( pos==0||(ulong)pos>=data.size()-1) ){ return true; }
+        elif( flg == 0x03 && !b && !( pos==0||(ulong)pos>=data.size()-1) ){ return true; }
+        elif( flg == 0x04 &&  b &&  string::is_alnum( data[pos] ) )       { return true; }
+        elif( flg == 0x04 && !b && !string::is_alnum( data[pos] ) )       { return true; }
+        elif( flg == 0x05 &&  b &&  string::is_digit( data[pos] ) )       { return true; }
+        elif( flg == 0x05 && !b && !string::is_digit( data[pos] ) )       { return true; }
+        elif( flg == 0x06 &&  b &&  string::is_space( data[pos] ) )       { return true; } 
+        elif( flg == 0x06 && !b && !string::is_space( data[pos] ) )       { return true; } 
+        elif( flg == 0x07 &&  b &&  string::is_print( data[pos] ) )       { return true; } 
+        elif( flg == 0x07 && !b && !string::is_print( data[pos] ) )       { return true; } 
+        elif( flg == 0x0c )                                               { return true; }
+        elif( flg == 0x0f )                         { return obj->_data[1] == data[pos]; }
         else{ return data[pos] == flg; } return false;
     }
     
     /*─······································································─*/
 
-    bool compile_flg( char& flg, string_t& data, int pos ) const noexcept {
+    bool compile_flg( char& flg, bool /**/, string_t& data, int pos ) const noexcept {
           if( flg == 0x01 && ((ulong)pos >= data.size()-1) ){ return true; }
         elif( flg == 0x02 &&         pos == 0 )             { return true; } return false;
     }
@@ -253,14 +255,16 @@ protected:
 
             elif( obj->regex[pos[0]] == '\\' ){ pos[0]++;
                                                 obj->_data.clear(); obj->_data.push( (char) 0x0f );
-              if( obj->regex[pos[0]] == 'b'  ){ obj->_data.clear(); obj->_data.push( (char) 0x03 ); }
-            elif( obj->regex[pos[0]] == 'B'  ){ obj->_data.clear(); obj->_data.push( (char) 0x04 ); }
-            elif( obj->regex[pos[0]] == 'w'  ){ obj->_data.clear(); obj->_data.push( (char) 0x05 ); }
-            elif( obj->regex[pos[0]] == 'd'  ){ obj->_data.clear(); obj->_data.push( (char) 0x06 ); }
-            elif( obj->regex[pos[0]] == 's'  ){ obj->_data.clear(); obj->_data.push( (char) 0x07 ); }
-            elif( obj->regex[pos[0]] == 'W'  ){ obj->_data.clear(); obj->_data.push( (char) 0x08 ); }
-            elif( obj->regex[pos[0]] == 'D'  ){ obj->_data.clear(); obj->_data.push( (char) 0x0e ); }
-            elif( obj->regex[pos[0]] == 'S'  ){ obj->_data.clear(); obj->_data.push( (char) 0x0b ); }
+              if( obj->regex[pos[0]] == 'b'  ){ obj->_data.clear(); obj->_data.push( (char) 0x03 ); obj->j = true;  }
+            elif( obj->regex[pos[0]] == 'B'  ){ obj->_data.clear(); obj->_data.push( (char) 0x03 ); obj->j = false; }
+            elif( obj->regex[pos[0]] == 'w'  ){ obj->_data.clear(); obj->_data.push( (char) 0x04 ); obj->j = true;  }
+            elif( obj->regex[pos[0]] == 'W'  ){ obj->_data.clear(); obj->_data.push( (char) 0x04 ); obj->j = false; }
+            elif( obj->regex[pos[0]] == 'd'  ){ obj->_data.clear(); obj->_data.push( (char) 0x05 ); obj->j = true;  }
+            elif( obj->regex[pos[0]] == 'D'  ){ obj->_data.clear(); obj->_data.push( (char) 0x05 ); obj->j = false; }
+            elif( obj->regex[pos[0]] == 's'  ){ obj->_data.clear(); obj->_data.push( (char) 0x06 ); obj->j = true;  }
+            elif( obj->regex[pos[0]] == 'S'  ){ obj->_data.clear(); obj->_data.push( (char) 0x06 ); obj->j = false; }
+            elif( obj->regex[pos[0]] == 'n'  ){ obj->_data.clear(); obj->_data.push( (char) 0x07 ); obj->j = true;  }
+            elif( obj->regex[pos[0]] == 'N'  ){ obj->_data.clear(); obj->_data.push( (char) 0x07 ); obj->j = false; }
             else{ obj->_data += string::to_string(obj->regex[pos[0]]); } 
             }
 
