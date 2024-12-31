@@ -196,114 +196,6 @@ public: json_t () noexcept = default;
             case 0xfA11: return string::format("[%s]",obj.as<array_t<ldouble>>().join().get());  break;
             case 0xfA12: return string::format("[%s]",obj.as<array_t<string_t>>().join().get()); break; 
 
-            case 0xfC01: do { 
-                auto map = obj.as<map_t<string_t,int>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC02: do { 
-                auto map = obj.as<map_t<string_t,uint>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC03: do { 
-                auto map = obj.as<map_t<string_t,bool>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC04: do { 
-                auto map = obj.as<map_t<string_t,char>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC05: do { 
-                auto map = obj.as<map_t<string_t,long>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC06: do { 
-                auto map = obj.as<map_t<string_t,short>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC07: do { 
-                auto map = obj.as<map_t<string_t,uchar>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC08: do { 
-                auto map = obj.as<map_t<string_t,llong>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC09: do { 
-                auto map = obj.as<map_t<string_t,ulong>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC0a: do { 
-                auto map = obj.as<map_t<string_t,ushort>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC0b: do { 
-                auto map = obj.as<map_t<string_t,ullong>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC0c: do { 
-                auto map = obj.as<map_t<string_t,wchar_t>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC0d: do { 
-                auto map = obj.as<map_t<string_t,char16_t>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC0e: do { 
-                auto map = obj.as<map_t<string_t,char32_t>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC0f: do { 
-                auto map = obj.as<map_t<string_t,float>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC10: do { 
-                auto map = obj.as<map_t<string_t,double>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC11: do { 
-                auto map = obj.as<map_t<string_t,ldouble>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
-            case 0xfC12: do { 
-                auto map = obj.as<map_t<string_t,string_t>>();
-                object_t res; for( auto x: map.keys() )
-                { res[x] = map[x]; } result += stringify(res);
-            } while(0); break;
-
             default: return "{}"; break;
         }
 
@@ -332,9 +224,18 @@ namespace nodepp { namespace json {
 
     template<class T, class V>
     string_t stringify( const map_t<T,V>& map ){
-        object_t obj; for( auto &x: map.data() ){
-            obj[ x.first ] = x.second;
-        }   return stringify( obj );
+        json::stringify( json::parse( map ) );
+    }
+
+    template<class T, class V>
+    string_t stringify( const array_t<map_t<T,V>>& map ){
+        json::stringify( json::parse( map ) );
+    }
+
+    template<class T, class V>
+    array_t<object_t> parse( const array_t<map_t<T,V>>& map ){
+        array_t<object_t> obj; for( auto &x: map )
+          { obj.push( parse(x) ); } return obj;
     }
 
 }}
