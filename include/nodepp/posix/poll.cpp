@@ -28,9 +28,9 @@ protected:
 
 public:
 
-    event_t<int>    onWrite;
-    event_t<int>    onError;
-    event_t<int>    onRead;
+    wait_t<int>    onWrite;
+    wait_t<int>    onError;
+    wait_t<int>    onRead;
 
 public: poll_t() noexcept : obj( new NODE() ) {}
 

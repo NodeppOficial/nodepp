@@ -13,21 +13,21 @@
 #define NODEPP_POLL
 
 #if   _KERNEL == NODEPP_KERNEL_WINDOWS
-        #include "event.h"
+        #include "wait.h"
         #include "windows/poll.cpp"
 #elif _KERNEL == NODEPP_KERNEL_POSIX
     #if   _POLL == NODEPP_POLL_EPOLL
-        #include "event.h"
+        #include "wait.h"
         #include "posix/epoll.cpp"
     #elif _POLL == NODEPP_POLL_KPOLL
-        #include "event.h"
+        #include "wait.h"
         #include "posix/kpoll.cpp"
     #else
-        #include "event.h"
+        #include "wait.h"
         #include "posix/poll.cpp"
     #endif
 #else
-    #include "event.h"
+    #include "wait.h"
     #define NODEPP_NO_POLL
 #endif
 
@@ -51,9 +51,9 @@ protected:
 
 public:
 
-    event_t<int>    onWrite;
-    event_t<int>    onError;
-    event_t<int>    onRead;
+    wait_t<int>    onWrite;
+    wait_t<int>    onError;
+    wait_t<int>    onRead;
 
 public: poll_t() noexcept : obj( new NODE() ) {}
 
