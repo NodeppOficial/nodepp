@@ -17,9 +17,12 @@
 namespace nodepp { class cluster_t { 
 protected:
 
+    ptr_t<_file_::read> _read1 = new _file_::read;
+    ptr_t<_file_::read> _read2 = new _file_::read;
+
     struct NODE {
         int          fd;
-        int    state =0;
+        int    state =1;
         file_t    input;
         file_t   output;
         file_t    error;
@@ -65,7 +68,7 @@ public:
     event_t<except_t>  onError;
     event_t<>          onClose;
     event_t<>          onStop;
-    event_t<>          onExit;
+    event_t<>          onDrain;
     event_t<>          onOpen;
 
     event_t<string_t>  onData;
@@ -74,7 +77,7 @@ public:
     
     virtual ~cluster_t() noexcept { 
         if( obj.count() > 1 ){ return; } 
-        if( obj->state == 0 ){ return; } // free();
+        if( obj->state == 0 ){ return; } free();
     }
 
     cluster_t( const initializer_t<string_t>& args ) : obj( new NODE() ) {
@@ -96,13 +99,13 @@ public:
     
     /*─······································································─*/
 
-    bool is_alive() const noexcept { return ::kill( obj->fd, 0 ) == 0; }
+    bool is_alive()     const noexcept { return ::kill( obj->fd, 0 ) == 0; }
 
     bool is_available() const noexcept { return is_closed() == false; }
 
-    bool is_closed() const noexcept { return obj->state <= 0; }
+    bool is_closed()    const noexcept { return obj->state <= 0; }
 
-    int get_fd()    const noexcept { return obj->fd; }
+    int get_fd()        const noexcept { return obj->fd; }
 
     /*─······································································─*/
 
@@ -110,47 +113,40 @@ public:
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
         if( obj->state == -2 ){ return; } obj->state = -2;
         obj->input .close(); 
-        obj->output.close();
-        obj->error .close();
-        close(); kill(); onClose.emit();
+        obj->output.close(); close(); 
+        obj->error .close(); onClose.emit(); // kill();
     }
 
     /*─······································································─*/
     
     void resume() const noexcept { if(obj->state== 0) { return; } obj->state= 0; onResume.emit(); }
-    void  close() const noexcept { if(obj->state < 0) { return; } obj->state=-1; onExit.emit(); }
+    void  close() const noexcept { if(obj->state < 0) { return; } obj->state=-1; onDrain.emit(); }
     void   stop() const noexcept { if(obj->state==-3) { return; } obj->state=-3; onStop.emit(); }
     void  flush() const noexcept { writable().flush(); readable().flush(); std_error().flush(); }
     void   kill() const noexcept { ::kill( obj->fd, SIGKILL ); }
     
     /*─······································································─*/
 
-    void pipe() const noexcept { 
-        if( obj->state == 1 ){ return; } obj->state = 1; onOpen.emit();
-            ptr_t<_file_::read> _read1 = new _file_::read;
-            ptr_t<_file_::read> _read2 = new _file_::read;
-            auto self = type::bind( this );
-            
-        onExit([=](){ self->free(); });
+    int next() const noexcept { 
+        if( !writable() .is_available() ){ close(); return -1; }
+        if( !readable() .is_available() ){ close(); return -1; }
+        if( !std_error().is_available() ){ close(); return -1; }
+        if( obj->state == 0 )            { close(); return -1; }
+    coStart; onOpen.emit(); coYield(1); 
 
-        process::task::add([=](){
-            if(!self->readable().is_available() ){ self->close(); return -1; }
-            if((*_read1)(&self->readable())==1 ) { return  1; }
-            if(  _read1->state <= 0 )            { return  1; }
-            self->onData.emit(_read1->data);    
-            self->onDout.emit(_read1->data);       return  1;
-        });
+        if((*_read1)(&readable())==1 )       { coGoto(2); }
+        if(  _read1->state <= 0 )            { coGoto(2); }
+        onData.emit(_read1->data);    
+        onDout.emit(_read1->data);             coGoto(2);
 
-        if( process::is_child() ){ return; }
+        coYield(2); if( process::is_child() ){ coGoto(1); }
 
-        process::task::add([=](){
-            if(!self->std_error().is_available() ){ self->close(); return -1; }
-            if((*_read2)(&self->std_error())==1 ) { return  1; }
-            if(  _read2->state <= 0 )             { return  1; }
-            self->onData.emit(_read2->data);    
-            self->onDerr.emit(_read2->data);        return  1;
-        });
+        if((*_read2)(&std_error())==1 )      { coGoto(1); }
+        if(  _read2->state <= 0 )            { coGoto(1); }
+        onData.emit(_read2->data);   
+        onDerr.emit(_read2->data);             coGoto(1);
 
+    coStop
     }
     
     /*─······································································─*/

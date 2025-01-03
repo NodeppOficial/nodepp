@@ -17,6 +17,9 @@
 namespace nodepp { class popen_t { 
 protected:
 
+    ptr_t<_file_::read> _read1 = new _file_::read;
+    ptr_t<_file_::read> _read2 = new _file_::read;
+
     struct NODE {
         PROCESS_INFORMATION pi;
         file_t std_output;
@@ -80,7 +83,7 @@ public:
 
     virtual ~popen_t() noexcept {
         if( obj.count() > 1 ){ return; } 
-        if( obj->state == 0 ){ return; } // free();
+        if( obj->state == 0 ){ return; } free();
     }
 
     template< class... T >
@@ -93,8 +96,10 @@ public:
         else  y =! y;
         }
         
-        _init_( path, arg, env );
+        _init_( path, arg, env ); obj->state = 1;
     }
+
+    popen_t() noexcept : obj( new NODE() ) {}
 
     /*─······································································─*/
 
@@ -115,9 +120,9 @@ public:
     virtual void free() const noexcept {
         if( obj->state == -3 && obj.count() > 1 ){ resume(); return; }
         if( obj->state == -2 ){ return; } obj->state = -2;
-            obj->std_output.close(); obj->std_error .close(); 
-            obj->std_input .close(); close(); kill(); 
-            onClose.emit();
+            obj->std_output.close(); 
+            obj->std_error .close(); close();
+            obj->std_input .close(); onClose.emit(); // kill(); 
     }
 
     /*─······································································─*/
@@ -130,30 +135,26 @@ public:
     
     /*─······································································─*/
 
-    void pipe() const noexcept { 
-        if( obj->state == 1 ){ return; } obj->state = 1; onOpen.emit();
-            ptr_t<_file_::read> _read1 = new _file_::read;
-            ptr_t<_file_::read> _read2 = new _file_::read;
-            auto self = type::bind( this );
-            
-        onExit([=](){ self->free(); });
+    int next() const noexcept { 
+        if( !std_output().is_available() ){ close(); return -1; }
+        if( !std_input() .is_available() ){ close(); return -1; }
+        if( !std_error() .is_available() ){ close(); return -1; }
+        if( obj->state == 0 )             { close(); return -1; }
+    coStart; onOpen.emit(); coYield(1); 
 
-        process::task::add([=](){
-            if(!self->std_output().is_available() ){ self->close(); return -1; }
-            if((*_read1)(&self->std_output())==1 ) { return  1; }
-            if(  _read1->state <= 0 )              { return  1; }
-            self->onData.emit(_read1->data);    
-            self->onDout.emit(_read1->data);         return  1;
-        });
+        if((*_read1)(&std_output())==1 ){ coGoto(2); }
+        if(  _read1->state <= 0 )       { coGoto(2); }
+        onData.emit(_read1->data);    
+        onDout.emit(_read1->data);        coGoto(2);
 
-        process::task::add([=](){
-            if(!self->std_error().is_available() ){ self->close(); return -1; }
-            if((*_read2)(&self->std_error())==1 ) { return  1; }
-            if(  _read2->state <= 0 )             { return  1; }
-            self->onData.emit(_read2->data);   
-            self->onDerr.emit(_read2->data);        return  1;
-        });
+        coYield(2);
 
+        if((*_read2)(&std_error())==1 ){ coGoto(1); }
+        if(  _read2->state <= 0 )      { coGoto(1); }
+        onData.emit(_read2->data);   
+        onDerr.emit(_read2->data);       coGoto(1);
+
+    coStop
     }
     
     /*─······································································─*/

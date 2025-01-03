@@ -31,12 +31,10 @@
 namespace nodepp { namespace popen {
 
     popen_t async( const string_t& path, const initializer_t<string_t>& args ){ 
-    popen_t pid  ( path, args ); pid.pipe(); return pid;
+    popen_t pid( path, args );process::add([=](){ return pid.next(); }); return pid;
     }
 
-    popen_t async( const string_t& path ){
-     return async( path, { path } );
-    }
+    popen_t async( const string_t& path ){ return async( path, { path } ); }
     
     /*─······································································─*/
     

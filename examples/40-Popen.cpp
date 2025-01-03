@@ -6,20 +6,9 @@ using namespace nodepp;
 void onMain(){
 
     array_t<string_t> cmd ({ "curl", "http://www.google.com/", "-Ls" });
-    auto p = popen::async( cmd[0], cmd );
+    auto pid = popen::async( cmd[0], cmd );
 
-    p.onDout([]( string_t chunk ){
-        conio::done("stdout: ");
-        console::log( chunk );
-    });
-
-    p.onDerr([]( string_t chunk ){
-        conio::error("stderr: ");
-        console::log( chunk );
-    });
-
-    p.onData([]( string_t chunk ){
-        console::log( ":>", chunk );
-    });
+    pid.onData([]( string_t data ){ console::log( data ); });
+    pid.onClose([=](){ console::log("done"); });
 
 }
