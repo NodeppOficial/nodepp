@@ -130,9 +130,9 @@ namespace nodepp { namespace encoder { namespace bin {
 namespace nodepp { namespace encoder { namespace hex {
 
     template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
-    string_t get( T num ){ string_t out = nullptr; uchar x=num; do {
-             out.unshift( BASE8[x&(T)(0xf)] ); x >>= 4;
-        } while( x != 0 ); return out;
+    string_t get( T num ){ string_t out = nullptr; do {
+             out.unshift( BASE8[num&(T)(0xf)] ); num >>= 4;
+        } while( num != 0 ); return out;
     }
 
     template< class T, class = typename type::enable_if<type::is_integral<T>::value,T>::type >
